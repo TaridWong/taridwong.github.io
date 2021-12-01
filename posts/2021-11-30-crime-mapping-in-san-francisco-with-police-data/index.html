@@ -91,7 +91,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 <meta property="description" itemprop="description" content="In this entry, we will explore San Francisco crime data from 2016 to 2018 to understand the relationship between civilian-reported incidents of crime and police-reported incidents of crime. Along the way we will use table intersection methods to subset our data, aggregation methods to calculate important statistics, and simple visualizations to understand crime trends.  &#10;&#10;(7 min read)"/>
 
-<link rel="canonical" href="https://taridwg.netlify.app/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/"/>
+<link rel="canonical" href="https://taridwong.github.io/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/"/>
 <link rel="license" href="https://creativecommons.org/licenses/by/4.0/"/>
 
 <!--  https://schema.org/Article -->
@@ -103,8 +103,8 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <meta property="og:title" content="Tarid Wongvorachan: Crime mapping in San Francisco with police data"/>
 <meta property="og:type" content="article"/>
 <meta property="og:description" content="In this entry, we will explore San Francisco crime data from 2016 to 2018 to understand the relationship between civilian-reported incidents of crime and police-reported incidents of crime. Along the way we will use table intersection methods to subset our data, aggregation methods to calculate important statistics, and simple visualizations to understand crime trends.  &#10;&#10;(7 min read)"/>
-<meta property="og:url" content="https://taridwg.netlify.app/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/"/>
-<meta property="og:image" content="https://taridwg.netlify.app/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/crime-mapping-in-san-francisco-with-police-data_files/figure-html5/unnamed-chunk-6-1.png"/>
+<meta property="og:url" content="https://taridwong.github.io/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/"/>
+<meta property="og:image" content="https://taridwong.github.io/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/crime-mapping-in-san-francisco-with-police-data_files/figure-html5/unnamed-chunk-6-1.png"/>
 <meta property="og:image:width" content="1920"/>
 <meta property="og:image:height" content="1920"/>
 <meta property="og:locale" content="en_US"/>
@@ -114,14 +114,14 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <meta property="twitter:card" content="summary_large_image"/>
 <meta property="twitter:title" content="Tarid Wongvorachan: Crime mapping in San Francisco with police data"/>
 <meta property="twitter:description" content="In this entry, we will explore San Francisco crime data from 2016 to 2018 to understand the relationship between civilian-reported incidents of crime and police-reported incidents of crime. Along the way we will use table intersection methods to subset our data, aggregation methods to calculate important statistics, and simple visualizations to understand crime trends.  &#10;&#10;(7 min read)"/>
-<meta property="twitter:url" content="https://taridwg.netlify.app/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/"/>
-<meta property="twitter:image" content="https://taridwg.netlify.app/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/crime-mapping-in-san-francisco-with-police-data_files/figure-html5/unnamed-chunk-6-1.png"/>
+<meta property="twitter:url" content="https://taridwong.github.io/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/"/>
+<meta property="twitter:image" content="https://taridwong.github.io/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/crime-mapping-in-san-francisco-with-police-data_files/figure-html5/unnamed-chunk-6-1.png"/>
 <meta property="twitter:image:width" content="1920"/>
 <meta property="twitter:image:height" content="1920"/>
 
 <!--  https://scholar.google.com/intl/en/scholar/inclusion.html#indexing -->
 <meta name="citation_title" content="Tarid Wongvorachan: Crime mapping in San Francisco with police data"/>
-<meta name="citation_fulltext_html_url" content="https://taridwg.netlify.app/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/"/>
+<meta name="citation_fulltext_html_url" content="https://taridwong.github.io/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/"/>
 <meta name="citation_fulltext_world_readable" content=""/>
 <meta name="citation_online_date" content="2021/11/30"/>
 <meta name="citation_publication_date" content="2021/11/30"/>
@@ -131,7 +131,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--radix_placeholder_rmarkdown_metadata-->
 
 <script type="text/json" id="radix-rmarkdown-metadata">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["creative_commons","title","description","author","date","categories","output","citation_url","canonical_url"]}},"value":[{"type":"character","attributes":{},"value":["CC BY"]},{"type":"character","attributes":{},"value":["Crime mapping in San Francisco with police data"]},{"type":"character","attributes":{},"value":["In this entry, we will explore San Francisco crime data from 2016 to 2018 to understand the relationship between civilian-reported incidents of crime and police-reported incidents of crime. Along the way we will use table intersection methods to subset our data, aggregation methods to calculate important statistics, and simple visualizations to understand crime trends.  \n\n(7 min read)"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Tarid Wongvorachan"]},{"type":"character","attributes":{},"value":["University of Alberta"]},{"type":"character","attributes":{},"value":["https://www.ualberta.ca"]}]}]},{"type":"character","attributes":{},"value":["2021-11-30"]},{"type":"character","attributes":{},"value":["Data Visualization","R","Quantitative research"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["code_folding","toc","toc_depth","toc_float","self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[true]},{"type":"logical","attributes":{},"value":[true]},{"type":"integer","attributes":{},"value":[2]},{"type":"logical","attributes":{},"value":[false]},{"type":"logical","attributes":{},"value":[false]}]}]},{"type":"character","attributes":{},"value":["https://taridwg.netlify.app/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/"]},{"type":"character","attributes":{},"value":["https://taridwg.netlify.app/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/"]}]}
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["creative_commons","title","description","author","date","categories","output","citation_url","canonical_url"]}},"value":[{"type":"character","attributes":{},"value":["CC BY"]},{"type":"character","attributes":{},"value":["Crime mapping in San Francisco with police data"]},{"type":"character","attributes":{},"value":["In this entry, we will explore San Francisco crime data from 2016 to 2018 to understand the relationship between civilian-reported incidents of crime and police-reported incidents of crime. Along the way we will use table intersection methods to subset our data, aggregation methods to calculate important statistics, and simple visualizations to understand crime trends.  \n\n(7 min read)"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Tarid Wongvorachan"]},{"type":"character","attributes":{},"value":["University of Alberta"]},{"type":"character","attributes":{},"value":["https://www.ualberta.ca"]}]}]},{"type":"character","attributes":{},"value":["2021-11-30"]},{"type":"character","attributes":{},"value":["Data Visualization","R","Quantitative research"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["code_folding","toc","toc_depth","toc_float","self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[true]},{"type":"logical","attributes":{},"value":[true]},{"type":"integer","attributes":{},"value":[2]},{"type":"logical","attributes":{},"value":[false]},{"type":"logical","attributes":{},"value":[false]}]}]},{"type":"character","attributes":{},"value":["https://taridwong.github.io/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/"]},{"type":"character","attributes":{},"value":["https://taridwong.github.io/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/"]}]}
 </script>
 <!--/radix_placeholder_rmarkdown_metadata-->
   
@@ -2948,16 +2948,16 @@ Show code
     </span>
     <span class="article-sharing">
       Share: &nbsp;
-      <a href="https://twitter.com/share?text=Crime%20mapping%20in%20San%20Francisco%20with%20police%20data&amp;url=https%3A%2F%2Ftaridwg.netlify.app%2Fposts%2F2021-11-30-crime-mapping-in-san-francisco-with-police-data%2F">
+      <a href="https://twitter.com/share?text=Crime%20mapping%20in%20San%20Francisco%20with%20police%20data&amp;url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2021-11-30-crime-mapping-in-san-francisco-with-police-data%2F">
         <i class="fab fa-twitter"></i>
       </a>
-      <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Ftaridwg.netlify.app%2Fposts%2F2021-11-30-crime-mapping-in-san-francisco-with-police-data%2F&amp;title=Crime%20mapping%20in%20San%20Francisco%20with%20police%20data">
+      <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2021-11-30-crime-mapping-in-san-francisco-with-police-data%2F&amp;title=Crime%20mapping%20in%20San%20Francisco%20with%20police%20data">
         <i class="fab fa-linkedin"></i>
       </a>
-      <a href="https://pinterest.com/pin/create/link/?url=https%3A%2F%2Ftaridwg.netlify.app%2Fposts%2F2021-11-30-crime-mapping-in-san-francisco-with-police-data%2F&amp;description=Crime%20mapping%20in%20San%20Francisco%20with%20police%20data">
+      <a href="https://pinterest.com/pin/create/link/?url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2021-11-30-crime-mapping-in-san-francisco-with-police-data%2F&amp;description=Crime%20mapping%20in%20San%20Francisco%20with%20police%20data">
         <i class="fab fa-pinterest"></i>
       </a>
-      <a href="https://www.facebook.com/sharer/sharer.php?s=100&amp;p[url]=https%3A%2F%2Ftaridwg.netlify.app%2Fposts%2F2021-11-30-crime-mapping-in-san-francisco-with-police-data%2F">
+      <a href="https://www.facebook.com/sharer/sharer.php?s=100&amp;p[url]=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2021-11-30-crime-mapping-in-san-francisco-with-police-data%2F">
         <i class="fab fa-facebook"></i>
       </a>
     </span>
@@ -2966,7 +2966,7 @@ Show code
   <div id="disqus_thread" class="hidden"></div>
   <script type="text/javascript" cookie-consent="functionality">
 var disqus_config = function () {
-  this.page.url = 'https://taridwg.netlify.app/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/';
+  this.page.url = 'https://taridwong.github.io/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/';
   this.page.identifier = 'posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/';
 };
 (function() {
@@ -3002,12 +3002,12 @@ var disqus_config = function () {
   <p>Text and figures are licensed under Creative Commons Attribution <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. The figures that have been reused from other sources don't fall under this license and can be recognized by a note in their caption: "Figure from ...".</p>
   <h3 id="citation">Citation</h3>
   <p>For attribution, please cite this work as</p>
-  <pre class="citation-appendix short">Wongvorachan (2021, Nov. 30). Tarid Wongvorachan: Crime mapping in San Francisco with police data. Retrieved from https://taridwg.netlify.app/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/</pre>
+  <pre class="citation-appendix short">Wongvorachan (2021, Nov. 30). Tarid Wongvorachan: Crime mapping in San Francisco with police data. Retrieved from https://taridwong.github.io/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/</pre>
   <p>BibTeX citation</p>
   <pre class="citation-appendix long">@misc{wongvorachan2021crime,
   author = {Wongvorachan, Tarid},
   title = {Tarid Wongvorachan: Crime mapping in San Francisco with police data},
-  url = {https://taridwg.netlify.app/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/},
+  url = {https://taridwong.github.io/posts/2021-11-30-crime-mapping-in-san-francisco-with-police-data/},
   year = {2021}
 }</pre>
 </div>
