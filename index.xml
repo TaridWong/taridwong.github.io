@@ -7,7 +7,20 @@
     <description>Blogs about what I learned from my academic lives
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Tue, 30 Nov 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 04 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Anomaly Detection with New York City taxi data</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2021-12-04-anomaly-detection-with-new-york-city-taxi-data</link>
+      <description>In this entry, I will be conducting anomaly detection to identify points of anomaly in the taxi passengers data in New York City from July 2014 to January 2015 at half-hourly intervals.
+ 
+ (4 min read)</description>
+      <category>Unsupervised Machine Learning</category>
+      <category>R</category>
+      <guid>https://taridwong.github.io/posts/2021-12-04-anomaly-detection-with-new-york-city-taxi-data</guid>
+      <pubDate>Sat, 04 Dec 2021 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2021-12-04-anomaly-detection-with-new-york-city-taxi-data/anomaly-detection-with-new-york-city-taxi-data_files/figure-html5/unnamed-chunk-9-1.png" medium="image" type="image/png" width="1248" height="768"/>
+    </item>
     <item>
       <title>Crime mapping in San Francisco with police data</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -31,8 +44,6 @@
 (7 min read)</description>
       <category>Natural Language Processing</category>
       <category>Python</category>
-      <category>Topic modeling</category>
-      <category>Qualitative research</category>
       <category>COVID-19</category>
       <guid>https://taridwong.github.io/posts/2021-11-18-exploring-covid-19-data-from-twitter-with-word-clouds</guid>
       <pubDate>Tue, 23 Nov 2021 00:00:00 +0000</pubDate>
