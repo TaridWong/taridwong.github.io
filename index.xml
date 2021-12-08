@@ -7,7 +7,21 @@
     <description>Blogs about what I learned from my academic lives
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Sat, 04 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 07 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Image Recognition with Artificial Neural Networks</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2021-12-07-image-recognition-with-artificial-neural-networks</link>
+      <description>In this entry, we will be developing a deep learning algorithm - a sub-field of machine learning inspired by the structure of human brain (neural networks) - to classify images of single digit number (0-9).  
+
+(9 min read)</description>
+      <category>Python</category>
+      <category>Supervised Machine Learning</category>
+      <category>Deep Learning</category>
+      <guid>https://taridwong.github.io/posts/2021-12-07-image-recognition-with-artificial-neural-networks</guid>
+      <pubDate>Tue, 07 Dec 2021 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2021-12-07-image-recognition-with-artificial-neural-networks/deepnn.jpg" medium="image" type="image/jpeg"/>
+    </item>
     <item>
       <title>Anomaly Detection with New York City taxi data</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -42,8 +56,9 @@
       <description>This entry focuses on the exploration of twitter data from Alberta's Chief Medical Officer of Health via word cloud and topic modeling to gain insights in characteristics of public health messaging during the COVID-19 pandemic.  
 
 (7 min read)</description>
-      <category>Natural Language Processing</category>
       <category>Python</category>
+      <category>Natural Language Processing</category>
+      <category>Unsupervised Machine Learning</category>
       <category>COVID-19</category>
       <guid>https://taridwong.github.io/posts/2021-11-18-exploring-covid-19-data-from-twitter-with-word-clouds</guid>
       <pubDate>Tue, 23 Nov 2021 00:00:00 +0000</pubDate>
