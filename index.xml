@@ -7,7 +7,21 @@
     <description>Blogs about what I learned from my academic lives
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Tue, 07 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 09 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Interactive plots for Suicide Data</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2021-12-08-interactive-dashboard-for-suicide-data</link>
+      <description>For this entry, will be visualizing suicide data from 1958 to 2015 with interactive plots to communicate insights to non-technical audience.  
+
+(14 min read)</description>
+      <category>R</category>
+      <category>Data Visualization</category>
+      <category>Quantitative research</category>
+      <guid>https://taridwong.github.io/posts/2021-12-08-interactive-dashboard-for-suicide-data</guid>
+      <pubDate>Thu, 09 Dec 2021 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2021-12-08-interactive-dashboard-for-suicide-data/preview.jpg" medium="image" type="image/jpeg"/>
+    </item>
     <item>
       <title>Image Recognition with Artificial Neural Networks</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
