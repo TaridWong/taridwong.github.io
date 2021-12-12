@@ -7,7 +7,21 @@
     <description>Blogs about what I learned from my academic lives
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Thu, 09 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 11 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Applying Machine Learning to Audio Data: Visualization, Classification, and Recommendation</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2021-12-11-applying-machine-learning-to-audio-data</link>
+      <description>For this entry, I am trying my hands on audio data to extract its features for exploratory data analysis (EDA), using machine learning algorithms to perform music classification, and finally build up on that result to develop a recommendation system for music of similar characteristics.
+
+(13 min read)</description>
+      <category>Python</category>
+      <category>Data Visualization</category>
+      <category>Supervised Machine Learning</category>
+      <guid>https://taridwong.github.io/posts/2021-12-11-applying-machine-learning-to-audio-data</guid>
+      <pubDate>Sat, 11 Dec 2021 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2021-12-11-applying-machine-learning-to-audio-data/applying-machine-learning-to-audio-data_files/figure-html5/unnamed-chunk-13-11.png" medium="image" type="image/png" width="3072" height="1152"/>
+    </item>
     <item>
       <title>Interactive plots for Suicide Data</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
