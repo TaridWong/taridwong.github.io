@@ -7,7 +7,261 @@
     <description>Blogs about what I learned from my academic lives
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Mon, 27 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 29 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Measuring Text Similarity with Movie plot data</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2021-12-29-movie-similarity</link>
+      <description>
+
+
+&lt;h2 id="introduction"&gt;Introduction&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;One characteristic of textual data in the real world setting is that most of them possess meaning that to convey to their intended audience. The meaning of one message could be similar to another when they are crafted for similar purposes. With the right tool, we can identify such similarities and visualize them to extract insights from textual data.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The data set I will use in this post are movie plot summaries available on IMDb and Wikipedia. Here, I will quantify the similarity of movies based on their plot and separate them into groups before plotting them on a dendrogram to represent how closely the movies are related to each other.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;As always, we will begin by importing necessary modules and dataset.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Import modules
+import numpy as np
+import pandas as pd
+import nltk
+
+# Set seed for reproducibility
+np.random.seed(5)
+
+# Read in IMDb and Wikipedia movie data (both in the same file)
+movies_df = pd.read_csv(&amp;quot;movies.csv&amp;quot;)
+
+print(&amp;quot;Number of movies loaded: %s &amp;quot; % (len(movies_df)))
+
+# Display the data&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Number of movies loaded: 100 &lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;movies_df&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;    rank  ...                                          imdb_plot
+0      0  ...  In late summer 1945, guests are gathered for t...
+1      1  ...  In 1947, Andy Dufresne (Tim Robbins), a banker...
+2      2  ...  The relocation of Polish Jews from surrounding...
+3      3  ...  The film opens in 1964, where an older and fat...
+4      4  ...  In the early years of World War II, December 1...
+..   ...  ...                                                ...
+95    95  ...  Shortly after moving to Los Angeles with his p...
+96    96  ...  L.B. &amp;quot;Jeff&amp;quot; Jeffries (James Stewart) recuperat...
+97    97  ...  Sights of Vienna, Austria, flash across the sc...
+98    98  ...  At the end of an ordinary work day, advertisin...
+99    99  ...                                                NaN
+
+[100 rows x 5 columns]&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="combine-wikipedia-and-imdb-plot-summaries"&gt;Combine Wikipedia and IMDb plot summaries&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The dataset we imported currently contains two columns titled &lt;code&gt;wiki_plot&lt;/code&gt; and &lt;code&gt;imdb_plot&lt;/code&gt;. They are the plot found for the movies on Wikipedia and IMDb, respectively. The text in the two columns is similar, however, they are often written in different tones and thus provide context on a movie in a different manner of linguistic expression. Further, sometimes the text in one column may mention a feature of the plot that is not present in the other column. For example, consider the following plot extracts from &lt;em&gt;The Godfather&lt;/em&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Wikipedia: “On the day of his only daughter’s wedding, Vito Corleone…”&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;IMDb: “In late summer 1945, guests are gathered for the wedding reception of Don Vito Corleone’s daughter Connie”&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;While the Wikipedia plot only mentions it is the day of the daughter’s wedding, the IMDb plot also mentions the year of the scene and the name of the daughter. We can combine them to avoid the overheads in computation associated with extra columns to process.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Combine wiki_plot and imdb_plot into a single column
+movies_df[&amp;quot;plot&amp;quot;] = movies_df[&amp;quot;wiki_plot&amp;quot;].astype(str) + &amp;quot;\n&amp;quot; + \
+                    movies_df[&amp;quot;imdb_plot&amp;quot;].astype(str)
+                    
+movies_df.head()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;   rank  ...                                               plot
+0     0  ...  On the day of his only daughter&amp;#39;s wedding, Vit...
+1     1  ...  In 1947, banker Andy Dufresne is convicted of ...
+2     2  ...  In 1939, the Germans move Polish Jews into the...
+3     3  ...  In a brief scene in 1964, an aging, overweight...
+4     4  ...  It is early December 1941. American expatriate...
+
+[5 rows x 6 columns]&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="tokenization"&gt;Tokenization&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Tokenization is the process by which we break down articles into individual sentences or words, as needed. We can also use the regular expression (Regex) method to remove tokens that are entirely numeric values or punctuation to retain only words with meaning.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;As an example, we will perform tokenization on a part of Godfather’s plot. Notice that quotation marks and numbers were removed in the output.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Tokenize a paragraph into sentences and store in sent_tokenized
+sent_tokenized = [sent for sent in nltk.sent_tokenize(&amp;quot;&amp;quot;&amp;quot;
+                        Today (May 19, 2016) is his only daughter&amp;#39;s wedding. 
+                        Vito Corleone is the Godfather.
+                        &amp;quot;&amp;quot;&amp;quot;)]
+                        
+# Word Tokenize first sentence from sent_tokenized, save as words_tokenized
+
+words_tokenized = [word for word in nltk.word_tokenize(sent_tokenized[0])]
+
+# Remove tokens that do not contain any letters from words_tokenized
+import re
+
+filtered = [word for word in words_tokenized if re.search(&amp;#39;[a-zA-Z]&amp;#39;, word)]
+
+# Display filtered words to observe words after tokenization
+filtered&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[&amp;#39;Today&amp;#39;, &amp;#39;May&amp;#39;, &amp;#39;is&amp;#39;, &amp;#39;his&amp;#39;, &amp;#39;only&amp;#39;, &amp;#39;daughter&amp;#39;, &amp;quot;&amp;#39;s&amp;quot;, &amp;#39;wedding&amp;#39;]&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="stemming"&gt;Stemming&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Stemming is the process by which we bring down a word from its different forms to the root word (or to stem). This helps us establish meaning to different forms of the same words without having to deal with each form separately. For example, the words ‘fishing’, ‘fished’, and ‘fisher’ all get stemmed to the word ‘fish’.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Consider the following sentences:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;“Young William Wallace witnesses the treachery of Longshanks” - &lt;em&gt;Gladiator&lt;/em&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;“escapes to the city walls only to witness Cicero’s death” - &lt;em&gt;Braveheart&lt;/em&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Instead of building separate dictionary entries for both witnesses and witness, which mean the same thing outside of quantity, stemming them reduces them to ‘wit’.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;There are different algorithms available for stemming such as the Porter Stemmer and Snowball Stemmer. Here, we will use Snowball Stemmer.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Import the SnowballStemmer to perform stemming
+from nltk.stem.snowball import SnowballStemmer
+
+# Create an English language SnowballStemmer object
+stemmer = SnowballStemmer(&amp;quot;english&amp;quot;)
+
+# Print filtered to observe words without stemming
+print(&amp;quot;Without stemming: &amp;quot;, filtered)
+
+# Stem the words from filtered and store in stemmed_words&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Without stemming:  [&amp;#39;Today&amp;#39;, &amp;#39;May&amp;#39;, &amp;#39;is&amp;#39;, &amp;#39;his&amp;#39;, &amp;#39;only&amp;#39;, &amp;#39;daughter&amp;#39;, &amp;quot;&amp;#39;s&amp;quot;, &amp;#39;wedding&amp;#39;]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;stemmed_words = [stemmer.stem(t) for t in filtered]
+
+# Print the stemmed_words to observe words after stemming
+print(&amp;quot;After stemming:   &amp;quot;, stemmed_words)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;After stemming:    [&amp;#39;today&amp;#39;, &amp;#39;may&amp;#39;, &amp;#39;is&amp;#39;, &amp;#39;his&amp;#39;, &amp;#39;onli&amp;#39;, &amp;#39;daughter&amp;#39;, &amp;quot;&amp;#39;s&amp;quot;, &amp;#39;wed&amp;#39;]&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="tokenization-and-stemming-together"&gt;Tokenization and Stemming together&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;We are now able to tokenize and stem sentences. But we may have to use the two functions repeatedly one after the other to handle a large amount of data, hence we can think of wrapping them in a function and passing the text to be tokenized and stemmed as the function argument. Then we can pass the new wrapping function, which shall perform both tokenizing and stemming instead of just tokenizing, as the tokenizer argument while creating the TF-IDF vector of the text (we will get there to what TF-IDF means).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;All the words are in their root form, which will lead to a better establishment of meaning as some of the non-root forms may not be present in the NLTK training corpus.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Define a function to perform both stemming and tokenization
+def tokenize_and_stem(text):
+    
+    # Tokenize by sentence, then by word
+    tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)]
+    
+    # Filter out raw tokens to remove noise
+    filtered_tokens = [token for token in tokens if re.search(&amp;#39;[a-zA-Z]&amp;#39;, token)]
+    
+    # Stem the filtered_tokens
+    stems = [stemmer.stem(t) for t in filtered_tokens]
+    
+    return stems
+
+words_stemmed = tokenize_and_stem(&amp;quot;Today (May 19, 2016) is his only daughter&amp;#39;s wedding.&amp;quot;)
+print(words_stemmed)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[&amp;#39;today&amp;#39;, &amp;#39;may&amp;#39;, &amp;#39;is&amp;#39;, &amp;#39;his&amp;#39;, &amp;#39;onli&amp;#39;, &amp;#39;daughter&amp;#39;, &amp;quot;&amp;#39;s&amp;quot;, &amp;#39;wed&amp;#39;]&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="create-tf-idf-vectorizer"&gt;Create TF-IDF Vectorizer&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Computers do not &lt;em&gt;understand&lt;/em&gt; text. These are machines only capable of understanding numbers and performing numerical computation. Hence, we must convert our textual plot summaries to numbers for the computer to be able to extract meaning from them. One simple method of doing this would be to count all the occurrences of each word in the entire vocabulary and return the counts in a vector. This method is called &lt;code&gt;CountVectorizer.&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Consider the word ‘the’. It appears quite frequently in almost all movie plots and will have a high count in each case. However, “the” could hardly be counted as the movie plot itself. For that, &lt;a href="https://en.wikipedia.org/wiki/Tf%E2%80%93idf"&gt;Term Frequency-Inverse Document Frequency&lt;/a&gt; (TF-IDF) is one method that overcomes the shortcomings of &lt;code&gt;CountVectorizer&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;In TF-IDF, frequency of a word is the measure of how often it appears in a document, while the Inverse Document Frequency is the parameter which reduces the importance of a word if it frequently appears in several documents. In simplest terms, TF-IDF recognizes words which are unique and important to any given document.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Import TfidfVectorizer to create TF-IDF vectors
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Instantiate TfidfVectorizer object with stopwords and tokenizer
+# parameters for efficient processing of text
+tfidf_vectorizer = TfidfVectorizer(max_df=0.8, max_features=200000,
+                                 min_df=0.2, stop_words=&amp;#39;english&amp;#39;,
+                                 use_idf=True, tokenizer=tokenize_and_stem,
+                                 ngram_range=(1,3))&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="fit-transform-tf-idf-vectorizer"&gt;Fit transform TF-IDF Vectorizer&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Once we create a TF-IDF Vectorizer, we must fit the text to it and then transform the text to produce the corresponding numeric form of the data which the computer will be able to understand and derive meaning from. To do this, we use the &lt;code&gt;fit_transform()&lt;/code&gt; method of the &lt;code&gt;TfidfVectorizer&lt;/code&gt; object.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;In the TF-IDF object, there is a parameter called &lt;code&gt;stopwords&lt;/code&gt;. Stopwords are those words in a given text which do not contribute considerably towards the meaning of the sentence and are generally grammatical filler words. For example, in the sentence ‘Dorothy Gale lives with her dog Toto on the farm of her Aunt Em and Uncle Henry’, we could drop the words ‘her’ and ‘the’, and still have a similar overall meaning to the sentence. Thus, ‘her’ and ‘the’ are stopwords and can be conveniently dropped from the sentence.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;On setting the stopwords to ‘english’, we direct the vectorizer to drop all stopwords from a pre-defined list of English language stopwords present in the nltk module. Another parameter, &lt;code&gt;ngram_range&lt;/code&gt;, defines the length of the ngrams to be formed while vectorizing the text.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Fit and transform the tfidf_vectorizer with the &amp;quot;plot&amp;quot; of each movie
+# to create a vector representation of the plot summaries
+tfidf_matrix = tfidf_vectorizer.fit_transform([x for x in movies_df[&amp;quot;plot&amp;quot;]])&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;C:\Users\tarid\AppData\Roaming\Python\Python38\site-packages\sklearn\feature_extraction\text.py:383: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens [&amp;#39;abov&amp;#39;, &amp;#39;afterward&amp;#39;, &amp;#39;alon&amp;#39;, &amp;#39;alreadi&amp;#39;, &amp;#39;alway&amp;#39;, &amp;#39;ani&amp;#39;, &amp;#39;anoth&amp;#39;, &amp;#39;anyon&amp;#39;, &amp;#39;anyth&amp;#39;, &amp;#39;anywher&amp;#39;, &amp;#39;becam&amp;#39;, &amp;#39;becaus&amp;#39;, &amp;#39;becom&amp;#39;, &amp;#39;befor&amp;#39;, &amp;#39;besid&amp;#39;, &amp;#39;cri&amp;#39;, &amp;#39;describ&amp;#39;, &amp;#39;dure&amp;#39;, &amp;#39;els&amp;#39;, &amp;#39;elsewher&amp;#39;, &amp;#39;empti&amp;#39;, &amp;#39;everi&amp;#39;, &amp;#39;everyon&amp;#39;, &amp;#39;everyth&amp;#39;, &amp;#39;everywher&amp;#39;, &amp;#39;fifti&amp;#39;, &amp;#39;forti&amp;#39;, &amp;#39;henc&amp;#39;, &amp;#39;hereaft&amp;#39;, &amp;#39;herebi&amp;#39;, &amp;#39;howev&amp;#39;, &amp;#39;hundr&amp;#39;, &amp;#39;inde&amp;#39;, &amp;#39;mani&amp;#39;, &amp;#39;meanwhil&amp;#39;, &amp;#39;moreov&amp;#39;, &amp;#39;nobodi&amp;#39;, &amp;#39;noon&amp;#39;, &amp;#39;noth&amp;#39;, &amp;#39;nowher&amp;#39;, &amp;#39;onc&amp;#39;, &amp;#39;onli&amp;#39;, &amp;#39;otherwis&amp;#39;, &amp;#39;ourselv&amp;#39;, &amp;#39;perhap&amp;#39;, &amp;#39;pleas&amp;#39;, &amp;#39;sever&amp;#39;, &amp;#39;sinc&amp;#39;, &amp;#39;sincer&amp;#39;, &amp;#39;sixti&amp;#39;, &amp;#39;someon&amp;#39;, &amp;#39;someth&amp;#39;, &amp;#39;sometim&amp;#39;, &amp;#39;somewher&amp;#39;, &amp;#39;themselv&amp;#39;, &amp;#39;thenc&amp;#39;, &amp;#39;thereaft&amp;#39;, &amp;#39;therebi&amp;#39;, &amp;#39;therefor&amp;#39;, &amp;#39;togeth&amp;#39;, &amp;#39;twelv&amp;#39;, &amp;#39;twenti&amp;#39;, &amp;#39;veri&amp;#39;, &amp;#39;whatev&amp;#39;, &amp;#39;whenc&amp;#39;, &amp;#39;whenev&amp;#39;, &amp;#39;wherea&amp;#39;, &amp;#39;whereaft&amp;#39;, &amp;#39;wherebi&amp;#39;, &amp;#39;wherev&amp;#39;, &amp;#39;whi&amp;#39;, &amp;#39;yourselv&amp;#39;] not in stop_words.
+  warnings.warn(&amp;#39;Your stop_words may be inconsistent with &amp;#39;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print(tfidf_matrix.shape)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;(100, 564)&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="import-k-means-and-create-clusters"&gt;Import K-Means and create clusters&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;To determine how closely one movie is related to the other by the help of unsupervised machine learning, we can use clustering techniques. Clustering is the method of grouping together a number of items such that they exhibit similar properties. According to the measure of similarity desired, a given sample of items can have one or more clusters.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;A good basis of clustering in our data set could be the genre of the movies. Say we could have a cluster ‘0’ which holds movies of the ‘Drama’ genre, and ‘1’ for the ‘Adventure’ genre.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;K-means is an algorithm which helps us to implement clustering in Python. The name derives from its method of implementation: the given sample is divided into &lt;strong&gt;&lt;em&gt;K&lt;/em&gt;&lt;/strong&gt; clusters where each cluster is denoted by the &lt;strong&gt;&lt;em&gt;mean&lt;/em&gt;&lt;/strong&gt; of all the items lying in that cluster.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Here, we will examine how many movies we have in each of the five clusters we specified; then, we will visualize them with a category plot.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Import k-means to perform clustering
+from sklearn.cluster import KMeans
+
+# Create a KMeans object with 5 clusters and save as km
+km = KMeans(n_clusters=5)
+
+# Fit the k-means object with tfidf_matrix
+km.fit(tfidf_matrix)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;KMeans(n_clusters=5)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;clusters = km.labels_.tolist()
+
+# Create a column cluster to denote the generated cluster for each movie
+movies_df[&amp;quot;cluster&amp;quot;] = clusters
+
+# Display number of films per cluster (clusters from 0 to 4)
+movies_df[&amp;#39;cluster&amp;#39;].value_counts() &lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;3    31
+1    27
+0    22
+4    13
+2     7
+Name: cluster, dtype: int64&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;import seaborn as sns
+import matplotlib.pyplot as plt
+
+#convert the cluster list into a dataframe
+clusters_df = pd.DataFrame(clusters, columns = [&amp;#39;cluster_group&amp;#39;])
+
+sns.set_theme(style=&amp;quot;whitegrid&amp;quot;)
+sns.catplot(x=&amp;quot;cluster_group&amp;quot;, kind=&amp;quot;count&amp;quot;, data=clusters_df)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;seaborn.axisgrid.FacetGrid object at 0x000000006C264A90&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="calculate-similarity-distance"&gt;Calculate similarity distance&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;By using &lt;code&gt;countvectorizer&lt;/code&gt;, we can turn a sentence into numbers for the computer to calculate similarity distance with the cosine similarity measurement (it is basically a number that indicates how closely related the two sets of words are).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Import cosine_similarity to calculate similarity of movie plots
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Calculate the similarity distance
+similarity_distance = 1 - cosine_similarity(tfidf_matrix)&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="import-matplotlib-linkage-and-dendrograms"&gt;Import Matplotlib, Linkage, and Dendrograms&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;We will then create a dendrogram of the movie title based on its plot similarity to visualize the level of similarity between our data points.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Dendrograms help visualize the results of hierarchical clustering, which is an alternative to k-means clustering. Two pairs of movies at the same level of hierarchical clustering are expected to have similar strength of similarity between the corresponding pairs of movies.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The more similar the two movies are, the closer they will be together as they travel down the dendrogram path. The plot is a little large to accommodate the number of data points, so you might need to zoom in to see which movie is similar to which.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Import modules necessary to plot dendrogram
+from scipy.cluster.hierarchy import linkage, dendrogram
+
+# Create mergings matrix 
+mergings = linkage(similarity_distance, method=&amp;#39;complete&amp;#39;)
+
+# Plot the dendrogram, using title as label column
+dendrogram_ = dendrogram(mergings,
+               labels=[x for x in movies_df[&amp;quot;title&amp;quot;]],
+               leaf_rotation=90,
+               leaf_font_size=16,
+)
+
+# Adjust the plot
+fig = plt.gcf()
+_ = [lbl.set_color(&amp;#39;r&amp;#39;) for lbl in plt.gca().get_xmajorticklabels()]
+fig.set_size_inches(120, 50)
+
+# Show the plotted dendrogram
+plt.grid(False)
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file2bd447cc19ff_files/figure-html/unnamed-chunk-13-1.png" width="11520" /&gt;&lt;/p&gt;
+&lt;h2 id="concluding-remark"&gt;Concluding remark&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;While I am not an expert in movie critique, the movie plot data is a good venue to practice text cleaning with tokenization and stemming. The TF-IDF method is also widely implemented to extract meaningful information from textual data in general. Lastly, clustering is also a useful exploratory machine learning method to gain insights from unlabeled data to inform our decisions.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;This post combines both Narutal Language Processing and Machine Learning techniques to calculate similarity score between sets of words. This method can be used to establish a groundwork for a recommendation system that we often seen in popular sites such as Netflix or Spotify by grouping movies or musics together to recommend them to users. As always, thank you very much for reading!&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>97ed681d6820c89f6bb644175087be55</distill:md5>
+      <category>Python</category>
+      <category>Natural Language Processing</category>
+      <category>Unsupervised Machine Learning</category>
+      <guid>https://taridwong.github.io/posts/2021-12-29-movie-similarity</guid>
+      <pubDate>Wed, 29 Dec 2021 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2021-12-29-movie-similarity/movie-similarity_files/figure-html5/unnamed-chunk-11-1.png" medium="image" type="image/png" width="484" height="483"/>
+    </item>
     <item>
       <title>Missing Data Analysis</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -94,7 +348,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 9 ADAPTIVITY   numeric          2197         9.70              65
 # ... with 1 more variable: unique_rate &amp;lt;dbl&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(PISA_Subsetted, sort_miss = TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29d8718c52ce_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;If we are curious about the proportion of missing data by groups, we can also group the dataset by our categorical variable of interest, say, gender, before examining the missingness ratio.&lt;/li&gt;
 &lt;/ul&gt;
@@ -132,7 +386,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;oceanbuoys %&amp;gt;% arrange(year) %&amp;gt;% vis_miss()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29d8718c52ce_files/figure-html/unnamed-chunk-7-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-7-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Missing Not at Random (MNAR)&lt;/p&gt;
 &lt;ul&gt;
@@ -150,7 +404,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;li&gt;An upset plot from the &lt;code&gt;UpSetR&lt;/code&gt; package can be used to visualize the patterns of missingness, or rather the combinations of missingness across cases and variables.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_upset(PISA_Subsetted, nsets = 9, nintersects = 15)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29d8718c52ce_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The small bar plot to the left indicated the amount of missingness in variables. Consistent with the missingness diagnosis, the variable &lt;code&gt;BEINGBULLIED&lt;/code&gt; has the most missing data, following by &lt;code&gt;DAYSKIP&lt;/code&gt; and &lt;code&gt;CLASSKIP&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;The dot plot to the right showed combinations of variable that are missing in the data set. For example, there are 1,234 cases that have missing data in the variable &lt;code&gt;LATE&lt;/code&gt;, &lt;code&gt;CLASSKIP&lt;/code&gt;, &lt;code&gt;DAYSKIP&lt;/code&gt;, and &lt;code&gt;BEINGBULLIED&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
@@ -178,7 +432,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 8          3341      1     11.1
 9          3833      1     11.1&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_var(PISA_Subsetted, show_pct = TRUE) &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29d8718c52ce_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h4 id="missingness-in-cases-with-gg_miss_case"&gt;Missingness in cases with &lt;code&gt;gg_miss_case&lt;/code&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot shows the number of missing values in each case. For example, the table showed that there are 2 cases with 9 missing variables (i.e., no data in all variables), and there are 1050 cases with 8 missing variables.&lt;/li&gt;
@@ -198,17 +452,17 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
  9              8    1050   4.64   
 10              9       2   0.00883&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_case(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29d8718c52ce_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h4 id="missingness-across-factors-with-gg_miss_fct"&gt;Missingness across factors with &lt;code&gt;gg_miss_fct&lt;/code&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot shows the number of missingness in each column, broken down by a categorical variable from the dataset.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_fct(x = PISA_Subsetted, fct = REPEAT) + 
   labs(title = &amp;quot;Missing data by the History of Class Repetition&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29d8718c52ce_files/figure-html/unnamed-chunk-11-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-11-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_fct(x = PISA_Subsetted, fct = LATE) + 
   labs(title = &amp;quot;Missing data by Lateness History&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29d8718c52ce_files/figure-html/unnamed-chunk-11-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-11-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The heatmap above showed the proportion of missing data we have in each response of the selected categorical variable; for example, the history of class repetition (&lt;code&gt;REPEAT&lt;/code&gt;), with &lt;code&gt;0&lt;/code&gt; as no, &lt;code&gt;1&lt;/code&gt; as yes, and &lt;code&gt;NA&lt;/code&gt; as missing.&lt;/li&gt;
 &lt;/ul&gt;
@@ -218,7 +472,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_span(PISA_Subsetted, REPEAT, span_every = 2000) +
   theme_dark()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29d8718c52ce_files/figure-html/unnamed-chunk-12-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-12-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The plot went over the data and showed us how many missing data we have every 2000 data points that it went through.&lt;/li&gt;
 &lt;/ul&gt;
@@ -227,12 +481,12 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;li&gt;This plot showed the cumulative amount of missing value over the data set. A sharp increase in cumulative missing value could indicate missing patterns to be discovered.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% gg_miss_case_cumsum(breaks = 2000) + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29d8718c52ce_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot showed the cumulative amount of missing value over the variable. We could examine the relative proportion of missing values across variables via this plot.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% gg_miss_var_cumsum() + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29d8718c52ce_files/figure-html/unnamed-chunk-14-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-14-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2 id="what-should-we-do-with-the-missing-data"&gt;What should we do with the missing data&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Now that we know we have missing data, there are numerous ways we can deal with it such as disregarding them with complete case analysis, or making educated guesses with imputation.&lt;/p&gt;&lt;/li&gt;
@@ -319,7 +573,7 @@ head()&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;We can try plotting the data on a margin plot to see the result of our mean imputation.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_meanimp %&amp;gt;% select(DISCLIMA, ADAPTIVITY, DISCLIMA_imp, ADAPTIVITY_imp) %&amp;gt;% marginplot(delimiter=&amp;quot;imp&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29d8718c52ce_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;You can see that all missing values were replaced by the mean of that variable. Yes, we got the data back, but what did it cost?&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Mean imputation destroys relationship between variables.&lt;/p&gt;&lt;/li&gt;
