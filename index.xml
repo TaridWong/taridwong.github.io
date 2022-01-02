@@ -7,7 +7,530 @@
     <description>Blogs about what I learned from my academic lives
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Wed, 29 Dec 2021 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 01 Jan 2022 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Examining the Big 5 personality Dataset with factor analysis</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2022-01-01-efacfa</link>
+      <description>
+
+
+&lt;h2 id="introduction"&gt;Introduction&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The concept of Big 5 personality traits represents tendency of individuals to possess five personality characteristics of extraversion, agreeableness, openness, conscientiousness, and neuroticism &lt;a href="https://doi.org/10.1002/job.742"&gt;(Neal et al., 2012)&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Here, we will examine the data set with Exploratory Data Analysis (EFA) to see if we can identify any other structures aside from the original five groups as indicated by the concept of big 5 personality traits; then, we will verify those structures with Confirmatory Factor Analysis (CFA) to assess and compare their statistical characteristic (i.e., model fit).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We will begin by loading essential packages for data preprocessing and statistical modeling as indicated below.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;library(parameters) #for parameter processing
+library(tidyverse) #toolbox for R
+library(psych) #for descriptive statistics and the data set
+library(ggcorrplot) #for correlation matrix
+library(see) #add-on for ggplot2
+library(lavaan) #for SEM
+library(performance) #assessment of Regression Models Performance
+library(semPlot) #to plot path model for CFA
+library(dlookr) #missing data diagnosis
+library(mice) #missing data imputation&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="dataset"&gt;Dataset&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The data set we use is a built-in data set from &lt;code&gt;psych&lt;/code&gt; package. There are 2800 observations and 25 variables of all 5 personality traits.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We will begin by loading in the data set and check for its missing value.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# Load the data
+data &amp;lt;- psych::bfi[, 1:25]
+
+head(data)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;      A1 A2 A3 A4 A5 C1 C2 C3 C4 C5 E1 E2 E3 E4 E5 N1 N2 N3 N4 N5 O1
+61617  2  4  3  4  4  2  3  3  4  4  3  3  3  4  4  3  4  2  2  3  3
+61618  2  4  5  2  5  5  4  4  3  4  1  1  6  4  3  3  3  3  5  5  4
+61620  5  4  5  4  4  4  5  4  2  5  2  4  4  4  5  4  5  4  2  3  4
+61621  4  4  6  5  5  4  4  3  5  5  5  3  4  4  4  2  5  2  4  1  3
+61622  2  3  3  4  5  4  4  5  3  2  2  2  5  4  5  2  3  4  4  3  3
+61623  6  6  5  6  5  6  6  6  1  3  2  1  6  5  6  3  5  2  2  3  4
+      O2 O3 O4 O5
+61617  6  3  4  3
+61618  2  4  3  3
+61620  2  5  5  2
+61621  3  4  3  5
+61622  3  4  3  3
+61623  3  5  6  1&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#diagnose for missing value
+dlookr::diagnose(data)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 25 x 6
+   variables types   missing_count missing_percent unique_count
+   &amp;lt;chr&amp;gt;     &amp;lt;chr&amp;gt;           &amp;lt;int&amp;gt;           &amp;lt;dbl&amp;gt;        &amp;lt;int&amp;gt;
+ 1 A1        integer            16           0.571            7
+ 2 A2        integer            27           0.964            7
+ 3 A3        integer            26           0.929            7
+ 4 A4        integer            19           0.679            7
+ 5 A5        integer            16           0.571            7
+ 6 C1        integer            21           0.75             7
+ 7 C2        integer            24           0.857            7
+ 8 C3        integer            20           0.714            7
+ 9 C4        integer            26           0.929            7
+10 C5        integer            16           0.571            7
+# ... with 15 more rows, and 1 more variable: unique_rate &amp;lt;dbl&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(data, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;There are some degree of missingness in the dataset as indicated by the missingness map. For good measure, we will impute it with the predictive mean matchmaking method by the &lt;code&gt;mice&lt;/code&gt; package.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="data-preprocessing"&gt;Data preprocessing&lt;/h2&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#imputation
+mice_model &amp;lt;- mice(data, method=&amp;#39;pmm&amp;#39;, seed = 123)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+ iter imp variable
+  1   1  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  1   2  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  1   3  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  1   4  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  1   5  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  2   1  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  2   2  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  2   3  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  2   4  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  2   5  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  3   1  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  3   2  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  3   3  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  3   4  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  3   5  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  4   1  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  4   2  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  4   3  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  4   4  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  4   5  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  5   1  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  5   2  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  5   3  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  5   4  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5
+  5   5  A1  A2  A3  A4  A5  C1  C2  C3  C4  C5  E1  E2  E3  E4  E5  N1  N2  N3  N4  N5  O1  O3  O4  O5&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;data_complete &amp;lt;- complete(mice_model)
+
+visdat::vis_miss(data_complete, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;There is no missing value present in the dataset after the imputation. We can proceed with factor structure checking to assess whether the dataset is appropriate for factor analysis with &lt;code&gt;check_factorstructure()&lt;/code&gt;. Two existing methods are the &lt;em&gt;Bartlett’s Test of Sphericity&lt;/em&gt; and the &lt;em&gt;Kaiser, Meyer, Olkin (KMO)&lt;/em&gt; Measure of Sampling Adequacy (MSA).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The former tests whether a matrix is significantly different from an identity matrix. This statistical test for the presence of correlations among variables, providing the statistical probability that the correlation matrix has significant correlations among at least some of variables. As for factor analysis to work, some relationships between variables are needed, thus, a significant Bartlett’s test of sphericity is required to be significant.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The latter method, ranging from 0 to 1, indicates the degree to which each variable in the dataset is predicted without error by the other variables. A value of 0 indicates that the sum of partial correlations is large relative to the sum correlations, indicating factor analysis is likely to be inappropriate. A KMO value close to 1 indicates that the sum of partial correlations is not large relative to the sum of correlations and so factor analysis should yield distinct and reliable factors.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#check for factor structure
+check_factorstructure(data_complete)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# Is the data suitable for Factor Analysis?
+
+  - KMO: The Kaiser, Meyer, Olkin (KMO) measure of sampling adequacy suggests that data seems appropriate for factor analysis (KMO = 0.84).
+  - Sphericity: Bartlett&amp;#39;s test of sphericity suggests that there is sufficient significant correlation in the data for factor analysis (Chisq(300) = 20158.27, p &amp;lt; .001).&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The Barlett’s test suggested that there is sufficient significant correlation in the data for factor analysis. Speaking of correlation, let us generate a correlation matrix to check for relationship between variables in the dataset as well.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;variables.to.use&amp;lt;-c(&amp;quot;A1&amp;quot;, &amp;quot;A2&amp;quot;, &amp;quot;A3&amp;quot;, &amp;quot;A4&amp;quot;, &amp;quot;A5&amp;quot;,
+                    &amp;quot;C1&amp;quot;, &amp;quot;C2&amp;quot;, &amp;quot;C3&amp;quot;, &amp;quot;C4&amp;quot;, &amp;quot;C5&amp;quot;,
+                    &amp;quot;E1&amp;quot;, &amp;quot;E2&amp;quot;, &amp;quot;E3&amp;quot;, &amp;quot;E4&amp;quot;, &amp;quot;E5&amp;quot;,
+                    &amp;quot;N1&amp;quot;, &amp;quot;N2&amp;quot;, &amp;quot;N3&amp;quot;, &amp;quot;N4&amp;quot;, &amp;quot;N5&amp;quot;,
+                    &amp;quot;O1&amp;quot;, &amp;quot;O2&amp;quot;, &amp;quot;O3&amp;quot;, &amp;quot;O4&amp;quot;, &amp;quot;O5&amp;quot;)
+
+data.corr&amp;lt;-cor(data_complete[variables.to.use],
+                 method = &amp;quot;pearson&amp;quot;,
+                 use=&amp;#39;all.obs&amp;#39;)
+ggcorrplot(data.corr,
+           p.mat=cor_pmat(data_complete[variables.to.use]),
+           hc.order=TRUE, 
+           type=&amp;#39;lower&amp;#39;,
+           color=c(&amp;#39;red3&amp;#39;, &amp;#39;white&amp;#39;, &amp;#39;green3&amp;#39;),
+           outline.color = &amp;#39;darkgoldenrod1&amp;#39;, 
+           lab=FALSE, #omit the correlation coefficient
+           legend.title=&amp;#39;Correlation&amp;#39;,
+           pch=4, 
+           pch.cex=4, #size of the cross mark for non-significant indicator
+           lab_size=6)+ 
+  labs(title=&amp;quot;Correlation Matrix&amp;quot;)+
+  theme(plot.title=element_text(face=&amp;#39;bold&amp;#39;,size=14,hjust=0.5,colour=&amp;quot;darkred&amp;quot;))+
+  theme(legend.position=c(0.10,0.80), legend.box.just = &amp;quot;bottom&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-8-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The green panel indicates positive relationships while the red panel indicates negative relationship. The cross symbol suggests that the relationship between two variables is not statistically significant.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Next, we would need to split the dataset into two to perform EFA and CFA, so that we can make sure to test the model on an unseen set of data.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# Establish two sets of indices to split the dataset
+N &amp;lt;- nrow(data_complete)
+indices &amp;lt;- seq(1, N)
+indices_EFA &amp;lt;- sample(indices, floor((.5*N)))
+indices_CFA &amp;lt;- indices[!(indices %in% indices_EFA)]
+
+# Use those indices to split the dataset into halves for your EFA and CFA
+bfi_EFA &amp;lt;- data_complete[indices_EFA, ]
+bfi_CFA &amp;lt;- data_complete[indices_CFA, ]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;check_factorstructure(bfi_EFA)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# Is the data suitable for Factor Analysis?
+
+  - KMO: The Kaiser, Meyer, Olkin (KMO) measure of sampling adequacy suggests that data seems appropriate for factor analysis (KMO = 0.84).
+  - Sphericity: Bartlett&amp;#39;s test of sphericity suggests that there is sufficient significant correlation in the data for factor analysis (Chisq(300) = 10508.83, p &amp;lt; .001).&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;check_factorstructure(bfi_CFA)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# Is the data suitable for Factor Analysis?
+
+  - KMO: The Kaiser, Meyer, Olkin (KMO) measure of sampling adequacy suggests that data seems appropriate for factor analysis (KMO = 0.84).
+  - Sphericity: Bartlett&amp;#39;s test of sphericity suggests that there is sufficient significant correlation in the data for factor analysis (Chisq(300) = 9929.32, p &amp;lt; .001).&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The two datasets that we splitted are appropriate for factor analysis, so we can proceed with EFA as the first analysis&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="exploratory-factor-analysis"&gt;Exploratory Factor Analysis&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Exploratory Factor Analysis is a statistical technique in social science to explain the variance between several measured variables as a smaller set of latent variables. EFA is often used to consolidate survey data by revealing the groupings (factors) that underly individual questions.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;An EFA provides information on each item’s relationship to a single factor that is hypothesized to be represented by each of the items. EFA results give you basic information about how well items relate to that hypothesized construct.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The common application of EFA is to investigate relationships between observed variable and latent variables (factor) such as measurement piloting.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="scree-plot"&gt;Scree plot&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;To empirically determine the dimensionality of your data, a common strategy is to examine the eigenvalues and scree plot.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The scree plot is a visual representation of eigenvalues that determines potential dimensionality of the dataset. Eigenvalues can be generated from a principal component analysis or a factor analysis, and the &lt;code&gt;scree()&lt;/code&gt; function calculates and plots both by default. Since &lt;code&gt;eigen()&lt;/code&gt; finds eigenvalues via principal components analysis, we will use &lt;code&gt;factors = FALSE&lt;/code&gt; so our scree plot will only display the values corresponding to those results.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# Calculate the correlation matrix first
+bfi_EFA_cor &amp;lt;- cor(bfi_EFA, use = &amp;quot;pairwise.complete.obs&amp;quot;) 
+
+# Then use that correlation matrix to calculate eigenvalues
+eigenvals &amp;lt;- eigen(bfi_EFA_cor)
+
+# Look at the eigenvalues returned
+eigenvals$values&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt; [1] 5.1260335 2.7283892 2.1703605 1.7962625 1.5810352 1.1067334
+ [7] 0.8628232 0.8314676 0.7286709 0.7025545 0.6794529 0.6418044
+[13] 0.6236182 0.5865228 0.5568888 0.5537281 0.5017308 0.4883328
+[19] 0.4771046 0.4435182 0.4277177 0.3970359 0.3845808 0.3458697
+[25] 0.2577638&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# Then use the correlation matrix to create the scree plot
+
+scree(bfi_EFA_cor, factors = FALSE)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;From the above plot, The point where the slope of the curve is clearly leveling off (the “elbow) indicates that the number of factors that should be retained. For this case, the plot indicated that six factors should be retained.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;However, the dataset we use is for Big 5 personality traits with 5 factors, so we can investigate both 5 and 6 factors model to compare them both.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="fit-efa-models"&gt;Fit EFA models&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;We can initially explore the factor structure of 5 groups first as intended by the big 5 personality theory.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# Fit an EFA
+efa &amp;lt;- psych::fa(data, nfactors = 5) %&amp;gt;% 
+  model_parameters(sort = TRUE, threshold = &amp;quot;max&amp;quot;)
+
+efa&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# Rotated loadings from Factor Analysis (oblimin-rotation)
+
+Variable | MR2  |  MR1  |  MR3  |  MR5  |  MR4  | Complexity | Uniqueness
+-------------------------------------------------------------------------
+N1       | 0.81 |       |       |       |       |    1.08    |    0.35   
+N2       | 0.78 |       |       |       |       |    1.04    |    0.40   
+N3       | 0.71 |       |       |       |       |    1.07    |    0.45   
+N5       | 0.49 |       |       |       |       |    1.96    |    0.65   
+N4       | 0.47 |       |       |       |       |    2.27    |    0.51   
+E2       |      | -0.68 |       |       |       |    1.07    |    0.46   
+E4       |      | 0.59  |       |       |       |    1.49    |    0.47   
+E1       |      | -0.56 |       |       |       |    1.21    |    0.65   
+E5       |      | 0.42  |       |       |       |    2.60    |    0.60   
+E3       |      | 0.42  |       |       |       |    2.55    |    0.56   
+C2       |      |       | 0.67  |       |       |    1.17    |    0.55   
+C4       |      |       | -0.61 |       |       |    1.18    |    0.55   
+C3       |      |       | 0.57  |       |       |    1.11    |    0.68   
+C5       |      |       | -0.55 |       |       |    1.44    |    0.57   
+C1       |      |       | 0.55  |       |       |    1.19    |    0.67   
+A3       |      |       |       | 0.66  |       |    1.07    |    0.48   
+A2       |      |       |       | 0.64  |       |    1.04    |    0.55   
+A5       |      |       |       | 0.53  |       |    1.49    |    0.54   
+A4       |      |       |       | 0.43  |       |    1.74    |    0.72   
+A1       |      |       |       | -0.41 |       |    1.97    |    0.81   
+O3       |      |       |       |       | 0.61  |    1.17    |    0.54   
+O5       |      |       |       |       | -0.54 |    1.21    |    0.70   
+O1       |      |       |       |       | 0.51  |    1.13    |    0.69   
+O2       |      |       |       |       | -0.46 |    1.75    |    0.74   
+O4       |      |       |       |       | 0.37  |    2.69    |    0.75   
+
+The 5 latent factors (oblimin rotation) accounted for 41.48% of the total variance of the original data (MR2 = 10.28%, MR1 = 8.80%, MR3 = 8.12%, MR5 = 7.94%, MR4 = 6.34%).&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;summary(efa)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# (Explained) Variance of Components
+
+Parameter                       |   MR2 |   MR1 |   MR3 |   MR5 |   MR4
+-----------------------------------------------------------------------
+Eigenvalues                     | 4.493 | 2.249 | 1.505 | 1.188 | 0.934
+Variance Explained              | 0.103 | 0.088 | 0.081 | 0.079 | 0.063
+Variance Explained (Cumulative) | 0.103 | 0.191 | 0.272 | 0.351 | 0.415
+Variance Explained (Proportion) | 0.248 | 0.212 | 0.196 | 0.191 | 0.153&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;As we can see, the 25 items nicely spread on the 5 latent factors as the theory suggests. Based on this model, we can now predict back the scores for each individual for these new variables:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;predict_result &amp;lt;- predict(efa, names = c(&amp;quot;Neuroticism&amp;quot;, &amp;quot;Conscientiousness&amp;quot;, &amp;quot;Extraversion&amp;quot;, &amp;quot;Agreeableness&amp;quot;, &amp;quot;Opennness&amp;quot;))
+
+head(predict_result)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;  Neuroticism Conscientiousness Extraversion Agreeableness  Opennness
+1 -0.21410935        0.06924675  -1.33208860   -0.85364725 -1.5809244
+2  0.15008464        0.48139729  -0.59950262   -0.08478873 -0.1876070
+3  0.62827949        0.10964162  -0.04800816   -0.55616873  0.2502735
+4 -0.09425827        0.03836489  -1.05089539   -0.10394941 -1.1000032
+5 -0.16368420        0.44253657  -0.10519669   -0.71857460 -0.6612203
+6  0.18984314        1.08439177   1.40730835    0.39278790  0.6222356&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="how-many-factors-should-we-retain"&gt;How many factors should we retain?&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;When running a factor analysis (FA), one often needs to specify how many components (or latent variables) to retain or to extract. This decision is often supported by some statistical indices and procedures aiming at finding the optimal number of factors, e.g., scree plot from (&lt;code&gt;scree()&lt;/code&gt;).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Interestingly, a huge amount of methods exist to statistically address this issue. These methods can sometimes contradict with each other in terms of retained factor. As a result, seeking the number that is supported by most methods is a reasonable compromise.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id="the-method-agreement-procedure"&gt;The Method Agreement procedure&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;The Method Agreement procedure, first implemented in the &lt;code&gt;psycho&lt;/code&gt; package, proposes to rely on the consensus of methods, rather than on one method in particular. This procedure can be used through the &lt;code&gt;n_factors()&lt;/code&gt; by providing a dataframe, and the function will run a large number of routines and return the optimal number of factors based on the higher consensus.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;n_factor &amp;lt;- parameters::n_factors(data_complete)
+
+n_factor&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# Method Agreement Procedure:
+
+The choice of 6 dimensions is supported by 4 (17.39%) methods out of 23 (Optimal coordinates, Parallel analysis, Kaiser criterion, SE Scree).&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;as.data.frame(n_factor)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;   n_Factors              Method              Family
+1          1 Acceleration factor               Scree
+2          1                 TLI                 Fit
+3          1               RMSEA                 Fit
+4          3                 CNG                 CNG
+5          4                beta Multiple_regression
+6          4                  R2            Scree_SE
+7          4    VSS complexity 1                 VSS
+8          5    VSS complexity 2                 VSS
+9          5       Velicer&amp;#39;s MAP        Velicers_MAP
+10         6 Optimal coordinates               Scree
+11         6   Parallel analysis               Scree
+12         6    Kaiser criterion               Scree
+13         6            SE Scree            Scree_SE
+14         7                   t Multiple_regression
+15         7                   p Multiple_regression
+16         8                 BIC                 BIC
+17         8                 BIC                 Fit
+18        12      BIC (adjusted)                 BIC
+19        18                CRMS                 Fit
+20        22             Bentler             Bentler
+21        24            Bartlett             Barlett
+22        24            Anderson             Barlett
+23        24              Lawley             Barlett&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;For more details, a summary table can be obtained&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;summary(n_factor)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;   n_Factors n_Methods
+1          1         3
+2          3         1
+3          4         3
+4          5         2
+5          6         4
+6          7         2
+7          8         2
+8         12         1
+9         18         1
+10        22         1
+11        24         3&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot(n_factor) + theme_bw()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Interestingly, most methods also suggest six factors from the model, which is consistent with the &lt;a href="https://en.wikipedia.org/wiki/HEXACO_model_of_personality_structure"&gt;HEXACO model&lt;/a&gt; of personalities that is similar with the Big 5 personality theory.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="confirmatory-factor-analysis"&gt;Confirmatory Factor Analysis&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;We’ve seen above that while an EFA with 5 latent variables works great on our dataset, a structure with 6 latent factors may be statistically viable as well. This topic can be statistically tested with a CFA to bridge factor analysis with Structural Equation Modelling (SEM).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;However, in order to do that cleanly, EFA should be independent from CFA in the sense that the factor structure should be explored on a &lt;strong&gt;training&lt;/strong&gt; set, and then tested (or “confirmed”) on a &lt;strong&gt;test&lt;/strong&gt; set.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="train-test-split"&gt;Train test split&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;The data can be easily split into two sets with the data_partition() function, through which we will use 70% of the sample as the training and the rest as the test dataset.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;partitions &amp;lt;- data_partition(bfi_CFA, training_proportion = 0.7, 
+                             seed = 999)
+
+training &amp;lt;- partitions$training
+test &amp;lt;- partitions$test&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="create-cfa-structures-out-of-efa-models"&gt;Create CFA structures out of EFA models&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;In the next step, we will run two EFA models on the training set and specifying 5 and 6 latent factors respectively. We will also request for path diagram of the models as well as their density plot of factor score.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;First, we will examine structure of the 5 factors model.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;structure_big5 &amp;lt;- psych::fa(training, nfactors = 5)
+fa.diagram(structure_big5)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big5$scores, na.rm = TRUE), 
+     main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-22-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Then, for the structure of the 6 factors model.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;structure_big6 &amp;lt;- psych::fa(training, nfactors = 6) 
+fa.diagram(structure_big6)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big6$scores, na.rm = TRUE), 
+     main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-24-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We will then transform both EFA models into &lt;code&gt;lavaan&lt;/code&gt; syntax to perform CFA.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#Converting EFA into a lavaan-ready syntax
+cfa_big5 &amp;lt;- efa_to_cfa(structure_big5)
+
+#Investigate how the model looks
+cfa_big5&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# Latent variables
+MR2 =~ N1 + N2 + N3 + N4 + N5
+MR5 =~ A1 + A2 + A3 + A4 + A5
+MR1 =~ E1 + E2 + E3 + E4 + E5
+MR3 =~ C1 + C2 + C3 + C4 + C5
+MR4 =~ O1 + O2 + O3 + O4 + O5&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;cfa_big6 &amp;lt;- efa_to_cfa(structure_big6)
+cfa_big6&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# Latent variables
+MR2 =~ N1 + N2 + N3 + N4 + N5
+MR5 =~ A1 + A2 + A3 + A4 + A5
+MR3 =~ C1 + C2 + C3 + C4 + C5
+MR1 =~ E1 + E2 + E4 + E5 + O4
+MR4 =~ E3 + O1 + O2 + O3 + O5&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="fit-and-compare-models"&gt;Fit and Compare models&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Next, we will fit both models with lavaan package before requesting for model fit measure with &lt;code&gt;fitmeasures&lt;/code&gt;. We can also compare both models head-to-head with &lt;code&gt;compare_performance&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;model_big5 &amp;lt;- lavaan::cfa(cfa_big5, data = test)
+model_big6 &amp;lt;- lavaan::cfa(cfa_big6, data = test)
+
+fitmeasures(model_big5, fit.measures = &amp;quot;all&amp;quot;, output = &amp;quot;text&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Model Test User Model:
+
+  Test statistic                              1043.136
+  Degrees of freedom                               265
+  P-value                                        0.000
+
+Model Test Baseline Model:
+
+  Test statistic                              3513.829
+  Degrees of freedom                               300
+  P-value                                        0.000
+
+User Model versus Baseline Model:
+
+  Comparative Fit Index (CFI)                    0.758
+  Tucker-Lewis Index (TLI)                       0.726
+  Bentler-Bonett Non-normed Fit Index (NNFI)     0.726
+  Bentler-Bonett Normed Fit Index (NFI)          0.703
+  Parsimony Normed Fit Index (PNFI)              0.621
+  Bollen&amp;#39;s Relative Fit Index (RFI)              0.664
+  Bollen&amp;#39;s Incremental Fit Index (IFI)           0.760
+  Relative Noncentrality Index (RNI)             0.758
+
+Loglikelihood and Information Criteria:
+
+  Loglikelihood user model (H0)             -17201.035
+  Loglikelihood unrestricted model (H1)     -16679.468
+                                                      
+  Akaike (AIC)                               34522.071
+  Bayesian (BIC)                             34764.629
+  Sample-size adjusted Bayesian (BIC)        34574.230
+
+Root Mean Square Error of Approximation:
+
+  RMSEA                                          0.084
+  90 Percent confidence interval - lower         0.078
+  90 Percent confidence interval - upper         0.089
+  P-value RMSEA &amp;lt;= 0.05                          0.000
+
+Standardized Root Mean Square Residual:
+
+  RMR                                            0.174
+  RMR (No Mean)                                  0.174
+  SRMR                                           0.086
+
+Other Fit Indices:
+
+  Hoelter Critical N (CN) alpha = 0.05         123.679
+  Hoelter Critical N (CN) alpha = 0.01         130.746
+                                                      
+  Goodness of Fit Index (GFI)                    0.815
+  Adjusted Goodness of Fit Index (AGFI)          0.773
+  Parsimony Goodness of Fit Index (PGFI)         0.665
+                                                      
+  McDonald Fit Index (MFI)                       0.397
+                                                      
+  Expected Cross-Validation Index (ECVI)         2.763&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;fitmeasures(model_big6, fit.measures = &amp;quot;all&amp;quot;, output = &amp;quot;text&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Model Test User Model:
+
+  Test statistic                              1132.134
+  Degrees of freedom                               265
+  P-value                                        0.000
+
+Model Test Baseline Model:
+
+  Test statistic                              3513.829
+  Degrees of freedom                               300
+  P-value                                        0.000
+
+User Model versus Baseline Model:
+
+  Comparative Fit Index (CFI)                    0.730
+  Tucker-Lewis Index (TLI)                       0.695
+  Bentler-Bonett Non-normed Fit Index (NNFI)     0.695
+  Bentler-Bonett Normed Fit Index (NFI)          0.678
+  Parsimony Normed Fit Index (PNFI)              0.599
+  Bollen&amp;#39;s Relative Fit Index (RFI)              0.635
+  Bollen&amp;#39;s Incremental Fit Index (IFI)           0.733
+  Relative Noncentrality Index (RNI)             0.730
+
+Loglikelihood and Information Criteria:
+
+  Loglikelihood user model (H0)             -17245.534
+  Loglikelihood unrestricted model (H1)     -16679.468
+                                                      
+  Akaike (AIC)                               34611.069
+  Bayesian (BIC)                             34853.627
+  Sample-size adjusted Bayesian (BIC)        34663.228
+
+Root Mean Square Error of Approximation:
+
+  RMSEA                                          0.088
+  90 Percent confidence interval - lower         0.083
+  90 Percent confidence interval - upper         0.093
+  P-value RMSEA &amp;lt;= 0.05                          0.000
+
+Standardized Root Mean Square Residual:
+
+  RMR                                            0.181
+  RMR (No Mean)                                  0.181
+  SRMR                                           0.092
+
+Other Fit Indices:
+
+  Hoelter Critical N (CN) alpha = 0.05         114.036
+  Hoelter Critical N (CN) alpha = 0.01         120.546
+                                                      
+  Goodness of Fit Index (GFI)                    0.802
+  Adjusted Goodness of Fit Index (AGFI)          0.757
+  Parsimony Goodness of Fit Index (PGFI)         0.654
+                                                      
+  McDonald Fit Index (MFI)                       0.357
+                                                      
+  Expected Cross-Validation Index (ECVI)         2.974&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;model_comparison &amp;lt;-performance::compare_performance(model_big5, model_big6)
+rmarkdown::paged_table(model_comparison)&lt;/code&gt;&lt;/pre&gt;
+&lt;div data-pagedtable="false"&gt;
+&lt;script data-pagedtable-source type="application/json"&gt;
+{"columns":[{"label":["Name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Model"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Chi2"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Chi2_df"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p_Chi2"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["Baseline"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["Baseline_df"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["p_Baseline"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["GFI"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["AGFI"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["NFI"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["NNFI"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["CFI"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["RMSEA"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["RMSEA_CI_low"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["RMSEA_CI_high"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["p_RMSEA"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["RMR"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["SRMR"],"name":[19],"type":["dbl"],"align":["right"]},{"label":["RFI"],"name":[20],"type":["dbl"],"align":["right"]},{"label":["PNFI"],"name":[21],"type":["dbl"],"align":["right"]},{"label":["IFI"],"name":[22],"type":["dbl"],"align":["right"]},{"label":["RNI"],"name":[23],"type":["dbl"],"align":["right"]},{"label":["Loglikelihood"],"name":[24],"type":["dbl"],"align":["right"]},{"label":["AIC"],"name":[25],"type":["dbl"],"align":["right"]},{"label":["AIC_wt"],"name":[26],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[27],"type":["dbl"],"align":["right"]},{"label":["BIC_wt"],"name":[28],"type":["dbl"],"align":["right"]},{"label":["BIC_adjusted"],"name":[29],"type":["dbl"],"align":["right"]}],"data":[{"1":"model_big5","2":"lavaan","3":"1043.136","4":"265","5":"0","6":"3513.829","7":"300","8":"0","9":"0.8152806","10":"0.7734573","11":"0.7031342","12":"0.7259007","13":"0.7578790","14":"0.08351484","15":"0.07822173","16":"0.08887477","17":"1.887379e-15","18":"0.1743771","19":"0.08600019","20":"0.6639255","21":"0.6211019","22":"0.7604874","23":"0.7578790","24":"-17201.04","25":"34522.07","26":"1.000000e+00","27":"34764.63","28":"1.000000e+00","29":"34574.23"},{"1":"model_big6","2":"lavaan","3":"1132.134","4":"265","5":"0","6":"3513.829","7":"300","8":"0","9":"0.8021582","10":"0.7573638","11":"0.6778062","12":"0.6945510","13":"0.7301867","14":"0.08816152","15":"0.08290861","16":"0.09348178","17":"3.719247e-14","18":"0.1809260","19":"0.09247950","20":"0.6352523","21":"0.5987288","22":"0.7330934","23":"0.7301867","24":"-17245.53","25":"34611.07","26":"4.723836e-20","27":"34853.63","28":"4.723836e-20","29":"34663.23"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  &lt;/script&gt;
+&lt;/div&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The model comparison indicated that both model are empirically viable, but we would need a different dataset to re-assess the 6 factor model with appropriate item distribution (i.e., each factor has its own dedicated variables).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Another thing that should be noted is our conclusion should be theoretically permissible; that is, whether we use the big 5 or big 6 models, we should have theories and evidence to support our decision. Otherwise, if we only rely on statistical results, we can use 24 personality factors models because the result said it has the second-most approval rate by method consensus, but that would not make any theoretical sense.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;For social science research where we care about the “how”, our decisions should be theoretically-driven, so that we can explain the way our model works in both statistical and theoretical sense.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Anyway, this is all for this post. Thank you so much for reading this as always. The next semester is on around the corner, but I still have some time to write my blog before going back to the regularly-scheduled paper writing. Also, Happy New Year, everyone! Let us do our best in both personal and professional endeavor.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>91399b5a2be494d92b5d7d707afca65d</distill:md5>
+      <category>R</category>
+      <category>Statistics</category>
+      <guid>https://taridwong.github.io/posts/2022-01-01-efacfa</guid>
+      <pubDate>Sat, 01 Jan 2022 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2022-01-01-efacfa/efacfa_files/figure-html5/unnamed-chunk-8-1.png" medium="image" type="image/png" width="2880" height="2880"/>
+    </item>
     <item>
       <title>Measuring Text Similarity with Movie plot data</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -210,7 +733,7 @@ clusters_df = pd.DataFrame(clusters, columns = [&amp;#39;cluster_group&amp;#39;]
 
 sns.set_theme(style=&amp;quot;whitegrid&amp;quot;)
 sns.catplot(x=&amp;quot;cluster_group&amp;quot;, kind=&amp;quot;count&amp;quot;, data=clusters_df)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;seaborn.axisgrid.FacetGrid object at 0x000000006C264A90&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file1b8411d42bbc_files/figure-html/unnamed-chunk-11-1.png" width="242" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2 id="calculate-similarity-distance"&gt;Calculate similarity distance&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;By using &lt;code&gt;countvectorizer&lt;/code&gt;, we can turn a sentence into numbers for the computer to calculate similarity distance with the cosine similarity measurement (it is basically a number that indicates how closely related the two sets of words are).&lt;/li&gt;
@@ -247,7 +770,7 @@ fig.set_size_inches(120, 50)
 # Show the plotted dendrogram
 plt.grid(False)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2bd447cc19ff_files/figure-html/unnamed-chunk-13-1.png" width="11520" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file1b8411d42bbc_files/figure-html/unnamed-chunk-13-3.png" width="11520" /&gt;&lt;/p&gt;
 &lt;h2 id="concluding-remark"&gt;Concluding remark&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;While I am not an expert in movie critique, the movie plot data is a good venue to practice text cleaning with tokenization and stemming. The TF-IDF method is also widely implemented to extract meaningful information from textual data in general. Lastly, clustering is also a useful exploratory machine learning method to gain insights from unlabeled data to inform our decisions.&lt;/p&gt;&lt;/li&gt;
@@ -348,7 +871,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 9 ADAPTIVITY   numeric          2197         9.70              65
 # ... with 1 more variable: unique_rate &amp;lt;dbl&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(PISA_Subsetted, sort_miss = TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;If we are curious about the proportion of missing data by groups, we can also group the dataset by our categorical variable of interest, say, gender, before examining the missingness ratio.&lt;/li&gt;
 &lt;/ul&gt;
@@ -386,7 +909,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;oceanbuoys %&amp;gt;% arrange(year) %&amp;gt;% vis_miss()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-7-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-7-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Missing Not at Random (MNAR)&lt;/p&gt;
 &lt;ul&gt;
@@ -404,7 +927,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;li&gt;An upset plot from the &lt;code&gt;UpSetR&lt;/code&gt; package can be used to visualize the patterns of missingness, or rather the combinations of missingness across cases and variables.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_upset(PISA_Subsetted, nsets = 9, nintersects = 15)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The small bar plot to the left indicated the amount of missingness in variables. Consistent with the missingness diagnosis, the variable &lt;code&gt;BEINGBULLIED&lt;/code&gt; has the most missing data, following by &lt;code&gt;DAYSKIP&lt;/code&gt; and &lt;code&gt;CLASSKIP&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;The dot plot to the right showed combinations of variable that are missing in the data set. For example, there are 1,234 cases that have missing data in the variable &lt;code&gt;LATE&lt;/code&gt;, &lt;code&gt;CLASSKIP&lt;/code&gt;, &lt;code&gt;DAYSKIP&lt;/code&gt;, and &lt;code&gt;BEINGBULLIED&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
@@ -432,7 +955,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 8          3341      1     11.1
 9          3833      1     11.1&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_var(PISA_Subsetted, show_pct = TRUE) &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h4 id="missingness-in-cases-with-gg_miss_case"&gt;Missingness in cases with &lt;code&gt;gg_miss_case&lt;/code&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot shows the number of missing values in each case. For example, the table showed that there are 2 cases with 9 missing variables (i.e., no data in all variables), and there are 1050 cases with 8 missing variables.&lt;/li&gt;
@@ -452,17 +975,17 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
  9              8    1050   4.64   
 10              9       2   0.00883&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_case(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h4 id="missingness-across-factors-with-gg_miss_fct"&gt;Missingness across factors with &lt;code&gt;gg_miss_fct&lt;/code&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot shows the number of missingness in each column, broken down by a categorical variable from the dataset.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_fct(x = PISA_Subsetted, fct = REPEAT) + 
   labs(title = &amp;quot;Missing data by the History of Class Repetition&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-11-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-11-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_fct(x = PISA_Subsetted, fct = LATE) + 
   labs(title = &amp;quot;Missing data by Lateness History&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-11-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-11-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The heatmap above showed the proportion of missing data we have in each response of the selected categorical variable; for example, the history of class repetition (&lt;code&gt;REPEAT&lt;/code&gt;), with &lt;code&gt;0&lt;/code&gt; as no, &lt;code&gt;1&lt;/code&gt; as yes, and &lt;code&gt;NA&lt;/code&gt; as missing.&lt;/li&gt;
 &lt;/ul&gt;
@@ -472,7 +995,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_span(PISA_Subsetted, REPEAT, span_every = 2000) +
   theme_dark()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-12-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-12-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The plot went over the data and showed us how many missing data we have every 2000 data points that it went through.&lt;/li&gt;
 &lt;/ul&gt;
@@ -481,12 +1004,12 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;li&gt;This plot showed the cumulative amount of missing value over the data set. A sharp increase in cumulative missing value could indicate missing patterns to be discovered.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% gg_miss_case_cumsum(breaks = 2000) + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot showed the cumulative amount of missing value over the variable. We could examine the relative proportion of missing values across variables via this plot.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% gg_miss_var_cumsum() + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-14-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-14-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2 id="what-should-we-do-with-the-missing-data"&gt;What should we do with the missing data&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Now that we know we have missing data, there are numerous ways we can deal with it such as disregarding them with complete case analysis, or making educated guesses with imputation.&lt;/p&gt;&lt;/li&gt;
@@ -573,7 +1096,7 @@ head()&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;We can try plotting the data on a margin plot to see the result of our mean imputation.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_meanimp %&amp;gt;% select(DISCLIMA, ADAPTIVITY, DISCLIMA_imp, ADAPTIVITY_imp) %&amp;gt;% marginplot(delimiter=&amp;quot;imp&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2bd459eb717c_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;You can see that all missing values were replaced by the mean of that variable. Yes, we got the data back, but what did it cost?&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Mean imputation destroys relationship between variables.&lt;/p&gt;&lt;/li&gt;
