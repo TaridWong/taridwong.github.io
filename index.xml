@@ -33,7 +33,7 @@ library(dlookr) #missing data diagnosis
 library(mice) #missing data imputation&lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id="dataset"&gt;Dataset&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;The data set we use is a built-in data set from &lt;code&gt;psych&lt;/code&gt; package. There are 2800 observations and 25 variables of all 5 personality traits.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The data set we use is a built-in data set from &lt;code&gt;psych&lt;/code&gt; package, which was collected in the United States as a part of the Synthetic Aperture Personality Assessment (SAPA) project &lt;a href="https://link.springer.com/chapter/10.1007/978-1-4419-1210-7_2"&gt;(Revelle et al., 2010)&lt;/a&gt;. There are 2800 observations and 25 variables of all 5 personality traits.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;We will begin by loading in the data set and check for its missing value.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Load the data
@@ -71,7 +71,7 @@ dlookr::diagnose(data)&lt;/code&gt;&lt;/pre&gt;
 10 C5        integer            16           0.571            7
 # ... with 15 more rows, and 1 more variable: unique_rate &amp;lt;dbl&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(data, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;There are some degree of missingness in the dataset as indicated by the missingness map. For good measure, we will impute it with the predictive mean matchmaking method by the &lt;code&gt;mice&lt;/code&gt; package.&lt;/li&gt;
 &lt;/ul&gt;
@@ -108,7 +108,7 @@ mice_model &amp;lt;- mice(data, method=&amp;#39;pmm&amp;#39;, seed = 123)&lt;/co
 &lt;pre class="r"&gt;&lt;code&gt;data_complete &amp;lt;- complete(mice_model)
 
 visdat::vis_miss(data_complete, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;There is no missing value present in the dataset after the imputation. We can proceed with factor structure checking to assess whether the dataset is appropriate for factor analysis with &lt;code&gt;check_factorstructure()&lt;/code&gt;. Two existing methods are the &lt;em&gt;Bartlett’s Test of Sphericity&lt;/em&gt; and the &lt;em&gt;Kaiser, Meyer, Olkin (KMO)&lt;/em&gt; Measure of Sampling Adequacy (MSA).&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;The former tests whether a matrix is significantly different from an identity matrix. This statistical test for the presence of correlations among variables, providing the statistical probability that the correlation matrix has significant correlations among at least some of variables. As for factor analysis to work, some relationships between variables are needed, thus, a significant Bartlett’s test of sphericity is required to be significant.&lt;/p&gt;&lt;/li&gt;
@@ -146,7 +146,7 @@ ggcorrplot(data.corr,
   labs(title=&amp;quot;Correlation Matrix&amp;quot;)+
   theme(plot.title=element_text(face=&amp;#39;bold&amp;#39;,size=14,hjust=0.5,colour=&amp;quot;darkred&amp;quot;))+
   theme(legend.position=c(0.10,0.80), legend.box.just = &amp;quot;bottom&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-8-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-8-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The green panel indicates positive relationships while the red panel indicates negative relationship. The cross symbol suggests that the relationship between two variables is not statistically significant.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Next, we would need to split the dataset into two to perform EFA and CFA, so that we can make sure to test the model on an unseen set of data.&lt;/p&gt;&lt;/li&gt;
@@ -200,7 +200,7 @@ eigenvals$values&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Then use the correlation matrix to create the scree plot
 
 scree(bfi_EFA_cor, factors = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;From the above plot, The point where the slope of the curve is clearly leveling off (the “elbow) indicates that the number of factors that should be retained. For this case, the plot indicated that six factors should be retained.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;However, the dataset we use is for Big 5 personality traits with 5 factors, so we can investigate both 5 and 6 factors model to compare them both.&lt;/p&gt;&lt;/li&gt;
@@ -324,7 +324,7 @@ The choice of 6 dimensions is supported by 4 (17.39%) methods out of 23 (Optimal
 10        22         1
 11        24         3&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(n_factor) + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Interestingly, most methods also suggest six factors from the model, which is consistent with the &lt;a href="https://en.wikipedia.org/wiki/HEXACO_model_of_personality_structure"&gt;HEXACO model&lt;/a&gt; of personalities that is similar with the Big 5 personality theory.&lt;/li&gt;
 &lt;/ul&gt;
@@ -349,19 +349,19 @@ test &amp;lt;- partitions$test&lt;/code&gt;&lt;/pre&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;structure_big5 &amp;lt;- psych::fa(training, nfactors = 5)
 fa.diagram(structure_big5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big5$scores, na.rm = TRUE), 
      main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-22-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-22-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Then, for the structure of the 6 factors model.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;structure_big6 &amp;lt;- psych::fa(training, nfactors = 6) 
 fa.diagram(structure_big6)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big6$scores, na.rm = TRUE), 
      main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b8446d81ab3_files/figure-html/unnamed-chunk-24-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-24-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will then transform both EFA models into &lt;code&gt;lavaan&lt;/code&gt; syntax to perform CFA.&lt;/li&gt;
 &lt;/ul&gt;
@@ -510,6 +510,7 @@ Other Fit Indices:
                                                       
   Expected Cross-Validation Index (ECVI)         2.974&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;model_comparison &amp;lt;-performance::compare_performance(model_big5, model_big6)
+
 rmarkdown::paged_table(model_comparison)&lt;/code&gt;&lt;/pre&gt;
 &lt;div data-pagedtable="false"&gt;
 &lt;script data-pagedtable-source type="application/json"&gt;
@@ -529,7 +530,7 @@ rmarkdown::paged_table(model_comparison)&lt;/code&gt;&lt;/pre&gt;
       <category>Statistics</category>
       <guid>https://taridwong.github.io/posts/2022-01-01-efacfa</guid>
       <pubDate>Sat, 01 Jan 2022 00:00:00 +0000</pubDate>
-      <media:content url="https://taridwong.github.io/posts/2022-01-01-efacfa/efacfa_files/figure-html5/unnamed-chunk-8-1.png" medium="image" type="image/png" width="2880" height="2880"/>
+      <media:content url="https://taridwong.github.io/posts/2022-01-01-efacfa/corrmatrix.jpg" medium="image" type="image/jpeg"/>
     </item>
     <item>
       <title>Measuring Text Similarity with Movie plot data</title>
@@ -733,7 +734,7 @@ clusters_df = pd.DataFrame(clusters, columns = [&amp;#39;cluster_group&amp;#39;]
 
 sns.set_theme(style=&amp;quot;whitegrid&amp;quot;)
 sns.catplot(x=&amp;quot;cluster_group&amp;quot;, kind=&amp;quot;count&amp;quot;, data=clusters_df)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b8411d42bbc_files/figure-html/unnamed-chunk-11-1.png" width="242" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b187d3d4e39_files/figure-html/unnamed-chunk-11-1.png" width="242" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2 id="calculate-similarity-distance"&gt;Calculate similarity distance&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;By using &lt;code&gt;countvectorizer&lt;/code&gt;, we can turn a sentence into numbers for the computer to calculate similarity distance with the cosine similarity measurement (it is basically a number that indicates how closely related the two sets of words are).&lt;/li&gt;
@@ -770,7 +771,7 @@ fig.set_size_inches(120, 50)
 # Show the plotted dendrogram
 plt.grid(False)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b8411d42bbc_files/figure-html/unnamed-chunk-13-3.png" width="11520" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b187d3d4e39_files/figure-html/unnamed-chunk-13-3.png" width="11520" /&gt;&lt;/p&gt;
 &lt;h2 id="concluding-remark"&gt;Concluding remark&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;While I am not an expert in movie critique, the movie plot data is a good venue to practice text cleaning with tokenization and stemming. The TF-IDF method is also widely implemented to extract meaningful information from textual data in general. Lastly, clustering is also a useful exploratory machine learning method to gain insights from unlabeled data to inform our decisions.&lt;/p&gt;&lt;/li&gt;
@@ -871,7 +872,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 9 ADAPTIVITY   numeric          2197         9.70              65
 # ... with 1 more variable: unique_rate &amp;lt;dbl&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(PISA_Subsetted, sort_miss = TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;If we are curious about the proportion of missing data by groups, we can also group the dataset by our categorical variable of interest, say, gender, before examining the missingness ratio.&lt;/li&gt;
 &lt;/ul&gt;
@@ -909,7 +910,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;oceanbuoys %&amp;gt;% arrange(year) %&amp;gt;% vis_miss()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-7-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-7-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Missing Not at Random (MNAR)&lt;/p&gt;
 &lt;ul&gt;
@@ -927,7 +928,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;li&gt;An upset plot from the &lt;code&gt;UpSetR&lt;/code&gt; package can be used to visualize the patterns of missingness, or rather the combinations of missingness across cases and variables.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_upset(PISA_Subsetted, nsets = 9, nintersects = 15)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The small bar plot to the left indicated the amount of missingness in variables. Consistent with the missingness diagnosis, the variable &lt;code&gt;BEINGBULLIED&lt;/code&gt; has the most missing data, following by &lt;code&gt;DAYSKIP&lt;/code&gt; and &lt;code&gt;CLASSKIP&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;The dot plot to the right showed combinations of variable that are missing in the data set. For example, there are 1,234 cases that have missing data in the variable &lt;code&gt;LATE&lt;/code&gt;, &lt;code&gt;CLASSKIP&lt;/code&gt;, &lt;code&gt;DAYSKIP&lt;/code&gt;, and &lt;code&gt;BEINGBULLIED&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
@@ -955,7 +956,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 8          3341      1     11.1
 9          3833      1     11.1&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_var(PISA_Subsetted, show_pct = TRUE) &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h4 id="missingness-in-cases-with-gg_miss_case"&gt;Missingness in cases with &lt;code&gt;gg_miss_case&lt;/code&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot shows the number of missing values in each case. For example, the table showed that there are 2 cases with 9 missing variables (i.e., no data in all variables), and there are 1050 cases with 8 missing variables.&lt;/li&gt;
@@ -975,17 +976,17 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
  9              8    1050   4.64   
 10              9       2   0.00883&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_case(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h4 id="missingness-across-factors-with-gg_miss_fct"&gt;Missingness across factors with &lt;code&gt;gg_miss_fct&lt;/code&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot shows the number of missingness in each column, broken down by a categorical variable from the dataset.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_fct(x = PISA_Subsetted, fct = REPEAT) + 
   labs(title = &amp;quot;Missing data by the History of Class Repetition&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-11-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-11-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_fct(x = PISA_Subsetted, fct = LATE) + 
   labs(title = &amp;quot;Missing data by Lateness History&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-11-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-11-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The heatmap above showed the proportion of missing data we have in each response of the selected categorical variable; for example, the history of class repetition (&lt;code&gt;REPEAT&lt;/code&gt;), with &lt;code&gt;0&lt;/code&gt; as no, &lt;code&gt;1&lt;/code&gt; as yes, and &lt;code&gt;NA&lt;/code&gt; as missing.&lt;/li&gt;
 &lt;/ul&gt;
@@ -995,7 +996,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_span(PISA_Subsetted, REPEAT, span_every = 2000) +
   theme_dark()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-12-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-12-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The plot went over the data and showed us how many missing data we have every 2000 data points that it went through.&lt;/li&gt;
 &lt;/ul&gt;
@@ -1004,12 +1005,12 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;li&gt;This plot showed the cumulative amount of missing value over the data set. A sharp increase in cumulative missing value could indicate missing patterns to be discovered.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% gg_miss_case_cumsum(breaks = 2000) + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot showed the cumulative amount of missing value over the variable. We could examine the relative proportion of missing values across variables via this plot.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% gg_miss_var_cumsum() + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-14-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-14-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2 id="what-should-we-do-with-the-missing-data"&gt;What should we do with the missing data&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Now that we know we have missing data, there are numerous ways we can deal with it such as disregarding them with complete case analysis, or making educated guesses with imputation.&lt;/p&gt;&lt;/li&gt;
@@ -1096,7 +1097,7 @@ head()&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;We can try plotting the data on a margin plot to see the result of our mean imputation.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_meanimp %&amp;gt;% select(DISCLIMA, ADAPTIVITY, DISCLIMA_imp, ADAPTIVITY_imp) %&amp;gt;% marginplot(delimiter=&amp;quot;imp&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file1b84658852cb_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;You can see that all missing values were replaced by the mean of that variable. Yes, we got the data back, but what did it cost?&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Mean imputation destroys relationship between variables.&lt;/p&gt;&lt;/li&gt;
