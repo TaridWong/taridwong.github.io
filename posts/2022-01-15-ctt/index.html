@@ -1,0 +1,6010 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"/>
+  <meta name="generator" content="distill" />
+
+  <style type="text/css">
+  /* Hide doc at startup (prevent jankiness while JS renders/transforms) */
+  body {
+    visibility: hidden;
+  }
+  </style>
+
+ <!--radix_placeholder_import_source-->
+ <!--/radix_placeholder_import_source-->
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ad0000; } /* Alert */
+code span.an { color: #5e5e5e; } /* Annotation */
+code span.at { } /* Attribute */
+code span.bn { color: #ad0000; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007ba5; } /* ControlFlow */
+code span.ch { color: #20794d; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #5e5e5e; } /* Comment */
+code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+code span.dt { color: #ad0000; } /* DataType */
+code span.dv { color: #ad0000; } /* DecVal */
+code span.er { color: #ad0000; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #ad0000; } /* Float */
+code span.fu { color: #4758ab; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #5e5e5e; } /* Information */
+code span.kw { color: #007ba5; } /* Keyword */
+code span.op { color: #5e5e5e; } /* Operator */
+code span.ot { color: #007ba5; } /* Other */
+code span.pp { color: #ad0000; } /* Preprocessor */
+code span.sc { color: #5e5e5e; } /* SpecialChar */
+code span.ss { color: #20794d; } /* SpecialString */
+code span.st { color: #20794d; } /* String */
+code span.va { color: #111111; } /* Variable */
+code span.vs { color: #20794d; } /* VerbatimString */
+code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+</style>
+
+
+  <!--radix_placeholder_meta_tags-->
+<title>Tarid Wongvorachan: Classical Test Theory in R</title>
+
+<meta property="description" itemprop="description" content="For this post, I will be analyzing characteristics of test items based on the framework of Classical Test Theory (CTT).&#10;&#10;(13 min read)"/>
+
+<link rel="canonical" href="https://taridwong.github.io/posts/2022-01-15-ctt/"/>
+<link rel="license" href="https://creativecommons.org/licenses/by/4.0/"/>
+
+<!--  https://schema.org/Article -->
+<meta property="article:published" itemprop="datePublished" content="2022-01-15"/>
+<meta property="article:created" itemprop="dateCreated" content="2022-01-15"/>
+<meta name="article:author" content="Tarid Wongvorachan"/>
+
+<!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
+<meta property="og:title" content="Tarid Wongvorachan: Classical Test Theory in R"/>
+<meta property="og:type" content="article"/>
+<meta property="og:description" content="For this post, I will be analyzing characteristics of test items based on the framework of Classical Test Theory (CTT).&#10;&#10;(13 min read)"/>
+<meta property="og:url" content="https://taridwong.github.io/posts/2022-01-15-ctt/"/>
+<meta property="og:image" content="https://taridwong.github.io/posts/2022-01-15-ctt/discrim.jpg"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:site_name" content="Tarid Wongvorachan"/>
+
+<!--  https://dev.twitter.com/cards/types/summary -->
+<meta property="twitter:card" content="summary_large_image"/>
+<meta property="twitter:title" content="Tarid Wongvorachan: Classical Test Theory in R"/>
+<meta property="twitter:description" content="For this post, I will be analyzing characteristics of test items based on the framework of Classical Test Theory (CTT).&#10;&#10;(13 min read)"/>
+<meta property="twitter:url" content="https://taridwong.github.io/posts/2022-01-15-ctt/"/>
+<meta property="twitter:image" content="https://taridwong.github.io/posts/2022-01-15-ctt/discrim.jpg"/>
+
+<!--  https://scholar.google.com/intl/en/scholar/inclusion.html#indexing -->
+<meta name="citation_title" content="Tarid Wongvorachan: Classical Test Theory in R"/>
+<meta name="citation_fulltext_html_url" content="https://taridwong.github.io/posts/2022-01-15-ctt/"/>
+<meta name="citation_fulltext_world_readable" content=""/>
+<meta name="citation_online_date" content="2022/01/15"/>
+<meta name="citation_publication_date" content="2022/01/15"/>
+<meta name="citation_author" content="Tarid Wongvorachan"/>
+<meta name="citation_author_institution" content="University of Alberta"/>
+<!--/radix_placeholder_meta_tags-->
+  <!--radix_placeholder_rmarkdown_metadata-->
+
+<script type="text/json" id="radix-rmarkdown-metadata">
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["creative_commons","title","description","author","date","categories","preview","output","citation_url","canonical_url"]}},"value":[{"type":"character","attributes":{},"value":["CC BY"]},{"type":"character","attributes":{},"value":["Classical Test Theory in R"]},{"type":"character","attributes":{},"value":["For this post, I will be analyzing characteristics of test items based on the framework of Classical Test Theory (CTT).\n\n(13 min read)"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Tarid Wongvorachan"]},{"type":"character","attributes":{},"value":["University of Alberta"]},{"type":"character","attributes":{},"value":["https://www.ualberta.ca"]}]}]},{"type":"character","attributes":{},"value":["2022-01-15"]},{"type":"character","attributes":{},"value":["R","Psychometric"]},{"type":"character","attributes":{},"value":["discrim.jpg"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["code_folding","toc","toc_depth","toc_float","self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[true]},{"type":"logical","attributes":{},"value":[true]},{"type":"integer","attributes":{},"value":[2]},{"type":"logical","attributes":{},"value":[false]},{"type":"logical","attributes":{},"value":[false]}]}]},{"type":"character","attributes":{},"value":["https://taridwong.github.io/posts/2022-01-15-ctt/"]},{"type":"character","attributes":{},"value":["https://taridwong.github.io/posts/2022-01-15-ctt/"]}]}
+</script>
+<!--/radix_placeholder_rmarkdown_metadata-->
+  
+  <script type="text/json" id="radix-resource-manifest">
+  {"type":"character","attributes":{},"value":["ctt_files/anchor-4.2.2/anchor.min.js","ctt_files/bowser-1.9.3/bowser.min.js","ctt_files/distill-2.2.21/template.v2.js","ctt_files/figure-html5/unnamed-chunk-10-1.png","ctt_files/figure-html5/unnamed-chunk-27-1.png","ctt_files/figure-html5/unnamed-chunk-28-1.png","ctt_files/figure-html5/unnamed-chunk-29-1.png","ctt_files/figure-html5/unnamed-chunk-9-1.png","ctt_files/header-attrs-2.11/header-attrs.js","ctt_files/jquery-3.6.0/jquery-3.6.0.js","ctt_files/jquery-3.6.0/jquery-3.6.0.min.js","ctt_files/jquery-3.6.0/jquery-3.6.0.min.map","ctt_files/kePrint-0.0.1/kePrint.js","ctt_files/lightable-0.0.1/lightable.css","ctt_files/popper-2.6.0/popper.min.js","ctt_files/tippy-6.2.7/tippy-bundle.umd.min.js","ctt_files/tippy-6.2.7/tippy-light-border.css","ctt_files/tippy-6.2.7/tippy.css","ctt_files/tippy-6.2.7/tippy.umd.min.js","ctt_files/webcomponents-2.0.0/webcomponents.js","discrim.JPG","sample.key.csv","sample.score.csv"]}
+  </script>
+  <!--radix_placeholder_navigation_in_header-->
+<meta name="distill:offset" content="../.."/>
+
+<script type="application/javascript">
+
+  window.headroom_prevent_pin = false;
+
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+
+    // initialize headroom for banner
+    var header = $('header').get(0);
+    var headerHeight = header.offsetHeight;
+    var headroom = new Headroom(header, {
+      tolerance: 5,
+      onPin : function() {
+        if (window.headroom_prevent_pin) {
+          window.headroom_prevent_pin = false;
+          headroom.unpin();
+        }
+      }
+    });
+    headroom.init();
+    if(window.location.hash)
+      headroom.unpin();
+    $(header).addClass('headroom--transition');
+
+    // offset scroll location for banner on hash change
+    // (see: https://github.com/WickyNilliams/headroom.js/issues/38)
+    window.addEventListener("hashchange", function(event) {
+      window.scrollTo(0, window.pageYOffset - (headerHeight + 25));
+    });
+
+    // responsive menu
+    $('.distill-site-header').each(function(i, val) {
+      var topnav = $(this);
+      var toggle = topnav.find('.nav-toggle');
+      toggle.on('click', function() {
+        topnav.toggleClass('responsive');
+      });
+    });
+
+    // nav dropdowns
+    $('.nav-dropbtn').click(function(e) {
+      $(this).next('.nav-dropdown-content').toggleClass('nav-dropdown-active');
+      $(this).parent().siblings('.nav-dropdown')
+         .children('.nav-dropdown-content').removeClass('nav-dropdown-active');
+    });
+    $("body").click(function(e){
+      $('.nav-dropdown-content').removeClass('nav-dropdown-active');
+    });
+    $(".nav-dropdown").click(function(e){
+      e.stopPropagation();
+    });
+  });
+</script>
+
+<style type="text/css">
+
+/* Theme (user-documented overrideables for nav appearance) */
+
+.distill-site-nav {
+  color: rgba(255, 255, 255, 0.8);
+  background-color: #0F2E3D;
+  font-size: 15px;
+  font-weight: 300;
+}
+
+.distill-site-nav a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.distill-site-nav a:hover {
+  color: white;
+}
+
+@media print {
+  .distill-site-nav {
+    display: none;
+  }
+}
+
+.distill-site-header {
+
+}
+
+.distill-site-footer {
+
+}
+
+
+/* Site Header */
+
+.distill-site-header {
+  width: 100%;
+  box-sizing: border-box;
+  z-index: 3;
+}
+
+.distill-site-header .nav-left {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+@media screen and (max-width: 768px) {
+  .distill-site-header .nav-left {
+    margin-left: 0;
+  }
+}
+
+
+.distill-site-header .nav-right {
+  float: right;
+  margin-right: 8px;
+}
+
+.distill-site-header a,
+.distill-site-header .title {
+  display: inline-block;
+  text-align: center;
+  padding: 14px 10px 14px 10px;
+}
+
+.distill-site-header .title {
+  font-size: 18px;
+  min-width: 150px;
+}
+
+.distill-site-header .logo {
+  padding: 0;
+}
+
+.distill-site-header .logo img {
+  display: none;
+  max-height: 20px;
+  width: auto;
+  margin-bottom: -4px;
+}
+
+.distill-site-header .nav-image img {
+  max-height: 18px;
+  width: auto;
+  display: inline-block;
+  margin-bottom: -3px;
+}
+
+
+
+@media screen and (min-width: 1000px) {
+  .distill-site-header .logo img {
+    display: inline-block;
+  }
+  .distill-site-header .nav-left {
+    margin-left: 20px;
+  }
+  .distill-site-header .nav-right {
+    margin-right: 20px;
+  }
+  .distill-site-header .title {
+    padding-left: 12px;
+  }
+}
+
+
+.distill-site-header .nav-toggle {
+  display: none;
+}
+
+.nav-dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+.nav-dropdown .nav-dropbtn {
+  border: none;
+  outline: none;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 16px 10px;
+  background-color: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  margin: 0;
+  margin-top: 1px;
+  z-index: 2;
+}
+
+.nav-dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 200px;
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 4px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
+  z-index: 1;
+  margin-top: 2px;
+  white-space: nowrap;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.nav-dropdown-content hr {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.nav-dropdown-active {
+  display: block;
+}
+
+.nav-dropdown-content a, .nav-dropdown-content .nav-dropdown-header {
+  color: black;
+  padding: 6px 24px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.nav-dropdown-content .nav-dropdown-header {
+  display: block;
+  padding: 5px 24px;
+  padding-bottom: 0;
+  text-transform: uppercase;
+  font-size: 14px;
+  color: #999999;
+  white-space: nowrap;
+}
+
+.nav-dropdown:hover .nav-dropbtn {
+  color: white;
+}
+
+.nav-dropdown-content a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.nav-right .nav-dropdown-content {
+  margin-left: -45%;
+  right: 0;
+}
+
+@media screen and (max-width: 768px) {
+  .distill-site-header a, .distill-site-header .nav-dropdown  {display: none;}
+  .distill-site-header a.nav-toggle {
+    float: right;
+    display: block;
+  }
+  .distill-site-header .title {
+    margin-left: 0;
+  }
+  .distill-site-header .nav-right {
+    margin-right: 0;
+  }
+  .distill-site-header {
+    overflow: hidden;
+  }
+  .nav-right .nav-dropdown-content {
+    margin-left: 0;
+  }
+}
+
+
+@media screen and (max-width: 768px) {
+  .distill-site-header.responsive {position: relative; min-height: 500px; }
+  .distill-site-header.responsive a.nav-toggle {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  .distill-site-header.responsive a,
+  .distill-site-header.responsive .nav-dropdown {
+    display: block;
+    text-align: left;
+  }
+  .distill-site-header.responsive .nav-left,
+  .distill-site-header.responsive .nav-right {
+    width: 100%;
+  }
+  .distill-site-header.responsive .nav-dropdown {float: none;}
+  .distill-site-header.responsive .nav-dropdown-content {position: relative;}
+  .distill-site-header.responsive .nav-dropdown .nav-dropbtn {
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+}
+
+/* Site Footer */
+
+.distill-site-footer {
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  z-index: 3;
+  margin-top: 30px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  text-align: center;
+}
+
+/* Headroom */
+
+d-title {
+  padding-top: 6rem;
+}
+
+@media print {
+  d-title {
+    padding-top: 4rem;
+  }
+}
+
+.headroom {
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.headroom--transition {
+  transition: all .4s ease-in-out;
+}
+
+.headroom--unpinned {
+  top: -100px;
+}
+
+.headroom--pinned {
+  top: 0;
+}
+
+/* adjust viewport for navbar height */
+/* helps vertically center bootstrap (non-distill) content */
+.min-vh-100 {
+  min-height: calc(100vh - 100px) !important;
+}
+
+</style>
+
+<script src="../../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="../../site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet"/>
+<link href="../../site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet"/>
+<script src="../../site_libs/headroom-0.9.4/headroom.min.js"></script>
+<script src="../../site_libs/autocomplete-0.37.1/autocomplete.min.js"></script>
+<script src="../../site_libs/fuse-6.4.1/fuse.min.js"></script>
+
+<script type="application/javascript">
+
+function getMeta(metaName) {
+  var metas = document.getElementsByTagName('meta');
+  for (let i = 0; i < metas.length; i++) {
+    if (metas[i].getAttribute('name') === metaName) {
+      return metas[i].getAttribute('content');
+    }
+  }
+  return '';
+}
+
+function offsetURL(url) {
+  var offset = getMeta('distill:offset');
+  return offset ? offset + '/' + url : url;
+}
+
+function createFuseIndex() {
+
+  // create fuse index
+  var options = {
+    keys: [
+      { name: 'title', weight: 20 },
+      { name: 'categories', weight: 15 },
+      { name: 'description', weight: 10 },
+      { name: 'contents', weight: 5 },
+    ],
+    ignoreLocation: true,
+    threshold: 0
+  };
+  var fuse = new window.Fuse([], options);
+
+  // fetch the main search.json
+  return fetch(offsetURL('search.json'))
+    .then(function(response) {
+      if (response.status == 200) {
+        return response.json().then(function(json) {
+          // index main articles
+          json.articles.forEach(function(article) {
+            fuse.add(article);
+          });
+          // download collections and index their articles
+          return Promise.all(json.collections.map(function(collection) {
+            return fetch(offsetURL(collection)).then(function(response) {
+              if (response.status === 200) {
+                return response.json().then(function(articles) {
+                  articles.forEach(function(article) {
+                    fuse.add(article);
+                  });
+                })
+              } else {
+                return Promise.reject(
+                  new Error('Unexpected status from search index request: ' +
+                            response.status)
+                );
+              }
+            });
+          })).then(function() {
+            return fuse;
+          });
+        });
+
+      } else {
+        return Promise.reject(
+          new Error('Unexpected status from search index request: ' +
+                      response.status)
+        );
+      }
+    });
+}
+
+window.document.addEventListener("DOMContentLoaded", function (event) {
+
+  // get search element (bail if we don't have one)
+  var searchEl = window.document.getElementById('distill-search');
+  if (!searchEl)
+    return;
+
+  createFuseIndex()
+    .then(function(fuse) {
+
+      // make search box visible
+      searchEl.classList.remove('hidden');
+
+      // initialize autocomplete
+      var options = {
+        autoselect: true,
+        hint: false,
+        minLength: 2,
+      };
+      window.autocomplete(searchEl, options, [{
+        source: function(query, callback) {
+          const searchOptions = {
+            isCaseSensitive: false,
+            shouldSort: true,
+            minMatchCharLength: 2,
+            limit: 10,
+          };
+          var results = fuse.search(query, searchOptions);
+          callback(results
+            .map(function(result) { return result.item; })
+          );
+        },
+        templates: {
+          suggestion: function(suggestion) {
+            var img = suggestion.preview && Object.keys(suggestion.preview).length > 0
+              ? `<img src="${offsetURL(suggestion.preview)}"</img>`
+              : '';
+            var html = `
+              <div class="search-item">
+                <h3>${suggestion.title}</h3>
+                <div class="search-item-description">
+                  ${suggestion.description || ''}
+                </div>
+                <div class="search-item-preview">
+                  ${img}
+                </div>
+              </div>
+            `;
+            return html;
+          }
+        }
+      }]).on('autocomplete:selected', function(event, suggestion) {
+        window.location.href = offsetURL(suggestion.path);
+      });
+      // remove inline display style on autocompleter (we want to
+      // manage responsive display via css)
+      $('.algolia-autocomplete').css("display", "");
+    })
+    .catch(function(error) {
+      console.log(error);
+    });
+
+});
+
+</script>
+
+<style type="text/css">
+
+.nav-search {
+  font-size: x-small;
+}
+
+/* Algolioa Autocomplete */
+
+.algolia-autocomplete {
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: sub;
+  background-color: white;
+  color: black;
+  padding: 6px;
+  padding-top: 8px;
+  padding-bottom: 0;
+  border-radius: 6px;
+  border: 1px #0F2E3D solid;
+  width: 180px;
+}
+
+
+@media screen and (max-width: 768px) {
+  .distill-site-nav .algolia-autocomplete {
+    display: none;
+    visibility: hidden;
+  }
+  .distill-site-nav.responsive .algolia-autocomplete {
+    display: inline-block;
+    visibility: visible;
+  }
+  .distill-site-nav.responsive .algolia-autocomplete .aa-dropdown-menu {
+    margin-left: 0;
+    width: 400px;
+    max-height: 400px;
+  }
+}
+
+.algolia-autocomplete .aa-input, .algolia-autocomplete .aa-hint {
+  width: 90%;
+  outline: none;
+  border: none;
+}
+
+.algolia-autocomplete .aa-hint {
+  color: #999;
+}
+.algolia-autocomplete .aa-dropdown-menu {
+  width: 550px;
+  max-height: 70vh;
+  overflow-x: visible;
+  overflow-y: scroll;
+  padding: 5px;
+  margin-top: 3px;
+  margin-left: -150px;
+  background-color: #fff;
+  border-radius: 5px;
+  border: 1px solid #999;
+  border-top: none;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion {
+  cursor: pointer;
+  padding: 5px 4px;
+  border-bottom: 1px solid #eee;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion:last-of-type {
+  border-bottom: none;
+  margin-bottom: 2px;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item {
+  overflow: hidden;
+  font-size: 0.8em;
+  line-height: 1.4em;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item h3 {
+  font-size: 1rem;
+  margin-block-start: 0;
+  margin-block-end: 5px;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item-description {
+  display: inline-block;
+  overflow: hidden;
+  height: 2.8em;
+  width: 80%;
+  margin-right: 4%;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item-preview {
+  display: inline-block;
+  width: 15%;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item-preview img {
+  height: 3em;
+  width: auto;
+  display: none;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item-preview img[src] {
+  display: initial;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion.aa-cursor {
+  background-color: #eee;
+}
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion em {
+  font-weight: bold;
+  font-style: normal;
+}
+
+</style>
+
+
+<!--/radix_placeholder_navigation_in_header-->
+  <!--radix_placeholder_distill-->
+
+<style type="text/css">
+
+body {
+  background-color: white;
+}
+
+.pandoc-table {
+  width: 100%;
+}
+
+.pandoc-table>caption {
+  margin-bottom: 10px;
+}
+
+.pandoc-table th:not([align]) {
+  text-align: left;
+}
+
+.pagedtable-footer {
+  font-size: 15px;
+}
+
+d-byline .byline {
+  grid-template-columns: 2fr 2fr;
+}
+
+d-byline .byline h3 {
+  margin-block-start: 1.5em;
+}
+
+d-byline .byline .authors-affiliations h3 {
+  margin-block-start: 0.5em;
+}
+
+.authors-affiliations .orcid-id {
+  width: 16px;
+  height:16px;
+  margin-left: 4px;
+  margin-right: 4px;
+  vertical-align: middle;
+  padding-bottom: 2px;
+}
+
+d-title .dt-tags {
+  margin-top: 1em;
+  grid-column: text;
+}
+
+.dt-tags .dt-tag {
+  text-decoration: none;
+  display: inline-block;
+  color: rgba(0,0,0,0.6);
+  padding: 0em 0.4em;
+  margin-right: 0.5em;
+  margin-bottom: 0.4em;
+  font-size: 70%;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 3px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+d-article table.gt_table td,
+d-article table.gt_table th {
+  border-bottom: none;
+}
+
+.html-widget {
+  margin-bottom: 2.0em;
+}
+
+.l-screen-inset {
+  padding-right: 16px;
+}
+
+.l-screen .caption {
+  margin-left: 10px;
+}
+
+.shaded {
+  background: rgb(247, 247, 247);
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.shaded .html-widget {
+  margin-bottom: 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.shaded .shaded-content {
+  background: white;
+}
+
+.text-output {
+  margin-top: 0;
+  line-height: 1.5em;
+}
+
+.hidden {
+  display: none !important;
+}
+
+d-article {
+  padding-top: 2.5rem;
+  padding-bottom: 30px;
+}
+
+d-appendix {
+  padding-top: 30px;
+}
+
+d-article>p>img {
+  width: 100%;
+}
+
+d-article h2 {
+  margin: 1rem 0 1.5rem 0;
+}
+
+d-article h3 {
+  margin-top: 1.5rem;
+}
+
+d-article iframe {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 2.0em;
+  width: 100%;
+}
+
+/* Tweak code blocks */
+
+d-article div.sourceCode code,
+d-article pre code {
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+}
+
+d-article pre,
+d-article div.sourceCode,
+d-article div.sourceCode pre {
+  overflow: auto;
+}
+
+d-article div.sourceCode {
+  background-color: white;
+}
+
+d-article div.sourceCode pre {
+  padding-left: 10px;
+  font-size: 12px;
+  border-left: 2px solid rgba(0,0,0,0.1);
+}
+
+d-article pre {
+  font-size: 12px;
+  color: black;
+  background: none;
+  margin-top: 0;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+d-article pre a {
+  border-bottom: none;
+}
+
+d-article pre a:hover {
+  border-bottom: none;
+  text-decoration: underline;
+}
+
+d-article details {
+  grid-column: text;
+  margin-bottom: 0.8em;
+}
+
+@media(min-width: 768px) {
+
+d-article pre,
+d-article div.sourceCode,
+d-article div.sourceCode pre {
+  overflow: visible !important;
+}
+
+d-article div.sourceCode pre {
+  padding-left: 18px;
+  font-size: 14px;
+}
+
+d-article pre {
+  font-size: 14px;
+}
+
+}
+
+figure img.external {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+/* CSS for d-contents */
+
+.d-contents {
+  grid-column: text;
+  color: rgba(0,0,0,0.8);
+  font-size: 0.9em;
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+  padding-bottom: 0.5em;
+  margin-bottom: 1em;
+  padding-left: 0.25em;
+  justify-self: start;
+}
+
+@media(min-width: 1000px) {
+  .d-contents.d-contents-float {
+    height: 0;
+    grid-column-start: 1;
+    grid-column-end: 4;
+    justify-self: center;
+    padding-right: 3em;
+    padding-left: 2em;
+  }
+}
+
+.d-contents nav h3 {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+.d-contents li {
+  list-style-type: none
+}
+
+.d-contents nav > ul {
+  padding-left: 0;
+}
+
+.d-contents ul {
+  padding-left: 1em
+}
+
+.d-contents nav ul li {
+  margin-top: 0.6em;
+  margin-bottom: 0.2em;
+}
+
+.d-contents nav a {
+  font-size: 13px;
+  border-bottom: none;
+  text-decoration: none
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.d-contents nav a:hover {
+  text-decoration: underline solid rgba(0, 0, 0, 0.6)
+}
+
+.d-contents nav > ul > li > a {
+  font-weight: 600;
+}
+
+.d-contents nav > ul > li > ul {
+  font-weight: inherit;
+}
+
+.d-contents nav > ul > li > ul > li {
+  margin-top: 0.2em;
+}
+
+
+.d-contents nav ul {
+  margin-top: 0;
+  margin-bottom: 0.25em;
+}
+
+.d-article-with-toc h2:nth-child(2) {
+  margin-top: 0;
+}
+
+
+/* Figure */
+
+.figure {
+  position: relative;
+  margin-bottom: 2.5em;
+  margin-top: 1.5em;
+}
+
+.figure img {
+  width: 100%;
+}
+
+.figure .caption {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+  line-height: 1.5em;
+}
+
+.figure img.external {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+.figure .caption a {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.figure .caption b,
+.figure .caption strong, {
+  font-weight: 600;
+  color: rgba(0, 0, 0, 1.0);
+}
+
+/* Citations */
+
+d-article .citation {
+  color: inherit;
+  cursor: inherit;
+}
+
+div.hanging-indent{
+  margin-left: 1em; text-indent: -1em;
+}
+
+/* Citation hover box */
+
+.tippy-box[data-theme~=light-border] {
+  background-color: rgba(250, 250, 250, 0.95);
+}
+
+.tippy-content > p {
+  margin-bottom: 0;
+  padding: 2px;
+}
+
+
+/* Tweak 1000px media break to show more text */
+
+@media(min-width: 1000px) {
+  .base-grid,
+  distill-header,
+  d-title,
+  d-abstract,
+  d-article,
+  d-appendix,
+  distill-appendix,
+  d-byline,
+  d-footnote-list,
+  d-citation-list,
+  distill-footer {
+    grid-template-columns: [screen-start] 1fr [page-start kicker-start] 80px [middle-start] 50px [text-start kicker-end] 65px 65px 65px 65px 65px 65px 65px 65px [text-end gutter-start] 65px [middle-end] 65px [page-end gutter-end] 1fr [screen-end];
+    grid-column-gap: 16px;
+  }
+
+  .grid {
+    grid-column-gap: 16px;
+  }
+
+  d-article {
+    font-size: 1.06rem;
+    line-height: 1.7em;
+  }
+  figure .caption, .figure .caption, figure figcaption {
+    font-size: 13px;
+  }
+}
+
+@media(min-width: 1180px) {
+  .base-grid,
+  distill-header,
+  d-title,
+  d-abstract,
+  d-article,
+  d-appendix,
+  distill-appendix,
+  d-byline,
+  d-footnote-list,
+  d-citation-list,
+  distill-footer {
+    grid-template-columns: [screen-start] 1fr [page-start kicker-start] 60px [middle-start] 60px [text-start kicker-end] 60px 60px 60px 60px 60px 60px 60px 60px [text-end gutter-start] 60px [middle-end] 60px [page-end gutter-end] 1fr [screen-end];
+    grid-column-gap: 32px;
+  }
+
+  .grid {
+    grid-column-gap: 32px;
+  }
+}
+
+
+/* Get the citation styles for the appendix (not auto-injected on render since
+   we do our own rendering of the citation appendix) */
+
+d-appendix .citation-appendix,
+.d-appendix .citation-appendix {
+  font-size: 11px;
+  line-height: 15px;
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  padding-left: 18px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.02);
+  padding: 10px 18px;
+  border-radius: 3px;
+  color: rgba(150, 150, 150, 1);
+  overflow: hidden;
+  margin-top: -12px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Include appendix styles here so they can be overridden */
+
+d-appendix {
+  contain: layout style;
+  font-size: 0.8em;
+  line-height: 1.7em;
+  margin-top: 60px;
+  margin-bottom: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  color: rgba(0,0,0,0.5);
+  padding-top: 60px;
+  padding-bottom: 48px;
+}
+
+d-appendix h3 {
+  grid-column: page-start / text-start;
+  font-size: 15px;
+  font-weight: 500;
+  margin-top: 1em;
+  margin-bottom: 0;
+  color: rgba(0,0,0,0.65);
+}
+
+d-appendix h3 + * {
+  margin-top: 1em;
+}
+
+d-appendix ol {
+  padding: 0 0 0 15px;
+}
+
+@media (min-width: 768px) {
+  d-appendix ol {
+    padding: 0 0 0 30px;
+    margin-left: -30px;
+  }
+}
+
+d-appendix li {
+  margin-bottom: 1em;
+}
+
+d-appendix a {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+d-appendix > * {
+  grid-column: text;
+}
+
+d-appendix > d-footnote-list,
+d-appendix > d-citation-list,
+d-appendix > distill-appendix {
+  grid-column: screen;
+}
+
+/* Include footnote styles here so they can be overridden */
+
+d-footnote-list {
+  contain: layout style;
+}
+
+d-footnote-list > * {
+  grid-column: text;
+}
+
+d-footnote-list a.footnote-backlink {
+  color: rgba(0,0,0,0.3);
+  padding-left: 0.5em;
+}
+
+
+
+/* Anchor.js */
+
+.anchorjs-link {
+  /*transition: all .25s linear; */
+  text-decoration: none;
+  border-bottom: none;
+}
+*:hover > .anchorjs-link {
+  margin-left: -1.125em !important;
+  text-decoration: none;
+  border-bottom: none;
+}
+
+/* Social footer */
+
+.social_footer {
+  margin-top: 30px;
+  margin-bottom: 0;
+  color: rgba(0,0,0,0.67);
+}
+
+.disqus-comments {
+  margin-right: 30px;
+}
+
+.disqus-comment-count {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+#disqus_thread {
+  margin-top: 30px;
+}
+
+.article-sharing a {
+  border-bottom: none;
+  margin-right: 8px;
+}
+
+.article-sharing a:hover {
+  border-bottom: none;
+}
+
+.sidebar-section.subscribe {
+  font-size: 12px;
+  line-height: 1.6em;
+}
+
+.subscribe p {
+  margin-bottom: 0.5em;
+}
+
+
+.article-footer .subscribe {
+  font-size: 15px;
+  margin-top: 45px;
+}
+
+
+.sidebar-section.custom {
+  font-size: 12px;
+  line-height: 1.6em;
+}
+
+.custom p {
+  margin-bottom: 0.5em;
+}
+
+/* Styles for listing layout (hide title) */
+.layout-listing d-title, .layout-listing .d-title {
+  display: none;
+}
+
+/* Styles for posts lists (not auto-injected) */
+
+
+.posts-with-sidebar {
+  padding-left: 45px;
+  padding-right: 45px;
+}
+
+.posts-list .description h2,
+.posts-list .description p {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+.posts-list .description h2 {
+  font-weight: 700;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.posts-list h2.post-tag {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  padding-bottom: 12px;
+}
+.posts-list {
+  margin-top: 60px;
+  margin-bottom: 24px;
+}
+
+.posts-list .post-preview {
+  text-decoration: none;
+  overflow: hidden;
+  display: block;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 24px 0;
+}
+
+.post-preview-last {
+  border-bottom: none !important;
+}
+
+.posts-list .posts-list-caption {
+  grid-column: screen;
+  font-weight: 400;
+}
+
+.posts-list .post-preview h2 {
+  margin: 0 0 6px 0;
+  line-height: 1.2em;
+  font-style: normal;
+  font-size: 24px;
+}
+
+.posts-list .post-preview p {
+  margin: 0 0 12px 0;
+  line-height: 1.4em;
+  font-size: 16px;
+}
+
+.posts-list .post-preview .thumbnail {
+  box-sizing: border-box;
+  margin-bottom: 24px;
+  position: relative;
+  max-width: 500px;
+}
+.posts-list .post-preview img {
+  width: 100%;
+  display: block;
+}
+
+.posts-list .metadata {
+  font-size: 12px;
+  line-height: 1.4em;
+  margin-bottom: 18px;
+}
+
+.posts-list .metadata > * {
+  display: inline-block;
+}
+
+.posts-list .metadata .publishedDate {
+  margin-right: 2em;
+}
+
+.posts-list .metadata .dt-authors {
+  display: block;
+  margin-top: 0.3em;
+  margin-right: 2em;
+}
+
+.posts-list .dt-tags {
+  display: block;
+  line-height: 1em;
+}
+
+.posts-list .dt-tags .dt-tag {
+  display: inline-block;
+  color: rgba(0,0,0,0.6);
+  padding: 0.3em 0.4em;
+  margin-right: 0.2em;
+  margin-bottom: 0.4em;
+  font-size: 60%;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 3px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.posts-list img {
+  opacity: 1;
+}
+
+.posts-list img[data-src] {
+  opacity: 0;
+}
+
+.posts-more {
+  clear: both;
+}
+
+
+.posts-sidebar {
+  font-size: 16px;
+}
+
+.posts-sidebar h3 {
+  font-size: 16px;
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.sidebar-section {
+  margin-bottom: 30px;
+}
+
+.categories ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.categories li {
+  color: rgba(0, 0, 0, 0.8);
+  margin-bottom: 0;
+}
+
+.categories li>a {
+  border-bottom: none;
+}
+
+.categories li>a:hover {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+.categories .active {
+  font-weight: 600;
+}
+
+.categories .category-count {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+
+@media(min-width: 768px) {
+  .posts-list .post-preview h2 {
+    font-size: 26px;
+  }
+  .posts-list .post-preview .thumbnail {
+    float: right;
+    width: 30%;
+    margin-bottom: 0;
+  }
+  .posts-list .post-preview .description {
+    float: left;
+    width: 45%;
+  }
+  .posts-list .post-preview .metadata {
+    float: left;
+    width: 20%;
+    margin-top: 8px;
+  }
+  .posts-list .post-preview p {
+    margin: 0 0 12px 0;
+    line-height: 1.5em;
+    font-size: 16px;
+  }
+  .posts-with-sidebar .posts-list {
+    float: left;
+    width: 75%;
+  }
+  .posts-with-sidebar .posts-sidebar {
+    float: right;
+    width: 20%;
+    margin-top: 60px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+}
+
+
+/* Improve display for browsers without grid (IE/Edge <= 15) */
+
+.downlevel {
+  line-height: 1.6em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+}
+
+.downlevel .d-title {
+  padding-top: 6rem;
+  padding-bottom: 1.5rem;
+}
+
+.downlevel .d-title h1 {
+  font-size: 50px;
+  font-weight: 700;
+  line-height: 1.1em;
+  margin: 0 0 0.5rem;
+}
+
+.downlevel .d-title p {
+  font-weight: 300;
+  font-size: 1.2rem;
+  line-height: 1.55em;
+  margin-top: 0;
+}
+
+.downlevel .d-byline {
+  padding-top: 0.8em;
+  padding-bottom: 0.8em;
+  font-size: 0.8rem;
+  line-height: 1.8em;
+}
+
+.downlevel .section-separator {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.downlevel .d-article {
+  font-size: 1.06rem;
+  line-height: 1.7em;
+  padding-top: 1rem;
+  padding-bottom: 2rem;
+}
+
+
+.downlevel .d-appendix {
+  padding-left: 0;
+  padding-right: 0;
+  max-width: none;
+  font-size: 0.8em;
+  line-height: 1.7em;
+  margin-bottom: 0;
+  color: rgba(0,0,0,0.5);
+  padding-top: 40px;
+  padding-bottom: 48px;
+}
+
+.downlevel .footnotes ol {
+  padding-left: 13px;
+}
+
+.downlevel .base-grid,
+.downlevel .distill-header,
+.downlevel .d-title,
+.downlevel .d-abstract,
+.downlevel .d-article,
+.downlevel .d-appendix,
+.downlevel .distill-appendix,
+.downlevel .d-byline,
+.downlevel .d-footnote-list,
+.downlevel .d-citation-list,
+.downlevel .distill-footer,
+.downlevel .appendix-bottom,
+.downlevel .posts-container {
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+@media(min-width: 768px) {
+  .downlevel .base-grid,
+  .downlevel .distill-header,
+  .downlevel .d-title,
+  .downlevel .d-abstract,
+  .downlevel .d-article,
+  .downlevel .d-appendix,
+  .downlevel .distill-appendix,
+  .downlevel .d-byline,
+  .downlevel .d-footnote-list,
+  .downlevel .d-citation-list,
+  .downlevel .distill-footer,
+  .downlevel .appendix-bottom,
+  .downlevel .posts-container {
+  padding-left: 150px;
+  padding-right: 150px;
+  max-width: 900px;
+}
+}
+
+.downlevel pre code {
+  display: block;
+  border-left: 2px solid rgba(0, 0, 0, .1);
+  padding: 0 0 0 20px;
+  font-size: 14px;
+}
+
+.downlevel code, .downlevel pre {
+  color: black;
+  background: none;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+.downlevel .posts-list .post-preview {
+  color: inherit;
+}
+
+
+
+</style>
+
+<script type="application/javascript">
+
+function is_downlevel_browser() {
+  if (bowser.isUnsupportedBrowser({ msie: "12", msedge: "16"},
+                                 window.navigator.userAgent)) {
+    return true;
+  } else {
+    return window.load_distill_framework === undefined;
+  }
+}
+
+// show body when load is complete
+function on_load_complete() {
+
+  // add anchors
+  if (window.anchors) {
+    window.anchors.options.placement = 'left';
+    window.anchors.add('d-article > h2, d-article > h3, d-article > h4, d-article > h5');
+  }
+
+
+  // set body to visible
+  document.body.style.visibility = 'visible';
+
+  // force redraw for leaflet widgets
+  if (window.HTMLWidgets) {
+    var maps = window.HTMLWidgets.findAll(".leaflet");
+    $.each(maps, function(i, el) {
+      var map = this.getMap();
+      map.invalidateSize();
+      map.eachLayer(function(layer) {
+        if (layer instanceof L.TileLayer)
+          layer.redraw();
+      });
+    });
+  }
+
+  // trigger 'shown' so htmlwidgets resize
+  $('d-article').trigger('shown');
+}
+
+function init_distill() {
+
+  init_common();
+
+  // create front matter
+  var front_matter = $('<d-front-matter></d-front-matter>');
+  $('#distill-front-matter').wrap(front_matter);
+
+  // create d-title
+  $('.d-title').changeElementType('d-title');
+
+  // create d-byline
+  var byline = $('<d-byline></d-byline>');
+  $('.d-byline').replaceWith(byline);
+
+  // create d-article
+  var article = $('<d-article></d-article>');
+  $('.d-article').wrap(article).children().unwrap();
+
+  // move posts container into article
+  $('.posts-container').appendTo($('d-article'));
+
+  // create d-appendix
+  $('.d-appendix').changeElementType('d-appendix');
+
+  // flag indicating that we have appendix items
+  var appendix = $('.appendix-bottom').children('h3').length > 0;
+
+  // replace footnotes with <d-footnote>
+  $('.footnote-ref').each(function(i, val) {
+    appendix = true;
+    var href = $(this).attr('href');
+    var id = href.replace('#', '');
+    var fn = $('#' + id);
+    var fn_p = $('#' + id + '>p');
+    fn_p.find('.footnote-back').remove();
+    var text = fn_p.html();
+    var dtfn = $('<d-footnote></d-footnote>');
+    dtfn.html(text);
+    $(this).replaceWith(dtfn);
+  });
+  // remove footnotes
+  $('.footnotes').remove();
+
+  // move refs into #references-listing
+  $('#references-listing').replaceWith($('#refs'));
+
+  $('h1.appendix, h2.appendix').each(function(i, val) {
+    $(this).changeElementType('h3');
+  });
+  $('h3.appendix').each(function(i, val) {
+    var id = $(this).attr('id');
+    $('.d-contents a[href="#' + id + '"]').parent().remove();
+    appendix = true;
+    $(this).nextUntil($('h1, h2, h3')).addBack().appendTo($('d-appendix'));
+  });
+
+  // show d-appendix if we have appendix content
+  $("d-appendix").css('display', appendix ? 'grid' : 'none');
+
+  // localize layout chunks to just output
+  $('.layout-chunk').each(function(i, val) {
+
+    // capture layout
+    var layout = $(this).attr('data-layout');
+
+    // apply layout to markdown level block elements
+    var elements = $(this).children().not('details, div.sourceCode, pre, script');
+    elements.each(function(i, el) {
+      var layout_div = $('<div class="' + layout + '"></div>');
+      if (layout_div.hasClass('shaded')) {
+        var shaded_content = $('<div class="shaded-content"></div>');
+        $(this).wrap(shaded_content);
+        $(this).parent().wrap(layout_div);
+      } else {
+        $(this).wrap(layout_div);
+      }
+    });
+
+
+    // unwrap the layout-chunk div
+    $(this).children().unwrap();
+  });
+
+  // remove code block used to force  highlighting css
+  $('.distill-force-highlighting-css').parent().remove();
+
+  // remove empty line numbers inserted by pandoc when using a
+  // custom syntax highlighting theme
+  $('code.sourceCode a:empty').remove();
+
+  // load distill framework
+  load_distill_framework();
+
+  // wait for window.distillRunlevel == 4 to do post processing
+  function distill_post_process() {
+
+    if (!window.distillRunlevel || window.distillRunlevel < 4)
+      return;
+
+    // hide author/affiliations entirely if we have no authors
+    var front_matter = JSON.parse($("#distill-front-matter").html());
+    var have_authors = front_matter.authors && front_matter.authors.length > 0;
+    if (!have_authors)
+      $('d-byline').addClass('hidden');
+
+    // article with toc class
+    $('.d-contents').parent().addClass('d-article-with-toc');
+
+    // strip links that point to #
+    $('.authors-affiliations').find('a[href="#"]').removeAttr('href');
+
+    // add orcid ids
+    $('.authors-affiliations').find('.author').each(function(i, el) {
+      var orcid_id = front_matter.authors[i].orcidID;
+      if (orcid_id) {
+        var a = $('<a></a>');
+        a.attr('href', 'https://orcid.org/' + orcid_id);
+        var img = $('<img></img>');
+        img.addClass('orcid-id');
+        img.attr('alt', 'ORCID ID');
+        img.attr('src','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg==');
+        a.append(img);
+        $(this).append(a);
+      }
+    });
+
+    // hide elements of author/affiliations grid that have no value
+    function hide_byline_column(caption) {
+      $('d-byline').find('h3:contains("' + caption + '")').parent().css('visibility', 'hidden');
+    }
+
+    // affiliations
+    var have_affiliations = false;
+    for (var i = 0; i<front_matter.authors.length; ++i) {
+      var author = front_matter.authors[i];
+      if (author.affiliation !== "&nbsp;") {
+        have_affiliations = true;
+        break;
+      }
+    }
+    if (!have_affiliations)
+      $('d-byline').find('h3:contains("Affiliations")').css('visibility', 'hidden');
+
+    // published date
+    if (!front_matter.publishedDate)
+      hide_byline_column("Published");
+
+    // document object identifier
+    var doi = $('d-byline').find('h3:contains("DOI")');
+    var doi_p = doi.next().empty();
+    if (!front_matter.doi) {
+      // if we have a citation and valid citationText then link to that
+      if ($('#citation').length > 0 && front_matter.citationText) {
+        doi.html('Citation');
+        $('<a href="#citation"></a>')
+          .text(front_matter.citationText)
+          .appendTo(doi_p);
+      } else {
+        hide_byline_column("DOI");
+      }
+    } else {
+      $('<a></a>')
+         .attr('href', "https://doi.org/" + front_matter.doi)
+         .html(front_matter.doi)
+         .appendTo(doi_p);
+    }
+
+     // change plural form of authors/affiliations
+    if (front_matter.authors.length === 1) {
+      var grid = $('.authors-affiliations');
+      grid.children('h3:contains("Authors")').text('Author');
+      grid.children('h3:contains("Affiliations")').text('Affiliation');
+    }
+
+    // remove d-appendix and d-footnote-list local styles
+    $('d-appendix > style:first-child').remove();
+    $('d-footnote-list > style:first-child').remove();
+
+    // move appendix-bottom entries to the bottom
+    $('.appendix-bottom').appendTo('d-appendix').children().unwrap();
+    $('.appendix-bottom').remove();
+
+    // hoverable references
+    $('span.citation[data-cites]').each(function() {
+      var refs = $(this).attr('data-cites').split(" ");
+      var refHtml = refs.map(function(ref) {
+        return "<p>" + $('#ref-' + ref).html() + "</p>";
+      }).join("\n");
+      window.tippy(this, {
+        allowHTML: true,
+        content: refHtml,
+        maxWidth: 500,
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'light-border',
+        placement: 'bottom-start'
+      });
+    });
+
+    // clear polling timer
+    clearInterval(tid);
+
+    // show body now that everything is ready
+    on_load_complete();
+  }
+
+  var tid = setInterval(distill_post_process, 50);
+  distill_post_process();
+
+}
+
+function init_downlevel() {
+
+  init_common();
+
+   // insert hr after d-title
+  $('.d-title').after($('<hr class="section-separator"/>'));
+
+  // check if we have authors
+  var front_matter = JSON.parse($("#distill-front-matter").html());
+  var have_authors = front_matter.authors && front_matter.authors.length > 0;
+
+  // manage byline/border
+  if (!have_authors)
+    $('.d-byline').remove();
+  $('.d-byline').after($('<hr class="section-separator"/>'));
+  $('.d-byline a').remove();
+
+  // remove toc
+  $('.d-contents').remove();
+
+  // move appendix elements
+  $('h1.appendix, h2.appendix').each(function(i, val) {
+    $(this).changeElementType('h3');
+  });
+  $('h3.appendix').each(function(i, val) {
+    $(this).nextUntil($('h1, h2, h3')).addBack().appendTo($('.d-appendix'));
+  });
+
+
+  // inject headers into references and footnotes
+  var refs_header = $('<h3></h3>');
+  refs_header.text('References');
+  $('#refs').prepend(refs_header);
+
+  var footnotes_header = $('<h3></h3');
+  footnotes_header.text('Footnotes');
+  $('.footnotes').children('hr').first().replaceWith(footnotes_header);
+
+  // move appendix-bottom entries to the bottom
+  $('.appendix-bottom').appendTo('.d-appendix').children().unwrap();
+  $('.appendix-bottom').remove();
+
+  // remove appendix if it's empty
+  if ($('.d-appendix').children().length === 0)
+    $('.d-appendix').remove();
+
+  // prepend separator above appendix
+  $('.d-appendix').before($('<hr class="section-separator" style="clear: both"/>'));
+
+  // trim code
+  $('pre>code').each(function(i, val) {
+    $(this).html($.trim($(this).html()));
+  });
+
+  // move posts-container right before article
+  $('.posts-container').insertBefore($('.d-article'));
+
+  $('body').addClass('downlevel');
+
+  on_load_complete();
+}
+
+
+function init_common() {
+
+  // jquery plugin to change element types
+  (function($) {
+    $.fn.changeElementType = function(newType) {
+      var attrs = {};
+
+      $.each(this[0].attributes, function(idx, attr) {
+        attrs[attr.nodeName] = attr.nodeValue;
+      });
+
+      this.replaceWith(function() {
+        return $("<" + newType + "/>", attrs).append($(this).contents());
+      });
+    };
+  })(jQuery);
+
+  // prevent underline for linked images
+  $('a > img').parent().css({'border-bottom' : 'none'});
+
+  // mark non-body figures created by knitr chunks as 100% width
+  $('.layout-chunk').each(function(i, val) {
+    var figures = $(this).find('img, .html-widget');
+    if ($(this).attr('data-layout') !== "l-body") {
+      figures.css('width', '100%');
+    } else {
+      figures.css('max-width', '100%');
+      figures.filter("[width]").each(function(i, val) {
+        var fig = $(this);
+        fig.css('width', fig.attr('width') + 'px');
+      });
+
+    }
+  });
+
+  // auto-append index.html to post-preview links in file: protocol
+  // and in rstudio ide preview
+  $('.post-preview').each(function(i, val) {
+    if (window.location.protocol === "file:")
+      $(this).attr('href', $(this).attr('href') + "index.html");
+  });
+
+  // get rid of index.html references in header
+  if (window.location.protocol !== "file:") {
+    $('.distill-site-header a[href]').each(function(i,val) {
+      $(this).attr('href', $(this).attr('href').replace("index.html", "./"));
+    });
+  }
+
+  // add class to pandoc style tables
+  $('tr.header').parent('thead').parent('table').addClass('pandoc-table');
+  $('.kable-table').children('table').addClass('pandoc-table');
+
+  // add figcaption style to table captions
+  $('caption').parent('table').addClass("figcaption");
+
+  // initialize posts list
+  if (window.init_posts_list)
+    window.init_posts_list();
+
+  // implmement disqus comment link
+  $('.disqus-comment-count').click(function() {
+    window.headroom_prevent_pin = true;
+    $('#disqus_thread').toggleClass('hidden');
+    if (!$('#disqus_thread').hasClass('hidden')) {
+      var offset = $(this).offset();
+      $(window).resize();
+      $('html, body').animate({
+        scrollTop: offset.top - 35
+      });
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (is_downlevel_browser())
+    init_downlevel();
+  else
+    window.addEventListener('WebComponentsReady', init_distill);
+});
+
+</script>
+
+<style type="text/css">
+/* base variables */
+
+/* Edit the CSS properties in this file to create a custom
+   Distill theme. Only edit values in the right column
+   for each row; values shown are the CSS defaults.
+   To return any property to the default,
+   you may set its value to: unset
+   All rows must end with a semi-colon.                      */
+
+/* Optional: embed custom fonts here with `@import`          */
+/* This must remain at the top of this file.                 */
+
+
+
+html {
+  /*-- Main font sizes --*/
+  --title-size:      50px;
+  --body-size:       1.06rem;
+  --code-size:       14px;
+  --aside-size:      12px;
+  --fig-cap-size:    13px;
+  /*-- Main font colors --*/
+  --title-color:     #000000;
+  --header-color:    rgba(0, 0, 0, 0.8);
+  --body-color:      rgba(0, 0, 0, 0.8);
+  --aside-color:     rgba(0, 0, 0, 0.6);
+  --fig-cap-color:   rgba(0, 0, 0, 0.6);
+  /*-- Specify custom fonts ~~~ must be imported above   --*/
+  --heading-font:    sans-serif;
+  --mono-font:       monospace;
+  --body-font:       sans-serif;
+  --navbar-font:     sans-serif;  /* websites + blogs only */
+}
+
+/*-- ARTICLE METADATA --*/
+d-byline {
+  --heading-size:    0.6rem;
+  --heading-color:   rgba(0, 0, 0, 0.5);
+  --body-size:       0.8rem;
+  --body-color:      rgba(0, 0, 0, 0.8);
+}
+
+/*-- ARTICLE TABLE OF CONTENTS --*/
+.d-contents {
+  --heading-size:    18px;
+  --contents-size:   13px;
+}
+
+/*-- ARTICLE APPENDIX --*/
+d-appendix {
+  --heading-size:    15px;
+  --heading-color:   rgba(0, 0, 0, 0.65);
+  --text-size:       0.8em;
+  --text-color:      rgba(0, 0, 0, 0.5);
+}
+
+/*-- WEBSITE HEADER + FOOTER --*/
+/* These properties only apply to Distill sites and blogs  */
+
+.distill-site-header {
+  --title-size:       18px;
+  --text-color:       rgba(255, 255, 255, 0.8);
+  --text-size:        15px;
+  --hover-color:      white;
+  --bkgd-color:       #0F2E3D;
+}
+
+.distill-site-footer {
+  --text-color:       rgba(255, 255, 255, 0.8);
+  --text-size:        15px;
+  --hover-color:      white;
+  --bkgd-color:       #0F2E3D;
+}
+
+/*-- Additional custom styles --*/
+/* Add any additional CSS rules below                      */
+</style>
+<style type="text/css">/* base variables */
+
+/* Edit the CSS properties in this file to create a custom
+   Distill theme. Only edit values in the right column
+   for each row; values shown are the CSS defaults.
+   To return any property to the default,
+   you may set its value to: unset
+   All rows must end with a semi-colon.                      */
+
+/* Optional: embed custom fonts here with `@import`          */
+/* This must remain at the top of this file.                 */
+@import url('https://fonts.googleapis.com/css2?family=Lato');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Mono');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat');
+
+html {
+  /*-- Main font sizes --*/
+  --title-size:      50px;
+  --body-size:       1.0rem;                     /* edited */
+  --code-size:       0.9rem;                     /* edited */
+  --aside-size:      12px;
+  --fig-cap-size:    13px;
+  /*-- Main font colors --*/
+  --title-color:     #000000;
+  --heading-color:   rgba(0, 0, 0, 0.8);
+  --body-color:      #383838;                    /* edited */
+  --aside-color:     rgba(0, 0, 0, 0.6);
+  --fig-cap-color:   rgba(0, 0, 0, 0.6);
+  /*-- Specify custom fonts ~~~ must be imported above   --*/
+  --heading-font:    'Lato', sans-serif;         /* edited */
+  --mono-font:       'Fira Mono', monospace;     /* edited */
+  --body-font:       'Lato', sans-serif;         /* edited */
+  --navbar-font:     'Montserrat', sans-serif;   /* edited */
+}
+
+/*-- ARTICLE METADATA --*/
+d-byline {
+  --heading-size:    0.6rem;
+  --heading-color:   rgba(0, 0, 0, 0.5);
+  --body-size:       0.8rem;
+  --body-color:      rgba(0, 0, 0, 0.8);
+}
+
+/*-- ARTICLE TABLE OF CONTENTS --*/
+.d-contents {
+  --heading-size:    18px;
+  --contents-size:   13px;
+}
+
+/*-- ARTICLE APPENDIX --*/
+d-appendix {
+  --heading-size:    15px;
+  --heading-color:   rgba(0, 0, 0, 0.65);
+  --text-size:       0.8em;
+  --text-color:      rgba(0, 0, 0, 0.5);
+}
+
+/*-- WEBSITE HEADER + FOOTER --*/
+/* These properties only apply to Distill sites and blogs  */
+
+.distill-site-header {
+  --title-size:       20px;                      /* edited */
+  --text-color:       #FFFFFF;                   /* edited */
+  --text-size:        20px;                      /* edited */
+  --hover-color:      #383838;                   /* edited */
+  --bkgd-color:       rgb(249, 83, 85);          /* edited */
+}
+
+.distill-site-footer {
+  --text-color:       rgba(255, 255, 255, 0.8);
+  --text-size:        15px;
+  --hover-color:      white;
+  --bkgd-color:       #0F2E3D;
+}
+
+
+/*-- Additional custom styles --*/
+
+.posts-list .metadata .publishedDate {
+    color: rgb(249, 83, 85);
+}
+
+d-article p code {
+  color: #383838;
+  background: rgba(249, 83, 85, 0.1);
+  font-weight: 400;
+  font-size: 0.9em;
+}
+
+d-article a {
+    border-bottom: 2px solid rgba(249, 83, 85, 0.4);
+    text-decoration: none;
+}
+
+.distill-site-header .title {
+    font-weight: 600; 
+}
+
+ul > li::marker {
+  color: rgb(249, 83, 85);
+}</style>
+<style type="text/css">
+/* base style */
+
+/* FONT FAMILIES */
+
+:root {
+  --heading-default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono-default: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  --body-default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+body,
+.posts-list .post-preview p,
+.posts-list .description p {
+  font-family: var(--body-font), var(--body-default);
+}
+
+h1, h2, h3, h4, h5, h6,
+.posts-list .post-preview h2,
+.posts-list .description h2 {
+  font-family: var(--heading-font), var(--heading-default);
+}
+
+d-article div.sourceCode code,
+d-article pre code {
+  font-family: var(--mono-font), var(--mono-default);
+}
+
+
+/*-- TITLE --*/
+d-title h1,
+.posts-list > h1 {
+  color: var(--title-color, black);
+}
+
+d-title h1 {
+  font-size: var(--title-size, 50px);
+}
+
+/*-- HEADERS --*/
+d-article h1,
+d-article h2,
+d-article h3,
+d-article h4,
+d-article h5,
+d-article h6 {
+  color: var(--header-color, rgba(0, 0, 0, 0.8));
+}
+
+/*-- BODY --*/
+d-article > p,  /* only text inside of <p> tags */
+d-article > ul, /* lists */
+d-article > ol {
+  color: var(--body-color, rgba(0, 0, 0, 0.8));
+  font-size: var(--body-size, 1.06rem);
+}
+
+
+/*-- CODE --*/
+d-article div.sourceCode code,
+d-article pre code {
+  font-size: var(--code-size, 14px);
+}
+
+/*-- ASIDE --*/
+d-article aside {
+  font-size: var(--aside-size, 12px);
+  color: var(--aside-color, rgba(0, 0, 0, 0.6));
+}
+
+/*-- FIGURE CAPTIONS --*/
+figure .caption,
+figure figcaption,
+.figure .caption {
+  font-size: var(--fig-cap-size, 13px);
+  color: var(--fig-cap-color, rgba(0, 0, 0, 0.6));
+}
+
+/*-- METADATA --*/
+d-byline h3 {
+  font-size: var(--heading-size, 0.6rem);
+  color: var(--heading-color, rgba(0, 0, 0, 0.5));
+}
+
+d-byline {
+  font-size: var(--body-size, 0.8rem);
+  color: var(--body-color, rgba(0, 0, 0, 0.8));
+}
+
+d-byline a,
+d-article d-byline a {
+  color: var(--body-color, rgba(0, 0, 0, 0.8));
+}
+
+/*-- TABLE OF CONTENTS --*/
+.d-contents nav h3 {
+  font-size: var(--heading-size, 18px);
+}
+
+.d-contents nav a {
+  font-size: var(--contents-size, 13px);
+}
+
+/*-- APPENDIX --*/
+d-appendix h3 {
+  font-size: var(--heading-size, 15px);
+  color: var(--heading-color, rgba(0, 0, 0, 0.65));
+}
+
+d-appendix {
+  font-size: var(--text-size, 0.8em);
+  color: var(--text-color, rgba(0, 0, 0, 0.5));
+}
+
+d-appendix d-footnote-list a.footnote-backlink {
+  color: var(--text-color, rgba(0, 0, 0, 0.5));
+}
+
+/*-- WEBSITE HEADER + FOOTER --*/
+.distill-site-header .title {
+  font-size: var(--title-size, 18px);
+  font-family: var(--navbar-font), var(--heading-default);
+}
+
+.distill-site-header a,
+.nav-dropdown .nav-dropbtn {
+  font-family: var(--navbar-font), var(--heading-default);
+}
+
+.nav-dropdown .nav-dropbtn {
+  color: var(--text-color, rgba(255, 255, 255, 0.8));
+  font-size: var(--text-size, 15px);
+}
+
+.distill-site-header a:hover,
+.nav-dropdown:hover .nav-dropbtn {
+  color: var(--hover-color, white);
+}
+
+.distill-site-header {
+  font-size: var(--text-size, 15px);
+  color: var(--text-color, rgba(255, 255, 255, 0.8));
+  background-color: var(--bkgd-color, #0F2E3D);
+}
+
+.distill-site-footer {
+  font-size: var(--text-size, 15px);
+  color: var(--text-color, rgba(255, 255, 255, 0.8));
+  background-color: var(--bkgd-color, #0F2E3D);
+}
+
+.distill-site-footer a:hover {
+  color: var(--hover-color, white);
+}</style>
+<!--/radix_placeholder_distill-->
+  <script src="../../site_libs/header-attrs-2.11/header-attrs.js"></script>
+  <script src="../../site_libs/kePrint-0.0.1/kePrint.js"></script>
+  <link href="../../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+  <script src="../../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+  <script src="../../site_libs/popper-2.6.0/popper.min.js"></script>
+  <link href="../../site_libs/tippy-6.2.7/tippy.css" rel="stylesheet" />
+  <link href="../../site_libs/tippy-6.2.7/tippy-light-border.css" rel="stylesheet" />
+  <script src="../../site_libs/tippy-6.2.7/tippy.umd.min.js"></script>
+  <script src="../../site_libs/anchor-4.2.2/anchor.min.js"></script>
+  <script src="../../site_libs/bowser-1.9.3/bowser.min.js"></script>
+  <script src="../../site_libs/webcomponents-2.0.0/webcomponents.js"></script>
+  <script src="../../site_libs/distill-2.2.21/template.v2.js"></script>
+  <!--radix_placeholder_site_in_header-->
+<script type="text/javascript" cookie-consent="tracking" async src="https://www.googletagmanager.com/gtag/js?id=G-N6RYE4NFCW"></script>
+<script type="text/javascript" cookie-consent="tracking">
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-N6RYE4NFCW');
+</script>
+<!--/radix_placeholder_site_in_header-->
+
+
+</head>
+
+<body>
+
+<!--radix_placeholder_front_matter-->
+
+<script id="distill-front-matter" type="text/json">
+{"title":"Classical Test Theory in R","description":"For this post, I will be analyzing characteristics of test items based on the framework of Classical Test Theory (CTT).\n\n(13 min read)","authors":[{"author":"Tarid Wongvorachan","authorURL":"#","affiliation":"University of Alberta","affiliationURL":"https://www.ualberta.ca","orcidID":""}],"publishedDate":"2022-01-15T00:00:00.000-07:00","citationText":"Wongvorachan, 2022"}
+</script>
+
+<!--/radix_placeholder_front_matter-->
+<!--radix_placeholder_navigation_before_body-->
+<header class="header header--fixed" role="banner">
+<nav class="distill-site-nav distill-site-header">
+<div class="nav-left">
+<a href="../../index.html" class="title">Tarid Wongvorachan</a>
+<input id="distill-search" class="nav-search hidden" type="text" placeholder="Search..."/>
+</div>
+<div class="nav-right">
+<a href="../../index.html">Blog</a>
+<a href="../../about.html">About</a>
+<a href="https://github.com/TaridWong">
+<i class="fa fa-github" aria-hidden="true"></i>
+</a>
+<a href="../../index.xml">
+<i class="fa fa-rss" aria-hidden="true"></i>
+</a>
+<a href="javascript:void(0);" class="nav-toggle">&#9776;</a>
+</div>
+</nav>
+</header>
+<!--/radix_placeholder_navigation_before_body-->
+<!--radix_placeholder_site_before_body-->
+<!--/radix_placeholder_site_before_body-->
+
+<div class="d-title">
+<h1>Classical Test Theory in R</h1>
+<!--radix_placeholder_categories-->
+<div class="dt-tags">
+  <a href="../../index.html#category:R" class="dt-tag">R</a>
+  <a href="../../index.html#category:Psychometric" class="dt-tag">Psychometric</a>
+</div>
+<!--/radix_placeholder_categories-->
+<p><p>For this post, I will be analyzing characteristics of test items based on the framework of Classical Test Theory (CTT).</p>
+<p>(13 min read)</p></p>
+</div>
+
+<div class="d-byline">
+  Tarid Wongvorachan  (University of Alberta)<a href="https://www.ualberta.ca" class="uri">https://www.ualberta.ca</a>
+  
+<br/>2022-01-15
+</div>
+
+<div class="d-article">
+<div class="d-contents">
+<nav class="l-text toc figcaption" id="TOC">
+<h3>Contents</h3>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#reliability-analysis">Reliability Analysis</a></li>
+<li><a href="#standard-error-of-measurement">Standard Error of Measurement</a></li>
+<li><a href="#confidence-intervals-for-true-scores">Confidence Intervals for True Scores</a></li>
+<li><a href="#item-analysis">Item Analysis</a></li>
+<li><a href="#concluding-remark">Concluding remark</a></li>
+</ul>
+</nav>
+</div>
+<h2 id="introduction">Introduction</h2>
+<ul>
+<li><p>Classical Test Theory (CTT - also known as weak theory or true-score theory) is a psychometric framework that analyzes psychological tests based on the three concepts of True score (T), Observed score (X), and Error score (E) <a href="https://doi.org/10.1177/0013164498058003001">(Fan, 1998)</a>.</p></li>
+<li><p>CTT assumes that each person has a true score that could be obtained if there were no errors in measurement. This approach to psychometric employs simple mathematical estimates such as averages, proportions, and correlation as methods to measure test takers’ level of construct regardless of their individual attribute.</p></li>
+<li><p>The major advantage of CTT are its relatively weak theoretical assumptions, which make it easy to apply in many testing situations such as classroom assessment without much constraints. Relatively weak theoretical assumptions not only characterize CTT but also its extensions (e.g., generalizability theory) as well.</p></li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'>knitr</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/knitr/man/opts_chunk.html'>opts_chunk</a></span><span class='op'>$</span><span class='fu'>set</span><span class='op'>(</span>error <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<ul>
+<li>We will load essential libraries as usual and import test item data and its answer key.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://personality-project.org/r/psych/'>psych</a></span><span class='op'>)</span> <span class='co'>#for general psychometric functions</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>CTT</span><span class='op'>)</span> <span class='co'>#for CTT-based item analysis</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span> <span class='co'>#data toolbox for R</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='http://haozhu233.github.io/kableExtra/'>kableExtra</a></span><span class='op'>)</span> <span class='co'>#neat tables for R markdown</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>psychometric</span><span class='op'>)</span> <span class='co'>#for item difficulty</span>
+</code></pre>
+</div>
+</details>
+</div>
+<ul>
+<li><p>The dataset we will use for this task is an assessment dataset for 241 students N = (241). The assessment comprises of 20 multiple-choice exam items. Each item has 4 response options.</p></li>
+<li><p>We will begin by loading in the unscored answer data as seen below. <code>i001</code> represents item 1, <code>i002</code> represents item 2 and so forth until item 20.</p></li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#Importing test data</span>
+<span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_csv</a></span><span class='op'>(</span><span class='st'>"sample.score.csv"</span>, col_names <span class='op'>=</span> <span class='cn'>T</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kbl.html'>kbl</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kable_styling.html'>kable_styling</a></span><span class='op'>(</span>bootstrap_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"striped"</span>, <span class='st'>"hover"</span>, <span class='st'>"condensed"</span>, <span class='st'>"responsive"</span><span class='op'>)</span>,
+                full_width <span class='op'>=</span> <span class='cn'>TRUE</span>, position <span class='op'>=</span> <span class='st'>"left"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<table class="table table-striped table-hover table-condensed table-responsive" style>
+<thead>
+<tr>
+<th style="text-align:left;">
+i001
+</th>
+<th style="text-align:left;">
+i002
+</th>
+<th style="text-align:left;">
+i003
+</th>
+<th style="text-align:left;">
+i004
+</th>
+<th style="text-align:left;">
+i005
+</th>
+<th style="text-align:left;">
+i006
+</th>
+<th style="text-align:left;">
+i007
+</th>
+<th style="text-align:left;">
+i008
+</th>
+<th style="text-align:left;">
+i009
+</th>
+<th style="text-align:left;">
+i010
+</th>
+<th style="text-align:left;">
+i011
+</th>
+<th style="text-align:left;">
+i012
+</th>
+<th style="text-align:left;">
+i013
+</th>
+<th style="text-align:left;">
+i014
+</th>
+<th style="text-align:left;">
+i015
+</th>
+<th style="text-align:left;">
+i016
+</th>
+<th style="text-align:left;">
+i017
+</th>
+<th style="text-align:left;">
+i018
+</th>
+<th style="text-align:left;">
+i019
+</th>
+<th style="text-align:left;">
+i020
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+D
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+D
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+C
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+C
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+D
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>Next, we will import answer key data for all 20 items. Note that the answer keys need to match with the response options in the unscored response data; that is, if the answer for <code>i001</code> is A, the key has to be “A”, not “a” or “B” or other responses.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#Importing test key</span>
+<span class='va'>key</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_csv</a></span><span class='op'>(</span><span class='st'>"sample.key.csv"</span>, col_names <span class='op'>=</span> <span class='cn'>T</span><span class='op'>)</span> 
+<span class='va'>key</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='va'>key</span><span class='op'>)</span>
+
+
+<span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kbl.html'>kbl</a></span><span class='op'>(</span><span class='va'>key</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kable_styling.html'>kable_styling</a></span><span class='op'>(</span>bootstrap_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"striped"</span>, <span class='st'>"hover"</span>, <span class='st'>"condensed"</span>, <span class='st'>"responsive"</span><span class='op'>)</span>,
+                full_width <span class='op'>=</span> <span class='cn'>TRUE</span>, position <span class='op'>=</span> <span class='st'>"left"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<table class="table table-striped table-hover table-condensed table-responsive" style>
+<thead>
+<tr>
+<th style="text-align:left;">
+i001
+</th>
+<th style="text-align:left;">
+i002
+</th>
+<th style="text-align:left;">
+i003
+</th>
+<th style="text-align:left;">
+i004
+</th>
+<th style="text-align:left;">
+i005
+</th>
+<th style="text-align:left;">
+i006
+</th>
+<th style="text-align:left;">
+i007
+</th>
+<th style="text-align:left;">
+i008
+</th>
+<th style="text-align:left;">
+i009
+</th>
+<th style="text-align:left;">
+i010
+</th>
+<th style="text-align:left;">
+i011
+</th>
+<th style="text-align:left;">
+i012
+</th>
+<th style="text-align:left;">
+i013
+</th>
+<th style="text-align:left;">
+i014
+</th>
+<th style="text-align:left;">
+i015
+</th>
+<th style="text-align:left;">
+i016
+</th>
+<th style="text-align:left;">
+i017
+</th>
+<th style="text-align:left;">
+i018
+</th>
+<th style="text-align:left;">
+i019
+</th>
+<th style="text-align:left;">
+i020
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+B
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+A
+</td>
+<td style="text-align:left;">
+C
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+D
+</td>
+<td style="text-align:left;">
+C
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><p>We will then use the function <code>score()</code> function to score multiple choice responses by specifying our unscored response and answer key dataframe. What makes this function useful is that we can also request for reliability analysis with <code>rel = TRUE</code>.</p></li>
+<li><p>When scored, each item will be binarily coded, with 0 as incorrect and 1 as correct. We can also requested for item parameter such as mean of that item (<code>itemMean</code>), point-biserial and biserial correlation (we will get there soon), Coefficient Alpha reliability (or Cronbach’s Alpha) if that item is removed from the exam, and we can even requested for the function to flag if that item has low reliability value.</p></li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#scoring</span>
+<span class='va'>myScore</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/CTT/man/score.html'>score</a></span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>key</span>, output.scored<span class='op'>=</span><span class='cn'>TRUE</span>, rel <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+
+<span class='va'>scored_item</span> <span class='op'>&lt;-</span> <span class='va'>myScore</span><span class='op'>$</span><span class='va'>scored</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='fu'><a href='https://rdrr.io/r/base/as.data.frame.html'>as.data.frame</a></span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kbl.html'>kbl</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>scored_item</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kable_styling.html'>kable_styling</a></span><span class='op'>(</span>bootstrap_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"striped"</span>, <span class='st'>"hover"</span>, <span class='st'>"condensed"</span>, <span class='st'>"responsive"</span><span class='op'>)</span>,
+                full_width <span class='op'>=</span> <span class='cn'>TRUE</span>, position <span class='op'>=</span> <span class='st'>"left"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<table class="table table-striped table-hover table-condensed table-responsive" style>
+<thead>
+<tr>
+<th style="text-align:right;">
+V1
+</th>
+<th style="text-align:right;">
+V2
+</th>
+<th style="text-align:right;">
+V3
+</th>
+<th style="text-align:right;">
+V4
+</th>
+<th style="text-align:right;">
+V5
+</th>
+<th style="text-align:right;">
+V6
+</th>
+<th style="text-align:right;">
+V7
+</th>
+<th style="text-align:right;">
+V8
+</th>
+<th style="text-align:right;">
+V9
+</th>
+<th style="text-align:right;">
+V10
+</th>
+<th style="text-align:right;">
+V11
+</th>
+<th style="text-align:right;">
+V12
+</th>
+<th style="text-align:right;">
+V13
+</th>
+<th style="text-align:right;">
+V14
+</th>
+<th style="text-align:right;">
+V15
+</th>
+<th style="text-align:right;">
+V16
+</th>
+<th style="text-align:right;">
+V17
+</th>
+<th style="text-align:right;">
+V18
+</th>
+<th style="text-align:right;">
+V19
+</th>
+<th style="text-align:right;">
+V20
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>item_parameter</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/CTT/man/itemAnalysis.html'>itemAnalysis</a></span><span class='op'>(</span><span class='va'>scored_item</span>, itemReport<span class='op'>=</span><span class='cn'>TRUE</span>, NA.Delete<span class='op'>=</span><span class='cn'>TRUE</span>, pBisFlag <span class='op'>=</span> <span class='cn'>T</span>,  bisFlag <span class='op'>=</span> <span class='cn'>T</span>, flagStyle <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"X"</span>,<span class='st'>""</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='op'>(</span><span class='va'>item_parameter</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>List of 6
+ $ nItem     : int 20
+ $ nPerson   : int 241
+ $ alpha     : num 0.54
+ $ scaleMean : num 9.44
+ $ scaleSD   : num 3
+ $ itemReport:&#39;data.frame&#39;: 20 obs. of  7 variables:
+  ..$ itemName      : chr [1:20] &quot;V1&quot; &quot;V2&quot; &quot;V3&quot; &quot;V4&quot; ...
+  ..$ itemMean      : num [1:20] 0.759 0.734 0.257 0.68 0.365 ...
+  ..$ pBis          : num [1:20] 0.1148 0.1036 0.0506 0.0591 0.1111 ...
+  ..$ bis           : num [1:20] 0.1576 0.1395 0.0686 0.0771 0.1423 ...
+  ..$ alphaIfDeleted: num [1:20] 0.535 0.537 0.545 0.545 0.537 ...
+  ..$ lowPBis       : chr [1:20] &quot;X&quot; &quot;X&quot; &quot;X&quot; &quot;X&quot; ...
+  ..$ lowBis        : chr [1:20] &quot;X&quot; &quot;X&quot; &quot;X&quot; &quot;X&quot; ...
+ - attr(*, &quot;class&quot;)= chr &quot;itemAnalysis&quot;</code></pre>
+</div>
+<ul>
+<li>The output also comes with scores of each examinee on the exam, which we can perform a descriptive analysis with <code>psych::describe()</code> on to learn how students of this section perform on this test with mean, median, mode, standard deviation, and so forth.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kbl.html'>kbl</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>myScore</span><span class='op'>$</span><span class='va'>score</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kable_styling.html'>kable_styling</a></span><span class='op'>(</span>bootstrap_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"striped"</span>, <span class='st'>"hover"</span>, <span class='st'>"condensed"</span>, <span class='st'>"responsive"</span><span class='op'>)</span>,
+                full_width <span class='op'>=</span> <span class='cn'>TRUE</span>, position <span class='op'>=</span> <span class='st'>"left"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<table class="table table-striped table-hover table-condensed table-responsive" style>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+x
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+P1
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P2
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P3
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P4
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P5
+</td>
+<td style="text-align:right;">
+14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P6
+</td>
+<td style="text-align:right;">
+12
+</td>
+</tr>
+</tbody>
+</table>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/psych/man/describe.html'>describe</a></span><span class='op'>(</span><span class='va'>myScore</span><span class='op'>$</span><span class='va'>score</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>   vars   n mean sd median trimmed  mad min max range skew kurtosis
+X1    1 241 9.44  3      9    9.34 2.97   1  19    18 0.26    -0.14
+     se
+X1 0.19</code></pre>
+</div>
+<ul>
+<li>We can also transform the score into a new scale by setting a new mean, SD, and normality with score.transform(). We will refer to the IQ score, with its mean = 100 and its SD = 15. We can even transform the score into a Z score (mean = 0, SD = 1), T score (mean = 50, SD = 10), or even Stanine score (mean = 5, SD = 2).</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#Score transformation</span>
+<span class='va'>IQ</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/CTT/man/score.transform.html'>score.transform</a></span><span class='op'>(</span><span class='va'>myScore</span><span class='op'>$</span><span class='va'>score</span>, mu.new <span class='op'>=</span> <span class='fl'>100</span>, sd.new <span class='op'>=</span> <span class='fl'>15</span>, normalize <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+
+<span class='co'>#new.scores is the transformed score</span>
+<span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kbl.html'>kbl</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>IQ</span><span class='op'>$</span><span class='va'>new.scores</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kable_styling.html'>kable_styling</a></span><span class='op'>(</span>bootstrap_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"striped"</span>, <span class='st'>"hover"</span>, <span class='st'>"condensed"</span>, <span class='st'>"responsive"</span><span class='op'>)</span>,
+                full_width <span class='op'>=</span> <span class='cn'>FALSE</span>, position <span class='op'>=</span> <span class='st'>"left"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+x
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+P1
+</td>
+<td style="text-align:right;">
+99.29768
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P2
+</td>
+<td style="text-align:right;">
+82.70691
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P3
+</td>
+<td style="text-align:right;">
+116.70018
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P4
+</td>
+<td style="text-align:right;">
+99.29768
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P5
+</td>
+<td style="text-align:right;">
+121.19395
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P6
+</td>
+<td style="text-align:right;">
+112.44734
+</td>
+</tr>
+</tbody>
+</table>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#p.scores is the percentile rank of every examinee</span>
+<span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kbl.html'>kbl</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>IQ</span><span class='op'>$</span><span class='va'>p.scores</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kable_styling.html'>kable_styling</a></span><span class='op'>(</span>bootstrap_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"striped"</span>, <span class='st'>"hover"</span>, <span class='st'>"condensed"</span>, <span class='st'>"responsive"</span><span class='op'>)</span>,
+                full_width <span class='op'>=</span> <span class='cn'>FALSE</span>, position <span class='op'>=</span> <span class='st'>"left"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+x
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+P1
+</td>
+<td style="text-align:right;">
+0.4813278
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P2
+</td>
+<td style="text-align:right;">
+0.1244813
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P3
+</td>
+<td style="text-align:right;">
+0.8672199
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P4
+</td>
+<td style="text-align:right;">
+0.4813278
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P5
+</td>
+<td style="text-align:right;">
+0.9211618
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+P6
+</td>
+<td style="text-align:right;">
+0.7966805
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>We can also visualize Item Characteristic Curve (ICC) of each item from the scoring output. The x-axis indicates total test score of examinees while the y-axis indicates the proportion of examinee that gets that item right. For example, there are 70% (or 0.7) of examinees who have 4 as their total score got item 1 correctly. The curve goes up as total score of the examinee increases, with the proportion of examinee that gets the item correctly at 100% in examinees with the total score of 16 and above.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/CTT/man/cttICC.html'>cttICC</a></span><span class='op'>(</span>score <span class='op'>=</span> <span class='va'>myScore</span><span class='op'>$</span><span class='va'>score</span>, itemVector <span class='op'>=</span> <span class='va'>myScore</span><span class='op'>$</span><span class='va'>scored</span><span class='op'>[</span>,<span class='fl'>1</span><span class='op'>]</span>, 
+       xlab <span class='op'>=</span> <span class='st'>"Total test score"</span>,
+       ylab <span class='op'>=</span> <span class='st'>"Proportion of the examinee"</span>,
+       plotTitle <span class='op'>=</span> <span class='st'>"Item Characteristic Curve of item 1"</span>,
+       colTheme<span class='op'>=</span><span class='st'>"dukes"</span>, cex<span class='op'>=</span><span class='fl'>1.5</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<p><img src="ctt_files/figure-html5/unnamed-chunk-10-1.png" width="624" /></p>
+</div>
+<ul>
+<li>We will convert our score data into matrix for for further implementation with item analysis.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#extract responses only as a matrix</span>
+<span class='va'>responses</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='va'>myScore</span><span class='op'>$</span><span class='va'>scored</span><span class='op'>)</span> 
+</code></pre>
+</div>
+</details>
+</div>
+<h2 id="reliability-analysis">Reliability Analysis</h2>
+<ul>
+<li>Reliability of a test is an extent to which a test can produce consistent scores for a particular sample of examinees; that is, a test should yield similar, if not the same, scores for an examinee when taken multiple times, given that there is minimal interference such as practice effect. Test reliability can be measured in different ways such as test-retest, internal consistency, or alternate forms.</li>
+</ul>
+<h3 id="internal-consistency">Internal Consistency</h3>
+<ul>
+<li>For starter, we will compute internal consistency of the test, which includes Coefficient Alpha (or Cronbach’s Alpha), Guttman’s Lambda-6, Kuder-Richardson 20, and Kuder-Richardson 21. The output also yields the proportion of students who got the item correctly to students who got the item incorrectly as well.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'>psych</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/psych/man/alpha.html'>alpha</a></span><span class='op'>(</span><span class='va'>myScore</span><span class='op'>$</span><span class='va'>scored</span>, check.keys <span class='op'>=</span> <span class='cn'>T</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>
+Reliability analysis   
+Call: psych::alpha(x = myScore$scored, check.keys = T)
+
+  raw_alpha std.alpha G6(smc) average_r S/N   ase mean   sd median_r
+      0.55      0.55    0.58     0.057 1.2 0.041 0.48 0.15    0.045
+
+ lower alpha upper     95% confidence boundaries
+0.47 0.55 0.63 
+
+ Reliability if an item is dropped:
+     raw_alpha std.alpha G6(smc) average_r  S/N alpha se  var.r med.r
+V1        0.55      0.54    0.58     0.059 1.18    0.042 0.0081 0.045
+V2        0.56      0.55    0.58     0.060 1.21    0.041 0.0079 0.048
+V3        0.56      0.55    0.59     0.060 1.22    0.041 0.0080 0.048
+V4        0.56      0.56    0.59     0.062 1.25    0.040 0.0080 0.052
+V5        0.55      0.54    0.58     0.059 1.20    0.041 0.0081 0.048
+V6        0.51      0.50    0.54     0.050 1.00    0.046 0.0071 0.041
+V7        0.56      0.55    0.59     0.062 1.25    0.040 0.0078 0.051
+V8        0.55      0.54    0.58     0.059 1.19    0.041 0.0080 0.048
+V9        0.55      0.54    0.58     0.058 1.17    0.042 0.0080 0.048
+V10-      0.56      0.56    0.59     0.062 1.25    0.040 0.0079 0.052
+V11       0.54      0.54    0.57     0.057 1.15    0.042 0.0081 0.045
+V12       0.55      0.54    0.58     0.058 1.17    0.042 0.0080 0.044
+V13       0.53      0.52    0.56     0.055 1.10    0.043 0.0074 0.044
+V14       0.53      0.52    0.56     0.055 1.10    0.043 0.0076 0.043
+V15       0.54      0.53    0.57     0.057 1.14    0.042 0.0076 0.044
+V16       0.51      0.51    0.55     0.051 1.03    0.045 0.0068 0.044
+V17       0.49      0.48    0.52     0.047 0.93    0.048 0.0056 0.039
+V18       0.51      0.50    0.53     0.050 1.00    0.046 0.0060 0.044
+V19       0.55      0.54    0.58     0.059 1.19    0.042 0.0079 0.045
+V20       0.55      0.55    0.58     0.060 1.20    0.041 0.0077 0.048
+
+ Item statistics 
+       n raw.r std.r r.cor r.drop mean   sd
+V1   241  0.26  0.28 0.181  0.125 0.76 0.43
+V2   241  0.23  0.24 0.127  0.083 0.73 0.44
+V3   241  0.22  0.23 0.115  0.082 0.26 0.44
+V4   241  0.20  0.20 0.066  0.043 0.68 0.47
+V5   241  0.26  0.26 0.152  0.106 0.37 0.48
+V6   241  0.51  0.50 0.497  0.370 0.54 0.50
+V7   241  0.19  0.20 0.074  0.045 0.28 0.45
+V8   241  0.27  0.27 0.163  0.113 0.48 0.50
+V9   241  0.26  0.29 0.199  0.143 0.83 0.38
+V10- 241  0.21  0.20 0.067  0.043 0.56 0.50
+V11  241  0.32  0.32 0.228  0.169 0.34 0.47
+V12  241  0.31  0.30 0.205  0.148 0.56 0.50
+V13  241  0.39  0.38 0.323  0.240 0.39 0.49
+V14  241  0.40  0.38 0.327  0.247 0.45 0.50
+V15  241  0.33  0.33 0.254  0.183 0.31 0.46
+V16  241  0.47  0.47 0.452  0.337 0.64 0.48
+V17  241  0.60  0.59 0.647  0.478 0.44 0.50
+V18  241  0.52  0.50 0.526  0.387 0.33 0.47
+V19  241  0.25  0.27 0.176  0.123 0.19 0.39
+V20  241  0.26  0.25 0.152  0.097 0.44 0.50
+
+Non missing response frequency for each item
+         0    1 miss
+ [1,] 0.24 0.76    0
+ [2,] 0.27 0.73    0
+ [3,] 0.74 0.26    0
+ [4,] 0.32 0.68    0
+ [5,] 0.63 0.37    0
+ [6,] 0.46 0.54    0
+ [7,] 0.72 0.28    0
+ [8,] 0.52 0.48    0
+ [9,] 0.17 0.83    0
+[10,] 0.56 0.44    0
+[11,] 0.66 0.34    0
+[12,] 0.44 0.56    0
+[13,] 0.61 0.39    0
+[14,] 0.55 0.45    0
+[15,] 0.69 0.31    0
+[16,] 0.36 0.64    0
+[17,] 0.56 0.44    0
+[18,] 0.67 0.33    0
+[19,] 0.81 0.19    0
+[20,] 0.56 0.44    0</code></pre>
+</div>
+<h3 id="kuder-richardson">Kuder-Richardson</h3>
+<ul>
+<li>For Kuder-Richardson formula 20 (KR20) and Kuder-Richardson formula 21 (KR21), we can write functions that compute them as follows:</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>KR20</span> <span class='op'>&lt;-</span>
+  <span class='kw'>function</span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+    <span class='op'>{</span>
+    <span class='va'>X</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.matrix.html'>data.matrix</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+    <span class='va'>k</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+    
+    <span class='co'># Person total score variances</span>
+    <span class='va'>SX</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/cor.html'>var</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span><span class='op'>)</span>
+    
+    <span class='co'># item means</span>
+    <span class='va'>IM</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>colMeans</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+    
+    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='op'>(</span><span class='op'>(</span><span class='va'>k</span><span class='op'>/</span><span class='op'>(</span><span class='va'>k</span> <span class='op'>-</span> <span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>*</span><span class='op'>(</span><span class='op'>(</span><span class='va'>SX</span> <span class='op'>-</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='va'>IM</span><span class='op'>*</span><span class='op'>(</span><span class='fl'>1</span> <span class='op'>-</span> <span class='va'>IM</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span><span class='op'>/</span><span class='va'>SX</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+  <span class='op'>}</span>
+
+<span class='fu'>KR20</span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>[1] 0.541653</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>KR21</span> <span class='op'>&lt;-</span>
+  <span class='kw'>function</span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+    <span class='op'>{</span>
+    <span class='va'>X</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.matrix.html'>data.matrix</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+    <span class='va'>n</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+    
+    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='op'>(</span><span class='va'>n</span><span class='op'>/</span><span class='op'>(</span><span class='va'>n</span><span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>*</span><span class='op'>(</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/stats/cor.html'>var</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>-</span> <span class='va'>n</span><span class='op'>*</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>colMeans</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span><span class='op'>)</span><span class='op'>/</span><span class='va'>n</span><span class='op'>)</span> <span class='op'>*</span> 
+                         <span class='op'>(</span><span class='fl'>1</span><span class='op'>-</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>colMeans</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span><span class='op'>)</span><span class='op'>/</span><span class='va'>n</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/stats/cor.html'>var</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+  <span class='op'>}</span>
+
+<span class='fu'>KR21</span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>[1] 0.4700428</code></pre>
+</div>
+<h3 id="split-half-test-retest-reliability">Split-half (Test-Retest) Reliability</h3>
+<ul>
+<li>The test-retest reliability is an estimation of reliability based on the correlation of two equivalent forms of the tests. It is not recommended to use the same test form twice to avoid practice effect, which could artifically increase reliability coefficient of the test.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'>psych</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/psych/man/guttman.html'>splitHalf</a></span><span class='op'>(</span><span class='va'>scored_item</span>, raw <span class='op'>=</span> <span class='cn'>TRUE</span>, check.keys <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>Split half reliabilities  
+Call: psych::splitHalf(r = scored_item, raw = TRUE, check.keys = TRUE)
+
+Maximum split half reliability (lambda 4) =  0.69
+Guttman lambda 6                          =  0.58
+Average split half reliability            =  0.55
+Guttman lambda 3 (alpha)                  =  0.55
+Guttman lambda 2                          =  0.57
+Minimum split half reliability  (beta)    =  0.34
+Average interitem r =  0.06  with median =  0.04
+                                             2.5% 50% 97.5%
+ Quantiles of split half reliability      =  0.44 0.55 0.63</code></pre>
+</div>
+<h3 id="spearman-brown-reliability">Spearman-Brown Reliability</h3>
+<ul>
+<li>To compute Spearman-Brown reliability, we need to use Cronbach’s Alpha as a base computation; for that, we need to export the function as a separate file first.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#With a written function</span>
+<span class='va'>cronbachs.alpha</span> <span class='op'>&lt;-</span>
+  <span class='kw'>function</span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+    <span class='op'>{</span>
+    
+    <span class='va'>X</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.matrix.html'>data.matrix</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+    <span class='va'>n</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span> <span class='co'># Number of items</span>
+    <span class='va'>k</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span> <span class='co'># Number of examinees</span>
+    
+    <span class='co'># Cronbachs alpha</span>
+    <span class='va'>alpha</span> <span class='op'>&lt;-</span> <span class='op'>(</span><span class='va'>n</span><span class='op'>/</span><span class='op'>(</span><span class='va'>n</span> <span class='op'>-</span> <span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span><span class='op'>*</span><span class='op'>(</span><span class='fl'>1</span> <span class='op'>-</span> <span class='fu'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/apply.html'>apply</a></span><span class='op'>(</span><span class='va'>X</span>, <span class='fl'>2</span>, <span class='va'>var</span><span class='op'>)</span><span class='op'>)</span><span class='op'>/</span><span class='fu'><a href='https://rdrr.io/r/stats/cor.html'>var</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+    
+    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='st'>"Crombach's alpha"</span> <span class='op'>=</span> <span class='va'>alpha</span>,
+                <span class='st'>"Number of items"</span> <span class='op'>=</span> <span class='va'>n</span>,
+                <span class='st'>"Number of examinees"</span> <span class='op'>=</span> <span class='va'>k</span><span class='op'>)</span><span class='op'>)</span>
+    <span class='op'>}</span>
+
+<span class='co'>#Dump "cronbach.alpha" function for further use</span>
+<span class='fu'><a href='https://rdrr.io/r/base/dump.html'>dump</a></span><span class='op'>(</span><span class='st'>"cronbachs.alpha"</span>, file <span class='op'>=</span> <span class='st'>"cronbachs.alpha.R"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<ul>
+<li><p>The Spearman-Brown prophecy formula is a formula that predicts reliability of the test through the modification of test length. This formula is one way can use to answer questions such as “how short can I make my assessment?” or “how many items should I write for my test to have adequate reliability?”</p></li>
+<li><p>Reliability of a test usually decreases when we shorten the test length and increases when we add more test items as well. However, there is no magic number of how long a test should be, so one should consider their context such as nature of the test content, ability of the examinee, and average time for a student to complete the assessment.</p></li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>SpearmanBrown</span> <span class='op'>&lt;-</span> 
+  <span class='kw'>function</span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>n1</span>, <span class='va'>n2</span><span class='op'>)</span>
+    <span class='op'>{</span>
+    
+    <span class='kw'><a href='https://rdrr.io/r/base/source.html'>source</a></span><span class='op'>(</span><span class='st'>"cronbachs.alpha.R"</span><span class='op'>)</span>
+    
+    <span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
+    <span class='va'>N</span> <span class='op'>&lt;-</span> <span class='va'>n2</span><span class='op'>/</span><span class='va'>n1</span>
+    
+    <span class='co'># cronbach's alpha for the original test</span>
+    <span class='va'>alpha</span> <span class='op'>&lt;-</span> <span class='fu'>cronbachs.alpha</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>
+    <span class='va'>predicted.alpha</span> <span class='op'>&lt;-</span> <span class='va'>N</span> <span class='op'>*</span> <span class='va'>alpha</span> <span class='op'>/</span> <span class='op'>(</span><span class='fl'>1</span> <span class='op'>+</span> <span class='op'>(</span><span class='va'>N</span> <span class='op'>-</span> <span class='fl'>1</span><span class='op'>)</span> <span class='op'>*</span> <span class='va'>alpha</span><span class='op'>)</span>
+    
+    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>original.reliability <span class='op'>=</span> <span class='va'>alpha</span>,
+                original.sample.size <span class='op'>=</span> <span class='va'>n1</span>,
+                predicted.reliability <span class='op'>=</span> <span class='va'>predicted.alpha</span>,
+                predicted.sample.size <span class='op'>=</span> <span class='va'>n2</span><span class='op'>)</span><span class='op'>)</span>
+  <span class='op'>}</span>
+
+<span class='co'># predict reliability by Spearman-Brown formula</span>
+<span class='co'># if the number of items is reduced from 25 to 15</span>
+<span class='fu'><a href='https://rdrr.io/pkg/psychometric/man/SBrel.html'>SpearmanBrown</a></span><span class='op'>(</span><span class='va'>responses</span>, n1 <span class='op'>=</span> <span class='fl'>20</span>, n2 <span class='op'>=</span> <span class='fl'>15</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>$original.reliability
+[1] 0.5395239
+
+$original.sample.size
+[1] 20
+
+$predicted.reliability
+[1] 0.4677309
+
+$predicted.sample.size
+[1] 15</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># predict reliability by Spearman-Brown formula</span>
+<span class='co'># if the number of items is increased from 25 to 35</span>
+<span class='fu'><a href='https://rdrr.io/pkg/psychometric/man/SBrel.html'>SpearmanBrown</a></span><span class='op'>(</span><span class='va'>responses</span>, n1 <span class='op'>=</span> <span class='fl'>20</span>, n2 <span class='op'>=</span> <span class='fl'>35</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>$original.reliability
+[1] 0.5395239
+
+$original.sample.size
+[1] 20
+
+$predicted.reliability
+[1] 0.6721757
+
+$predicted.sample.size
+[1] 35</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># predict reliability by Spearman-Brown formula</span>
+<span class='co'># if the number of items is doubled</span>
+<span class='fu'><a href='https://rdrr.io/pkg/psychometric/man/SBrel.html'>SpearmanBrown</a></span><span class='op'>(</span><span class='va'>responses</span>, n1 <span class='op'>=</span> <span class='fl'>20</span>, n2 <span class='op'>=</span> <span class='fl'>40</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>$original.reliability
+[1] 0.5395239
+
+$original.sample.size
+[1] 20
+
+$predicted.reliability
+[1] 0.7008971
+
+$predicted.sample.size
+[1] 40</code></pre>
+</div>
+<h3 id="guttmans-lambda">Guttman’s Lambda</h3>
+<ul>
+<li>Guttman’s Lambda is also another reliability coefficient we can use in similar way as Coefficient Alpha (or Cronbach’s Alpha).</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'>psych</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/psych/man/guttman.html'>guttman</a></span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>Call: psych::guttman(r = responses)
+
+Alternative estimates of reliability
+
+Guttman bounds 
+L1 =  0.51 
+L2 =  0.56 
+L3 (alpha) =  0.53 
+L4 (max) =  0.68 
+L5 =  0.55 
+L6 (smc) =  0.57 
+TenBerge bounds 
+mu0 =  0.53 mu1 =  0.56 mu2 =  0.56 mu3 =  0.56 
+
+alpha of first PC =  0.64 
+estimated greatest lower bound based upon communalities=  0.69 
+
+beta found by splitHalf  =  0.35 </code></pre>
+</div>
+<h3 id="pearson-product-moment-correlation-coefficient">Pearson product-moment correlation coefficient</h3>
+<ul>
+<li>Another way we can compute reliability of the test is via Pearson product-moment correlation between two halves of the test (aka Split-half method). However, comparing only a pair or two of the test half might not be enough. We can use Bootstrap resampling method to randomly split the examinees into two halves 1000 times, so that we can make sure that the computation is as exhaustive as possible.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#Split data (variables-item) into two equally and randomly.</span>
+
+<span class='va'>split.items</span> <span class='op'>&lt;-</span> 
+  <span class='kw'>function</span><span class='op'>(</span><span class='va'>X</span>, <span class='va'>seed</span> <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
+    <span class='op'>{</span>
+    <span class='co'># optional fixed seed</span>
+    <span class='kw'>if</span> <span class='op'>(</span><span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/NULL.html'>is.null</a></span><span class='op'>(</span><span class='va'>seed</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='va'>seed</span><span class='op'>)</span><span class='op'>}</span> 
+    
+    <span class='va'>X</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+    
+    <span class='co'># if n = 2x, then lengths Y1 = Y2</span>
+    <span class='co'># if n = 2x+1, then lenths Y1 = Y2+1</span>
+    <span class='va'>n</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+    <span class='va'>index</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='va'>n</span>, <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>ceiling</a></span><span class='op'>(</span><span class='va'>n</span><span class='op'>/</span><span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span>
+    <span class='va'>Y1</span> <span class='op'>&lt;-</span> <span class='va'>X</span><span class='op'>[</span>, <span class='va'>index</span> <span class='op'>]</span>
+    <span class='va'>Y2</span> <span class='op'>&lt;-</span> <span class='va'>X</span><span class='op'>[</span>, <span class='op'>-</span><span class='va'>index</span><span class='op'>]</span>
+    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='va'>Y1</span>, <span class='va'>Y2</span><span class='op'>)</span><span class='op'>)</span> 
+  <span class='op'>}</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/dump.html'>dump</a></span><span class='op'>(</span><span class='st'>"split.items"</span>, file <span class='op'>=</span> <span class='st'>"split.items.R"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>pearson</span> <span class='op'>&lt;-</span> 
+  <span class='kw'>function</span><span class='op'>(</span><span class='va'>X</span>, <span class='va'>seed</span> <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>n</span> <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
+    <span class='op'>{</span>
+    <span class='kw'><a href='https://rdrr.io/r/base/source.html'>source</a></span><span class='op'>(</span><span class='st'>"split.items.R"</span><span class='op'>)</span>
+    
+    <span class='co'># optional fixed seed</span>
+    <span class='kw'>if</span> <span class='op'>(</span><span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/NULL.html'>is.null</a></span><span class='op'>(</span><span class='va'>seed</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='va'>seed</span><span class='op'>)</span><span class='op'>}</span>
+    
+    <span class='co'># the number of bootstrap replicates. 1e3 = 1000</span>
+    <span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/NULL.html'>is.null</a></span><span class='op'>(</span><span class='va'>n</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span><span class='va'>n</span> <span class='op'>&lt;-</span> <span class='fl'>1e3</span><span class='op'>}</span>   
+    
+    <span class='va'>X</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+    <span class='va'>r</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span><span class='op'>(</span><span class='cn'>NA</span>, <span class='va'>n</span><span class='op'>)</span>
+    
+    <span class='kw'>for</span> <span class='op'>(</span><span class='va'>i</span> <span class='kw'>in</span> <span class='fl'>1</span><span class='op'>:</span><span class='va'>n</span><span class='op'>)</span> <span class='op'>{</span>
+      <span class='co'># split items</span>
+      <span class='va'>Y</span> <span class='op'>&lt;-</span> <span class='fu'>split.items</span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+      
+      <span class='co'># total scores</span>
+      <span class='va'>S1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>Y</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>)</span>
+      <span class='va'>S2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>Y</span><span class='op'>[[</span><span class='fl'>2</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>)</span>
+      
+      <span class='co'># residual scores</span>
+      <span class='va'>R1</span> <span class='op'>&lt;-</span> <span class='va'>S1</span> <span class='op'>-</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>S1</span><span class='op'>)</span>
+      <span class='va'>R2</span> <span class='op'>&lt;-</span> <span class='va'>S2</span> <span class='op'>-</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>S2</span><span class='op'>)</span>
+      
+      <span class='co'># Pearson product-moment correlation coefficient</span>
+      <span class='va'>r</span><span class='op'>[</span><span class='va'>i</span><span class='op'>]</span> <span class='op'>&lt;-</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='va'>R1</span><span class='op'>)</span> <span class='op'><a href='https://rdrr.io/r/base/matmult.html'>%*%</a></span> <span class='va'>R2</span><span class='op'>)</span> <span class='op'>/</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span><span class='op'>(</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='va'>R1</span><span class='op'>)</span> <span class='op'><a href='https://rdrr.io/r/base/matmult.html'>%*%</a></span> <span class='va'>R1</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>*</span> <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span><span class='op'>(</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/t.html'>t</a></span><span class='op'>(</span><span class='va'>R2</span><span class='op'>)</span> <span class='op'><a href='https://rdrr.io/r/base/matmult.html'>%*%</a></span> <span class='va'>R2</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+    <span class='op'>}</span>
+    
+    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>r</span><span class='op'>)</span><span class='op'>)</span>
+  <span class='op'>}</span>
+
+<span class='co'># compute the Pearson product-moment correlation coefficient</span>
+<span class='fu'>pearson</span><span class='op'>(</span><span class='va'>responses</span>, seed <span class='op'>=</span> <span class='fl'>456</span>, n <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>[1] 0.3499066</code></pre>
+</div>
+<ul>
+<li>We can also double check if the function is right by splitting response of the examinee into two halves and compute a correlation coefficient by ourselves.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># compare</span>
+<span class='co'># split items</span>
+<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>456</span><span class='op'>)</span>
+<span class='va'>Y</span> <span class='op'>&lt;-</span> <span class='fu'>split.items</span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span>
+
+<span class='co'># total scores</span>
+<span class='va'>Set1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>Y</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>Set2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>Y</span><span class='op'>[[</span><span class='fl'>2</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/stats/cor.html'>cor</a></span><span class='op'>(</span><span class='va'>Set1</span>, <span class='va'>Set2</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>          [,1]
+[1,] 0.3499066</code></pre>
+</div>
+<ul>
+<li>Note that the split-half method can both overestimate or underestimate ability of the examinees when two halves of the test are not parallel.</li>
+</ul>
+<h2 id="standard-error-of-measurement">Standard Error of Measurement</h2>
+<ul>
+<li>Standard error of measurement is a measure of the spread of observed score around the “true” score. The standard error of measurement that uses Coefficient’s alpha as its reliability statistics can be computed as follows:</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>SEM</span> <span class='op'>&lt;-</span>
+  <span class='kw'>function</span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span><span class='op'>{</span>
+    <span class='kw'><a href='https://rdrr.io/r/base/source.html'>source</a></span><span class='op'>(</span><span class='st'>"cronbachs.alpha.R"</span><span class='op'>)</span>
+    <span class='va'>X</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.matrix.html'>data.matrix</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span>
+    
+    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>*</span> <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span><span class='op'>(</span><span class='fl'>1</span> <span class='op'>-</span> <span class='fu'>cronbachs.alpha</span><span class='op'>(</span><span class='va'>X</span><span class='op'>)</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span><span class='op'>)</span><span class='op'>)</span>
+  <span class='op'>}</span>
+
+<span class='fu'>SEM</span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>[1] 2.036401</code></pre>
+</div>
+<ul>
+<li>As a result, the range in which the true score of an examinee might stay in could be ± 2.036401.</li>
+</ul>
+<h2 id="confidence-intervals-for-true-scores">Confidence Intervals for True Scores</h2>
+<ul>
+<li>We can also compute confidence interval for true scores of each item via the code below. Note that one limitation of CTT is that it is population dependent, so the confidence interval may change when the test is administered to a different group of examinees.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'># 90% confidence interval for the true score</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>cbind</a></span><span class='op'>(</span>lower_bound <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span><span class='op'>-</span><span class='fl'>1.65</span><span class='op'>*</span> <span class='fu'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span><span class='op'>)</span><span class='op'>*</span>
+                                 <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>-</span><span class='fu'>KR20</span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span><span class='op'>)</span>, <span class='fl'>2</span><span class='op'>)</span>, observed <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span>,
+           upper_bound <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>round</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span><span class='op'>+</span><span class='fl'>1.65</span><span class='op'>*</span> <span class='fu'><a href='https://rdrr.io/r/stats/sd.html'>sd</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span><span class='op'>)</span><span class='op'>*</span>
+                                 <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>sqrt</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>-</span><span class='fu'>KR20</span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span><span class='op'>)</span>, <span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span>, <span class='fl'>20</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>      lower_bound observed upper_bound
+ [1,]        5.65        9       12.35
+ [2,]        2.65        6        9.35
+ [3,]        9.65       13       16.35
+ [4,]        5.65        9       12.35
+ [5,]       10.65       14       17.35
+ [6,]        8.65       12       15.35
+ [7,]        3.65        7       10.35
+ [8,]        5.65        9       12.35
+ [9,]        4.65        8       11.35
+[10,]        7.65       11       14.35
+[11,]        2.65        6        9.35
+[12,]        4.65        8       11.35
+[13,]        1.65        5        8.35
+[14,]        9.65       13       16.35
+[15,]        4.65        8       11.35
+[16,]        1.65        5        8.35
+[17,]       11.65       15       18.35
+[18,]        4.65        8       11.35
+[19,]        6.65       10       13.35
+[20,]        9.65       13       16.35</code></pre>
+</div>
+<h2 id="item-analysis">Item Analysis</h2>
+<ul>
+<li><ul>
+<li>Item Analysis of the Classical Test Theory approach relies on two statistics to evaluate an item, P-value (not to be confused with <em>p</em>-value in statistical tests) and point-biserial correlation coefficient (p-Bis).</li>
+</ul></li>
+<li>P-value in this context represents the proportion of examinees responding in the keyed direction It is typically referred to as <strong>item difficulty</strong>. Point-biserial corrrelation coefficient is the correlation between a particular item and other items; this index is typically referred to as <strong>item discrimination</strong> that indicates the degree to which that item can distinguish high ability examinee or examinees who actually know that construct from examinees who do not possess adequate knowledge to get that item correctly.</li>
+</ul>
+<h3 id="item-discrimination.">Item Discrimination.</h3>
+<ul>
+<li><p>As mentioned above, item discrimination refers to how well an item discriminates high-ability examinees from those with low-ability. Items that are very hard (i.e., p &lt; 0.20) or very easy (p &gt; 0.90) usually have lower item discrimination values than items with medium difficulty.</p></li>
+<li><p>We usually examine point-biserial correlation coefficient (p-Bis) of the item. If p-Bis is lower than 0.20, the item can be flagged for low discrimination, while 0.20 to 0.39 indicates good discrimination, and 0.4 and above indicates excellent discrimination. If p-Bis is negative, then the item doesn’t seem to measure the same construct that the other items are measuring. It could also mean that the item is mis-keyed.</p></li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>item.analysis</span> <span class='op'>&lt;-</span> 
+  <span class='kw'>function</span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span>
+    <span class='op'>{</span>
+    <span class='co'># CRITICAL VALUES</span>
+    <span class='va'>cvpb</span> <span class='op'>=</span> <span class='fl'>0.20</span>
+    <span class='va'>cvdl</span> <span class='op'>=</span> <span class='fl'>0.15</span>
+    <span class='va'>cvdu</span> <span class='op'>=</span> <span class='fl'>0.85</span>
+    
+    <span class='kw'><a href='https://rdrr.io/r/base/library.html'>require</a></span><span class='op'>(</span><span class='va'>CTT</span>, warn.conflicts <span class='op'>=</span> <span class='cn'>FALSE</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+    <span class='op'>(</span><span class='va'>ctt.analysis</span> <span class='op'>&lt;-</span> <span class='fu'>CTT</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/CTT/man/reliability.html'>reliability</a></span><span class='op'>(</span><span class='va'>responses</span>, itemal <span class='op'>=</span> <span class='cn'>TRUE</span>, NA.Delete <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>)</span>
+    
+    <span class='co'># Mark items that are potentially problematic</span>
+    <span class='va'>item.analysis</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>item <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='va'>ctt.analysis</span><span class='op'>$</span><span class='va'>nItem</span><span class='op'>)</span>,
+                                r.pbis <span class='op'>=</span> <span class='va'>ctt.analysis</span><span class='op'>$</span><span class='va'>pBis</span>,
+                                bis <span class='op'>=</span> <span class='va'>ctt.analysis</span><span class='op'>$</span><span class='va'>bis</span>,
+                                item.mean <span class='op'>=</span> <span class='va'>ctt.analysis</span><span class='op'>$</span><span class='va'>itemMean</span>,
+                                alpha.del <span class='op'>=</span> <span class='va'>ctt.analysis</span><span class='op'>$</span><span class='va'>alphaIfDeleted</span><span class='op'>)</span>
+  
+    <span class='kw'>if</span> <span class='op'>(</span><span class='cn'>TRUE</span><span class='op'>)</span> <span class='op'>{</span>
+      <span class='va'>item.analysis</span><span class='op'>$</span><span class='va'>check</span> <span class='op'>&lt;-</span> 
+        <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>item.analysis</span><span class='op'>$</span><span class='va'>r.pbis</span> <span class='op'>&lt;</span> <span class='va'>cvpb</span> <span class='op'>|</span>
+                 <span class='va'>item.analysis</span><span class='op'>$</span><span class='va'>item.mean</span> <span class='op'>&lt;</span> <span class='va'>cvdl</span> <span class='op'>|</span>
+                 <span class='va'>item.analysis</span><span class='op'>$</span><span class='va'>item.mean</span> <span class='op'>&gt;</span> <span class='va'>cvdu</span>, <span class='st'>"X"</span>, <span class='st'>""</span><span class='op'>)</span>
+    <span class='op'>}</span>
+    
+    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>item.analysis</span><span class='op'>)</span>
+  <span class='op'>}</span>
+
+<span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kbl.html'>kbl</a></span><span class='op'>(</span><span class='fu'>item.analysis</span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kable_styling.html'>kable_styling</a></span><span class='op'>(</span>bootstrap_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"striped"</span>, <span class='st'>"hover"</span>, <span class='st'>"condensed"</span>, <span class='st'>"responsive"</span><span class='op'>)</span>,
+                full_width <span class='op'>=</span> <span class='cn'>FALSE</span>, position <span class='op'>=</span> <span class='st'>"left"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:right;">
+item
+</th>
+<th style="text-align:right;">
+r.pbis
+</th>
+<th style="text-align:right;">
+bis
+</th>
+<th style="text-align:right;">
+item.mean
+</th>
+<th style="text-align:right;">
+alpha.del
+</th>
+<th style="text-align:left;">
+check
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.1147596
+</td>
+<td style="text-align:right;">
+0.1683232
+</td>
+<td style="text-align:right;">
+0.7593361
+</td>
+<td style="text-align:right;">
+0.5353385
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.1035530
+</td>
+<td style="text-align:right;">
+0.1409292
+</td>
+<td style="text-align:right;">
+0.7344398
+</td>
+<td style="text-align:right;">
+0.5372914
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.0506175
+</td>
+<td style="text-align:right;">
+0.0685887
+</td>
+<td style="text-align:right;">
+0.2572614
+</td>
+<td style="text-align:right;">
+0.5452346
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0.0591143
+</td>
+<td style="text-align:right;">
+0.0785356
+</td>
+<td style="text-align:right;">
+0.6804979
+</td>
+<td style="text-align:right;">
+0.5450389
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0.1111202
+</td>
+<td style="text-align:right;">
+0.1406669
+</td>
+<td style="text-align:right;">
+0.3651452
+</td>
+<td style="text-align:right;">
+0.5369402
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0.3656502
+</td>
+<td style="text-align:right;">
+0.4640379
+</td>
+<td style="text-align:right;">
+0.5394191
+</td>
+<td style="text-align:right;">
+0.4909063
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+0.0700444
+</td>
+<td style="text-align:right;">
+0.0920897
+</td>
+<td style="text-align:right;">
+0.2780083
+</td>
+<td style="text-align:right;">
+0.5426513
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0.1112357
+</td>
+<td style="text-align:right;">
+0.1394688
+</td>
+<td style="text-align:right;">
+0.4813278
+</td>
+<td style="text-align:right;">
+0.5373705
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0.1515853
+</td>
+<td style="text-align:right;">
+0.2230714
+</td>
+<td style="text-align:right;">
+0.8298755
+</td>
+<td style="text-align:right;">
+0.5299043
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+-0.0434185
+</td>
+<td style="text-align:right;">
+-0.0549382
+</td>
+<td style="text-align:right;">
+0.4356846
+</td>
+<td style="text-align:right;">
+0.5634988
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+0.1696824
+</td>
+<td style="text-align:right;">
+0.2157830
+</td>
+<td style="text-align:right;">
+0.3360996
+</td>
+<td style="text-align:right;">
+0.5269375
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0.1279600
+</td>
+<td style="text-align:right;">
+0.1627060
+</td>
+<td style="text-align:right;">
+0.5601660
+</td>
+<td style="text-align:right;">
+0.5343645
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+0.2312726
+</td>
+<td style="text-align:right;">
+0.2933878
+</td>
+<td style="text-align:right;">
+0.3900415
+</td>
+<td style="text-align:right;">
+0.5161192
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+0.2134979
+</td>
+<td style="text-align:right;">
+0.2656683
+</td>
+<td style="text-align:right;">
+0.4481328
+</td>
+<td style="text-align:right;">
+0.5191567
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+0.1947141
+</td>
+<td style="text-align:right;">
+0.2547864
+</td>
+<td style="text-align:right;">
+0.3112033
+</td>
+<td style="text-align:right;">
+0.5227779
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+0.3353941
+</td>
+<td style="text-align:right;">
+0.4428850
+</td>
+<td style="text-align:right;">
+0.6390041
+</td>
+<td style="text-align:right;">
+0.4977310
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+0.4609036
+</td>
+<td style="text-align:right;">
+0.5799529
+</td>
+<td style="text-align:right;">
+0.4356846
+</td>
+<td style="text-align:right;">
+0.4727918
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+0.4013261
+</td>
+<td style="text-align:right;">
+0.5080745
+</td>
+<td style="text-align:right;">
+0.3319502
+</td>
+<td style="text-align:right;">
+0.4865119
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+0.0956187
+</td>
+<td style="text-align:right;">
+0.1323704
+</td>
+<td style="text-align:right;">
+0.1908714
+</td>
+<td style="text-align:right;">
+0.5375545
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+0.1054536
+</td>
+<td style="text-align:right;">
+0.1323520
+</td>
+<td style="text-align:right;">
+0.4356846
+</td>
+<td style="text-align:right;">
+0.5382775
+</td>
+<td style="text-align:left;">
+X
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="item-difficulty">Item Difficulty</h3>
+<ul>
+<li><p>Under CTT, item difficulty is simply the percentages of examinees obtaining the correct answer. Item difficulty ranges from 0 to 1, with higher values indicate easier items as more examinees are able to correctly answer this item. This index is useful in assessing whether it is appropriate for the level of the students taking the test.</p></li>
+<li><p>The desired range of item difficulty index is between 0.3 to 0.9 (by approximate), while the number close to 0 or 1 offers little information on measuring students’ level of the construct. In plain words, we wouldn’t want to have test items that are too easy that everybody get it right, or items that are too hard that no one can answer it correctly. However, the extreme cut-off for item difficulty could apply to measurements that are designed for extreme groups.</p></li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>Item_Difficulty</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/psychometric/man/item.exam.html'>item.exam</a></span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>responses</span>, y <span class='op'>=</span> <span class='cn'>NULL</span>, discrim <span class='op'>=</span> <span class='cn'>T</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kbl.html'>kbl</a></span><span class='op'>(</span><span class='va'>Item_Difficulty</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'><a href='https://rdrr.io/pkg/kableExtra/man/kable_styling.html'>kable_styling</a></span><span class='op'>(</span>bootstrap_options <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"striped"</span>, <span class='st'>"hover"</span>, <span class='st'>"condensed"</span>, <span class='st'>"responsive"</span><span class='op'>)</span>,
+                full_width <span class='op'>=</span> <span class='cn'>FALSE</span>, position <span class='op'>=</span> <span class='st'>"left"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:right;">
+Sample.SD
+</th>
+<th style="text-align:right;">
+Item.total
+</th>
+<th style="text-align:right;">
+Item.Tot.woi
+</th>
+<th style="text-align:right;">
+Difficulty
+</th>
+<th style="text-align:right;">
+Discrimination
+</th>
+<th style="text-align:left;">
+Item.Criterion
+</th>
+<th style="text-align:right;">
+Item.Reliab
+</th>
+<th style="text-align:right;">
+Item.Rel.woi
+</th>
+<th style="text-align:right;">
+Item.Validity
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0.4283763
+</td>
+<td style="text-align:right;">
+0.2544665
+</td>
+<td style="text-align:right;">
+0.1147596
+</td>
+<td style="text-align:right;">
+0.7593361
+</td>
+<td style="text-align:right;">
+0.2125
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.1087810
+</td>
+<td style="text-align:right;">
+0.0490582
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4425501
+</td>
+<td style="text-align:right;">
+0.2483214
+</td>
+<td style="text-align:right;">
+0.1035530
+</td>
+<td style="text-align:right;">
+0.7344398
+</td>
+<td style="text-align:right;">
+0.2875
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.1096664
+</td>
+<td style="text-align:right;">
+0.0457322
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4380344
+</td>
+<td style="text-align:right;">
+0.1956677
+</td>
+<td style="text-align:right;">
+0.0506175
+</td>
+<td style="text-align:right;">
+0.2572614
+</td>
+<td style="text-align:right;">
+0.2375
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.0855312
+</td>
+<td style="text-align:right;">
+0.0221262
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4672541
+</td>
+<td style="text-align:right;">
+0.2135535
+</td>
+<td style="text-align:right;">
+0.0591143
+</td>
+<td style="text-align:right;">
+0.6804979
+</td>
+<td style="text-align:right;">
+0.2125
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.0995765
+</td>
+<td style="text-align:right;">
+0.0275640
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4824729
+</td>
+<td style="text-align:right;">
+0.2684805
+</td>
+<td style="text-align:right;">
+0.1111202
+</td>
+<td style="text-align:right;">
+0.3651452
+</td>
+<td style="text-align:right;">
+0.3125
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.1292655
+</td>
+<td style="text-align:right;">
+0.0535011
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4994811
+</td>
+<td style="text-align:right;">
+0.5054235
+</td>
+<td style="text-align:right;">
+0.3656502
+</td>
+<td style="text-align:right;">
+0.5394191
+</td>
+<td style="text-align:right;">
+0.5500
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.2519252
+</td>
+<td style="text-align:right;">
+0.1822561
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4489499
+</td>
+<td style="text-align:right;">
+0.2181283
+</td>
+<td style="text-align:right;">
+0.0700444
+</td>
+<td style="text-align:right;">
+0.2780083
+</td>
+<td style="text-align:right;">
+0.1625
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.0977253
+</td>
+<td style="text-align:right;">
+0.0313811
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.5006911
+</td>
+<td style="text-align:right;">
+0.2744754
+</td>
+<td style="text-align:right;">
+0.1112357
+</td>
+<td style="text-align:right;">
+0.4813278
+</td>
+<td style="text-align:right;">
+0.3125
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.1371420
+</td>
+<td style="text-align:right;">
+0.0555790
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.3765241
+</td>
+<td style="text-align:right;">
+0.2730001
+</td>
+<td style="text-align:right;">
+0.1515853
+</td>
+<td style="text-align:right;">
+0.8298755
+</td>
+<td style="text-align:right;">
+0.2375
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.1025776
+</td>
+<td style="text-align:right;">
+0.0569570
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4968782
+</td>
+<td style="text-align:right;">
+0.1224407
+</td>
+<td style="text-align:right;">
+-0.0434185
+</td>
+<td style="text-align:right;">
+0.4356846
+</td>
+<td style="text-align:right;">
+0.1375
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.0607118
+</td>
+<td style="text-align:right;">
+-0.0215289
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4733565
+</td>
+<td style="text-align:right;">
+0.3208135
+</td>
+<td style="text-align:right;">
+0.1696824
+</td>
+<td style="text-align:right;">
+0.3360996
+</td>
+<td style="text-align:right;">
+0.3125
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.1515438
+</td>
+<td style="text-align:right;">
+0.0801535
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4973999
+</td>
+<td style="text-align:right;">
+0.2892525
+</td>
+<td style="text-align:right;">
+0.1279600
+</td>
+<td style="text-align:right;">
+0.5601660
+</td>
+<td style="text-align:right;">
+0.2625
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.1435753
+</td>
+<td style="text-align:right;">
+0.0635151
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4887744
+</td>
+<td style="text-align:right;">
+0.3825120
+</td>
+<td style="text-align:right;">
+0.2312726
+</td>
+<td style="text-align:right;">
+0.3900415
+</td>
+<td style="text-align:right;">
+0.4000
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.1865738
+</td>
+<td style="text-align:right;">
+0.1128054
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4983375
+</td>
+<td style="text-align:right;">
+0.3691600
+</td>
+<td style="text-align:right;">
+0.2134979
+</td>
+<td style="text-align:right;">
+0.4481328
+</td>
+<td style="text-align:right;">
+0.4750
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.1835842
+</td>
+<td style="text-align:right;">
+0.1061730
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4639493
+</td>
+<td style="text-align:right;">
+0.3412014
+</td>
+<td style="text-align:right;">
+0.1947141
+</td>
+<td style="text-align:right;">
+0.3112033
+</td>
+<td style="text-align:right;">
+0.3625
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.1579714
+</td>
+<td style="text-align:right;">
+0.0901499
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4812889
+</td>
+<td style="text-align:right;">
+0.4738815
+</td>
+<td style="text-align:right;">
+0.3353941
+</td>
+<td style="text-align:right;">
+0.6390041
+</td>
+<td style="text-align:right;">
+0.4750
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.2276002
+</td>
+<td style="text-align:right;">
+0.1610862
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4968782
+</td>
+<td style="text-align:right;">
+0.5863010
+</td>
+<td style="text-align:right;">
+0.4609036
+</td>
+<td style="text-align:right;">
+0.4356846
+</td>
+<td style="text-align:right;">
+0.6125
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.2907152
+</td>
+<td style="text-align:right;">
+0.2285373
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4718933
+</td>
+<td style="text-align:right;">
+0.5290626
+</td>
+<td style="text-align:right;">
+0.4013261
+</td>
+<td style="text-align:right;">
+0.3319502
+</td>
+<td style="text-align:right;">
+0.5000
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.2491426
+</td>
+<td style="text-align:right;">
+0.1889898
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.3938058
+</td>
+<td style="text-align:right;">
+0.2248264
+</td>
+<td style="text-align:right;">
+0.0956187
+</td>
+<td style="text-align:right;">
+0.1908714
+</td>
+<td style="text-align:right;">
+0.1500
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.0883541
+</td>
+<td style="text-align:right;">
+0.0375770
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4968782
+</td>
+<td style="text-align:right;">
+0.2677464
+</td>
+<td style="text-align:right;">
+0.1054536
+</td>
+<td style="text-align:right;">
+0.4356846
+</td>
+<td style="text-align:right;">
+0.3125
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+0.1327610
+</td>
+<td style="text-align:right;">
+0.0522888
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="visualizing-item-discrimination">Visualizing Item Discrimination</h3>
+<ul>
+<li>We can use the functions below to visualize for items that should be revised for low discrimination power</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>item.discrimination</span> <span class='op'>&lt;-</span>
+  <span class='kw'>function</span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span>
+    <span class='op'>{</span>
+    <span class='co'># CRITICAL VALUES</span>
+    <span class='va'>cvpb</span> <span class='op'>=</span> <span class='fl'>0.20</span>
+    <span class='va'>cvdl</span> <span class='op'>=</span> <span class='fl'>0.15</span>
+    <span class='va'>cvdu</span> <span class='op'>=</span> <span class='fl'>0.85</span>
+    
+    <span class='kw'><a href='https://rdrr.io/r/base/library.html'>require</a></span><span class='op'>(</span><span class='va'>CTT</span>, warn.conflicts <span class='op'>=</span> <span class='cn'>FALSE</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+    <span class='va'>ctt.analysis</span> <span class='op'>&lt;-</span> <span class='fu'>CTT</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/CTT/man/reliability.html'>reliability</a></span><span class='op'>(</span><span class='va'>responses</span>, itemal <span class='op'>=</span> <span class='cn'>TRUE</span>, NA.Delete <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+    
+    <span class='va'>item.discrimination</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>item <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='va'>ctt.analysis</span><span class='op'>$</span><span class='va'>nItem</span> , 
+                                      discrimination <span class='op'>=</span> <span class='va'>ctt.analysis</span><span class='op'>$</span><span class='va'>pBis</span><span class='op'>)</span>
+    
+    <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>item.discrimination</span>,
+         type <span class='op'>=</span> <span class='st'>"p"</span>,
+         pch <span class='op'>=</span> <span class='fl'>1</span>,
+         cex <span class='op'>=</span> <span class='fl'>3</span>,
+         col <span class='op'>=</span> <span class='st'>"purple"</span>,
+         ylab <span class='op'>=</span> <span class='st'>"point-Biserial correlation"</span>,
+         xlab <span class='op'>=</span> <span class='st'>"Item Number"</span>,
+         ylim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>)</span>,
+         main <span class='op'>=</span> <span class='st'>"Test Item Discriminations"</span><span class='op'>)</span>
+    
+    <span class='fu'><a href='https://rdrr.io/r/graphics/abline.html'>abline</a></span><span class='op'>(</span>h <span class='op'>=</span> <span class='va'>cvpb</span>, col <span class='op'>=</span> <span class='st'>"red"</span><span class='op'>)</span>
+    
+    <span class='va'>outlier</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.matrix.html'>data.matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>item.discrimination</span>,
+                                  subset <span class='op'>=</span> <span class='op'>(</span><span class='va'>item.discrimination</span><span class='op'>[</span>, <span class='fl'>2</span><span class='op'>]</span> <span class='op'>&lt;</span> <span class='va'>cvpb</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+    
+    <span class='fu'><a href='https://rdrr.io/r/graphics/text.html'>text</a></span><span class='op'>(</span><span class='va'>outlier</span>, <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='st'>"i"</span>, <span class='va'>outlier</span><span class='op'>[</span>,<span class='fl'>1</span><span class='op'>]</span>, sep <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span>, col <span class='op'>=</span> <span class='st'>"red"</span>, cex <span class='op'>=</span> <span class='fl'>.7</span><span class='op'>)</span>
+    
+    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>item.discrimination</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/order.html'>order</a></span><span class='op'>(</span><span class='va'>item.discrimination</span><span class='op'>$</span><span class='va'>discrimination</span><span class='op'>)</span>,<span class='op'>]</span><span class='op'>)</span>
+  <span class='op'>}</span>
+
+<span class='fu'>item.discrimination</span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<p><img src="ctt_files/figure-html5/unnamed-chunk-28-1.png" width="624" /></p>
+<pre><code>   item discrimination
+10   10    -0.04341855
+3     3     0.05061749
+4     4     0.05911432
+7     7     0.07004435
+19   19     0.09561872
+2     2     0.10355300
+20   20     0.10545357
+5     5     0.11112015
+8     8     0.11123568
+1     1     0.11475958
+12   12     0.12795997
+9     9     0.15158531
+11   11     0.16968243
+15   15     0.19471413
+14   14     0.21349786
+13   13     0.23127262
+16   16     0.33539410
+6     6     0.36565023
+18   18     0.40132606
+17   17     0.46090362</code></pre>
+</div>
+<h3 id="visualizing-item-total-correlation-bis">Visualizing Item Total-Correlation (Bis)</h3>
+<ul>
+<li>The item total correlation is a correlation between the question score (e.g., 0 or 1 for multiple choice) and the overall assessment score. The assumption is that if an examinee gets a question correctly they should, in general, have higher overall assessment scores than participants who get that question wrong.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>test_item.total</span> <span class='op'>&lt;-</span>
+  <span class='kw'>function</span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span>
+    <span class='op'>{</span>
+    <span class='co'># CRITICAL VALUES</span>
+    <span class='va'>cvpb</span> <span class='op'>=</span> <span class='fl'>0.20</span>
+    <span class='va'>cvdl</span> <span class='op'>=</span> <span class='fl'>0.15</span>
+    <span class='va'>cvdu</span> <span class='op'>=</span> <span class='fl'>0.85</span>
+    
+    <span class='kw'><a href='https://rdrr.io/r/base/library.html'>require</a></span><span class='op'>(</span><span class='va'>CTT</span>, warn.conflicts <span class='op'>=</span> <span class='cn'>FALSE</span>, quietly <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+    <span class='va'>ctt.analysis</span> <span class='op'>&lt;-</span> <span class='fu'>CTT</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/CTT/man/reliability.html'>reliability</a></span><span class='op'>(</span><span class='va'>responses</span>, itemal <span class='op'>=</span> <span class='cn'>TRUE</span>, NA.Delete <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+    
+    <span class='va'>test_item.total</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>item <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='va'>ctt.analysis</span><span class='op'>$</span><span class='va'>nItem</span> , 
+                                  biserial <span class='op'>=</span> <span class='va'>ctt.analysis</span><span class='op'>$</span><span class='va'>bis</span><span class='op'>)</span>
+    
+    <span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>test_item.total</span>,
+         main <span class='op'>=</span> <span class='st'>"Test Item-Total Correlation"</span>,
+         type <span class='op'>=</span> <span class='st'>"p"</span>,
+         pch <span class='op'>=</span> <span class='fl'>1</span>,
+         cex <span class='op'>=</span> <span class='fl'>2.8</span>,
+         col <span class='op'>=</span> <span class='st'>"purple"</span>,
+         ylab <span class='op'>=</span> <span class='st'>"Biserial correlation"</span>,
+         xlab <span class='op'>=</span> <span class='st'>"Item Number"</span>,
+         ylim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='fl'>1</span><span class='op'>)</span>,
+         xlim <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>, <span class='va'>ctt.analysis</span><span class='op'>$</span><span class='va'>nItem</span><span class='op'>)</span><span class='op'>)</span>
+    
+    <span class='fu'><a href='https://rdrr.io/r/graphics/abline.html'>abline</a></span><span class='op'>(</span>h <span class='op'>=</span> <span class='va'>cvpb</span>, col <span class='op'>=</span> <span class='st'>"red"</span><span class='op'>)</span>
+    
+    <span class='va'>outlier</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.matrix.html'>data.matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/subset.html'>subset</a></span><span class='op'>(</span><span class='va'>test_item.total</span>,
+                                  subset <span class='op'>=</span> <span class='va'>test_item.total</span><span class='op'>[</span>,<span class='fl'>2</span><span class='op'>]</span> <span class='op'>&lt;</span> <span class='va'>cvpb</span><span class='op'>)</span><span class='op'>)</span>
+    
+    <span class='fu'><a href='https://rdrr.io/r/graphics/text.html'>text</a></span><span class='op'>(</span><span class='va'>outlier</span>, <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='st'>"i"</span>, <span class='va'>outlier</span><span class='op'>[</span>,<span class='fl'>1</span><span class='op'>]</span>, sep <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span>, col <span class='op'>=</span> <span class='st'>"red"</span>, cex <span class='op'>=</span> <span class='fl'>.7</span><span class='op'>)</span>
+    
+    <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>test_item.total</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/order.html'>order</a></span><span class='op'>(</span><span class='va'>test_item.total</span><span class='op'>$</span><span class='va'>biserial</span><span class='op'>)</span>,<span class='op'>]</span><span class='op'>)</span>
+    <span class='op'>}</span>
+
+<span class='fu'>test_item.total</span><span class='op'>(</span><span class='va'>responses</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<p><img src="ctt_files/figure-html5/unnamed-chunk-29-1.png" width="624" /></p>
+<pre><code>   item    biserial
+10   10 -0.05493825
+3     3  0.06858871
+4     4  0.07853557
+7     7  0.09208970
+20   20  0.13235198
+19   19  0.13237037
+8     8  0.13946879
+5     5  0.14066694
+2     2  0.14092920
+12   12  0.16270597
+1     1  0.16832321
+11   11  0.21578295
+9     9  0.22307140
+15   15  0.25478638
+14   14  0.26566826
+13   13  0.29338781
+16   16  0.44288497
+6     6  0.46403793
+18   18  0.50807452
+17   17  0.57995293</code></pre>
+</div>
+<h3 id="distractoroption-analysis">Distractor/Option Analysis</h3>
+<ul>
+<li><p>In distractor analysis, examinees are divided into three ability levels (i.e., lower, middle and upper) based on their total test score. The proportions of examinees who mark each option in each of the three ability levels are compared. In the lower ability level, we would expect to see a smaller proportion of examinees choosing the correct option and a larger proportion of them choosing the incorrect options (known as distractors).</p></li>
+<li><p>Ideally, good distractors would attract about the same proportion of examinees. Distractors that don’t attract any or attract a very small proportion of examinees relative to other distractors should be considered for revision. We do not want response options that are too obvious.</p></li>
+<li><p>In those with higher ability level, we would expect to see the majority of examinees choose the correct option. If distractors are more appealing than the correct option to high ability examineess, then it should be eliminated or revised.</p></li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/CTT/man/distractorAnalysis.html'>distractorAnalysis</a></span><span class='op'>(</span>items <span class='op'>=</span> <span class='va'>data</span>, key <span class='op'>=</span> <span class='va'>key</span>, nGroups <span class='op'>=</span> <span class='fl'>4</span>, pTable <span class='op'>=</span> <span class='cn'>T</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>$i001
+  correct key   n       rspP       pBis     discrim      lower
+A       *   A 183 0.75933610  0.1147596  0.22334218 0.70769231
+B           B  16 0.06639004 -0.2888067 -0.13846154 0.13846154
+C           C  22 0.09128631 -0.1975788 -0.05968170 0.07692308
+D           D  20 0.08298755 -0.1841578 -0.02519894 0.07692308
+       mid50      mid75      upper
+A 0.63636364 0.78846154 0.93103448
+B 0.06060606 0.05769231 0.00000000
+C 0.16666667 0.09615385 0.01724138
+D 0.13636364 0.05769231 0.05172414
+
+$i002
+  correct key   n       rspP        pBis     discrim      lower
+A           A   8 0.03319502 -0.01743924  0.01909814 0.01538462
+B           B  40 0.16597510 -0.28940212 -0.16180371 0.23076923
+C       *   C 177 0.73443983  0.10355300  0.26392573 0.61538462
+D           D  16 0.06639004 -0.28880672 -0.12122016 0.13846154
+       mid50      mid75      upper
+A 0.01515152 0.07692308 0.03448276
+B 0.16666667 0.19230769 0.06896552
+C 0.74242424 0.71153846 0.87931034
+D 0.07575758 0.01923077 0.01724138
+
+$i003
+  correct key  n      rspP        pBis     discrim     lower
+A           A 61 0.2531120 -0.21045253 -0.05278515 0.2769231
+B           B 74 0.3070539 -0.32875754 -0.22387268 0.4307692
+C       *   C 62 0.2572614  0.05061749  0.16021220 0.1846154
+D           D 44 0.1825726 -0.04787523  0.11644562 0.1076923
+      mid50     mid75     upper
+A 0.2878788 0.2115385 0.2241379
+B 0.2878788 0.2884615 0.2068966
+C 0.1818182 0.3461538 0.3448276
+D 0.2424242 0.1538462 0.2241379
+
+$i004
+  correct key   n       rspP        pBis     discrim      lower
+A           A  11 0.04564315 -0.16015191 -0.09045093 0.10769231
+B           B  24 0.09958506 -0.15640748 -0.04244032 0.07692308
+C           C  42 0.17427386 -0.28460760 -0.15437666 0.29230769
+D       *   D 164 0.68049793  0.05911432  0.28726790 0.52307692
+      mid50      mid75      upper
+A 0.0000000 0.05769231 0.01724138
+B 0.1515152 0.13461538 0.03448276
+C 0.1363636 0.11538462 0.13793103
+D 0.7121212 0.69230769 0.81034483
+
+$i005
+  correct key  n       rspP       pBis     discrim      lower
+A           A 84 0.34854772 -0.2097597 -0.02997347 0.32307692
+B       *   B 88 0.36514523  0.1111202  0.27294430 0.26153846
+C           C 61 0.25311203 -0.3237027 -0.19681698 0.36923077
+D           D  8 0.03319502 -0.1706663 -0.04615385 0.04615385
+       mid50      mid75     upper
+A 0.42424242 0.34615385 0.2931034
+B 0.22727273 0.48076923 0.5344828
+C 0.30303030 0.13461538 0.1724138
+D 0.04545455 0.03846154 0.0000000
+
+$i006
+  correct key   n       rspP       pBis    discrim     lower
+A           A  61 0.25311203 -0.3587149 -0.2503979 0.3538462
+B       *   B 130 0.53941909  0.3656502  0.6466844 0.2153846
+C           C  34 0.14107884 -0.3800902 -0.2615385 0.2615385
+D           D  16 0.06639004 -0.2994444 -0.1347480 0.1692308
+       mid50      mid75      upper
+A 0.34848485 0.17307692 0.10344828
+B 0.45454545 0.69230769 0.86206897
+C 0.16666667 0.11538462 0.00000000
+D 0.03030303 0.01923077 0.03448276
+
+$i007
+  correct key  n      rspP        pBis      discrim     lower
+A       *   A 67 0.2780083  0.07004435  0.211936340 0.1846154
+B           B 63 0.2614108 -0.17772394  0.027851459 0.2307692
+C           C 47 0.1950207 -0.13004489  0.003183024 0.1692308
+D           D 64 0.2655602 -0.32387947 -0.242970822 0.4153846
+      mid50     mid75     upper
+A 0.2424242 0.3076923 0.3965517
+B 0.3333333 0.2115385 0.2586207
+C 0.1818182 0.2692308 0.1724138
+D 0.2424242 0.2115385 0.1724138
+
+$i008
+  correct key   n       rspP        pBis     discrim      lower
+A           A  61 0.25311203 -0.45040855 -0.34641910 0.41538462
+B           B  53 0.21991701 -0.11191555  0.01061008 0.23076923
+C       *   C 116 0.48132780  0.11123568  0.36286472 0.29230769
+D           D  11 0.04564315 -0.08820493 -0.02705570 0.06153846
+       mid50      mid75      upper
+A 0.34848485 0.13461538 0.06896552
+B 0.16666667 0.25000000 0.24137931
+C 0.42424242 0.59615385 0.65517241
+D 0.06060606 0.01923077 0.03448276
+
+$i009
+  correct key   n       rspP       pBis     discrim      lower
+A           A   8 0.03319502 -0.1554692 -0.04244032 0.07692308
+B       *   B 200 0.82987552  0.1515853  0.28488064 0.64615385
+C           C  19 0.07883817 -0.2169620 -0.15013263 0.18461538
+D           D  14 0.05809129 -0.2866682 -0.09230769 0.09230769
+       mid50      mid75      upper
+A 0.01515152 0.00000000 0.03448276
+B 0.87878788 0.88461538 0.93103448
+C 0.01515152 0.07692308 0.03448276
+D 0.09090909 0.03846154 0.00000000
+
+$i010
+  correct key   n       rspP        pBis     discrim     lower
+A           A  94 0.39004149 -0.13702229  0.02360743 0.3384615
+B           B  23 0.09543568 -0.16743006 -0.05596817 0.1076923
+C           C  19 0.07883817 -0.27622610 -0.13474801 0.1692308
+D       *   D 105 0.43568465 -0.04341855  0.16710875 0.3846154
+       mid50      mid75      upper
+A 0.43939394 0.42307692 0.36206897
+B 0.07575758 0.15384615 0.05172414
+C 0.04545455 0.05769231 0.03448276
+D 0.43939394 0.36538462 0.55172414
+
+$i011
+  correct key   n       rspP       pBis     discrim     lower
+A           A 117 0.48547718 -0.3887571 -0.29151194 0.5846154
+B           B  23 0.09543568 -0.1398436 -0.02148541 0.1076923
+C       *   C  81 0.33609959  0.1696824  0.38435013 0.1846154
+D           D  20 0.08298755 -0.1548240 -0.07135279 0.1230769
+       mid50      mid75      upper
+A 0.59090909 0.44230769 0.29310345
+B 0.12121212 0.05769231 0.08620690
+C 0.21212121 0.42307692 0.56896552
+D 0.07575758 0.07692308 0.05172414
+
+$i012
+  correct key   n       rspP       pBis     discrim     lower
+A       *   A 135 0.56016598  0.1279600  0.32413793 0.4000000
+B           B  59 0.24481328 -0.2253473 -0.03925729 0.2461538
+C           C  24 0.09958506 -0.2766477 -0.16737401 0.1846154
+D           D  23 0.09543568 -0.2673278 -0.11750663 0.1692308
+       mid50      mid75      upper
+A 0.50000000 0.65384615 0.72413793
+B 0.31818182 0.19230769 0.20689655
+C 0.09090909 0.09615385 0.01724138
+D 0.09090909 0.05769231 0.05172414
+
+$i013
+  correct key  n      rspP       pBis    discrim     lower     mid50
+A           A 27 0.1120332 -0.2781623 -0.1501326 0.1846154 0.1363636
+B           B 46 0.1908714 -0.1753162 -0.1100796 0.2307692 0.1212121
+C           C 74 0.3070539 -0.3778479 -0.2564987 0.4461538 0.3333333
+D       *   D 94 0.3900415  0.2312726  0.5167109 0.1384615 0.4090909
+       mid75      upper
+A 0.07692308 0.03448276
+B 0.30769231 0.12068966
+C 0.23076923 0.18965517
+D 0.38461538 0.65517241
+
+$i014
+  correct key   n      rspP       pBis    discrim     lower     mid50
+A       *   A 108 0.4481328  0.2134979  0.5358090 0.1538462 0.4393939
+B           B  31 0.1286307 -0.2535706 -0.1445623 0.2307692 0.1060606
+C           C  58 0.2406639 -0.3415163 -0.2774536 0.4153846 0.2121212
+D           D  44 0.1825726 -0.2361190 -0.1137931 0.2000000 0.2424242
+       mid75     upper
+A 0.55769231 0.6896552
+B 0.07692308 0.0862069
+C 0.17307692 0.1379310
+D 0.19230769 0.0862069
+
+$i015
+  correct key  n       rspP       pBis     discrim      lower
+A           A 15 0.06224066 -0.1403108 -0.02148541 0.10769231
+B           B 74 0.30705394 -0.3315040 -0.24111406 0.43076923
+C       *   C 75 0.31120332  0.1947141  0.40769231 0.09230769
+D           D 77 0.31950207 -0.2661525 -0.14509284 0.36923077
+       mid50      mid75     upper
+A 0.03030303 0.01923077 0.0862069
+B 0.31818182 0.26923077 0.1896552
+C 0.30303030 0.38461538 0.5000000
+D 0.34848485 0.32692308 0.2241379
+
+$i016
+  correct key   n       rspP       pBis     discrim      lower
+A       *   A 154 0.63900415  0.3353941  0.59071618 0.32307692
+B           B  39 0.16182573 -0.4136149 -0.31750663 0.36923077
+C           C  11 0.04564315 -0.1861371 -0.06153846 0.06153846
+D           D  37 0.15352697 -0.3545356 -0.21167109 0.24615385
+       mid50      mid75      upper
+A 0.56060606 0.82692308 0.91379310
+B 0.13636364 0.05769231 0.05172414
+C 0.09090909 0.01923077 0.00000000
+D 0.21212121 0.09615385 0.03448276
+
+$i017
+  correct key   n      rspP       pBis    discrim     lower
+A           A  82 0.3402490 -0.4829386 -0.4350133 0.5384615
+B           B  26 0.1078838 -0.3113845 -0.1538462 0.1538462
+C       *   C 105 0.4356846  0.4609036  0.7716180 0.1076923
+D           D  28 0.1161826 -0.2706021 -0.1827586 0.2000000
+       mid50      mid75      upper
+A 0.36363636 0.32692308 0.10344828
+B 0.21212121 0.03846154 0.00000000
+C 0.33333333 0.48076923 0.87931034
+D 0.09090909 0.15384615 0.01724138
+
+$i018
+  correct key  n       rspP       pBis    discrim      lower
+A           A 96 0.39834025 -0.4250997 -0.3180371 0.50769231
+B           B 43 0.17842324 -0.2755281 -0.1925729 0.26153846
+C           C 22 0.09128631 -0.2623175 -0.1366048 0.15384615
+D       *   D 80 0.33195021  0.4013261  0.6472149 0.07692308
+       mid50      mid75      upper
+A 0.48484848 0.38461538 0.18965517
+B 0.18181818 0.19230769 0.06896552
+C 0.09090909 0.09615385 0.01724138
+D 0.24242424 0.32692308 0.72413793
+
+$i019
+  correct key   n       rspP        pBis     discrim     lower
+A           A  17 0.07053942 -0.14630133 -0.07135279 0.1230769
+B           B  48 0.19917012 -0.23586731 -0.09469496 0.2153846
+C           C 130 0.53941909 -0.22016521 -0.05570292 0.5384615
+D       *   D  46 0.19087137  0.09561872  0.22175066 0.1230769
+       mid50      mid75      upper
+A 0.06060606 0.03846154 0.05172414
+B 0.22727273 0.23076923 0.12068966
+C 0.57575758 0.55769231 0.48275862
+D 0.13636364 0.17307692 0.34482759
+
+$i020
+  correct key   n       rspP       pBis     discrim      lower
+A           A  21 0.08713693 -0.2194626 -0.07506631 0.09230769
+B           B  49 0.20331950 -0.1948577 -0.07374005 0.24615385
+C       *   C 105 0.43568465  0.1054536  0.32838196 0.29230769
+D           D  66 0.27385892 -0.2973162 -0.17957560 0.36923077
+      mid50      mid75      upper
+A 0.1515152 0.07692308 0.01724138
+B 0.1969697 0.19230769 0.17241379
+C 0.3939394 0.46153846 0.62068966
+D 0.2575758 0.26923077 0.18965517</code></pre>
+</div>
+<h2 id="concluding-remark">Concluding remark</h2>
+<ul>
+<li><p>While we have discussed a lot about characteristics of test items such as Reliability, Item Difficulty, and Item Discrimination, those concepts are building blocks of a bigger concept known as test validity. Test Validity is the foundational concept in measurement that concerns the evidential support to the interpretation and use score of a test score in a particular context <a href="https://www.apa.org/science/programs/testing/standards">(AERA et al., 2014)</a>;</p></li>
+<li><p>For example, in order to use <a href="https://www.pearsonassessments.com/store/usassessments/en/Store/Professional-Assessments/Cognition-%26-Neuro/Wechsler-Adult-Intelligence-Scale-%7C-Fourth-Edition/p/100000392.html">WAIS-IV</a> for diagnostic purposes in Thailand, an array of validity evidence needs to be established such as evidence based on test content (i.e., is content of the test known to the Thai population?), evidence based on internal structure of the test (i.e., how do we know if items of the test measure the same psychological attribute?), or even evidence based on consequences of the test (i.e., are we sure that claims made from the test such as learning disability diagnosis are for that purpose only and for no other unrelated claims such as stigmatization?).</p></li>
+<li><p>CTT is relatively weak in its theoretical assumption, which makes it applicable to many testing situations. This framework also does not require a complex theoretical model to assess psychological attributes of examinees. However, CTT falls short in its sample dependency, which makes it less preferable in test development scenarios that require associations with other population such as test equating and computerized adaptive testing. Item Response Theory is able to address this limitation.</p></li>
+<li><p>With online assessment becoming more implemented, especially in this pandemic time where most activities take place in online environments, we can take advantage of the technology by having computers score the exam for us for improved efficiency. We can also improve property of our test by using information from item analysis as demonstrated above as well. While testing brings about anxiety in a lot of students (me included. I hate being tested), we can hardly deny that it is an important part of education and other settings (e.g., clinical, legal). For that, it is important that every decision made on the test needs to be supported by as much evidence as possible. As always, thank you very much for checking this post out. Good day, everyone!</p></li>
+</ul>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<!--radix_placeholder_article_footer-->
+<div class="article-footer">
+  <p class="social_footer">
+    <span class="disqus-comments">
+      <i class="fas fa-comments"></i>
+      &nbsp;
+      <span class="disqus-comment-count" data-disqus-identifier="posts/2022-01-15-ctt/">Comment on this article</span>
+    </span>
+    <span class="article-sharing">
+      Share: &nbsp;
+      <a href="https://twitter.com/share?text=Classical%20Test%20Theory%20in%20R&amp;url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2022-01-15-ctt%2F">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2022-01-15-ctt%2F&amp;title=Classical%20Test%20Theory%20in%20R">
+        <i class="fab fa-linkedin"></i>
+      </a>
+      <a href="https://pinterest.com/pin/create/link/?url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2022-01-15-ctt%2F&amp;description=Classical%20Test%20Theory%20in%20R">
+        <i class="fab fa-pinterest"></i>
+      </a>
+      <a href="https://www.facebook.com/sharer/sharer.php?s=100&amp;p[url]=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2022-01-15-ctt%2F">
+        <i class="fab fa-facebook"></i>
+      </a>
+    </span>
+  </p>
+  <script id="dsq-count-scr" src="https://Tarid&#39;s blog.disqus.com/count.js" async></script>
+  <div id="disqus_thread" class="hidden"></div>
+  <script type="text/javascript" cookie-consent="functionality">
+var disqus_config = function () {
+  this.page.url = 'https://taridwong.github.io/posts/2022-01-15-ctt/';
+  this.page.identifier = 'posts/2022-01-15-ctt/';
+};
+(function() {
+  var d = document, s = d.createElement('script');
+  s.src = 'https://Tarid's blog.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+})();
+</script>
+  <p>
+    <div class="subscribe"><form method='post' action='https://blogtrottr.com'>
+  <p>Enjoy this blog? Get notified of new posts via email:</p>
+  <input type='text' name='btr_email' />
+  <input type='hidden' name='btr_url'
+         value='https://taridwong.github.io/index.xml'/>
+  <input type='hidden' name='schedule_type' value='0' />
+  <input type='submit' value='Subscribe' />
+</form></div>
+  </p>
+</div>
+<!--/radix_placeholder_article_footer-->
+</div>
+
+<div class="d-appendix">
+</div>
+
+
+<!--radix_placeholder_site_after_body-->
+<!--/radix_placeholder_site_after_body-->
+<!--radix_placeholder_appendices-->
+<div class="appendix-bottom">
+  <h3 id="reuse">Reuse</h3>
+  <p>Text and figures are licensed under Creative Commons Attribution <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. The figures that have been reused from other sources don't fall under this license and can be recognized by a note in their caption: "Figure from ...".</p>
+  <h3 id="citation">Citation</h3>
+  <p>For attribution, please cite this work as</p>
+  <pre class="citation-appendix short">Wongvorachan (2022, Jan. 15). Tarid Wongvorachan: Classical Test Theory in R. Retrieved from https://taridwong.github.io/posts/2022-01-15-ctt/</pre>
+  <p>BibTeX citation</p>
+  <pre class="citation-appendix long">@misc{wongvorachan2022classical,
+  author = {Wongvorachan, Tarid},
+  title = {Tarid Wongvorachan: Classical Test Theory in R},
+  url = {https://taridwong.github.io/posts/2022-01-15-ctt/},
+  year = {2022}
+}</pre>
+</div>
+<!--/radix_placeholder_appendices-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<!--radix_placeholder_navigation_after_body--><html><body>
+<div class="distill-site-nav distill-site-footer">
+<p>Â© Copyright Tarid Wongvorachan 2021. Made with the R <a href="https://rstudio.github.io/distill/">distill</a> package.</p>
+</div>
+<!--/radix_placeholder_navigation_after_body-->
+</body></html>
+
+
+</body>
+
+</html>
