@@ -7,7 +7,3157 @@
     <description>Blogs about what I learned from my academic lives
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Sat, 01 Jan 2022 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 15 Jan 2022 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Classical Test Theory in R</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2022-01-15-ctt</link>
+      <description>
+
+
+&lt;h2 id="introduction"&gt;Introduction&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Classical Test Theory (CTT - also known as weak theory or true-score theory) is a psychometric framework that analyzes psychological tests based on the three concepts of True score (T), Observed score (X), and Error score (E) &lt;a href="https://doi.org/10.1177/0013164498058003001"&gt;(Fan, 1998)&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;CTT assumes that each person has a true score that could be obtained if there were no errors in measurement. This approach to psychometric employs simple mathematical estimates such as averages, proportions, and correlation as methods to measure test takers’ level of construct regardless of their individual attribute.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The major advantage of CTT are its relatively weak theoretical assumptions, which make it easy to apply in many testing situations such as classroom assessment without much constraints. Relatively weak theoretical assumptions not only characterize CTT but also its extensions (e.g., generalizability theory) as well.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;knitr::opts_chunk$set(error = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We will load essential libraries as usual and import test item data and its answer key.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;library(psych) #for general psychometric functions
+library(CTT) #for CTT-based item analysis
+library(tidyverse) #data toolbox for R
+library(kableExtra) #neat tables for R markdown
+library(psychometric) #for item difficulty&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The dataset we will use for this task is an assessment dataset for 241 students N = (241). The assessment comprises of 20 multiple-choice exam items. Each item has 4 response options.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We will begin by loading in the unscored answer data as seen below. &lt;code&gt;i001&lt;/code&gt; represents item 1, &lt;code&gt;i002&lt;/code&gt; represents item 2 and so forth until item 20.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#Importing test data
+data &amp;lt;- read_csv(&amp;quot;sample.score.csv&amp;quot;, col_names = T)
+
+kbl(head(data)) %&amp;gt;%
+  kable_styling(bootstrap_options = c(&amp;quot;striped&amp;quot;, &amp;quot;hover&amp;quot;, &amp;quot;condensed&amp;quot;, &amp;quot;responsive&amp;quot;),
+                full_width = TRUE, position = &amp;quot;left&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;table class="table table-striped table-hover table-condensed table-responsive" style&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align:left;"&gt;
+i001
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i002
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i003
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i004
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i005
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i006
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i007
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i008
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i009
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i010
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i011
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i012
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i013
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i014
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i015
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i016
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i017
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i018
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i019
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i020
+&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;Next, we will import answer key data for all 20 items. Note that the answer keys need to match with the response options in the unscored response data; that is, if the answer for &lt;code&gt;i001&lt;/code&gt; is A, the key has to be “A”, not “a” or “B” or other responses.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#Importing test key
+key &amp;lt;- read_csv(&amp;quot;sample.key.csv&amp;quot;, col_names = T) 
+key &amp;lt;- as.matrix(key)
+
+
+kbl(key) %&amp;gt;%
+  kable_styling(bootstrap_options = c(&amp;quot;striped&amp;quot;, &amp;quot;hover&amp;quot;, &amp;quot;condensed&amp;quot;, &amp;quot;responsive&amp;quot;),
+                full_width = TRUE, position = &amp;quot;left&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;table class="table table-striped table-hover table-condensed table-responsive" style&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align:left;"&gt;
+i001
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i002
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i003
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i004
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i005
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i006
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i007
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i008
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i009
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i010
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i011
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i012
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i013
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i014
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i015
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i016
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i017
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i018
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i019
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+i020
+&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+B
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+A
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+D
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+C
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;We will then use the function &lt;code&gt;score()&lt;/code&gt; function to score multiple choice responses by specifying our unscored response and answer key dataframe. What makes this function useful is that we can also request for reliability analysis with &lt;code&gt;rel = TRUE&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;When scored, each item will be binarily coded, with 0 as incorrect and 1 as correct. We can also requested for item parameter such as mean of that item (&lt;code&gt;itemMean&lt;/code&gt;), point-biserial and biserial correlation (we will get there soon), Coefficient Alpha reliability (or Cronbach’s Alpha) if that item is removed from the exam, and we can even requested for the function to flag if that item has low reliability value.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#scoring
+myScore &amp;lt;- score(data, key, output.scored=TRUE, rel = TRUE)
+
+scored_item &amp;lt;- myScore$scored %&amp;gt;% as.data.frame()
+
+kbl(head(scored_item)) %&amp;gt;%
+  kable_styling(bootstrap_options = c(&amp;quot;striped&amp;quot;, &amp;quot;hover&amp;quot;, &amp;quot;condensed&amp;quot;, &amp;quot;responsive&amp;quot;),
+                full_width = TRUE, position = &amp;quot;left&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;table class="table table-striped table-hover table-condensed table-responsive" style&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align:right;"&gt;
+V1
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V2
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V3
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V4
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V5
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V6
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V7
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V8
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V9
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V10
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V11
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V12
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V13
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V14
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V15
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V16
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V17
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V18
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V19
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+V20
+&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;pre class="r"&gt;&lt;code&gt;item_parameter &amp;lt;- itemAnalysis(scored_item, itemReport=TRUE, NA.Delete=TRUE, pBisFlag = T,  bisFlag = T, flagStyle = c(&amp;quot;X&amp;quot;,&amp;quot;&amp;quot;))
+
+str(item_parameter)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;List of 6
+ $ nItem     : int 20
+ $ nPerson   : int 241
+ $ alpha     : num 0.54
+ $ scaleMean : num 9.44
+ $ scaleSD   : num 3
+ $ itemReport:&amp;#39;data.frame&amp;#39;: 20 obs. of  7 variables:
+  ..$ itemName      : chr [1:20] &amp;quot;V1&amp;quot; &amp;quot;V2&amp;quot; &amp;quot;V3&amp;quot; &amp;quot;V4&amp;quot; ...
+  ..$ itemMean      : num [1:20] 0.759 0.734 0.257 0.68 0.365 ...
+  ..$ pBis          : num [1:20] 0.1148 0.1036 0.0506 0.0591 0.1111 ...
+  ..$ bis           : num [1:20] 0.1576 0.1395 0.0686 0.0771 0.1423 ...
+  ..$ alphaIfDeleted: num [1:20] 0.535 0.537 0.545 0.545 0.537 ...
+  ..$ lowPBis       : chr [1:20] &amp;quot;X&amp;quot; &amp;quot;X&amp;quot; &amp;quot;X&amp;quot; &amp;quot;X&amp;quot; ...
+  ..$ lowBis        : chr [1:20] &amp;quot;X&amp;quot; &amp;quot;X&amp;quot; &amp;quot;X&amp;quot; &amp;quot;X&amp;quot; ...
+ - attr(*, &amp;quot;class&amp;quot;)= chr &amp;quot;itemAnalysis&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The output also comes with scores of each examinee on the exam, which we can perform a descriptive analysis with &lt;code&gt;psych::describe()&lt;/code&gt; on to learn how students of this section perform on this test with mean, median, mode, standard deviation, and so forth.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;kbl(head(myScore$score)) %&amp;gt;%
+  kable_styling(bootstrap_options = c(&amp;quot;striped&amp;quot;, &amp;quot;hover&amp;quot;, &amp;quot;condensed&amp;quot;, &amp;quot;responsive&amp;quot;),
+                full_width = TRUE, position = &amp;quot;left&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;table class="table table-striped table-hover table-condensed table-responsive" style&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align:left;"&gt;
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+x
+&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+9
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P2
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+6
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P3
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+13
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P4
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+9
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P5
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+14
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P6
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+12
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;pre class="r"&gt;&lt;code&gt;describe(myScore$score)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;   vars   n mean sd median trimmed  mad min max range skew kurtosis
+X1    1 241 9.44  3      9    9.34 2.97   1  19    18 0.26    -0.14
+     se
+X1 0.19&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We can also transform the score into a new scale by setting a new mean, SD, and normality with score.transform(). We will refer to the IQ score, with its mean = 100 and its SD = 15. We can even transform the score into a Z score (mean = 0, SD = 1), T score (mean = 50, SD = 10), or even Stanine score (mean = 5, SD = 2).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#Score transformation
+IQ &amp;lt;- score.transform(myScore$score, mu.new = 100, sd.new = 15, normalize = TRUE)
+
+#new.scores is the transformed score
+kbl(head(IQ$new.scores)) %&amp;gt;%
+  kable_styling(bootstrap_options = c(&amp;quot;striped&amp;quot;, &amp;quot;hover&amp;quot;, &amp;quot;condensed&amp;quot;, &amp;quot;responsive&amp;quot;),
+                full_width = FALSE, position = &amp;quot;left&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; "&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align:left;"&gt;
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+x
+&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+99.29768
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P2
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+82.70691
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P3
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+116.70018
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P4
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+99.29768
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P5
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+121.19395
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P6
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+112.44734
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#p.scores is the percentile rank of every examinee
+kbl(head(IQ$p.scores)) %&amp;gt;%
+  kable_styling(bootstrap_options = c(&amp;quot;striped&amp;quot;, &amp;quot;hover&amp;quot;, &amp;quot;condensed&amp;quot;, &amp;quot;responsive&amp;quot;),
+                full_width = FALSE, position = &amp;quot;left&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; "&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align:left;"&gt;
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+x
+&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4813278
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P2
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1244813
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P3
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.8672199
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P4
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4813278
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P5
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.9211618
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+P6
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.7966805
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;We can also visualize Item Characteristic Curve (ICC) of each item from the scoring output. The x-axis indicates total test score of examinees while the y-axis indicates the proportion of examinee that gets that item right. For example, there are 70% (or 0.7) of examinees who have 4 as their total score got item 1 correctly. The curve goes up as total score of the examinee increases, with the proportion of examinee that gets the item correctly at 100% in examinees with the total score of 16 and above.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;cttICC(score = myScore$score, itemVector = myScore$scored[,1], 
+       xlab = &amp;quot;Total test score&amp;quot;,
+       ylab = &amp;quot;Proportion of the examinee&amp;quot;,
+       plotTitle = &amp;quot;Item Characteristic Curve of item 1&amp;quot;,
+       colTheme=&amp;quot;dukes&amp;quot;, cex=1.5)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file19d860c4719d_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We will convert our score data into matrix for for further implementation with item analysis.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#extract responses only as a matrix
+responses &amp;lt;- as.matrix(myScore$scored) &lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="reliability-analysis"&gt;Reliability Analysis&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Reliability of a test is an extent to which a test can produce consistent scores for a particular sample of examinees; that is, a test should yield similar, if not the same, scores for an examinee when taken multiple times, given that there is minimal interference such as practice effect. Test reliability can be measured in different ways such as test-retest, internal consistency, or alternate forms.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="internal-consistency"&gt;Internal Consistency&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;For starter, we will compute internal consistency of the test, which includes Coefficient Alpha (or Cronbach’s Alpha), Guttman’s Lambda-6, Kuder-Richardson 20, and Kuder-Richardson 21. The output also yields the proportion of students who got the item correctly to students who got the item incorrectly as well.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;psych::alpha(myScore$scored, check.keys = T)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Reliability analysis   
+Call: psych::alpha(x = myScore$scored, check.keys = T)
+
+  raw_alpha std.alpha G6(smc) average_r S/N   ase mean   sd median_r
+      0.55      0.55    0.58     0.057 1.2 0.041 0.48 0.15    0.045
+
+ lower alpha upper     95% confidence boundaries
+0.47 0.55 0.63 
+
+ Reliability if an item is dropped:
+     raw_alpha std.alpha G6(smc) average_r  S/N alpha se  var.r med.r
+V1        0.55      0.54    0.58     0.059 1.18    0.042 0.0081 0.045
+V2        0.56      0.55    0.58     0.060 1.21    0.041 0.0079 0.048
+V3        0.56      0.55    0.59     0.060 1.22    0.041 0.0080 0.048
+V4        0.56      0.56    0.59     0.062 1.25    0.040 0.0080 0.052
+V5        0.55      0.54    0.58     0.059 1.20    0.041 0.0081 0.048
+V6        0.51      0.50    0.54     0.050 1.00    0.046 0.0071 0.041
+V7        0.56      0.55    0.59     0.062 1.25    0.040 0.0078 0.051
+V8        0.55      0.54    0.58     0.059 1.19    0.041 0.0080 0.048
+V9        0.55      0.54    0.58     0.058 1.17    0.042 0.0080 0.048
+V10-      0.56      0.56    0.59     0.062 1.25    0.040 0.0079 0.052
+V11       0.54      0.54    0.57     0.057 1.15    0.042 0.0081 0.045
+V12       0.55      0.54    0.58     0.058 1.17    0.042 0.0080 0.044
+V13       0.53      0.52    0.56     0.055 1.10    0.043 0.0074 0.044
+V14       0.53      0.52    0.56     0.055 1.10    0.043 0.0076 0.043
+V15       0.54      0.53    0.57     0.057 1.14    0.042 0.0076 0.044
+V16       0.51      0.51    0.55     0.051 1.03    0.045 0.0068 0.044
+V17       0.49      0.48    0.52     0.047 0.93    0.048 0.0056 0.039
+V18       0.51      0.50    0.53     0.050 1.00    0.046 0.0060 0.044
+V19       0.55      0.54    0.58     0.059 1.19    0.042 0.0079 0.045
+V20       0.55      0.55    0.58     0.060 1.20    0.041 0.0077 0.048
+
+ Item statistics 
+       n raw.r std.r r.cor r.drop mean   sd
+V1   241  0.26  0.28 0.181  0.125 0.76 0.43
+V2   241  0.23  0.24 0.127  0.083 0.73 0.44
+V3   241  0.22  0.23 0.115  0.082 0.26 0.44
+V4   241  0.20  0.20 0.066  0.043 0.68 0.47
+V5   241  0.26  0.26 0.152  0.106 0.37 0.48
+V6   241  0.51  0.50 0.497  0.370 0.54 0.50
+V7   241  0.19  0.20 0.074  0.045 0.28 0.45
+V8   241  0.27  0.27 0.163  0.113 0.48 0.50
+V9   241  0.26  0.29 0.199  0.143 0.83 0.38
+V10- 241  0.21  0.20 0.067  0.043 0.56 0.50
+V11  241  0.32  0.32 0.228  0.169 0.34 0.47
+V12  241  0.31  0.30 0.205  0.148 0.56 0.50
+V13  241  0.39  0.38 0.323  0.240 0.39 0.49
+V14  241  0.40  0.38 0.327  0.247 0.45 0.50
+V15  241  0.33  0.33 0.254  0.183 0.31 0.46
+V16  241  0.47  0.47 0.452  0.337 0.64 0.48
+V17  241  0.60  0.59 0.647  0.478 0.44 0.50
+V18  241  0.52  0.50 0.526  0.387 0.33 0.47
+V19  241  0.25  0.27 0.176  0.123 0.19 0.39
+V20  241  0.26  0.25 0.152  0.097 0.44 0.50
+
+Non missing response frequency for each item
+         0    1 miss
+ [1,] 0.24 0.76    0
+ [2,] 0.27 0.73    0
+ [3,] 0.74 0.26    0
+ [4,] 0.32 0.68    0
+ [5,] 0.63 0.37    0
+ [6,] 0.46 0.54    0
+ [7,] 0.72 0.28    0
+ [8,] 0.52 0.48    0
+ [9,] 0.17 0.83    0
+[10,] 0.56 0.44    0
+[11,] 0.66 0.34    0
+[12,] 0.44 0.56    0
+[13,] 0.61 0.39    0
+[14,] 0.55 0.45    0
+[15,] 0.69 0.31    0
+[16,] 0.36 0.64    0
+[17,] 0.56 0.44    0
+[18,] 0.67 0.33    0
+[19,] 0.81 0.19    0
+[20,] 0.56 0.44    0&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="kuder-richardson"&gt;Kuder-Richardson&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;For Kuder-Richardson formula 20 (KR20) and Kuder-Richardson formula 21 (KR21), we can write functions that compute them as follows:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;KR20 &amp;lt;-
+  function(X)
+    {
+    X &amp;lt;- data.matrix(X)
+    k &amp;lt;- ncol(X)
+    
+    # Person total score variances
+    SX &amp;lt;- var(rowSums(X))
+    
+    # item means
+    IM &amp;lt;- colMeans(X)
+    
+    return(((k/(k - 1))*((SX - sum(IM*(1 - IM)))/SX)))
+  }
+
+KR20(responses)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[1] 0.541653&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;KR21 &amp;lt;-
+  function(X)
+    {
+    X &amp;lt;- data.matrix(X)
+    n &amp;lt;- ncol(X)
+    
+    return((n/(n-1))*((var(rowSums(X)) - n*(sum(colMeans(X))/n) * 
+                         (1-(sum(colMeans(X))/n))))/var(rowSums(X)))
+  }
+
+KR21(responses)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[1] 0.4700428&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="split-half-test-retest-reliability"&gt;Split-half (Test-Retest) Reliability&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;The test-retest reliability is an estimation of reliability based on the correlation of two equivalent forms of the tests. It is not recommended to use the same test form twice to avoid practice effect, which could artifically increase reliability coefficient of the test.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;psych::splitHalf(scored_item, raw = TRUE, check.keys = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Split half reliabilities  
+Call: psych::splitHalf(r = scored_item, raw = TRUE, check.keys = TRUE)
+
+Maximum split half reliability (lambda 4) =  0.69
+Guttman lambda 6                          =  0.58
+Average split half reliability            =  0.55
+Guttman lambda 3 (alpha)                  =  0.55
+Guttman lambda 2                          =  0.57
+Minimum split half reliability  (beta)    =  0.32
+Average interitem r =  0.06  with median =  0.04
+                                             2.5% 50% 97.5%
+ Quantiles of split half reliability      =  0.44 0.55 0.63&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="spearman-brown-reliability"&gt;Spearman-Brown Reliability&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;To compute Spearman-Brown reliability, we need to use Cronbach’s Alpha as a base computation; for that, we need to export the function as a separate file first.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#With a written function
+cronbachs.alpha &amp;lt;-
+  function(X)
+    {
+    
+    X &amp;lt;- data.matrix(X)
+    n &amp;lt;- ncol(X) # Number of items
+    k &amp;lt;- nrow(X) # Number of examinees
+    
+    # Cronbachs alpha
+    alpha &amp;lt;- (n/(n - 1))*(1 - sum(apply(X, 2, var))/var(rowSums(X)))
+    
+    return(list(&amp;quot;Crombach&amp;#39;s alpha&amp;quot; = alpha,
+                &amp;quot;Number of items&amp;quot; = n,
+                &amp;quot;Number of examinees&amp;quot; = k))
+    }
+
+#Dump &amp;quot;cronbach.alpha&amp;quot; function for further use
+dump(&amp;quot;cronbachs.alpha&amp;quot;, file = &amp;quot;cronbachs.alpha.R&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The Spearman-Brown prophecy formula is a formula that predicts reliability of the test through the modification of test length. This formula is one way can use to answer questions such as “how short can I make my assessment?” or “how many items should I write for my test to have adequate reliability?”&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Reliability of a test usually decreases when we shorten the test length and increases when we add more test items as well. However, there is no magic number of how long a test should be, so one should consider their context such as nature of the test content, ability of the examinee, and average time for a student to complete the assessment.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;SpearmanBrown &amp;lt;- 
+  function(x, n1, n2)
+    {
+    
+    source(&amp;quot;cronbachs.alpha.R&amp;quot;)
+    
+    x &amp;lt;- as.matrix(x)
+    N &amp;lt;- n2/n1
+    
+    # cronbach&amp;#39;s alpha for the original test
+    alpha &amp;lt;- cronbachs.alpha(x)[[1]]
+    predicted.alpha &amp;lt;- N * alpha / (1 + (N - 1) * alpha)
+    
+    return(list(original.reliability = alpha,
+                original.sample.size = n1,
+                predicted.reliability = predicted.alpha,
+                predicted.sample.size = n2))
+  }
+
+# predict reliability by Spearman-Brown formula
+# if the number of items is reduced from 25 to 15
+SpearmanBrown(responses, n1 = 20, n2 = 15)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;$original.reliability
+[1] 0.5395239
+
+$original.sample.size
+[1] 20
+
+$predicted.reliability
+[1] 0.4677309
+
+$predicted.sample.size
+[1] 15&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# predict reliability by Spearman-Brown formula
+# if the number of items is increased from 25 to 35
+SpearmanBrown(responses, n1 = 20, n2 = 35)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;$original.reliability
+[1] 0.5395239
+
+$original.sample.size
+[1] 20
+
+$predicted.reliability
+[1] 0.6721757
+
+$predicted.sample.size
+[1] 35&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# predict reliability by Spearman-Brown formula
+# if the number of items is doubled
+SpearmanBrown(responses, n1 = 20, n2 = 40)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;$original.reliability
+[1] 0.5395239
+
+$original.sample.size
+[1] 20
+
+$predicted.reliability
+[1] 0.7008971
+
+$predicted.sample.size
+[1] 40&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="guttmans-lambda"&gt;Guttman’s Lambda&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Guttman’s Lambda is also another reliability coefficient we can use in similar way as Coefficient Alpha (or Cronbach’s Alpha).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;psych::guttman(responses)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Call: psych::guttman(r = responses)
+
+Alternative estimates of reliability
+
+Guttman bounds 
+L1 =  0.51 
+L2 =  0.56 
+L3 (alpha) =  0.53 
+L4 (max) =  0.68 
+L5 =  0.55 
+L6 (smc) =  0.57 
+TenBerge bounds 
+mu0 =  0.53 mu1 =  0.56 mu2 =  0.56 mu3 =  0.56 
+
+alpha of first PC =  0.64 
+estimated greatest lower bound based upon communalities=  0.69 
+
+beta found by splitHalf  =  0.34 &lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="pearson-product-moment-correlation-coefficient"&gt;Pearson product-moment correlation coefficient&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Another way we can compute reliability of the test is via Pearson product-moment correlation between two halves of the test (aka Split-half method). However, comparing only a pair or two of the test half might not be enough. We can use Bootstrap resampling method to randomly split the examinees into two halves 1000 times, so that we can make sure that the computation is as exhaustive as possible.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#Split data (variables-item) into two equally and randomly.
+
+split.items &amp;lt;- 
+  function(X, seed = NULL)
+    {
+    # optional fixed seed
+    if (!is.null(seed)) {set.seed(seed)} 
+    
+    X &amp;lt;- as.matrix(X)
+    
+    # if n = 2x, then lengths Y1 = Y2
+    # if n = 2x+1, then lenths Y1 = Y2+1
+    n &amp;lt;- ncol(X)
+    index &amp;lt;- sample(1:n, ceiling(n/2))
+    Y1 &amp;lt;- X[, index ]
+    Y2 &amp;lt;- X[, -index]
+    return(list(Y1, Y2)) 
+  }
+
+dump(&amp;quot;split.items&amp;quot;, file = &amp;quot;split.items.R&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;pearson &amp;lt;- 
+  function(X, seed = NULL, n = NULL)
+    {
+    source(&amp;quot;split.items.R&amp;quot;)
+    
+    # optional fixed seed
+    if (!is.null(seed)) {set.seed(seed)}
+    
+    # the number of bootstrap replicates. 1e3 = 1000
+    if (is.null(n)) {n &amp;lt;- 1e3}   
+    
+    X &amp;lt;- as.matrix(X)
+    r &amp;lt;- rep(NA, n)
+    
+    for (i in 1:n) {
+      # split items
+      Y &amp;lt;- split.items(X)
+      
+      # total scores
+      S1 &amp;lt;- as.matrix(rowSums(Y[[1]]))
+      S2 &amp;lt;- as.matrix(rowSums(Y[[2]]))
+      
+      # residual scores
+      R1 &amp;lt;- S1 - mean(S1)
+      R2 &amp;lt;- S2 - mean(S2)
+      
+      # Pearson product-moment correlation coefficient
+      r[i] &amp;lt;- (t(R1) %*% R2) / (sqrt((t(R1) %*% R1)) * sqrt((t(R2) %*% R2)))
+    }
+    
+    return(mean(r))
+  }
+
+# compute the Pearson product-moment correlation coefficient
+pearson(responses, seed = 456, n = 1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[1] 0.3499066&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We can also double check if the function is right by splitting response of the examinee into two halves and compute a correlation coefficient by ourselves.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# compare
+# split items
+set.seed(456)
+Y &amp;lt;- split.items(responses)
+
+# total scores
+Set1 &amp;lt;- as.matrix(rowSums(Y[[1]]))
+Set2 &amp;lt;- as.matrix(rowSums(Y[[2]]))
+
+cor(Set1, Set2)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;          [,1]
+[1,] 0.3499066&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Note that the split-half method can both overestimate or underestimate ability of the examinees when two halves of the test are not parallel.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="standard-error-of-measurement"&gt;Standard Error of Measurement&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Standard error of measurement is a measure of the spread of observed score around the “true” score. The standard error of measurement that uses Coefficient’s alpha as its reliability statistics can be computed as follows:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;SEM &amp;lt;-
+  function(X){
+    source(&amp;quot;cronbachs.alpha.R&amp;quot;)
+    X &amp;lt;- data.matrix(X)
+    
+    return(sd(rowSums(X)) * sqrt(1 - cronbachs.alpha(X)[[1]]))
+  }
+
+SEM(responses)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[1] 2.036401&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;As a result, the range in which the true score of an examinee might stay in could be ± 2.036401.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="confidence-intervals-for-true-scores"&gt;Confidence Intervals for True Scores&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;We can also compute confidence interval for true scores of each item via the code below. Note that one limitation of CTT is that it is population dependent, so the confidence interval may change when the test is administered to a different group of examinees.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# 90% confidence interval for the true score
+head(cbind(lower_bound = round(rowSums(responses)-1.65* sd(rowSums(responses))*
+                                 sqrt(1-KR20(responses)), 2), observed = rowSums(responses),
+           upper_bound = round(rowSums(responses)+1.65* sd(rowSums(responses))*
+                                 sqrt(1-KR20(responses)), 2)), 20)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;      lower_bound observed upper_bound
+ [1,]        5.65        9       12.35
+ [2,]        2.65        6        9.35
+ [3,]        9.65       13       16.35
+ [4,]        5.65        9       12.35
+ [5,]       10.65       14       17.35
+ [6,]        8.65       12       15.35
+ [7,]        3.65        7       10.35
+ [8,]        5.65        9       12.35
+ [9,]        4.65        8       11.35
+[10,]        7.65       11       14.35
+[11,]        2.65        6        9.35
+[12,]        4.65        8       11.35
+[13,]        1.65        5        8.35
+[14,]        9.65       13       16.35
+[15,]        4.65        8       11.35
+[16,]        1.65        5        8.35
+[17,]       11.65       15       18.35
+[18,]        4.65        8       11.35
+[19,]        6.65       10       13.35
+[20,]        9.65       13       16.35&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="item-analysis"&gt;Item Analysis&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;ul&gt;
+&lt;li&gt;Item Analysis of the Classical Test Theory approach relies on two statistics to evaluate an item, P-value (not to be confused with &lt;em&gt;p&lt;/em&gt;-value in statistical tests) and point-biserial correlation coefficient (p-Bis).&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;P-value in this context represents the proportion of examinees responding in the keyed direction It is typically referred to as &lt;strong&gt;item difficulty&lt;/strong&gt;. Point-biserial corrrelation coefficient is the correlation between a particular item and other items; this index is typically referred to as &lt;strong&gt;item discrimination&lt;/strong&gt; that indicates the degree to which that item can distinguish high ability examinee or examinees who actually know that construct from examinees who do not possess adequate knowledge to get that item correctly.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="item-discrimination."&gt;Item Discrimination.&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;As mentioned above, item discrimination refers to how well an item discriminates high-ability examinees from those with low-ability. Items that are very hard (i.e., p &amp;lt; 0.20) or very easy (p &amp;gt; 0.90) usually have lower item discrimination values than items with medium difficulty.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We usually examine point-biserial correlation coefficient (p-Bis) of the item. If p-Bis is lower than 0.20, the item can be flagged for low discrimination, while 0.20 to 0.39 indicates good discrimination, and 0.4 and above indicates excellent discrimination. If p-Bis is negative, then the item doesn’t seem to measure the same construct that the other items are measuring. It could also mean that the item is mis-keyed.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;item.analysis &amp;lt;- 
+  function(responses)
+    {
+    # CRITICAL VALUES
+    cvpb = 0.20
+    cvdl = 0.15
+    cvdu = 0.85
+    
+    require(CTT, warn.conflicts = FALSE, quietly = TRUE)
+    (ctt.analysis &amp;lt;- CTT::reliability(responses, itemal = TRUE, NA.Delete = TRUE))
+    
+    # Mark items that are potentially problematic
+    item.analysis &amp;lt;- data.frame(item = seq(1:ctt.analysis$nItem),
+                                r.pbis = ctt.analysis$pBis,
+                                bis = ctt.analysis$bis,
+                                item.mean = ctt.analysis$itemMean,
+                                alpha.del = ctt.analysis$alphaIfDeleted)
+  
+    if (TRUE) {
+      item.analysis$check &amp;lt;- 
+        ifelse(item.analysis$r.pbis &amp;lt; cvpb |
+                 item.analysis$item.mean &amp;lt; cvdl |
+                 item.analysis$item.mean &amp;gt; cvdu, &amp;quot;X&amp;quot;, &amp;quot;&amp;quot;)
+    }
+    
+    return(item.analysis)
+  }
+
+kbl(item.analysis(responses)) %&amp;gt;%
+  kable_styling(bootstrap_options = c(&amp;quot;striped&amp;quot;, &amp;quot;hover&amp;quot;, &amp;quot;condensed&amp;quot;, &amp;quot;responsive&amp;quot;),
+                full_width = FALSE, position = &amp;quot;left&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; "&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align:right;"&gt;
+item
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+r.pbis
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+bis
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+item.mean
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+alpha.del
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+check
+&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1147596
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1683232
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.7593361
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5353385
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+2
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1035530
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1409292
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.7344398
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5372914
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+3
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0506175
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0685887
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2572614
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5452346
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+4
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0591143
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0785356
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.6804979
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5450389
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+5
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1111202
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1406669
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3651452
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5369402
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+6
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3656502
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4640379
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5394191
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4909063
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+7
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0700444
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0920897
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2780083
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5426513
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+8
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1112357
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1394688
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4813278
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5373705
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+9
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1515853
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2230714
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.8298755
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5299043
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+10
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+-0.0434185
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+-0.0549382
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4356846
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5634988
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+11
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1696824
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2157830
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3360996
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5269375
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+12
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1279600
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1627060
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5601660
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5343645
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+13
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2312726
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2933878
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3900415
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5161192
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+14
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2134979
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2656683
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4481328
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5191567
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+15
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1947141
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2547864
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3112033
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5227779
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+16
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3353941
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4428850
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.6390041
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4977310
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+17
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4609036
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5799529
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4356846
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4727918
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+18
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4013261
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5080745
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3319502
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4865119
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+19
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0956187
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1323704
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1908714
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5375545
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+20
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1054536
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1323520
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4356846
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5382775
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+X
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id="item-difficulty"&gt;Item Difficulty&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Under CTT, item difficulty is simply the percentages of examinees obtaining the correct answer. Item difficulty ranges from 0 to 1, with higher values indicate easier items as more examinees are able to correctly answer this item. This index is useful in assessing whether it is appropriate for the level of the students taking the test.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The desired range of item difficulty index is between 0.3 to 0.9 (by approximate), while the number close to 0 or 1 offers little information on measuring students’ level of the construct. In plain words, we wouldn’t want to have test items that are too easy that everybody get it right, or items that are too hard that no one can answer it correctly. However, the extreme cut-off for item difficulty could apply to measurements that are designed for extreme groups.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;Item_Difficulty &amp;lt;- item.exam(x = responses, y = NULL, discrim = T)
+
+kbl(Item_Difficulty) %&amp;gt;%
+  kable_styling(bootstrap_options = c(&amp;quot;striped&amp;quot;, &amp;quot;hover&amp;quot;, &amp;quot;condensed&amp;quot;, &amp;quot;responsive&amp;quot;),
+                full_width = FALSE, position = &amp;quot;left&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; "&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align:right;"&gt;
+Sample.SD
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+Item.total
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+Item.Tot.woi
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+Difficulty
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+Discrimination
+&lt;/th&gt;
+&lt;th style="text-align:left;"&gt;
+Item.Criterion
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+Item.Reliab
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+Item.Rel.woi
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+Item.Validity
+&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4283763
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2544665
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1147596
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.7593361
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2125
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1087810
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0490582
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4425501
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2483214
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1035530
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.7344398
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2875
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1096664
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0457322
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4380344
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1956677
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0506175
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2572614
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2375
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0855312
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0221262
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4672541
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2135535
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0591143
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.6804979
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2125
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0995765
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0275640
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4824729
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2684805
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1111202
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3651452
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3125
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1292655
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0535011
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4994811
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5054235
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3656502
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5394191
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5500
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2519252
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1822561
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4489499
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2181283
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0700444
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2780083
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1625
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0977253
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0313811
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.5006911
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2744754
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1112357
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4813278
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3125
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1371420
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0555790
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.3765241
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2730001
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1515853
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.8298755
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2375
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1025776
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0569570
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4968782
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1224407
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+-0.0434185
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4356846
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1375
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0607118
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+-0.0215289
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4733565
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3208135
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1696824
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3360996
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3125
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1515438
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0801535
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4973999
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2892525
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1279600
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5601660
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2625
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1435753
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0635151
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4887744
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3825120
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2312726
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3900415
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4000
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1865738
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1128054
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4983375
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3691600
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2134979
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4481328
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4750
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1835842
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1061730
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4639493
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3412014
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1947141
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3112033
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3625
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1579714
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0901499
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4812889
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4738815
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3353941
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.6390041
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4750
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2276002
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1610862
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4968782
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5863010
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4609036
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4356846
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.6125
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2907152
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2285373
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4718933
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5290626
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4013261
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3319502
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.5000
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2491426
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1889898
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.3938058
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2248264
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0956187
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1908714
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1500
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0883541
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0375770
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+0.4968782
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2677464
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1054536
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4356846
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3125
+&lt;/td&gt;
+&lt;td style="text-align:left;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.1327610
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0522888
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id="visualizing-item-discrimination"&gt;Visualizing Item Discrimination&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;We can use the functions below to visualize for items that should be revised for low discrimination power&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;item.discrimination &amp;lt;-
+  function(responses)
+    {
+    # CRITICAL VALUES
+    cvpb = 0.20
+    cvdl = 0.15
+    cvdu = 0.85
+    
+    require(CTT, warn.conflicts = FALSE, quietly = TRUE)
+    ctt.analysis &amp;lt;- CTT::reliability(responses, itemal = TRUE, NA.Delete = TRUE)
+    
+    item.discrimination &amp;lt;- data.frame(item = 1:ctt.analysis$nItem , 
+                                      discrimination = ctt.analysis$pBis)
+    
+    plot(item.discrimination,
+         type = &amp;quot;p&amp;quot;,
+         pch = 1,
+         cex = 3,
+         col = &amp;quot;purple&amp;quot;,
+         ylab = &amp;quot;point-Biserial correlation&amp;quot;,
+         xlab = &amp;quot;Item Number&amp;quot;,
+         ylim = c(0, 1),
+         main = &amp;quot;Test Item Discriminations&amp;quot;)
+    
+    abline(h = cvpb, col = &amp;quot;red&amp;quot;)
+    
+    outlier &amp;lt;- data.matrix(subset(item.discrimination,
+                                  subset = (item.discrimination[, 2] &amp;lt; cvpb)))
+    
+    text(outlier, paste(&amp;quot;i&amp;quot;, outlier[,1], sep = &amp;quot;&amp;quot;), col = &amp;quot;red&amp;quot;, cex = .7)
+    
+    return(item.discrimination[order(item.discrimination$discrimination),])
+  }
+
+item.discrimination(responses)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file19d860c4719d_files/figure-html/unnamed-chunk-28-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;   item discrimination
+10   10    -0.04341855
+3     3     0.05061749
+4     4     0.05911432
+7     7     0.07004435
+19   19     0.09561872
+2     2     0.10355300
+20   20     0.10545357
+5     5     0.11112015
+8     8     0.11123568
+1     1     0.11475958
+12   12     0.12795997
+9     9     0.15158531
+11   11     0.16968243
+15   15     0.19471413
+14   14     0.21349786
+13   13     0.23127262
+16   16     0.33539410
+6     6     0.36565023
+18   18     0.40132606
+17   17     0.46090362&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="visualizing-item-total-correlation-bis"&gt;Visualizing Item Total-Correlation (Bis)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;The item total correlation is a correlation between the question score (e.g., 0 or 1 for multiple choice) and the overall assessment score. The assumption is that if an examinee gets a question correctly they should, in general, have higher overall assessment scores than participants who get that question wrong.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;test_item.total &amp;lt;-
+  function(responses)
+    {
+    # CRITICAL VALUES
+    cvpb = 0.20
+    cvdl = 0.15
+    cvdu = 0.85
+    
+    require(CTT, warn.conflicts = FALSE, quietly = TRUE)
+    ctt.analysis &amp;lt;- CTT::reliability(responses, itemal = TRUE, NA.Delete = TRUE)
+    
+    test_item.total &amp;lt;- data.frame(item = 1:ctt.analysis$nItem , 
+                                  biserial = ctt.analysis$bis)
+    
+    plot(test_item.total,
+         main = &amp;quot;Test Item-Total Correlation&amp;quot;,
+         type = &amp;quot;p&amp;quot;,
+         pch = 1,
+         cex = 2.8,
+         col = &amp;quot;purple&amp;quot;,
+         ylab = &amp;quot;Biserial correlation&amp;quot;,
+         xlab = &amp;quot;Item Number&amp;quot;,
+         ylim = c(0, 1),
+         xlim = c(0, ctt.analysis$nItem))
+    
+    abline(h = cvpb, col = &amp;quot;red&amp;quot;)
+    
+    outlier &amp;lt;- data.matrix(subset(test_item.total,
+                                  subset = test_item.total[,2] &amp;lt; cvpb))
+    
+    text(outlier, paste(&amp;quot;i&amp;quot;, outlier[,1], sep = &amp;quot;&amp;quot;), col = &amp;quot;red&amp;quot;, cex = .7)
+    
+    return(test_item.total[order(test_item.total$biserial),])
+    }
+
+test_item.total(responses)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file19d860c4719d_files/figure-html/unnamed-chunk-29-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;   item    biserial
+10   10 -0.05493825
+3     3  0.06858871
+4     4  0.07853557
+7     7  0.09208970
+20   20  0.13235198
+19   19  0.13237037
+8     8  0.13946879
+5     5  0.14066694
+2     2  0.14092920
+12   12  0.16270597
+1     1  0.16832321
+11   11  0.21578295
+9     9  0.22307140
+15   15  0.25478638
+14   14  0.26566826
+13   13  0.29338781
+16   16  0.44288497
+6     6  0.46403793
+18   18  0.50807452
+17   17  0.57995293&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="distractoroption-analysis"&gt;Distractor/Option Analysis&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;In distractor analysis, examinees are divided into three ability levels (i.e., lower, middle and upper) based on their total test score. The proportions of examinees who mark each option in each of the three ability levels are compared. In the lower ability level, we would expect to see a smaller proportion of examinees choosing the correct option and a larger proportion of them choosing the incorrect options (known as distractors).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Ideally, good distractors would attract about the same proportion of examinees. Distractors that don’t attract any or attract a very small proportion of examinees relative to other distractors should be considered for revision. We do not want response options that are too obvious.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;In those with higher ability level, we would expect to see the majority of examinees choose the correct option. If distractors are more appealing than the correct option to high ability examineess, then it should be eliminated or revised.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;distractorAnalysis(items = data, key = key, nGroups = 4, pTable = T)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;$i001
+  correct key   n       rspP       pBis     discrim      lower
+A       *   A 183 0.75933610  0.1147596  0.22334218 0.70769231
+B           B  16 0.06639004 -0.2888067 -0.13846154 0.13846154
+C           C  22 0.09128631 -0.1975788 -0.05968170 0.07692308
+D           D  20 0.08298755 -0.1841578 -0.02519894 0.07692308
+       mid50      mid75      upper
+A 0.63636364 0.78846154 0.93103448
+B 0.06060606 0.05769231 0.00000000
+C 0.16666667 0.09615385 0.01724138
+D 0.13636364 0.05769231 0.05172414
+
+$i002
+  correct key   n       rspP        pBis     discrim      lower
+A           A   8 0.03319502 -0.01743924  0.01909814 0.01538462
+B           B  40 0.16597510 -0.28940212 -0.16180371 0.23076923
+C       *   C 177 0.73443983  0.10355300  0.26392573 0.61538462
+D           D  16 0.06639004 -0.28880672 -0.12122016 0.13846154
+       mid50      mid75      upper
+A 0.01515152 0.07692308 0.03448276
+B 0.16666667 0.19230769 0.06896552
+C 0.74242424 0.71153846 0.87931034
+D 0.07575758 0.01923077 0.01724138
+
+$i003
+  correct key  n      rspP        pBis     discrim     lower
+A           A 61 0.2531120 -0.21045253 -0.05278515 0.2769231
+B           B 74 0.3070539 -0.32875754 -0.22387268 0.4307692
+C       *   C 62 0.2572614  0.05061749  0.16021220 0.1846154
+D           D 44 0.1825726 -0.04787523  0.11644562 0.1076923
+      mid50     mid75     upper
+A 0.2878788 0.2115385 0.2241379
+B 0.2878788 0.2884615 0.2068966
+C 0.1818182 0.3461538 0.3448276
+D 0.2424242 0.1538462 0.2241379
+
+$i004
+  correct key   n       rspP        pBis     discrim      lower
+A           A  11 0.04564315 -0.16015191 -0.09045093 0.10769231
+B           B  24 0.09958506 -0.15640748 -0.04244032 0.07692308
+C           C  42 0.17427386 -0.28460760 -0.15437666 0.29230769
+D       *   D 164 0.68049793  0.05911432  0.28726790 0.52307692
+      mid50      mid75      upper
+A 0.0000000 0.05769231 0.01724138
+B 0.1515152 0.13461538 0.03448276
+C 0.1363636 0.11538462 0.13793103
+D 0.7121212 0.69230769 0.81034483
+
+$i005
+  correct key  n       rspP       pBis     discrim      lower
+A           A 84 0.34854772 -0.2097597 -0.02997347 0.32307692
+B       *   B 88 0.36514523  0.1111202  0.27294430 0.26153846
+C           C 61 0.25311203 -0.3237027 -0.19681698 0.36923077
+D           D  8 0.03319502 -0.1706663 -0.04615385 0.04615385
+       mid50      mid75     upper
+A 0.42424242 0.34615385 0.2931034
+B 0.22727273 0.48076923 0.5344828
+C 0.30303030 0.13461538 0.1724138
+D 0.04545455 0.03846154 0.0000000
+
+$i006
+  correct key   n       rspP       pBis    discrim     lower
+A           A  61 0.25311203 -0.3587149 -0.2503979 0.3538462
+B       *   B 130 0.53941909  0.3656502  0.6466844 0.2153846
+C           C  34 0.14107884 -0.3800902 -0.2615385 0.2615385
+D           D  16 0.06639004 -0.2994444 -0.1347480 0.1692308
+       mid50      mid75      upper
+A 0.34848485 0.17307692 0.10344828
+B 0.45454545 0.69230769 0.86206897
+C 0.16666667 0.11538462 0.00000000
+D 0.03030303 0.01923077 0.03448276
+
+$i007
+  correct key  n      rspP        pBis      discrim     lower
+A       *   A 67 0.2780083  0.07004435  0.211936340 0.1846154
+B           B 63 0.2614108 -0.17772394  0.027851459 0.2307692
+C           C 47 0.1950207 -0.13004489  0.003183024 0.1692308
+D           D 64 0.2655602 -0.32387947 -0.242970822 0.4153846
+      mid50     mid75     upper
+A 0.2424242 0.3076923 0.3965517
+B 0.3333333 0.2115385 0.2586207
+C 0.1818182 0.2692308 0.1724138
+D 0.2424242 0.2115385 0.1724138
+
+$i008
+  correct key   n       rspP        pBis     discrim      lower
+A           A  61 0.25311203 -0.45040855 -0.34641910 0.41538462
+B           B  53 0.21991701 -0.11191555  0.01061008 0.23076923
+C       *   C 116 0.48132780  0.11123568  0.36286472 0.29230769
+D           D  11 0.04564315 -0.08820493 -0.02705570 0.06153846
+       mid50      mid75      upper
+A 0.34848485 0.13461538 0.06896552
+B 0.16666667 0.25000000 0.24137931
+C 0.42424242 0.59615385 0.65517241
+D 0.06060606 0.01923077 0.03448276
+
+$i009
+  correct key   n       rspP       pBis     discrim      lower
+A           A   8 0.03319502 -0.1554692 -0.04244032 0.07692308
+B       *   B 200 0.82987552  0.1515853  0.28488064 0.64615385
+C           C  19 0.07883817 -0.2169620 -0.15013263 0.18461538
+D           D  14 0.05809129 -0.2866682 -0.09230769 0.09230769
+       mid50      mid75      upper
+A 0.01515152 0.00000000 0.03448276
+B 0.87878788 0.88461538 0.93103448
+C 0.01515152 0.07692308 0.03448276
+D 0.09090909 0.03846154 0.00000000
+
+$i010
+  correct key   n       rspP        pBis     discrim     lower
+A           A  94 0.39004149 -0.13702229  0.02360743 0.3384615
+B           B  23 0.09543568 -0.16743006 -0.05596817 0.1076923
+C           C  19 0.07883817 -0.27622610 -0.13474801 0.1692308
+D       *   D 105 0.43568465 -0.04341855  0.16710875 0.3846154
+       mid50      mid75      upper
+A 0.43939394 0.42307692 0.36206897
+B 0.07575758 0.15384615 0.05172414
+C 0.04545455 0.05769231 0.03448276
+D 0.43939394 0.36538462 0.55172414
+
+$i011
+  correct key   n       rspP       pBis     discrim     lower
+A           A 117 0.48547718 -0.3887571 -0.29151194 0.5846154
+B           B  23 0.09543568 -0.1398436 -0.02148541 0.1076923
+C       *   C  81 0.33609959  0.1696824  0.38435013 0.1846154
+D           D  20 0.08298755 -0.1548240 -0.07135279 0.1230769
+       mid50      mid75      upper
+A 0.59090909 0.44230769 0.29310345
+B 0.12121212 0.05769231 0.08620690
+C 0.21212121 0.42307692 0.56896552
+D 0.07575758 0.07692308 0.05172414
+
+$i012
+  correct key   n       rspP       pBis     discrim     lower
+A       *   A 135 0.56016598  0.1279600  0.32413793 0.4000000
+B           B  59 0.24481328 -0.2253473 -0.03925729 0.2461538
+C           C  24 0.09958506 -0.2766477 -0.16737401 0.1846154
+D           D  23 0.09543568 -0.2673278 -0.11750663 0.1692308
+       mid50      mid75      upper
+A 0.50000000 0.65384615 0.72413793
+B 0.31818182 0.19230769 0.20689655
+C 0.09090909 0.09615385 0.01724138
+D 0.09090909 0.05769231 0.05172414
+
+$i013
+  correct key  n      rspP       pBis    discrim     lower     mid50
+A           A 27 0.1120332 -0.2781623 -0.1501326 0.1846154 0.1363636
+B           B 46 0.1908714 -0.1753162 -0.1100796 0.2307692 0.1212121
+C           C 74 0.3070539 -0.3778479 -0.2564987 0.4461538 0.3333333
+D       *   D 94 0.3900415  0.2312726  0.5167109 0.1384615 0.4090909
+       mid75      upper
+A 0.07692308 0.03448276
+B 0.30769231 0.12068966
+C 0.23076923 0.18965517
+D 0.38461538 0.65517241
+
+$i014
+  correct key   n      rspP       pBis    discrim     lower     mid50
+A       *   A 108 0.4481328  0.2134979  0.5358090 0.1538462 0.4393939
+B           B  31 0.1286307 -0.2535706 -0.1445623 0.2307692 0.1060606
+C           C  58 0.2406639 -0.3415163 -0.2774536 0.4153846 0.2121212
+D           D  44 0.1825726 -0.2361190 -0.1137931 0.2000000 0.2424242
+       mid75     upper
+A 0.55769231 0.6896552
+B 0.07692308 0.0862069
+C 0.17307692 0.1379310
+D 0.19230769 0.0862069
+
+$i015
+  correct key  n       rspP       pBis     discrim      lower
+A           A 15 0.06224066 -0.1403108 -0.02148541 0.10769231
+B           B 74 0.30705394 -0.3315040 -0.24111406 0.43076923
+C       *   C 75 0.31120332  0.1947141  0.40769231 0.09230769
+D           D 77 0.31950207 -0.2661525 -0.14509284 0.36923077
+       mid50      mid75     upper
+A 0.03030303 0.01923077 0.0862069
+B 0.31818182 0.26923077 0.1896552
+C 0.30303030 0.38461538 0.5000000
+D 0.34848485 0.32692308 0.2241379
+
+$i016
+  correct key   n       rspP       pBis     discrim      lower
+A       *   A 154 0.63900415  0.3353941  0.59071618 0.32307692
+B           B  39 0.16182573 -0.4136149 -0.31750663 0.36923077
+C           C  11 0.04564315 -0.1861371 -0.06153846 0.06153846
+D           D  37 0.15352697 -0.3545356 -0.21167109 0.24615385
+       mid50      mid75      upper
+A 0.56060606 0.82692308 0.91379310
+B 0.13636364 0.05769231 0.05172414
+C 0.09090909 0.01923077 0.00000000
+D 0.21212121 0.09615385 0.03448276
+
+$i017
+  correct key   n      rspP       pBis    discrim     lower
+A           A  82 0.3402490 -0.4829386 -0.4350133 0.5384615
+B           B  26 0.1078838 -0.3113845 -0.1538462 0.1538462
+C       *   C 105 0.4356846  0.4609036  0.7716180 0.1076923
+D           D  28 0.1161826 -0.2706021 -0.1827586 0.2000000
+       mid50      mid75      upper
+A 0.36363636 0.32692308 0.10344828
+B 0.21212121 0.03846154 0.00000000
+C 0.33333333 0.48076923 0.87931034
+D 0.09090909 0.15384615 0.01724138
+
+$i018
+  correct key  n       rspP       pBis    discrim      lower
+A           A 96 0.39834025 -0.4250997 -0.3180371 0.50769231
+B           B 43 0.17842324 -0.2755281 -0.1925729 0.26153846
+C           C 22 0.09128631 -0.2623175 -0.1366048 0.15384615
+D       *   D 80 0.33195021  0.4013261  0.6472149 0.07692308
+       mid50      mid75      upper
+A 0.48484848 0.38461538 0.18965517
+B 0.18181818 0.19230769 0.06896552
+C 0.09090909 0.09615385 0.01724138
+D 0.24242424 0.32692308 0.72413793
+
+$i019
+  correct key   n       rspP        pBis     discrim     lower
+A           A  17 0.07053942 -0.14630133 -0.07135279 0.1230769
+B           B  48 0.19917012 -0.23586731 -0.09469496 0.2153846
+C           C 130 0.53941909 -0.22016521 -0.05570292 0.5384615
+D       *   D  46 0.19087137  0.09561872  0.22175066 0.1230769
+       mid50      mid75      upper
+A 0.06060606 0.03846154 0.05172414
+B 0.22727273 0.23076923 0.12068966
+C 0.57575758 0.55769231 0.48275862
+D 0.13636364 0.17307692 0.34482759
+
+$i020
+  correct key   n       rspP       pBis     discrim      lower
+A           A  21 0.08713693 -0.2194626 -0.07506631 0.09230769
+B           B  49 0.20331950 -0.1948577 -0.07374005 0.24615385
+C       *   C 105 0.43568465  0.1054536  0.32838196 0.29230769
+D           D  66 0.27385892 -0.2973162 -0.17957560 0.36923077
+      mid50      mid75      upper
+A 0.1515152 0.07692308 0.01724138
+B 0.1969697 0.19230769 0.17241379
+C 0.3939394 0.46153846 0.62068966
+D 0.2575758 0.26923077 0.18965517&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="concluding-remark"&gt;Concluding remark&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;While we have discussed a lot about characteristics of test items such as Reliability, Item Difficulty, and Item Discrimination, those concepts are building blocks of a bigger concept known as test validity. Test Validity is the foundational concept in measurement that concerns the evidential support to the interpretation and use score of a test score in a particular context &lt;a href="https://www.apa.org/science/programs/testing/standards"&gt;(AERA et al., 2014)&lt;/a&gt;;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;For example, in order to use &lt;a href="https://www.pearsonassessments.com/store/usassessments/en/Store/Professional-Assessments/Cognition-%26-Neuro/Wechsler-Adult-Intelligence-Scale-%7C-Fourth-Edition/p/100000392.html"&gt;WAIS-IV&lt;/a&gt; for diagnostic purposes in Thailand, an array of validity evidence needs to be established such as evidence based on test content (i.e., is content of the test known to the Thai population?), evidence based on internal structure of the test (i.e., how do we know if items of the test measure the same psychological attribute?), or even evidence based on consequences of the test (i.e., are we sure that claims made from the test such as learning disability diagnosis are for that purpose only and for no other unrelated claims such as stigmatization?).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;CTT is relatively weak in its theoretical assumption, which makes it applicable to many testing situations. This framework also does not require a complex theoretical model to assess psychological attributes of examinees. However, CTT falls short in its sample dependency, which makes it less preferable in test development scenarios that require associations with other population such as test equating and computerized adaptive testing. Item Response Theory is able to address this limitation.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;With online assessment becoming more implemented, especially in this pandemic time where most activities take place in online environments, we can take advantage of the technology by having computers score the exam for us for improved efficiency. We can also improve property of our test by using information from item analysis as demonstrated above as well. While testing brings about anxiety in a lot of students (me included. I hate being tested), we can hardly deny that it is an important part of education and other settings (e.g., clinical, legal). For that, it is important that every decision made on the test needs to be supported by as much evidence as possible. As always, thank you very much for checking this post out. Good day, everyone!&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>76b518c0a94ddfd28cece43d8bf5be5f</distill:md5>
+      <category>R</category>
+      <category>Psychometric</category>
+      <guid>https://taridwong.github.io/posts/2022-01-15-ctt</guid>
+      <pubDate>Sat, 15 Jan 2022 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2022-01-15-ctt/discrim.jpg" medium="image" type="image/jpeg"/>
+    </item>
     <item>
       <title>Examining the Big 5 personality Dataset with factor analysis</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -71,7 +3221,7 @@ dlookr::diagnose(data)&lt;/code&gt;&lt;/pre&gt;
 10 C5        integer            16           0.571            7
 # ... with 15 more rows, and 1 more variable: unique_rate &amp;lt;dbl&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(data, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file19d8cb77cd6_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;There are some degree of missingness in the dataset as indicated by the missingness map. For good measure, we will impute it with the predictive mean matchmaking method by the &lt;code&gt;mice&lt;/code&gt; package.&lt;/li&gt;
 &lt;/ul&gt;
@@ -108,7 +3258,7 @@ mice_model &amp;lt;- mice(data, method=&amp;#39;pmm&amp;#39;, seed = 123)&lt;/co
 &lt;pre class="r"&gt;&lt;code&gt;data_complete &amp;lt;- complete(mice_model)
 
 visdat::vis_miss(data_complete, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file19d8cb77cd6_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;There is no missing value present in the dataset after the imputation. We can proceed with factor structure checking to assess whether the dataset is appropriate for factor analysis with &lt;code&gt;check_factorstructure()&lt;/code&gt;. Two existing methods are the &lt;em&gt;Bartlett’s Test of Sphericity&lt;/em&gt; and the &lt;em&gt;Kaiser, Meyer, Olkin (KMO)&lt;/em&gt; Measure of Sampling Adequacy (MSA).&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;The former tests whether a matrix is significantly different from an identity matrix. This statistical test for the presence of correlations among variables, providing the statistical probability that the correlation matrix has significant correlations among at least some of variables. As for factor analysis to work, some relationships between variables are needed, thus, a significant Bartlett’s test of sphericity is required to be significant.&lt;/p&gt;&lt;/li&gt;
@@ -146,7 +3296,7 @@ ggcorrplot(data.corr,
   labs(title=&amp;quot;Correlation Matrix&amp;quot;)+
   theme(plot.title=element_text(face=&amp;#39;bold&amp;#39;,size=14,hjust=0.5,colour=&amp;quot;darkred&amp;quot;))+
   theme(legend.position=c(0.10,0.80), legend.box.just = &amp;quot;bottom&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-8-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file19d8cb77cd6_files/figure-html/unnamed-chunk-8-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The green panel indicates positive relationships while the red panel indicates negative relationship. The cross symbol suggests that the relationship between two variables is not statistically significant.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Next, we would need to split the dataset into two to perform EFA and CFA, so that we can make sure to test the model on an unseen set of data.&lt;/p&gt;&lt;/li&gt;
@@ -200,7 +3350,7 @@ eigenvals$values&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Then use the correlation matrix to create the scree plot
 
 scree(bfi_EFA_cor, factors = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file19d8cb77cd6_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;From the above plot, The point where the slope of the curve is clearly leveling off (the “elbow) indicates that the number of factors that should be retained. For this case, the plot indicated that six factors should be retained.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;However, the dataset we use is for Big 5 personality traits with 5 factors, so we can investigate both 5 and 6 factors model to compare them both.&lt;/p&gt;&lt;/li&gt;
@@ -324,7 +3474,7 @@ The choice of 6 dimensions is supported by 4 (17.39%) methods out of 23 (Optimal
 10        22         1
 11        24         3&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(n_factor) + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file19d8cb77cd6_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Interestingly, most methods also suggest six factors from the model, which is consistent with the &lt;a href="https://en.wikipedia.org/wiki/HEXACO_model_of_personality_structure"&gt;HEXACO model&lt;/a&gt; of personalities that is similar with the Big 5 personality theory.&lt;/li&gt;
 &lt;/ul&gt;
@@ -349,19 +3499,19 @@ test &amp;lt;- partitions$test&lt;/code&gt;&lt;/pre&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;structure_big5 &amp;lt;- psych::fa(training, nfactors = 5)
 fa.diagram(structure_big5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file19d8cb77cd6_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big5$scores, na.rm = TRUE), 
      main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-22-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file19d8cb77cd6_files/figure-html/unnamed-chunk-22-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Then, for the structure of the 6 factors model.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;structure_big6 &amp;lt;- psych::fa(training, nfactors = 6) 
 fa.diagram(structure_big6)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file19d8cb77cd6_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big6$scores, na.rm = TRUE), 
      main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b1818783bba_files/figure-html/unnamed-chunk-24-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file19d8cb77cd6_files/figure-html/unnamed-chunk-24-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will then transform both EFA models into &lt;code&gt;lavaan&lt;/code&gt; syntax to perform CFA.&lt;/li&gt;
 &lt;/ul&gt;
@@ -734,7 +3884,7 @@ clusters_df = pd.DataFrame(clusters, columns = [&amp;#39;cluster_group&amp;#39;]
 
 sns.set_theme(style=&amp;quot;whitegrid&amp;quot;)
 sns.catplot(x=&amp;quot;cluster_group&amp;quot;, kind=&amp;quot;count&amp;quot;, data=clusters_df)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b187d3d4e39_files/figure-html/unnamed-chunk-11-1.png" width="242" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file19d87c3c1d40_files/figure-html/unnamed-chunk-11-1.png" width="242" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2 id="calculate-similarity-distance"&gt;Calculate similarity distance&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;By using &lt;code&gt;countvectorizer&lt;/code&gt;, we can turn a sentence into numbers for the computer to calculate similarity distance with the cosine similarity measurement (it is basically a number that indicates how closely related the two sets of words are).&lt;/li&gt;
@@ -771,7 +3921,7 @@ fig.set_size_inches(120, 50)
 # Show the plotted dendrogram
 plt.grid(False)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b187d3d4e39_files/figure-html/unnamed-chunk-13-3.png" width="11520" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file19d87c3c1d40_files/figure-html/unnamed-chunk-13-3.png" width="11520" /&gt;&lt;/p&gt;
 &lt;h2 id="concluding-remark"&gt;Concluding remark&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;While I am not an expert in movie critique, the movie plot data is a good venue to practice text cleaning with tokenization and stemming. The TF-IDF method is also widely implemented to extract meaningful information from textual data in general. Lastly, clustering is also a useful exploratory machine learning method to gain insights from unlabeled data to inform our decisions.&lt;/p&gt;&lt;/li&gt;
@@ -808,6 +3958,7 @@ plt.show()&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;As usual, we will begin by importing essential libraries and load in the data set to preprocess it.&lt;/li&gt;
 &lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;knitr::opts_chunk$set(error = TRUE)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;library(foreign) #To read SPSS data
 library(tidyverse) #datawork toolbox
 library(dlookr) #for missing data diagnosis
@@ -823,31 +3974,25 @@ PISA_CAN &amp;lt;-read.spss(&amp;quot;PISA2018CAN.sav&amp;quot;,to.data.frame = 
 PISA_Subsetted &amp;lt;-  PISA_CAN %&amp;gt;% 
   select(REPEAT, FEMALE = ST004D01T, ESCS, DAYSKIP = ST062Q01TA,
          CLASSSKIP = ST062Q02TA, LATE = ST062Q03TA,
-         BEINGBULLIED, DISCLIMA, ADAPTIVITY)
-
-#Recode variables into factor
-PISA_Subsetted$DAYSKIP &amp;lt;-as.factor(PISA_Subsetted$DAYSKIP)
-PISA_Subsetted$CLASSSKIP &amp;lt;-as.factor(PISA_Subsetted$CLASSSKIP)
-PISA_Subsetted$LATE &amp;lt;-as.factor(PISA_Subsetted$LATE)
-PISA_Subsetted$FEMALE &amp;lt;-as.factor(PISA_Subsetted$FEMALE)
-PISA_Subsetted$REPEAT &amp;lt;-as.factor(PISA_Subsetted$REPEAT)
-
-# Renaming factor levels with dplyr
+         BEINGBULLIED, DISCLIMA, ADAPTIVITY)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in select(., REPEAT, FEMALE = ST004D01T, ESCS, DAYSKIP = ST062Q01TA, : unused arguments (REPEAT, FEMALE = ST004D01T, ESCS, DAYSKIP = ST062Q01TA, CLASSSKIP = ST062Q02TA, LATE = ST062Q03TA, BEINGBULLIED, DISCLIMA, ADAPTIVITY)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#Recode variables into factor
+PISA_Subsetted$DAYSKIP &amp;lt;-as.factor(PISA_Subsetted$DAYSKIP)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.factor(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted$CLASSSKIP &amp;lt;-as.factor(PISA_Subsetted$CLASSSKIP)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.factor(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted$LATE &amp;lt;-as.factor(PISA_Subsetted$LATE)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.factor(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted$FEMALE &amp;lt;-as.factor(PISA_Subsetted$FEMALE)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.factor(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted$REPEAT &amp;lt;-as.factor(PISA_Subsetted$REPEAT)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.factor(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# Renaming factor levels with dplyr
 PISA_Subsetted$FEMALE &amp;lt;- recode_factor(PISA_Subsetted$FEMALE, 
-                                       &amp;quot;1&amp;quot; = &amp;quot;1&amp;quot;, &amp;quot;2&amp;quot; = &amp;quot;0&amp;quot;)
-
-glimpse(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Rows: 22,653
-Columns: 9
-$ REPEAT       &amp;lt;fct&amp;gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-$ FEMALE       &amp;lt;fct&amp;gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,~
-$ ESCS         &amp;lt;dbl&amp;gt; -0.7302, 0.3078, 0.5059, 1.1147, 1.3626, -0.857~
-$ DAYSKIP      &amp;lt;fct&amp;gt; 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 3, 1, 1, 2, 1, 2,~
-$ CLASSSKIP    &amp;lt;fct&amp;gt; 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 3, 1, 1, 2, 2, 2,~
-$ LATE         &amp;lt;fct&amp;gt; 2, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 2, 1, 3,~
-$ BEINGBULLIED &amp;lt;dbl&amp;gt; 1.2618, 1.7669, 0.1462, -0.7823, 0.2907, 0.7703~
-$ DISCLIMA     &amp;lt;dbl&amp;gt; -0.4186, -1.4179, 0.6019, -0.4995, -0.1045, 1.0~
-$ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0.5~&lt;/code&gt;&lt;/pre&gt;
+                                       &amp;quot;1&amp;quot; = &amp;quot;1&amp;quot;, &amp;quot;2&amp;quot; = &amp;quot;0&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in recode(.x, !!!values, .default = .default, .missing = .missing): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;glimpse(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in glimpse(PISA_Subsetted): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The data set in this post was a Canadian student data subsetted from the Programme for Internal Student Assessment (PISA), which is an international assessment that measures 15-year-old students’ reading, mathematics, and science literacy every three years.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;From the &lt;code&gt;glimpse&lt;/code&gt; call above, our dataset has 9 variables and 22,653 data points.&lt;/p&gt;&lt;/li&gt;
@@ -858,41 +4003,15 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;li&gt;&lt;p&gt;The plot provides a specific visualization of the amount of missing data, showing in black the location of missing values, and also providing information on the overall percentage of missing values overall (in the legend), and in each variable.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;dlookr::diagnose(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;# A tibble: 9 x 6
-  variables    types   missing_count missing_percent unique_count
-  &amp;lt;chr&amp;gt;        &amp;lt;chr&amp;gt;           &amp;lt;int&amp;gt;           &amp;lt;dbl&amp;gt;        &amp;lt;int&amp;gt;
-1 REPEAT       factor           1926         8.50               3
-2 FEMALE       factor              2         0.00883            3
-3 ESCS         numeric          1163         5.13           15366
-4 DAYSKIP      factor           3341        14.7                5
-5 CLASSSKIP    factor           3330        14.7                5
-6 LATE         factor           3316        14.6                5
-7 BEINGBULLIED numeric          3833        16.9               63
-8 DISCLIMA     numeric          1300         5.74             934
-9 ADAPTIVITY   numeric          2197         9.70              65
-# ... with 1 more variable: unique_rate &amp;lt;dbl&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in dlookr::diagnose(PISA_Subsetted): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(PISA_Subsetted, sort_miss = TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_dataframe(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;If we are curious about the proportion of missing data by groups, we can also group the dataset by our categorical variable of interest, say, gender, before examining the missingness ratio.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% group_by (FEMALE) %&amp;gt;%
   miss_var_summary()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;# A tibble: 24 x 4
-# Groups:   FEMALE [3]
-   FEMALE variable     n_miss pct_miss
-   &amp;lt;fct&amp;gt;  &amp;lt;chr&amp;gt;         &amp;lt;int&amp;gt;    &amp;lt;dbl&amp;gt;
- 1 1      BEINGBULLIED   1651    14.6 
- 2 1      DAYSKIP        1451    12.8 
- 3 1      CLASSSKIP      1445    12.8 
- 4 1      LATE           1430    12.6 
- 5 1      ADAPTIVITY      907     8.02
- 6 1      REPEAT          812     7.18
- 7 1      DISCLIMA        563     4.98
- 8 1      ESCS            527     4.66
- 9 0      BEINGBULLIED   2180    19.2 
-10 0      DAYSKIP        1888    16.6 
-# ... with 14 more rows&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in group_by(., FEMALE): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;h3 id="types-of-missing-data"&gt;Types of Missing Data&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Yes, we know now that our data is missing, but not all missing data are created (or not created, pun wholeheartedly intended) equal. There are three types of missing data, MCAR, MAR, and MNAR.&lt;/p&gt;&lt;/li&gt;
@@ -910,7 +4029,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;oceanbuoys %&amp;gt;% arrange(year) %&amp;gt;% vis_miss()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-7-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file19d87a8c1012_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Missing Not at Random (MNAR)&lt;/p&gt;
 &lt;ul&gt;
@@ -928,7 +4047,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;li&gt;An upset plot from the &lt;code&gt;UpSetR&lt;/code&gt; package can be used to visualize the patterns of missingness, or rather the combinations of missingness across cases and variables.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_upset(PISA_Subsetted, nsets = 9, nintersects = 15)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.data.frame(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The small bar plot to the left indicated the amount of missingness in variables. Consistent with the missingness diagnosis, the variable &lt;code&gt;BEINGBULLIED&lt;/code&gt; has the most missing data, following by &lt;code&gt;DAYSKIP&lt;/code&gt; and &lt;code&gt;CLASSKIP&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;The dot plot to the right showed combinations of variable that are missing in the data set. For example, there are 1,234 cases that have missing data in the variable &lt;code&gt;LATE&lt;/code&gt;, &lt;code&gt;CLASSKIP&lt;/code&gt;, &lt;code&gt;DAYSKIP&lt;/code&gt;, and &lt;code&gt;BEINGBULLIED&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
@@ -943,50 +4062,27 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;li&gt;This plot shows the number of missing values in each variable in a dataset.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% miss_var_table()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;# A tibble: 9 x 3
-  n_miss_in_var n_vars pct_vars
-          &amp;lt;int&amp;gt;  &amp;lt;int&amp;gt;    &amp;lt;dbl&amp;gt;
-1             2      1     11.1
-2          1163      1     11.1
-3          1300      1     11.1
-4          1926      1     11.1
-5          2197      1     11.1
-6          3316      1     11.1
-7          3330      1     11.1
-8          3341      1     11.1
-9          3833      1     11.1&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_null(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_var(PISA_Subsetted, show_pct = TRUE) &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_dataframe(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;h4 id="missingness-in-cases-with-gg_miss_case"&gt;Missingness in cases with &lt;code&gt;gg_miss_case&lt;/code&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot shows the number of missing values in each case. For example, the table showed that there are 2 cases with 9 missing variables (i.e., no data in all variables), and there are 1050 cases with 8 missing variables.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% miss_case_table()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;# A tibble: 10 x 3
-   n_miss_in_case n_cases pct_cases
-            &amp;lt;int&amp;gt;   &amp;lt;int&amp;gt;     &amp;lt;dbl&amp;gt;
- 1              0   18327  80.9    
- 2              1     870   3.84   
- 3              2     140   0.618  
- 4              3      81   0.358  
- 5              4    1254   5.54   
- 6              5      83   0.366  
- 7              6     756   3.34   
- 8              7      90   0.397  
- 9              8    1050   4.64   
-10              9       2   0.00883&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_null(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_case(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_null(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;h4 id="missingness-across-factors-with-gg_miss_fct"&gt;Missingness across factors with &lt;code&gt;gg_miss_fct&lt;/code&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot shows the number of missingness in each column, broken down by a categorical variable from the dataset.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_fct(x = PISA_Subsetted, fct = REPEAT) + 
   labs(title = &amp;quot;Missing data by the History of Class Repetition&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-11-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in tbl_vars_dispatch(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_fct(x = PISA_Subsetted, fct = LATE) + 
   labs(title = &amp;quot;Missing data by Lateness History&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-11-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in tbl_vars_dispatch(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;The heatmap above showed the proportion of missing data we have in each response of the selected categorical variable; for example, the history of class repetition (&lt;code&gt;REPEAT&lt;/code&gt;), with &lt;code&gt;0&lt;/code&gt; as no, &lt;code&gt;1&lt;/code&gt; as yes, and &lt;code&gt;NA&lt;/code&gt; as missing.&lt;/li&gt;
 &lt;/ul&gt;
@@ -996,7 +4092,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_span(PISA_Subsetted, REPEAT, span_every = 2000) +
   theme_dark()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-12-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_null(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;The plot went over the data and showed us how many missing data we have every 2000 data points that it went through.&lt;/li&gt;
 &lt;/ul&gt;
@@ -1005,12 +4101,12 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;li&gt;This plot showed the cumulative amount of missing value over the data set. A sharp increase in cumulative missing value could indicate missing patterns to be discovered.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% gg_miss_case_cumsum(breaks = 2000) + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_null(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot showed the cumulative amount of missing value over the variable. We could examine the relative proportion of missing values across variables via this plot.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% gg_miss_var_cumsum() + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-14-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_null(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id="what-should-we-do-with-the-missing-data"&gt;What should we do with the missing data&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Now that we know we have missing data, there are numerous ways we can deal with it such as disregarding them with complete case analysis, or making educated guesses with imputation.&lt;/p&gt;&lt;/li&gt;
@@ -1025,19 +4121,10 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;li&gt;This often results in losing 20% to 50% of the data.&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class="r"&gt;&lt;code&gt;PISA_Listwise &amp;lt;- PISA_Subsetted[complete.cases(PISA_Subsetted), ]
-glimpse(PISA_Listwise)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Rows: 18,327
-Columns: 9
-$ REPEAT       &amp;lt;fct&amp;gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-$ FEMALE       &amp;lt;fct&amp;gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,~
-$ ESCS         &amp;lt;dbl&amp;gt; -0.7302, 0.3078, 0.5059, 1.1147, 1.3626, -0.857~
-$ DAYSKIP      &amp;lt;fct&amp;gt; 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 3, 1, 1, 2, 1, 2,~
-$ CLASSSKIP    &amp;lt;fct&amp;gt; 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 3, 1, 1, 2, 2, 2,~
-$ LATE         &amp;lt;fct&amp;gt; 2, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 2, 1, 3,~
-$ BEINGBULLIED &amp;lt;dbl&amp;gt; 1.2618, 1.7669, 0.1462, -0.7823, 0.2907, 0.7703~
-$ DISCLIMA     &amp;lt;dbl&amp;gt; -0.4186, -1.4179, 0.6019, -0.4995, -0.1045, 1.0~
-$ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0.5~&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_Listwise &amp;lt;- PISA_Subsetted[complete.cases(PISA_Subsetted), ]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in eval(expr, envir, enclos): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;glimpse(PISA_Listwise)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in glimpse(PISA_Listwise): object &amp;#39;PISA_Listwise&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Notice that the size of our dataset got reduced to 18,327 cases. This happaned from deleting all cases with missing value.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;&lt;strong&gt;Pairwise deletion&lt;/strong&gt; is the method that deletes cases only if they have missing data on variables involved in a particular computation, so we can still retain the data for other analyses that do not involve variables that are missing. However, the effective sample size can vary from one analysis to another.&lt;/p&gt;&lt;/li&gt;
@@ -1045,9 +4132,7 @@ $ ADAPTIVITY   &amp;lt;dbl&amp;gt; -0.4708, 0.6350, -0.5786, -0.5786, -0.0763, 0
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;pairwise_var &amp;lt;- c(&amp;quot;BEINGBULLIED&amp;quot;, &amp;quot;DISCLIMA&amp;quot;)
 cov(PISA_Subsetted[pairwise_var], use=&amp;quot;pairwise.complete.obs&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;             BEINGBULLIED   DISCLIMA
-BEINGBULLIED    1.1315670 -0.1982891
-DISCLIMA       -0.1982891  1.1373620&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.data.frame(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;&lt;strong&gt;HOWEVER&lt;/strong&gt;, the bias caused by using listwise/pairwise deletion has been shown in simulations to grossly exaggerate or underestimate some effects.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Despite giving valid estimates when data are MCAR, the statistical power will be severely reduced when there is a lot of missingness. If the missingness is MAR or MNAR, removing them introduces bias to models built on these data.&lt;/p&gt;&lt;/li&gt;
@@ -1067,37 +4152,25 @@ DISCLIMA       -0.1982891  1.1373620&lt;/code&gt;&lt;/pre&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_meanimp &amp;lt;- PISA_Subsetted %&amp;gt;%
   mutate(DISCLIMA_imp = ifelse(is.na(DISCLIMA), TRUE, FALSE)) %&amp;gt;%
-  mutate(ADAPTIVITY_imp = ifelse(is.na(ADAPTIVITY), TRUE, FALSE))
-
-PISA_meanimp[c(&amp;quot;DISCLIMA_imp&amp;quot;,&amp;quot;ADAPTIVITY_imp&amp;quot;)] %&amp;gt;% head()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;  DISCLIMA_imp ADAPTIVITY_imp
-1        FALSE          FALSE
-2        FALSE          FALSE
-3        FALSE          FALSE
-4        FALSE          FALSE
-5        FALSE          FALSE
-6        FALSE          FALSE&lt;/code&gt;&lt;/pre&gt;
+  mutate(ADAPTIVITY_imp = ifelse(is.na(ADAPTIVITY), TRUE, FALSE))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in mutate(., DISCLIMA_imp = ifelse(is.na(DISCLIMA), TRUE, FALSE)): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_meanimp[c(&amp;quot;DISCLIMA_imp&amp;quot;,&amp;quot;ADAPTIVITY_imp&amp;quot;)] %&amp;gt;% head()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in head(.): object &amp;#39;PISA_meanimp&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;Replace missing values in DISCLIMA and ADAPTIVITY variables with their respective means.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_meanimp &amp;lt;- PISA_meanimp %&amp;gt;%
 mutate(DISCLIMA = ifelse(is.na(DISCLIMA), mean(DISCLIMA, na.rm = TRUE), DISCLIMA)) %&amp;gt;%
-mutate(ADAPTIVITY = ifelse(is.na(ADAPTIVITY), mean(ADAPTIVITY, na.rm = TRUE), ADAPTIVITY))
-
-PISA_meanimp %&amp;gt;%select(DISCLIMA, ADAPTIVITY, DISCLIMA_imp, ADAPTIVITY_imp) %&amp;gt;%
+mutate(ADAPTIVITY = ifelse(is.na(ADAPTIVITY), mean(ADAPTIVITY, na.rm = TRUE), ADAPTIVITY))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in mutate(., DISCLIMA = ifelse(is.na(DISCLIMA), mean(DISCLIMA, na.rm = TRUE), : object &amp;#39;PISA_meanimp&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_meanimp %&amp;gt;%select(DISCLIMA, ADAPTIVITY, DISCLIMA_imp, ADAPTIVITY_imp) %&amp;gt;%
 head()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;  DISCLIMA ADAPTIVITY DISCLIMA_imp ADAPTIVITY_imp
-1  -0.4186    -0.4708        FALSE          FALSE
-2  -1.4179     0.6350        FALSE          FALSE
-3   0.6019    -0.5786        FALSE          FALSE
-4  -0.4995    -0.5786        FALSE          FALSE
-5  -0.1045    -0.0763        FALSE          FALSE
-6   1.0832     0.5464        FALSE          FALSE&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in select(., DISCLIMA, ADAPTIVITY, DISCLIMA_imp, ADAPTIVITY_imp): unused arguments (DISCLIMA, ADAPTIVITY, DISCLIMA_imp, ADAPTIVITY_imp)&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;We can try plotting the data on a margin plot to see the result of our mean imputation.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_meanimp %&amp;gt;% select(DISCLIMA, ADAPTIVITY, DISCLIMA_imp, ADAPTIVITY_imp) %&amp;gt;% marginplot(delimiter=&amp;quot;imp&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file4b18586c1594_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in select(., DISCLIMA, ADAPTIVITY, DISCLIMA_imp, ADAPTIVITY_imp): unused arguments (DISCLIMA, ADAPTIVITY, DISCLIMA_imp, ADAPTIVITY_imp)&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;You can see that all missing values were replaced by the mean of that variable. Yes, we got the data back, but what did it cost?&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Mean imputation destroys relationship between variables.&lt;/p&gt;&lt;/li&gt;
@@ -1110,16 +4183,10 @@ head()&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;&lt;p&gt;For kNN imputation, we identify ‘k’ samples in the dataset that are similar or close in the space. Then we use these ‘k’ samples to estimate the value of the missing data points.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Basically, it is like you have a data point with missing values asks its neighbors what value do they have on the variable that it is missing. That data point then replace its missing values with the value of its nearest neighbor.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class="r"&gt;&lt;code&gt;PISA_kNNimp &amp;lt;- VIM::kNN(PISA_Subsetted, k = 6, variable = c(&amp;quot;DISCLIMA&amp;quot;, &amp;quot;ADAPTIVITY&amp;quot;))
-
-PISA_kNNimp[c(&amp;quot;DISCLIMA&amp;quot;, &amp;quot;ADAPTIVITY&amp;quot;,&amp;quot;DISCLIMA_imp&amp;quot;,&amp;quot;ADAPTIVITY_imp&amp;quot;)] %&amp;gt;% head()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;  DISCLIMA ADAPTIVITY DISCLIMA_imp ADAPTIVITY_imp
-1  -0.4186    -0.4708        FALSE          FALSE
-2  -1.4179     0.6350        FALSE          FALSE
-3   0.6019    -0.5786        FALSE          FALSE
-4  -0.4995    -0.5786        FALSE          FALSE
-5  -0.1045    -0.0763        FALSE          FALSE
-6   1.0832     0.5464        FALSE          FALSE&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_kNNimp &amp;lt;- VIM::kNN(PISA_Subsetted, k = 6, variable = c(&amp;quot;DISCLIMA&amp;quot;, &amp;quot;ADAPTIVITY&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in check_data(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_kNNimp[c(&amp;quot;DISCLIMA&amp;quot;, &amp;quot;ADAPTIVITY&amp;quot;,&amp;quot;DISCLIMA_imp&amp;quot;,&amp;quot;ADAPTIVITY_imp&amp;quot;)] %&amp;gt;% head()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in head(.): object &amp;#39;PISA_kNNimp&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;Note that there are two more columns added, DISCLIMA_imp and ADAPTIVITY_imp. The two added columns tell us if our variables of interest were imputed with the kNN method or not, with &lt;code&gt;TRUE&lt;/code&gt; indicates that the value was imputed and &lt;code&gt;FALSE&lt;/code&gt; indicates otherwise.&lt;/li&gt;
 &lt;/ul&gt;
@@ -1135,15 +4202,12 @@ PISA_kNNimp[c(&amp;quot;DISCLIMA&amp;quot;, &amp;quot;ADAPTIVITY&amp;quot;,&amp;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h5 id="linear-regression-imputation"&gt;Linear Regression Imputation&lt;/h5&gt;
-&lt;pre class="r"&gt;&lt;code&gt;PISA_lmreg &amp;lt;- impute_lm(PISA_Subsetted, DISCLIMA + ADAPTIVITY ~.)
-
-PISA_lmreg %&amp;gt;% 
+&lt;pre class="r"&gt;&lt;code&gt;PISA_lmreg &amp;lt;- impute_lm(PISA_Subsetted, DISCLIMA + ADAPTIVITY ~.)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in groups(dat, formula): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_lmreg %&amp;gt;% 
   is.na() %&amp;gt;%
   colSums()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;      REPEAT       FEMALE         ESCS      DAYSKIP    CLASSSKIP 
-        1926            2         1163         3341         3330 
-        LATE BEINGBULLIED     DISCLIMA   ADAPTIVITY 
-        3316         3833         1278         2056 &lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.data.frame(x): object &amp;#39;PISA_lmreg&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;Notice that we have managed to impute some cases of &lt;code&gt;DISCLIMA&lt;/code&gt; and &lt;code&gt;ADAPTIVITY&lt;/code&gt; based on the availability of other variables in the same case. However, if there is no other variable on that case (i.e., complete missing), the model won’t be able to predict the target value as there is no predictor available.&lt;/li&gt;
 &lt;/ul&gt;
@@ -1151,38 +4215,29 @@ PISA_lmreg %&amp;gt;%
 &lt;ul&gt;
 &lt;li&gt;Logistic regression imputation is similar to linear regression imputation, with a difference in the nature of missing value (Continuous vs Binary).&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class="r"&gt;&lt;code&gt;missing_REPEAT &amp;lt;- is.na(PISA_Subsetted$REPEAT)
-head(missing_REPEAT, 20)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt; [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
-[12] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="r"&gt;&lt;code&gt;PISA_logregimp &amp;lt;- PISA_Subsetted
-
-logreg_model &amp;lt;- glm(REPEAT ~ DAYSKIP + BEINGBULLIED + ESCS,
-                data = PISA_Subsetted, family = binomial)
-
-
-preds &amp;lt;- predict(logreg_model, type = &amp;quot;response&amp;quot;)
-
-preds &amp;lt;- ifelse(preds &amp;gt;= 0.5, 1, 0)
-
-PISA_logregimp[missing_REPEAT, &amp;quot;REPEAT&amp;quot;] &amp;lt;- preds[missing_REPEAT]
-
-
-table(preds[missing_REPEAT])&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;
-   0    1 
-1669    1 &lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;missing_REPEAT &amp;lt;- is.na(PISA_Subsetted$REPEAT)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in eval(expr, envir, enclos): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;head(missing_REPEAT, 20)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in head(missing_REPEAT, 20): object &amp;#39;missing_REPEAT&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_logregimp &amp;lt;- PISA_Subsetted&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in eval(expr, envir, enclos): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;logreg_model &amp;lt;- glm(REPEAT ~ DAYSKIP + BEINGBULLIED + ESCS,
+                data = PISA_Subsetted, family = binomial)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.data.frame(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;preds &amp;lt;- predict(logreg_model, type = &amp;quot;response&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in h(simpleError(msg, call)): error in evaluating the argument &amp;#39;object&amp;#39; in selecting a method for function &amp;#39;predict&amp;#39;: object &amp;#39;logreg_model&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;preds &amp;lt;- ifelse(preds &amp;gt;= 0.5, 1, 0)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in ifelse(preds &amp;gt;= 0.5, 1, 0): object &amp;#39;preds&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_logregimp[missing_REPEAT, &amp;quot;REPEAT&amp;quot;] &amp;lt;- preds[missing_REPEAT]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in eval(expr, envir, enclos): object &amp;#39;preds&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;table(preds[missing_REPEAT])&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in table(preds[missing_REPEAT]): object &amp;#39;preds&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;table(PISA_Subsetted$REPEAT)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;
-    0     1 
-19575  1152 &lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in table(PISA_Subsetted$REPEAT): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_logregimp %&amp;gt;% 
   is.na() %&amp;gt;%
   colSums()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;      REPEAT       FEMALE         ESCS      DAYSKIP    CLASSSKIP 
-         256            2         1163         3341         3330 
-        LATE BEINGBULLIED     DISCLIMA   ADAPTIVITY 
-        3316         3833         1300         2197 &lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.data.frame(x): object &amp;#39;PISA_logregimp&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;h4 id="multiple-imputation-by-chained-equation"&gt;Multiple Imputation by Chained Equation&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Multiple Imputation by Chained Equation (MICE) - also known as sequential regression multiple imputation - is an emerging method in dealing with missing values by implementing the imputation multiple times as opposed to the single imputation methods mentioned above &lt;a href="https://onlinelibrary.wiley.com/doi/10.1002/mpr.329"&gt;(Azur et al., 2011)&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
@@ -1192,77 +4247,13 @@ table(preds[missing_REPEAT])&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;&lt;p&gt;The rationale is that PMM produces little biased estimates when missing data is below 50% and not systematically missing in a large data set &lt;a href="https://stefvanbuuren.name/fimd/sec-pmm.html"&gt;(van Buuren, 2018)&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;mice_model &amp;lt;- mice(PISA_Subsetted, method=&amp;#39;pmm&amp;#39;, seed = 123)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;
- iter imp variable
-  1   1  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  1   2  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  1   3  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  1   4  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  1   5  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  2   1  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  2   2  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  2   3  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  2   4  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  2   5  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  3   1  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  3   2  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  3   3  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  3   4  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  3   5  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  4   1  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  4   2  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  4   3  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  4   4  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  4   5  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  5   1  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  5   2  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  5   3  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  5   4  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY
-  5   5  REPEAT  FEMALE  ESCS  DAYSKIP  CLASSSKIP  LATE  BEINGBULLIED  DISCLIMA  ADAPTIVITY&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="r"&gt;&lt;code&gt;PISA_miceimp &amp;lt;- complete(mice_model)
-
-psych::describe(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;             vars     n  mean   sd median trimmed  mad   min  max
-REPEAT*         1 20727  1.06 0.23   1.00    1.00 0.00  1.00 2.00
-FEMALE*         2 22651  1.50 0.50   2.00    1.50 0.00  1.00 2.00
-ESCS            3 21490  0.38 0.83   0.48    0.41 0.87 -6.69 4.04
-DAYSKIP*        4 19312  1.31 0.66   1.00    1.16 0.00  1.00 4.00
-CLASSSKIP*      5 19323  1.44 0.76   1.00    1.27 0.00  1.00 4.00
-LATE*           6 19337  1.82 0.98   2.00    1.65 1.48  1.00 4.00
-BEINGBULLIED    7 18820  0.17 1.06   0.15    0.03 1.38 -0.78 3.86
-DISCLIMA        8 21353 -0.12 1.07  -0.04   -0.11 1.00 -2.71 2.03
-ADAPTIVITY      9 20456  0.18 1.08   0.19    0.20 0.98 -2.27 2.01
-             range  skew kurtosis   se
-REPEAT*       1.00  3.88    13.05 0.00
-FEMALE*       1.00  0.00    -2.00 0.00
-ESCS         10.72 -0.47     0.85 0.01
-DAYSKIP*      3.00  2.41     5.80 0.00
-CLASSSKIP*    3.00  1.84     2.87 0.01
-LATE*         3.00  1.01    -0.06 0.01
-BEINGBULLIED  4.64  0.88     0.31 0.01
-DISCLIMA      4.75 -0.13     0.16 0.01
-ADAPTIVITY    4.27 -0.18    -0.19 0.01&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in check.dataform(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_miceimp &amp;lt;- complete(mice_model)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in complete(mice_model): object &amp;#39;mice_model&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;psych::describe(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in psych::describe(PISA_Subsetted): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;psych::describe(PISA_miceimp)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;             vars     n  mean   sd median trimmed  mad   min  max
-REPEAT*         1 22653  1.06 0.23   1.00    1.00 0.00  1.00 2.00
-FEMALE*         2 22653  1.50 0.50   2.00    1.50 0.00  1.00 2.00
-ESCS            3 22653  0.38 0.83   0.48    0.41 0.86 -6.69 4.04
-DAYSKIP*        4 22653  1.32 0.67   1.00    1.17 0.00  1.00 4.00
-CLASSSKIP*      5 22653  1.45 0.76   1.00    1.27 0.00  1.00 4.00
-LATE*           6 22653  1.83 0.98   2.00    1.66 1.48  1.00 4.00
-BEINGBULLIED    7 22653  0.18 1.07   0.15    0.04 1.38 -0.78 3.86
-DISCLIMA        8 22653 -0.12 1.07  -0.04   -0.11 1.00 -2.71 2.03
-ADAPTIVITY      9 22653  0.17 1.09   0.19    0.20 0.98 -2.27 2.01
-             range  skew kurtosis   se
-REPEAT*       1.00  3.84    12.74 0.00
-FEMALE*       1.00  0.00    -2.00 0.00
-ESCS         10.72 -0.47     0.84 0.01
-DAYSKIP*      3.00  2.38     5.62 0.00
-CLASSSKIP*    3.00  1.83     2.81 0.01
-LATE*         3.00  1.00    -0.09 0.01
-BEINGBULLIED  4.64  0.88     0.35 0.01
-DISCLIMA      4.75 -0.13     0.15 0.01
-ADAPTIVITY    4.27 -0.17    -0.20 0.01&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in psych::describe(PISA_miceimp): object &amp;#39;PISA_miceimp&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The message above shows that the algorithm went over the data set 5 times per iteration, with the total of 25 times in 5 iterations (5 x 5). In other words, the machine imputed the missing over and over again until the change becomes minimal to give us the most stable replacement value as possible.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;There is no substantial difference in descriptive statistics of the pre-imputed and post imputed data set. Given that we gained 10% of our data back, it is a win for us.&lt;/p&gt;&lt;/li&gt;
