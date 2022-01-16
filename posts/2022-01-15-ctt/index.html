@@ -104,7 +104,9 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <meta property="og:type" content="article"/>
 <meta property="og:description" content="For this post, I will be analyzing characteristics of test items based on the framework of Classical Test Theory (CTT).&#10;&#10;(13 min read)"/>
 <meta property="og:url" content="https://taridwong.github.io/posts/2022-01-15-ctt/"/>
-<meta property="og:image" content="https://taridwong.github.io/posts/2022-01-15-ctt/discrim.jpg"/>
+<meta property="og:image" content="https://taridwong.github.io/posts/2022-01-15-ctt/ctt_files/figure-html5/unnamed-chunk-28-1.png"/>
+<meta property="og:image:width" content="1248"/>
+<meta property="og:image:height" content="768"/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:site_name" content="Tarid Wongvorachan"/>
 
@@ -113,7 +115,9 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <meta property="twitter:title" content="Tarid Wongvorachan: Classical Test Theory in R"/>
 <meta property="twitter:description" content="For this post, I will be analyzing characteristics of test items based on the framework of Classical Test Theory (CTT).&#10;&#10;(13 min read)"/>
 <meta property="twitter:url" content="https://taridwong.github.io/posts/2022-01-15-ctt/"/>
-<meta property="twitter:image" content="https://taridwong.github.io/posts/2022-01-15-ctt/discrim.jpg"/>
+<meta property="twitter:image" content="https://taridwong.github.io/posts/2022-01-15-ctt/ctt_files/figure-html5/unnamed-chunk-28-1.png"/>
+<meta property="twitter:image:width" content="1248"/>
+<meta property="twitter:image:height" content="768"/>
 
 <!--  https://scholar.google.com/intl/en/scholar/inclusion.html#indexing -->
 <meta name="citation_title" content="Tarid Wongvorachan: Classical Test Theory in R"/>
@@ -127,7 +131,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--radix_placeholder_rmarkdown_metadata-->
 
 <script type="text/json" id="radix-rmarkdown-metadata">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["creative_commons","title","description","author","date","categories","preview","output","citation_url","canonical_url"]}},"value":[{"type":"character","attributes":{},"value":["CC BY"]},{"type":"character","attributes":{},"value":["Classical Test Theory in R"]},{"type":"character","attributes":{},"value":["For this post, I will be analyzing characteristics of test items based on the framework of Classical Test Theory (CTT).\n\n(13 min read)"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Tarid Wongvorachan"]},{"type":"character","attributes":{},"value":["University of Alberta"]},{"type":"character","attributes":{},"value":["https://www.ualberta.ca"]}]}]},{"type":"character","attributes":{},"value":["2022-01-15"]},{"type":"character","attributes":{},"value":["R","Psychometric"]},{"type":"character","attributes":{},"value":["discrim.jpg"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["code_folding","toc","toc_depth","toc_float","self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[true]},{"type":"logical","attributes":{},"value":[true]},{"type":"integer","attributes":{},"value":[2]},{"type":"logical","attributes":{},"value":[false]},{"type":"logical","attributes":{},"value":[false]}]}]},{"type":"character","attributes":{},"value":["https://taridwong.github.io/posts/2022-01-15-ctt/"]},{"type":"character","attributes":{},"value":["https://taridwong.github.io/posts/2022-01-15-ctt/"]}]}
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["creative_commons","title","description","author","date","categories","output","citation_url","canonical_url"]}},"value":[{"type":"character","attributes":{},"value":["CC BY"]},{"type":"character","attributes":{},"value":["Classical Test Theory in R"]},{"type":"character","attributes":{},"value":["For this post, I will be analyzing characteristics of test items based on the framework of Classical Test Theory (CTT).\n\n(13 min read)"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Tarid Wongvorachan"]},{"type":"character","attributes":{},"value":["University of Alberta"]},{"type":"character","attributes":{},"value":["https://www.ualberta.ca"]}]}]},{"type":"character","attributes":{},"value":["2022-01-15"]},{"type":"character","attributes":{},"value":["R","Psychometric"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["code_folding","toc","toc_depth","toc_float","self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[true]},{"type":"logical","attributes":{},"value":[true]},{"type":"integer","attributes":{},"value":[2]},{"type":"logical","attributes":{},"value":[false]},{"type":"logical","attributes":{},"value":[false]}]}]},{"type":"character","attributes":{},"value":["https://taridwong.github.io/posts/2022-01-15-ctt/"]},{"type":"character","attributes":{},"value":["https://taridwong.github.io/posts/2022-01-15-ctt/"]}]}
 </script>
 <!--/radix_placeholder_rmarkdown_metadata-->
   
@@ -4066,7 +4070,7 @@ Guttman lambda 6                          =  0.58
 Average split half reliability            =  0.55
 Guttman lambda 3 (alpha)                  =  0.55
 Guttman lambda 2                          =  0.57
-Minimum split half reliability  (beta)    =  0.34
+Minimum split half reliability  (beta)    =  0.31
 Average interitem r =  0.06  with median =  0.04
                                              2.5% 50% 97.5%
  Quantiles of split half reliability      =  0.44 0.55 0.63</code></pre>
@@ -4221,7 +4225,7 @@ Guttman bounds
 L1 =  0.51 
 L2 =  0.56 
 L3 (alpha) =  0.53 
-L4 (max) =  0.68 
+L4 (max) =  0.69 
 L5 =  0.55 
 L6 (smc) =  0.57 
 TenBerge bounds 
@@ -4230,7 +4234,7 @@ mu0 =  0.53 mu1 =  0.56 mu2 =  0.56 mu3 =  0.56
 alpha of first PC =  0.64 
 estimated greatest lower bound based upon communalities=  0.69 
 
-beta found by splitHalf  =  0.35 </code></pre>
+beta found by splitHalf  =  0.32 </code></pre>
 </div>
 <h3 id="pearson-product-moment-correlation-coefficient">Pearson product-moment correlation coefficient</h3>
 <ul>
@@ -5563,7 +5567,7 @@ Show code
 </code></pre>
 </div>
 </details>
-<p><img src="ctt_files/figure-html5/unnamed-chunk-28-1.png" width="624" /></p>
+<p><img src="ctt_files/figure-html5/unnamed-chunk-28-1.png" width="624" data-distill-preview=1 /></p>
 <pre><code>   item discrimination
 10   10    -0.04341855
 3     3     0.05061749
