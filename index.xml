@@ -7,7 +7,802 @@
     <description>Blogs about what I learned from my academic lives
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Sat, 15 Jan 2022 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 27 Feb 2022 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Examining PISA 2018 Data Set with Statistical Learning Approach</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2022-02-27-statlearning</link>
+      <description>
+
+
+&lt;h2 id="introduction"&gt;Introduction&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;It has been a while since my last post as I am swamped with manuscript writings, but a good thing is I got more ideas of what to write for my blog as well. As I learned more about data mining, I became aware about the overlapping space between Statistics and Machine Learning in how they involve data as a primary part in their work. Statistics, which is the study that concerns the understanding, analyzing, and interpreting empirical data, is known as the underlying mechanism of machine learning as algorithms such as Linear Regression or Logistic Regression usually operate under a set of equations; for that, it is reasonable to say that statistics is a prerequisite for researchers to learn before dicing into machine learning &lt;a href="https://www.taylorfrancis.com/books/mono/10.4324/9780203137819/introduction-statistical-concepts-debbie-hahs-vaughn-richard-lomax"&gt;(Lomax and Hahs-Vaughn, 2012)&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Statistical Learning (SL) is a sub-field of Machine Learning (ML) research that seeks to explain relationship between variables with statistical models before extending their capability to predict the outcome of unseen data points &lt;a href="https://books.google.ca/books?id=sna9BaxVbj8C&amp;amp;lpg=PR7&amp;amp;ots=oqKdHSpld7&amp;amp;dq=Vladimir%20Naumovich%20Vapnik.%20Statistical%20learning%20theory&amp;amp;lr&amp;amp;pg=PR7#v=onepage&amp;amp;q=Vladimir%20Naumovich%20Vapnik.%20Statistical%20learning%20theory&amp;amp;f=false"&gt;(Vapnik, 1999)&lt;/a&gt;. Some may say that SL and ML are the same thing; that is true to an extent as statistics is the science that works behind the development of ML, but there are also differences if you really look into the technical part of it.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The traditional statistical approach focuses on inferring relationships between variables with explicitly laid out instructions or equations such as Linear Regression, while the ML approach to research focuses on developing algorithms that can recognize patterns in the data set to accurately predict the unseen data without much emphasis on assumptions behind the data set and interpretability of the model (e.g., Random Forest, Neural Network) &lt;a href="https://www.datasciencecentral.com/machine-learning-vs-statistics-in-one-picture/"&gt;(Glen, 2019)&lt;/a&gt;. Statistical Learning positions itself in the intersection of the two fields by focusing on understanding relationships between variables while at the same time seeking to develop a meaningful model that can be used to predict unseen data.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;In other words, Statistics focuses on learning the meaning of data, typically the low-dimensionality one, via statistical inferences while ML focuses on the application aspect by developing a complex model that is accurate and usable in the real application. Statistical Learning aims to cover both purposes by focusing on understanding meaning of the data with a meaningful model while also aiming to use that model in the real-world application (&lt;a href="https://pubmed.ncbi.nlm.nih.gov/27406289/"&gt;Iniesta et al., 2016&lt;/a&gt;; &lt;a href="https://onlinestats.canr.udel.edu/machine-learning-vs-statistics/"&gt;University of Delaware, 2021&lt;/a&gt;).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;In this post, I will be developing two statistical learning models, namely Linear Regression and Polynomial Regression, and apply it to Thai student data from the Programme for International Student Assessment (PISA) 2018 data set to examine the impact of classroom competition and cooperation to students’ academic performance. PISA is a large-scale educational survey that is collected internationally every three years on school-related topics such as student achievement, student school well-being, and teachers’ instructional support on students (&lt;a href="https://www.oecd.org/education/pisa-2018-results-volume-i-5f07c754-en.htm"&gt;OECD, 2019&lt;/a&gt;).&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="figure"&gt;
+&lt;img src="https://taridwong.github.io//posts/2022-02-27-statlearningstatlearn.jpeg" alt="" /&gt;
+&lt;p class="caption"&gt;Image from &lt;a href="https://marketbusinessnews.com/financial-glossary/statistical-learning" class="uri"&gt;https://marketbusinessnews.com/financial-glossary/statistical-learning&lt;/a&gt;. No copyright infringement is intended&lt;/p&gt;
+&lt;/div&gt;
+&lt;h2 id="setting-up-r-environment"&gt;Setting up R environment&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;As always, we will first set up the working directory, loading in the packages, and importing the data set.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;setwd(&amp;quot;D:/Program/Private_project/DistillSite/_posts/2022-02-27-statlearning&amp;quot;)
+
+library(foreign) #To read SPSS data
+library(psych) #For descriptive stat
+library(tidyverse) #for data manipulation
+library(DataExplorer)
+library(ggcorrplot) #for correlation matrix
+library(tidymodels) #for model building
+library(kableExtra) #for kable table
+library(visdat) #for overall missingness visualization&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We will Import the data set with &lt;code&gt;read_csv&lt;/code&gt; and subset our variables of interest with &lt;code&gt;select&lt;/code&gt;. We will also recode factor variables such as gender to make it dichotomous. That is, 1 as an indicator of that variable and 0 as anything that is not. See the &lt;a href="https://stats.oarc.ucla.edu/spss/faq/coding-systems-for-categorical-variables-in-regression-analysis/"&gt;Coding Systems for Categorical Variables&lt;/a&gt; page of University of California, Los Angeles.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#Import the data set
+PISA_TH &amp;lt;-read_csv(&amp;quot;PISA2018TH.csv&amp;quot;, col_names = TRUE)
+
+PISA_Subsetted &amp;lt;-  PISA_TH %&amp;gt;% 
+  select(FEMALE = ST004D01T, READING_SCORE = PV1READ, CLASSCOMP = PERCOMP,
+         CLASSCOOP = PERCOOP, ATTCOMP = COMPETE)
+
+PISA_Subsetted$FEMALE &amp;lt;- recode_factor(PISA_Subsetted$FEMALE, 
+                                       &amp;quot;1&amp;quot; = &amp;quot;1&amp;quot;, &amp;quot;2&amp;quot; = &amp;quot;0&amp;quot;)
+kbl(head(PISA_Subsetted)) %&amp;gt;%
+  kable_styling(bootstrap_options = c(&amp;quot;striped&amp;quot;, &amp;quot;hover&amp;quot;, &amp;quot;condensed&amp;quot;, &amp;quot;responsive&amp;quot;),
+                full_width = TRUE, position = &amp;quot;left&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;table class="table table-striped table-hover table-condensed table-responsive" style&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align:left;"&gt;
+FEMALE
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+READING_SCORE
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+CLASSCOMP
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+CLASSCOOP
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+ATTCOMP
+&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+480.756
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1.5630
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1.6762
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4352
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+502.610
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+NA
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+476.744
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.0866
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+-0.5358
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4352
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+1
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+489.858
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.6912
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.6012
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+-0.2661
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+536.178
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1.2903
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+1.6762
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.4352
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:left;"&gt;
+0
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+566.755
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.2020
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.6012
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+0.3709
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id="missing-data-handling"&gt;Missing Data Handling&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Before we dive in further, we will be examining the data set for missing data ratio and patterns that could interfere with our analysis.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(PISA_Subsetted, sort_miss = TRUE, cluster = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file334c1608319c_files/figure-html/unnamed-chunk-4-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre class="r"&gt;&lt;code&gt;naniar::gg_miss_upset(PISA_Subsetted, nsets = 5, nintersects = 10)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file334c1608319c_files/figure-html/unnamed-chunk-4-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;It turns out we only have 1.8% of missing data. The missingness pattern indicates that the missing pair of perceived classroom cooperation and perceived classroom competition has the most frequency among all missing variables. There are also 91 cases that do not have any variable values. Given the discovered pattern, it makes more sense to remove them with listwise deletion instead of performing an imputation (aka plugging in possible numbers with an educated guess). Note that there is no rule of thumb in handling missing data. It depends on judgement of the researcher themselves. I tried imputing the data set as well and it gives no noticeable change, but I just want to try something different this time.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted &amp;lt;- na.omit(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="exploratory-data-analysis-and-assumption-check"&gt;Exploratory Data Analysis and Assumption Check&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;To perform analyses using statistical learning, it is important to confirm that all statistical assumptions of the models were met to ensure that the results are meaningful. The assumptions that we will check in this section are normality distribution, multicollinearity, and influential outliers. There are other assumptions we need to check as well such as variable independence andhomoscedasticity (for the equality of variance throughout the data set), but we would have to create a linear regression model with the whole data set without teaching the machine. We won’t be doing that here because I aim to automate the process with the &lt;code&gt;tidymodel&lt;/code&gt; approach instead of performing regression manually every time.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We will first examine structure of the data set with &lt;code&gt;plot_str&lt;/code&gt; to plot data structure and &lt;code&gt;plot_intro&lt;/code&gt; to plot basic infornmation of the data set.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot_intro(PISA_Subsetted, title = &amp;quot;Types of Variables&amp;quot;)+
+  theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file334c1608319c_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file334c1608319c_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;This plot shows us how many discrete and continuous variables that we have in the data set. Mext, we will plot structure of the data to check which variable is numerical and which variable is factor.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot_str(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Next, we can check for normality distribution with histogram, skewness/kurtosis with descriptive statistics, and Quantile-Quantile Plot (Q-Q Plot).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;describe(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;              vars    n   mean    sd median trimmed   mad    min
+FEMALE*          1 8158   1.46  0.50   1.00    1.45  0.00   1.00
+READING_SCORE    2 8158 411.26 88.42 402.43  408.00 91.53 146.33
+CLASSCOMP        3 8158   0.20  0.87   0.20    0.19  0.73  -1.99
+CLASSCOOP        4 8158   0.20  0.92   0.60    0.22  1.07  -2.14
+ATTCOMP          5 8158   0.03  0.79   0.20    0.00  0.65  -2.35
+                 max  range  skew kurtosis   se
+FEMALE*         2.00   1.00  0.18    -1.97 0.01
+READING_SCORE 720.09 573.76  0.32    -0.37 0.98
+CLASSCOMP       2.04   4.03  0.02    -0.04 0.01
+CLASSCOOP       1.68   3.82 -0.39    -0.47 0.01
+ATTCOMP         2.01   4.35  0.13     1.11 0.01&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot_histogram(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file334c1608319c_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre class="r"&gt;&lt;code&gt;set.seed(123)
+plot_qq(PISA_Subsetted, sampled_rows = 1000L)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file334c1608319c_files/figure-html/unnamed-chunk-8-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The results of skewness and kurtosis indicate no departure from normality; that is, the data is normally distributed with all skewness stays between the range of -0.5 and 0.5, and all kurtosis stays between the range of -3 and 3 &lt;a href="https://www.taylorfrancis.com/books/mono/10.4324/9780203137819/introduction-statistical-concepts-debbie-hahs-vaughn-richard-lomax"&gt;(Lomax and Hahs-Vaughn, 2012)&lt;/a&gt;. The normality assumption is further confirmed with bell shape of the histogram and visualization from the Q-Q plots. Next, we will examine bivariate correlation between variables to investigate their relationships and confirm the absence of multicollinearity assumption.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Multicollinearity refers to the condition where relationships between our variables of interest is high; this which may influence the result of our analysis because we are having two variables that investigate the same thing &lt;a href="https://wires.onlinelibrary.wiley.com/doi/pdf/10.1002/wics.84?casa_token=CDV_J-e2DHsAAAAA%3AY7_DJTK8-IXnH4b1BsSLHpmSq6Peg1i4t8sanKhqtF-OAtQzQ_7JrGZpiNSf8Tn2B5xXm4OcvVlM"&gt;(Alin, 2010)&lt;/a&gt;. For example, when you investigate the influence of person’s weight to their height and included both weight in pound and weight in kilogram, the results can be messed up because you include variables that measure to much of the same thing.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot_correlation(PISA_Subsetted, type = &amp;quot;continuous&amp;quot;, title = &amp;quot;Correlation Matrix&amp;quot;) +
+  theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file334c1608319c_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;img src="file334c1608319c_files/figure-html/unnamed-chunk-9-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;All variables exhibit positive correlation to each other. The matrix shows no multicollinearity as the highest correlation coefficient between variables is 0.26, which is far from extreme in terms of magnitude (.6 to .7 coefficients should be flagged). For your reference, the report of data exploration can be generated with a simple function of &lt;code&gt;create_report(PISA_Subsetted)&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="data-preprocessing"&gt;Data Preprocessing&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;To test out our models, we need to split the data set into a training and a testing set to make sure that the testing is fair. It is similar to the situation where we do not want our students to take a peek at the exam before their test.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;set.seed(456)
+
+# Put 3/4 of the data into the training set 
+data_split &amp;lt;- initial_split(PISA_Subsetted, prop = 3/4)
+
+# Create data frames for the two sets:
+train_data &amp;lt;- training(data_split) #3/4
+test_data  &amp;lt;- testing(data_split)  #1/4&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="linear-regression-model"&gt;Linear Regression Model&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Now we have a training set that has 75% of the whole data and a testing set that has 25% of the whole data. Next, we will create a Linear Regression Model to predict the value of students’ reading score (&lt;code&gt;READING_SCORE&lt;/code&gt;) with the degree of classroom cooperation, the degree of classroom competition, and students’ attitude to competition. First, we will request for a linear regression model with &lt;code&gt;linear_reg()&lt;/code&gt; set the mode to regression and set the engine to “lm”, which stands for linear model.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;lm_mod &amp;lt;- 
+  linear_reg() %&amp;gt;% 
+  set_mode(&amp;quot;regression&amp;quot;) %&amp;gt;%
+  set_engine(&amp;quot;lm&amp;quot;)
+
+lm_mod&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Linear Regression Model Specification (regression)
+
+Computational engine: lm &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Next, we will do some data preprocessing by removing variables that we do not need in the analysis with &lt;code&gt;recipe&lt;/code&gt; package. We will specify the formula as &lt;code&gt;READING_SCORE ~ .&lt;/code&gt;, which means we will be predicting students’ reading score with all other variables. The &lt;code&gt;step_rm()&lt;/code&gt; argument removes the variable we specified; for our case, it is students’ gender. For your reference, there are functions that assist us in other ways of data preprocessing as well such as &lt;a href="https://recipes.tidymodels.org/reference/step_dummy.html"&gt;&lt;code&gt;step_dummy()&lt;/code&gt;&lt;/a&gt; to dummy code the variable or &lt;a href="https://recipes.tidymodels.org/reference/step_string2factor.html"&gt;&lt;code&gt;step_string2factor&lt;/code&gt;&lt;/a&gt; that converts string variables into factor variables.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_linear_recipe &amp;lt;- 
+  recipe(READING_SCORE ~ ., data = train_data) %&amp;gt;%
+  step_rm(FEMALE)
+
+PISA_linear_recipe&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Recipe
+
+Inputs:
+
+      role #variables
+   outcome          1
+ predictor          4
+
+Operations:
+
+Variables removed FEMALE&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We have the model. We have the formula. Now, we can combine them both into a workflow with &lt;code&gt;workflow()&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_workflow &amp;lt;- 
+  workflow() %&amp;gt;% 
+  add_model(lm_mod) %&amp;gt;% 
+  add_recipe(PISA_linear_recipe)
+
+PISA_workflow&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;== Workflow ==========================================================
+Preprocessor: Recipe
+Model: linear_reg()
+
+-- Preprocessor ------------------------------------------------------
+1 Recipe Step
+
+* step_rm()
+
+-- Model -------------------------------------------------------------
+Linear Regression Model Specification (regression)
+
+Computational engine: lm &lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="fit-the-linear-regression-model-to-the-trainingtesting-dataset"&gt;Fit the Linear Regression Model to the Training/Testing Dataset&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;We will train (or teach) our Linear Regression model to learn characteristics of our data with the training set. This way, the machine will be able to predict values of the testing data with what it learned.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;set.seed(678)
+
+PISA_linear_fit &amp;lt;- 
+  PISA_workflow %&amp;gt;% 
+  fit(data = train_data)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Now that we have taught the model, we can examine its performance by comparing its predicted value with the actual value of our targeted variable (i.e., students’ reading score). We will try extracting coefficients of the model first.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_linear_fit %&amp;gt;% 
+  extract_fit_parsnip() %&amp;gt;% 
+  broom::tidy()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 4 x 5
+  term        estimate std.error statistic  p.value
+  &amp;lt;chr&amp;gt;          &amp;lt;dbl&amp;gt;     &amp;lt;dbl&amp;gt;     &amp;lt;dbl&amp;gt;    &amp;lt;dbl&amp;gt;
+1 (Intercept)   406.        1.15    355.   0       
+2 CLASSCOMP       3.77      1.33      2.84 4.50e- 3
+3 CLASSCOOP      19.7       1.23     16.0  1.91e-56
+4 ATTCOMP         3.08      1.45      2.12 3.38e- 2&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Coefficient interpretation is actually the same as interpreting linear regression results. First, we look at the &lt;em&gt;p&lt;/em&gt;-value to see if any of these predictors are significant. Then, we interpret the coefficient of each prtedictor to the targeted variable. For example, the coefficient of 19.77 for the classroom cooperation variable means that every one-unit increase in the degree of classroom cooperation, students’ score will increase by 19.7. Next, we can evaluate performance of the model by comparing the predicted value with the actual value, as well as extracting values that can summarize overall performance.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_linear_train_pred &amp;lt;- 
+  predict(PISA_linear_fit, train_data) %&amp;gt;% 
+  bind_cols(train_data %&amp;gt;% select(READING_SCORE)) 
+
+PISA_linear_train_pred&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 6,118 x 2
+   .pred READING_SCORE
+   &amp;lt;dbl&amp;gt;         &amp;lt;dbl&amp;gt;
+ 1  427.          471.
+ 2  421.          239.
+ 3  451.          546.
+ 4  405.          248.
+ 5  407.          457.
+ 6  398.          491.
+ 7  389.          308.
+ 8  421.          320.
+ 9  394.          473.
+10  404.          507.
+# ... with 6,108 more rows&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The &lt;code&gt;.pred&lt;/code&gt; column is the predicted value and the &lt;code&gt;READING_SCORE&lt;/code&gt; column is the actual value. We can see that some predicted numbers are off from the actual number. Let us see overall performance of the model with Mean-Squared Error (MSE), Root Mean-Squared Error (RMSE), and R-Squared (R^2). The first two values indicate how poor our model performs, and the third value indicates how many percent of the variation of our targeted variable is explained by the model.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;mse_vec &amp;lt;- function(truth, estimate, na_rm = TRUE, ...) {
+  
+  mse_impl &amp;lt;- function(truth, estimate) {
+    mean((truth - estimate) ^ 2)
+  }
+  
+  metric_vec_template(
+    metric_impl = mse_impl,
+    truth = truth, 
+    estimate = estimate,
+    na_rm = na_rm,
+    cls = &amp;quot;numeric&amp;quot;,
+    ...
+  )
+  
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;mse_vec(
+  truth = PISA_linear_train_pred$READING_SCORE, 
+  estimate = PISA_linear_train_pred$.pred
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[1] 7389.577&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;rmse(PISA_linear_train_pred, 
+     truth = READING_SCORE,
+     estimate = .pred)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &amp;lt;chr&amp;gt;   &amp;lt;chr&amp;gt;          &amp;lt;dbl&amp;gt;
+1 rmse    standard        86.0&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;rsq(PISA_linear_train_pred, 
+     truth = READING_SCORE,
+     estimate = .pred)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &amp;lt;chr&amp;gt;   &amp;lt;chr&amp;gt;          &amp;lt;dbl&amp;gt;
+1 rsq     standard      0.0499&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We have MSE = 7389.577, RMSE = 86, and R-Squared = 0.0499 (or 4% of the targeted variable). Let us to the same for the testing round to ‘test’ out how well our model can predict the targeted variable.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_linear_test_pred &amp;lt;- 
+  predict(PISA_linear_fit, test_data) %&amp;gt;% 
+  bind_cols(test_data %&amp;gt;% select(READING_SCORE)) 
+
+PISA_linear_test_pred&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 2,040 x 2
+   .pred READING_SCORE
+   &amp;lt;dbl&amp;gt;         &amp;lt;dbl&amp;gt;
+ 1  398.          477.
+ 2  427.          542.
+ 3  415.          519.
+ 4  422.          597.
+ 5  421.          467.
+ 6  434.          573.
+ 7  397.          522.
+ 8  425.          436.
+ 9  423.          440.
+10  399.          543.
+# ... with 2,030 more rows&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;mse_vec(
+  truth = PISA_linear_test_pred$READING_SCORE, 
+  estimate = PISA_linear_test_pred$.pred
+)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[1] 7472.221&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;rmse(PISA_linear_test_pred, 
+     truth = READING_SCORE,
+     estimate = .pred)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &amp;lt;chr&amp;gt;   &amp;lt;chr&amp;gt;          &amp;lt;dbl&amp;gt;
+1 rmse    standard        86.4&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;rsq(PISA_linear_test_pred, 
+     truth = READING_SCORE,
+     estimate = .pred)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &amp;lt;chr&amp;gt;   &amp;lt;chr&amp;gt;          &amp;lt;dbl&amp;gt;
+1 rsq     standard      0.0584&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;In the testing round, We have MSE = 7472.221, RMSE = 86.4, and R-Squared = 0.0584 (or 5% of the targeted variable). The performance of both training and testing round are similar, meaning that there is no overfit (the machine memorized its lesson too much / too strict) or underfit (the machine did not learn as much as it is supposed to and therefore unable to know the relationship between variables). Now that we know what Linear Regression can do, let us see what can we accomplish with Polynomial Regression.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="polynomial-regression-model"&gt;Polynomial Regression Model&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Polynomial Regression is similar to Linear Regression, with the difference in its ability to capture non-linear relationship like the picture below. This ability allows the model to drop its assumption that the relationship between the independent and dependent variables has to be in linear shape.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="figure"&gt;
+&lt;img src="https://taridwong.github.io//posts/2022-02-27-statlearningpolynomial.png" alt="" /&gt;
+&lt;p class="caption"&gt;Image from &lt;a href="https://towardsdatascience.com/polynomial-regression-an-alternative-for-neural-networks-c4bd30fa6cf6" class="uri"&gt;https://towardsdatascience.com/polynomial-regression-an-alternative-for-neural-networks-c4bd30fa6cf6&lt;/a&gt;. No copyright infringement is intended&lt;/p&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;We can customize ability to which our model can capture the pattern of our data by increasing its degree as demonstrated by the picture above. We can see that the red line (3rd degree) misses to capture a lot of patterns while the blue line (5th degree) captures a fair amount of patterns while the green line travels to almost every possible patterns. However, it is not necessarily true that the model with the highest degree is the best since it could capture noises that will not appear in the new data we will test the machine on (as well as the real-world data).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;So, after all we have discussed so far, let’s try creating a 3rd degree polynomial regression to see if we can capture the relationship any better than our linear regression. We will include &lt;code&gt;step_poly&lt;/code&gt; with degree = 3 into the &lt;code&gt;recipe&lt;/code&gt; function to make our model able to capture a degree of non-linearity.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_poly_recipe &amp;lt;- 
+  recipe(READING_SCORE ~ CLASSCOMP + CLASSCOOP + ATTCOMP, data = train_data) %&amp;gt;%
+  step_poly(CLASSCOMP, degree = 3) %&amp;gt;%
+  step_poly(CLASSCOOP, degree = 3)
+
+PISA_poly_recipe&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Recipe
+
+Inputs:
+
+      role #variables
+   outcome          1
+ predictor          3
+
+Operations:
+
+Orthogonal polynomials on CLASSCOMP
+Orthogonal polynomials on CLASSCOOP&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Then, we will add the 3rd degree polynomial recipe to a workflow using the same model as our linear regression part (&lt;code&gt;lm_mod&lt;/code&gt;).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_poly_wf &amp;lt;- workflow() %&amp;gt;%
+  add_model(lm_mod) %&amp;gt;%
+  add_recipe(PISA_poly_recipe)
+
+PISA_poly_wf&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;== Workflow ==========================================================
+Preprocessor: Recipe
+Model: linear_reg()
+
+-- Preprocessor ------------------------------------------------------
+2 Recipe Steps
+
+* step_poly()
+* step_poly()
+
+-- Model -------------------------------------------------------------
+Linear Regression Model Specification (regression)
+
+Computational engine: lm &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Finally, we can fit our model to the training data to teach it to recognize patterns of our training data set before using it to predict the testing data. While we are at it, we can use &lt;code&gt;extract_fit_parsnip()&lt;/code&gt; to extract coefficients of our model as well to see which polynomial degree of which variable is significant in capturing patterns of the training data.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;set.seed(999)
+
+PISA_poly_fit &amp;lt;- 
+  PISA_poly_wf %&amp;gt;%
+  fit(data = train_data)
+
+PISA_poly_fit&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;== Workflow [trained] ================================================
+Preprocessor: Recipe
+Model: linear_reg()
+
+-- Preprocessor ------------------------------------------------------
+2 Recipe Steps
+
+* step_poly()
+* step_poly()
+
+-- Model -------------------------------------------------------------
+
+Call:
+stats::lm(formula = ..y ~ ., data = data)
+
+Coefficients:
+     (Intercept)           ATTCOMP  CLASSCOMP_poly_1  
+         411.053             2.729           271.369  
+CLASSCOMP_poly_2  CLASSCOMP_poly_3  CLASSCOOP_poly_1  
+         295.526            19.960          1400.633  
+CLASSCOOP_poly_2  CLASSCOOP_poly_3  
+         -55.306           304.765  &lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_poly_fit %&amp;gt;% 
+  extract_fit_parsnip() %&amp;gt;% 
+  broom::tidy()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 8 x 5
+  term             estimate std.error statistic  p.value
+  &amp;lt;chr&amp;gt;               &amp;lt;dbl&amp;gt;     &amp;lt;dbl&amp;gt;     &amp;lt;dbl&amp;gt;    &amp;lt;dbl&amp;gt;
+1 (Intercept)        411.        1.10   374.    0       
+2 ATTCOMP              2.73      1.45     1.88  6.00e- 2
+3 CLASSCOMP_poly_1   271.       90.4      3.00  2.69e- 3
+4 CLASSCOMP_poly_2   296.       88.4      3.34  8.31e- 4
+5 CLASSCOMP_poly_3    20.0      87.2      0.229 8.19e- 1
+6 CLASSCOOP_poly_1  1401.       88.7     15.8   4.97e-55
+7 CLASSCOOP_poly_2   -55.3      88.6     -0.625 5.32e- 1
+8 CLASSCOOP_poly_3   305.       87.2      3.50  4.75e- 4&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;After we trained our model, we can use it to predict the unseen test data and compare it with our actual data to assess its accuracy.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_poly_pred &amp;lt;- 
+  predict(PISA_poly_fit, test_data) %&amp;gt;% 
+  bind_cols(test_data %&amp;gt;% select(READING_SCORE)) 
+
+kbl(head(PISA_poly_pred)) %&amp;gt;%
+  kable_styling(bootstrap_options = c(&amp;quot;striped&amp;quot;, &amp;quot;hover&amp;quot;, &amp;quot;condensed&amp;quot;, &amp;quot;responsive&amp;quot;),
+                full_width = TRUE, position = &amp;quot;left&amp;quot;)  &lt;/code&gt;&lt;/pre&gt;
+&lt;table class="table table-striped table-hover table-condensed table-responsive" style&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align:right;"&gt;
+.pred
+&lt;/th&gt;
+&lt;th style="text-align:right;"&gt;
+READING_SCORE
+&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+398.7327
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+476.744
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+426.4006
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+542.238
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+410.2957
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+518.744
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+417.5398
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+597.441
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+415.7663
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+466.964
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align:right;"&gt;
+431.5449
+&lt;/td&gt;
+&lt;td style="text-align:right;"&gt;
+572.923
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;To check if our 3rd degree polynomial model performed well, we can extract MSE, RMSE, and R^2 as our performance metrics.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;mse_vec(
+  truth = PISA_poly_pred$READING_SCORE, 
+  estimate = PISA_poly_pred$.pred)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[1] 7470.233&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;rmse(PISA_poly_pred, 
+     truth = READING_SCORE,
+     estimate = .pred)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &amp;lt;chr&amp;gt;   &amp;lt;chr&amp;gt;          &amp;lt;dbl&amp;gt;
+1 rmse    standard        86.4&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;rsq(PISA_poly_pred, 
+     truth = READING_SCORE,
+     estimate = .pred)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &amp;lt;chr&amp;gt;   &amp;lt;chr&amp;gt;          &amp;lt;dbl&amp;gt;
+1 rsq     standard      0.0584&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The metrics show that our polynomial slightly outperform our linear regression model, with higher R-squared and lower MSE. The problem is, how do we know if 3rd degree is the most appropriate degree we can make to predict our data. For polynomial regression, we can look for the most appropriate polynomial degree via cross-validation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="model-tuning-with-cross-validation"&gt;Model Tuning with Cross Validation&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Cross-Validation is a way to evaluate performance of our machine learning models by dividing our data into smaller groups and use them to estimate how the model will perform in when used to make predictions on data that are not in our training set. Basically, we test our machines with smaller tests to see which of them qualifies for the final test. Another way we can see this is when we tune an old ratio to make it able to receive the clearest frequency of the broadcast, but we use the machines to automatically do it instead to save our time and effort.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We will begin by setting up our recipe with &lt;code&gt;tune()&lt;/code&gt; and add it to a workflow.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_poly_tuned_recipe &amp;lt;- 
+  recipe(READING_SCORE ~ CLASSCOMP + CLASSCOOP + ATTCOMP, data = train_data) %&amp;gt;%
+  step_poly(CLASSCOMP, CLASSCOOP, degree = tune())
+
+PISA_poly_wf &amp;lt;- workflow() %&amp;gt;%
+  add_model(lm_mod) %&amp;gt;%
+  add_recipe(PISA_poly_tuned_recipe)
+
+PISA_poly_wf&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;== Workflow ==========================================================
+Preprocessor: Recipe
+Model: linear_reg()
+
+-- Preprocessor ------------------------------------------------------
+1 Recipe Step
+
+* step_poly()
+
+-- Model -------------------------------------------------------------
+Linear Regression Model Specification (regression)
+
+Computational engine: lm &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Then, we will create smaller data sets from our training set. We will create 10 sets (or 10 folds) to test 10 candidates of our model, which are models with polynomial degree from 1 (equivalent to linear regression), 2 (quadratic regression), 3 (cubic regression),…, to 10 (decic regression). In other words, we are looking for the model that performs the best among 10 candidates using RMSE and R-Squared as our performance metrics.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;train_data_subsetted = subset(train_data, select = c(&amp;#39;READING_SCORE&amp;#39;,&amp;#39;CLASSCOMP&amp;#39;,&amp;#39;CLASSCOOP&amp;#39;,&amp;#39;ATTCOMP&amp;#39;))
+
+PISA_folds &amp;lt;- vfold_cv(train_data, v = 10)
+
+degree_grid &amp;lt;- grid_regular(degree(range = c(1, 10)), levels = 10)
+
+tune_resample &amp;lt;- tune_grid(
+  object = PISA_poly_wf, 
+  resamples = PISA_folds, 
+  grid = degree_grid)
+
+autoplot(tune_resample)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file334c1608319c_files/figure-html/unnamed-chunk-34-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We want RMSE to be as low as possible and R-Squared to be as high as possible. However, our models can only do so much. Their performance will remain somewhat steady when it reaches a certain point. In our case, it is from the 6th polynomial degree onward. While the plot suggests that the 10th polynomial degree performed the best, we do not want our model to be too complex as it can be harder to interpret. We want the model that performs the best and is easiest to interpret. For that, we might want to pick the model that comes right after a significant performance boost to not make it too complex while able to bring out its maximum performance, which is the 6th degree polynomial model (Sextic Regression).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="figure"&gt;
+&lt;img src="https://taridwong.github.io//posts/2022-02-27-statlearning10FCV.jpg" alt="" /&gt;
+&lt;p class="caption"&gt;Data Tuning Results with 10-Folds Cross Validation&lt;/p&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;To dive into the numbers, we can have the software shows and selects the best model candidate to include it in our final model.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;show_best(tune_resample, metric = &amp;quot;rmse&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 5 x 7
+  degree .metric .estimator  mean     n std_err .config              
+   &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt;   &amp;lt;chr&amp;gt;      &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt;   &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt;                
+1     10 rmse    standard    85.4    10   0.852 Preprocessor10_Model1
+2      6 rmse    standard    85.5    10   0.845 Preprocessor06_Model1
+3      9 rmse    standard    85.5    10   0.860 Preprocessor09_Model1
+4      8 rmse    standard    85.5    10   0.857 Preprocessor08_Model1
+5      7 rmse    standard    85.5    10   0.843 Preprocessor07_Model1&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;select_by_one_std_err(tune_resample, degree, metric = &amp;quot;rsq&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 1 x 9
+  degree .metric .estimator   mean     n std_err .config  .best .bound
+   &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt;   &amp;lt;chr&amp;gt;       &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt;   &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt;    &amp;lt;dbl&amp;gt;  &amp;lt;dbl&amp;gt;
+1      6 rsq     standard   0.0616    10 0.00730 Prepro~ 0.0647 0.0563&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="final-model"&gt;Final Model&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;We will then assign the best model candidate as our &lt;code&gt;best_degree&lt;/code&gt; to include it in the final workflow. Then, as usual, we teach (fit) it and test it with our test data.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;best_degree &amp;lt;- select_by_one_std_err(tune_resample, degree, metric = &amp;quot;rsq&amp;quot;)
+
+final_wf &amp;lt;- finalize_workflow(PISA_poly_wf, best_degree)
+
+final_fit &amp;lt;- fit(final_wf, train_data)
+
+final_fit&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;== Workflow [trained] ================================================
+Preprocessor: Recipe
+Model: linear_reg()
+
+-- Preprocessor ------------------------------------------------------
+1 Recipe Step
+
+* step_poly()
+
+-- Model -------------------------------------------------------------
+
+Call:
+stats::lm(formula = ..y ~ ., data = data)
+
+Coefficients:
+     (Intercept)           ATTCOMP  CLASSCOMP_poly_1  
+         411.050             2.836           279.070  
+CLASSCOMP_poly_2  CLASSCOMP_poly_3  CLASSCOMP_poly_4  
+         300.125            19.260          -167.827  
+CLASSCOMP_poly_5  CLASSCOMP_poly_6  CLASSCOOP_poly_1  
+        -197.978          -477.187          1381.076  
+CLASSCOOP_poly_2  CLASSCOOP_poly_3  CLASSCOOP_poly_4  
+         -56.933           281.590          -251.840  
+CLASSCOOP_poly_5  CLASSCOOP_poly_6  
+        -130.564           389.358  &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Now, we will test our model and extract its performance metrics to evaluate it.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_poly_test_pred &amp;lt;- 
+  predict(final_fit, test_data) %&amp;gt;% 
+  bind_cols(test_data %&amp;gt;% select(READING_SCORE))
+
+mse_vec(
+  truth = PISA_poly_test_pred$READING_SCORE, 
+  estimate = PISA_poly_test_pred$.pred)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[1] 7382.151&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;rmse(PISA_poly_test_pred, 
+     truth = READING_SCORE,
+     estimate = .pred)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &amp;lt;chr&amp;gt;   &amp;lt;chr&amp;gt;          &amp;lt;dbl&amp;gt;
+1 rmse    standard        85.9&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;rsq(PISA_poly_test_pred, 
+     truth = READING_SCORE,
+     estimate = .pred)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;# A tibble: 1 x 3
+  .metric .estimator .estimate
+  &amp;lt;chr&amp;gt;   &amp;lt;chr&amp;gt;          &amp;lt;dbl&amp;gt;
+1 rsq     standard      0.0697&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;To compare the performance of both Linear Regression and 6th Degree Polynomial Regression, we will create a comparison table to compare their performance for our discussion.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;tabl &amp;lt;- &amp;quot;
+| Model         | R-Square      | MSE   | RMSE |
+|---------------|:-------------:|------:|-----:|
+| Linear Reg    | 0.0584        | 7472.2| 86.4 |
+| Sextic Reg    | 0.0697        | 7382.1| 85.9 |
+&amp;quot;
+cat(tabl)&lt;/code&gt;&lt;/pre&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class="header"&gt;
+&lt;th&gt;Model&lt;/th&gt;
+&lt;th align="center"&gt;R-Square&lt;/th&gt;
+&lt;th align="right"&gt;MSE&lt;/th&gt;
+&lt;th align="right"&gt;RMSE&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;Linear Reg&lt;/td&gt;
+&lt;td align="center"&gt;0.0584&lt;/td&gt;
+&lt;td align="right"&gt;7472.2&lt;/td&gt;
+&lt;td align="right"&gt;86.4&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;Sextic Reg&lt;/td&gt;
+&lt;td align="center"&gt;0.0697&lt;/td&gt;
+&lt;td align="right"&gt;7382.1&lt;/td&gt;
+&lt;td align="right"&gt;85.9&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;The table shows that our sextic regression slightly outperform our linear regression model as seen from its higher R-Squared and Lower Error Value (i.e., MSE, RMSE).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="final-remarks-and-conclusion"&gt;Final Remarks and Conclusion&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;What we have done so far is developing two predictive models of linear regression and polynomial regression to predict students’ reading score from the degree of classroom cooperation, the degree of classroom competition, and students’ attitude to competition. While the traditional statistical approach examines the entire data set to make retrospective inferences, the statistical learning approach that we use both examines the relationship between the predictors and the targeted variables as well as testing predictive power of our models with the hold-out testing set, so that it can be used with new data we may receive in the future.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;However, considering the differences in performance metrics between the two algorithm, linear regression could be more appropriate with the variables examined in this study as its performance is slightly lower than sextic Regression at the trade-off of model interpretability. In other words, it is easier to interpret the model to non-technical audience and therefore easier to put the result into practice.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We can incorporate the model into an &lt;a href="https://doi.org/10.1145/3027385.3027405"&gt;early warning system&lt;/a&gt; to inform teachers in their feedback provision to students in addition to other information such as students’ score and their class history. However, note that the models we developed in this post is far from perfect. The data set used in this study is relatively outdated as the new data of PISA 2022 cycle will be released in the future. Performance of the models leaves much to be desired as only 6% of the dependent variable was accounted for at most.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The thing is, we have accomplished what we are here for. We have tried our hands on developing a couple models with a large scale data set and user it to predict unseen data with statistical learning approach. Instead of going for complex models like Random Forest or Artificial Neural Networks, sticking to the ground with basic models could also be feasible in the actual practice as well. This is the point I am trying to make in this post. Thank you very much for reading. Have a good one!&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>b2033900d5f03f16e91b1582152a1e58</distill:md5>
+      <category>R</category>
+      <category>Statistics</category>
+      <category>Supervised Machine Learning</category>
+      <guid>https://taridwong.github.io/posts/2022-02-27-statlearning</guid>
+      <pubDate>Sun, 27 Feb 2022 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2022-02-27-statlearning/statlearn.jpeg" medium="image" type="image/jpeg"/>
+    </item>
     <item>
       <title>Classical Test Theory in R</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -1307,7 +2102,7 @@ P6
        ylab = &amp;quot;Proportion of the examinee&amp;quot;,
        plotTitle = &amp;quot;Item Characteristic Curve of item 1&amp;quot;,
        colTheme=&amp;quot;dukes&amp;quot;, cex=1.5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e0459dd2f0c_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c652914fc_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will convert our score data into matrix for for further implementation with item analysis.&lt;/li&gt;
 &lt;/ul&gt;
@@ -1551,7 +2346,7 @@ Guttman bounds
 L1 =  0.51 
 L2 =  0.56 
 L3 (alpha) =  0.53 
-L4 (max) =  0.68 
+L4 (max) =  0.7 
 L5 =  0.55 
 L6 (smc) =  0.57 
 TenBerge bounds 
@@ -1560,7 +2355,7 @@ mu0 =  0.53 mu1 =  0.56 mu2 =  0.56 mu3 =  0.56
 alpha of first PC =  0.64 
 estimated greatest lower bound based upon communalities=  0.69 
 
-beta found by splitHalf  =  0.34 &lt;/code&gt;&lt;/pre&gt;
+beta found by splitHalf  =  0.33 &lt;/code&gt;&lt;/pre&gt;
 &lt;h3 id="pearson-product-moment-correlation-coefficient"&gt;Pearson product-moment correlation coefficient&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;Another way we can compute reliability of the test is via Pearson product-moment correlation between two halves of the test (aka Split-half method). However, comparing only a pair or two of the test half might not be enough. We can use Bootstrap resampling method to randomly split the examinees into two halves 1000 times, so that we can make sure that the computation is as exhaustive as possible.&lt;/li&gt;
@@ -2813,7 +3608,7 @@ NA
   }
 
 item.discrimination(responses)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e0459dd2f0c_files/figure-html/unnamed-chunk-28-1.png" width="672" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c652914fc_files/figure-html/unnamed-chunk-28-1.png" width="672" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;   item discrimination
 10   10    -0.04341855
 3     3     0.05061749
@@ -2875,7 +3670,7 @@ item.discrimination(responses)&lt;/code&gt;&lt;/pre&gt;
     }
 
 test_item.total(responses)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e0459dd2f0c_files/figure-html/unnamed-chunk-29-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c652914fc_files/figure-html/unnamed-chunk-29-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;   item    biserial
 10   10 -0.05493825
 3     3  0.06858871
@@ -3172,6 +3967,7 @@ D 0.2575758 0.26923077 0.18965517&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;&lt;p&gt;We will begin by loading essential packages for data preprocessing and statistical modeling as indicated below.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;library(parameters) #for parameter processing
+library(tidymodels) #for data splitting
 library(tidyverse) #toolbox for R
 library(psych) #for descriptive statistics and the data set
 library(ggcorrplot) #for correlation matrix
@@ -3221,7 +4017,7 @@ dlookr::diagnose(data)&lt;/code&gt;&lt;/pre&gt;
 10 C5        integer            16           0.571            7
 # ... with 15 more rows, and 1 more variable: unique_rate &amp;lt;dbl&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(data, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e041e22148e_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c77d24d23_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;There are some degree of missingness in the dataset as indicated by the missingness map. For good measure, we will impute it with the predictive mean matchmaking method by the &lt;code&gt;mice&lt;/code&gt; package.&lt;/li&gt;
 &lt;/ul&gt;
@@ -3258,7 +4054,7 @@ mice_model &amp;lt;- mice(data, method=&amp;#39;pmm&amp;#39;, seed = 123)&lt;/co
 &lt;pre class="r"&gt;&lt;code&gt;data_complete &amp;lt;- complete(mice_model)
 
 visdat::vis_miss(data_complete, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e041e22148e_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c77d24d23_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;There is no missing value present in the dataset after the imputation. We can proceed with factor structure checking to assess whether the dataset is appropriate for factor analysis with &lt;code&gt;check_factorstructure()&lt;/code&gt;. Two existing methods are the &lt;em&gt;Bartlett’s Test of Sphericity&lt;/em&gt; and the &lt;em&gt;Kaiser, Meyer, Olkin (KMO)&lt;/em&gt; Measure of Sampling Adequacy (MSA).&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;The former tests whether a matrix is significantly different from an identity matrix. This statistical test for the presence of correlations among variables, providing the statistical probability that the correlation matrix has significant correlations among at least some of variables. As for factor analysis to work, some relationships between variables are needed, thus, a significant Bartlett’s test of sphericity is required to be significant.&lt;/p&gt;&lt;/li&gt;
@@ -3296,7 +4092,7 @@ ggcorrplot(data.corr,
   labs(title=&amp;quot;Correlation Matrix&amp;quot;)+
   theme(plot.title=element_text(face=&amp;#39;bold&amp;#39;,size=14,hjust=0.5,colour=&amp;quot;darkred&amp;quot;))+
   theme(legend.position=c(0.10,0.80), legend.box.just = &amp;quot;bottom&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e041e22148e_files/figure-html/unnamed-chunk-8-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c77d24d23_files/figure-html/unnamed-chunk-8-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The green panel indicates positive relationships while the red panel indicates negative relationship. The cross symbol suggests that the relationship between two variables is not statistically significant.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Next, we would need to split the dataset into two to perform EFA and CFA, so that we can make sure to test the model on an unseen set of data.&lt;/p&gt;&lt;/li&gt;
@@ -3314,12 +4110,12 @@ bfi_CFA &amp;lt;- data_complete[indices_CFA, ]&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;# Is the data suitable for Factor Analysis?
 
   - KMO: The Kaiser, Meyer, Olkin (KMO) measure of sampling adequacy suggests that data seems appropriate for factor analysis (KMO = 0.84).
-  - Sphericity: Bartlett&amp;#39;s test of sphericity suggests that there is sufficient significant correlation in the data for factor analysis (Chisq(300) = 10508.83, p &amp;lt; .001).&lt;/code&gt;&lt;/pre&gt;
+  - Sphericity: Bartlett&amp;#39;s test of sphericity suggests that there is sufficient significant correlation in the data for factor analysis (Chisq(300) = 10442.00, p &amp;lt; .001).&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;check_factorstructure(bfi_CFA)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;# Is the data suitable for Factor Analysis?
 
   - KMO: The Kaiser, Meyer, Olkin (KMO) measure of sampling adequacy suggests that data seems appropriate for factor analysis (KMO = 0.84).
-  - Sphericity: Bartlett&amp;#39;s test of sphericity suggests that there is sufficient significant correlation in the data for factor analysis (Chisq(300) = 9929.32, p &amp;lt; .001).&lt;/code&gt;&lt;/pre&gt;
+  - Sphericity: Bartlett&amp;#39;s test of sphericity suggests that there is sufficient significant correlation in the data for factor analysis (Chisq(300) = 9970.81, p &amp;lt; .001).&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;The two datasets that we splitted are appropriate for factor analysis, so we can proceed with EFA as the first analysis&lt;/li&gt;
 &lt;/ul&gt;
@@ -3342,15 +4138,15 @@ eigenvals &amp;lt;- eigen(bfi_EFA_cor)
 
 # Look at the eigenvalues returned
 eigenvals$values&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt; [1] 5.1260335 2.7283892 2.1703605 1.7962625 1.5810352 1.1067334
- [7] 0.8628232 0.8314676 0.7286709 0.7025545 0.6794529 0.6418044
-[13] 0.6236182 0.5865228 0.5568888 0.5537281 0.5017308 0.4883328
-[19] 0.4771046 0.4435182 0.4277177 0.3970359 0.3845808 0.3458697
-[25] 0.2577638&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt; [1] 4.9971246 2.8223485 2.1038601 1.8779429 1.5744386 1.1297133
+ [7] 0.9125106 0.8288279 0.7267445 0.6883978 0.6700299 0.6551319
+[13] 0.6260697 0.5834295 0.5417429 0.5243013 0.4984783 0.4935423
+[19] 0.4685089 0.4314514 0.4170720 0.3972532 0.3913737 0.3763374
+[25] 0.2633686&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Then use the correlation matrix to create the scree plot
 
 scree(bfi_EFA_cor, factors = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e041e22148e_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c77d24d23_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;From the above plot, The point where the slope of the curve is clearly leveling off (the “elbow) indicates that the number of factors that should be retained. For this case, the plot indicated that six factors should be retained.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;However, the dataset we use is for Big 5 personality traits with 5 factors, so we can investigate both 5 and 6 factors model to compare them both.&lt;/p&gt;&lt;/li&gt;
@@ -3431,50 +4227,45 @@ head(predict_result)&lt;/code&gt;&lt;/pre&gt;
 n_factor&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;# Method Agreement Procedure:
 
-The choice of 6 dimensions is supported by 4 (17.39%) methods out of 23 (Optimal coordinates, Parallel analysis, Kaiser criterion, SE Scree).&lt;/code&gt;&lt;/pre&gt;
+The choice of 6 dimensions is supported by 4 (21.05%) methods out of 19 (Optimal coordinates, Parallel analysis, Kaiser criterion, Scree (SE)).&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;as.data.frame(n_factor)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;   n_Factors              Method              Family
 1          1 Acceleration factor               Scree
-2          1                 TLI                 Fit
-3          1               RMSEA                 Fit
-4          3                 CNG                 CNG
-5          4                beta Multiple_regression
-6          4                  R2            Scree_SE
-7          4    VSS complexity 1                 VSS
-8          5    VSS complexity 2                 VSS
-9          5       Velicer&amp;#39;s MAP        Velicers_MAP
-10         6 Optimal coordinates               Scree
-11         6   Parallel analysis               Scree
-12         6    Kaiser criterion               Scree
-13         6            SE Scree            Scree_SE
-14         7                   t Multiple_regression
-15         7                   p Multiple_regression
-16         8                 BIC                 BIC
-17         8                 BIC                 Fit
-18        12      BIC (adjusted)                 BIC
-19        18                CRMS                 Fit
-20        22             Bentler             Bentler
-21        24            Bartlett             Barlett
-22        24            Anderson             Barlett
-23        24              Lawley             Barlett&lt;/code&gt;&lt;/pre&gt;
+2          3                 CNG                 CNG
+3          4                beta Multiple_regression
+4          4          Scree (R2)            Scree_SE
+5          4    VSS complexity 1                 VSS
+6          5    VSS complexity 2                 VSS
+7          5       Velicer&amp;#39;s MAP        Velicers_MAP
+8          6 Optimal coordinates               Scree
+9          6   Parallel analysis               Scree
+10         6    Kaiser criterion               Scree
+11         6          Scree (SE)            Scree_SE
+12         7                   t Multiple_regression
+13         7                   p Multiple_regression
+14         8                 BIC                 BIC
+15        12      BIC (adjusted)                 BIC
+16        22             Bentler             Bentler
+17        24            Bartlett             Barlett
+18        24            Anderson             Barlett
+19        24              Lawley             Barlett&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;For more details, a summary table can be obtained&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;summary(n_factor)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;   n_Factors n_Methods
-1          1         3
+1          1         1
 2          3         1
 3          4         3
 4          5         2
 5          6         4
 6          7         2
-7          8         2
+7          8         1
 8         12         1
-9         18         1
-10        22         1
-11        24         3&lt;/code&gt;&lt;/pre&gt;
+9         22         1
+10        24         3&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(n_factor) + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e041e22148e_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c77d24d23_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Interestingly, most methods also suggest six factors from the model, which is consistent with the &lt;a href="https://en.wikipedia.org/wiki/HEXACO_model_of_personality_structure"&gt;HEXACO model&lt;/a&gt; of personalities that is similar with the Big 5 personality theory.&lt;/li&gt;
 &lt;/ul&gt;
@@ -3485,13 +4276,16 @@ The choice of 6 dimensions is supported by 4 (17.39%) methods out of 23 (Optimal
 &lt;/ul&gt;
 &lt;h3 id="train-test-split"&gt;Train test split&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;The data can be easily split into two sets with the data_partition() function, through which we will use 70% of the sample as the training and the rest as the test dataset.&lt;/li&gt;
+&lt;li&gt;The data can be easily split into two sets with the &lt;code&gt;initial_split()&lt;/code&gt; of the tidymodel package, through which we will use 70% of the sample as the training and the rest as the test dataset.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class="r"&gt;&lt;code&gt;partitions &amp;lt;- data_partition(bfi_CFA, training_proportion = 0.7, 
-                             seed = 999)
+&lt;pre class="r"&gt;&lt;code&gt;set.seed(999)
 
-training &amp;lt;- partitions$training
-test &amp;lt;- partitions$test&lt;/code&gt;&lt;/pre&gt;
+# Put 3/4 of the data into the training set 
+data_split &amp;lt;- initial_split(bfi_CFA, prop = 0.7)
+
+# Create data frames for the two sets:
+training &amp;lt;- training(data_split) #3/4
+test  &amp;lt;- testing(data_split)  #1/4&lt;/code&gt;&lt;/pre&gt;
 &lt;h3 id="create-cfa-structures-out-of-efa-models"&gt;Create CFA structures out of EFA models&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;In the next step, we will run two EFA models on the training set and specifying 5 and 6 latent factors respectively. We will also request for path diagram of the models as well as their density plot of factor score.&lt;/p&gt;&lt;/li&gt;
@@ -3499,19 +4293,19 @@ test &amp;lt;- partitions$test&lt;/code&gt;&lt;/pre&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;structure_big5 &amp;lt;- psych::fa(training, nfactors = 5)
 fa.diagram(structure_big5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e041e22148e_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c77d24d23_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big5$scores, na.rm = TRUE), 
      main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e041e22148e_files/figure-html/unnamed-chunk-22-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c77d24d23_files/figure-html/unnamed-chunk-22-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Then, for the structure of the 6 factors model.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;structure_big6 &amp;lt;- psych::fa(training, nfactors = 6) 
 fa.diagram(structure_big6)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e041e22148e_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c77d24d23_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big6$scores, na.rm = TRUE), 
      main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e041e22148e_files/figure-html/unnamed-chunk-24-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c77d24d23_files/figure-html/unnamed-chunk-24-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will then transform both EFA models into &lt;code&gt;lavaan&lt;/code&gt; syntax to perform CFA.&lt;/li&gt;
 &lt;/ul&gt;
@@ -3522,18 +4316,19 @@ cfa_big5 &amp;lt;- efa_to_cfa(structure_big5)
 cfa_big5&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;# Latent variables
 MR2 =~ N1 + N2 + N3 + N4 + N5
-MR5 =~ A1 + A2 + A3 + A4 + A5
 MR1 =~ E1 + E2 + E3 + E4 + E5
 MR3 =~ C1 + C2 + C3 + C4 + C5
+MR5 =~ A1 + A2 + A3 + A4 + A5
 MR4 =~ O1 + O2 + O3 + O4 + O5&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;cfa_big6 &amp;lt;- efa_to_cfa(structure_big6)
 cfa_big6&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;# Latent variables
-MR2 =~ N1 + N2 + N3 + N4 + N5
-MR5 =~ A1 + A2 + A3 + A4 + A5
+MR2 =~ N1 + N2 + N3 + N5
+MR1 =~ E1 + E2 + E3 + E4 + E5 + N4
 MR3 =~ C1 + C2 + C3 + C4 + C5
-MR1 =~ E1 + E2 + E4 + E5 + O4
-MR4 =~ E3 + O1 + O2 + O3 + O5&lt;/code&gt;&lt;/pre&gt;
+MR4 =~ O1 + O2 + O3 + O4 + O5
+MR5 =~ A1 + A2 + A3
+MR6 =~ A4 + A5&lt;/code&gt;&lt;/pre&gt;
 &lt;h3 id="fit-and-compare-models"&gt;Fit and Compare models&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;Next, we will fit both models with lavaan package before requesting for model fit measure with &lt;code&gt;fitmeasures&lt;/code&gt;. We can also compare both models head-to-head with &lt;code&gt;compare_performance&lt;/code&gt;.&lt;/li&gt;
@@ -3545,94 +4340,94 @@ fitmeasures(model_big5, fit.measures = &amp;quot;all&amp;quot;, output = &amp;qu
 &lt;pre&gt;&lt;code&gt;
 Model Test User Model:
 
-  Test statistic                              1043.136
+  Test statistic                              1090.069
   Degrees of freedom                               265
   P-value                                        0.000
 
 Model Test Baseline Model:
 
-  Test statistic                              3513.829
+  Test statistic                              3470.893
   Degrees of freedom                               300
   P-value                                        0.000
 
 User Model versus Baseline Model:
 
-  Comparative Fit Index (CFI)                    0.758
-  Tucker-Lewis Index (TLI)                       0.726
-  Bentler-Bonett Non-normed Fit Index (NNFI)     0.726
-  Bentler-Bonett Normed Fit Index (NFI)          0.703
-  Parsimony Normed Fit Index (PNFI)              0.621
-  Bollen&amp;#39;s Relative Fit Index (RFI)              0.664
-  Bollen&amp;#39;s Incremental Fit Index (IFI)           0.760
-  Relative Noncentrality Index (RNI)             0.758
+  Comparative Fit Index (CFI)                    0.740
+  Tucker-Lewis Index (TLI)                       0.705
+  Bentler-Bonett Non-normed Fit Index (NNFI)     0.705
+  Bentler-Bonett Normed Fit Index (NFI)          0.686
+  Parsimony Normed Fit Index (PNFI)              0.606
+  Bollen&amp;#39;s Relative Fit Index (RFI)              0.644
+  Bollen&amp;#39;s Incremental Fit Index (IFI)           0.743
+  Relative Noncentrality Index (RNI)             0.740
 
 Loglikelihood and Information Criteria:
 
-  Loglikelihood user model (H0)             -17201.035
-  Loglikelihood unrestricted model (H1)     -16679.468
+  Loglikelihood user model (H0)             -17119.026
+  Loglikelihood unrestricted model (H1)     -16573.992
                                                       
-  Akaike (AIC)                               34522.071
-  Bayesian (BIC)                             34764.629
-  Sample-size adjusted Bayesian (BIC)        34574.230
+  Akaike (AIC)                               34358.052
+  Bayesian (BIC)                             34600.610
+  Sample-size adjusted Bayesian (BIC)        34410.212
 
 Root Mean Square Error of Approximation:
 
-  RMSEA                                          0.084
-  90 Percent confidence interval - lower         0.078
-  90 Percent confidence interval - upper         0.089
+  RMSEA                                          0.086
+  90 Percent confidence interval - lower         0.081
+  90 Percent confidence interval - upper         0.091
   P-value RMSEA &amp;lt;= 0.05                          0.000
 
 Standardized Root Mean Square Residual:
 
-  RMR                                            0.174
-  RMR (No Mean)                                  0.174
-  SRMR                                           0.086
+  RMR                                            0.173
+  RMR (No Mean)                                  0.173
+  SRMR                                           0.087
 
 Other Fit Indices:
 
-  Hoelter Critical N (CN) alpha = 0.05         123.679
-  Hoelter Critical N (CN) alpha = 0.01         130.746
+  Hoelter Critical N (CN) alpha = 0.05         118.397
+  Hoelter Critical N (CN) alpha = 0.01         125.159
                                                       
-  Goodness of Fit Index (GFI)                    0.815
-  Adjusted Goodness of Fit Index (AGFI)          0.773
-  Parsimony Goodness of Fit Index (PGFI)         0.665
+  Goodness of Fit Index (GFI)                    0.809
+  Adjusted Goodness of Fit Index (AGFI)          0.765
+  Parsimony Goodness of Fit Index (PGFI)         0.659
                                                       
-  McDonald Fit Index (MFI)                       0.397
+  McDonald Fit Index (MFI)                       0.375
                                                       
-  Expected Cross-Validation Index (ECVI)         2.763&lt;/code&gt;&lt;/pre&gt;
+  Expected Cross-Validation Index (ECVI)         2.874&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;fitmeasures(model_big6, fit.measures = &amp;quot;all&amp;quot;, output = &amp;quot;text&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;
 Model Test User Model:
 
-  Test statistic                              1132.134
-  Degrees of freedom                               265
+  Test statistic                              1105.900
+  Degrees of freedom                               260
   P-value                                        0.000
 
 Model Test Baseline Model:
 
-  Test statistic                              3513.829
+  Test statistic                              3470.893
   Degrees of freedom                               300
   P-value                                        0.000
 
 User Model versus Baseline Model:
 
-  Comparative Fit Index (CFI)                    0.730
-  Tucker-Lewis Index (TLI)                       0.695
-  Bentler-Bonett Non-normed Fit Index (NNFI)     0.695
-  Bentler-Bonett Normed Fit Index (NFI)          0.678
-  Parsimony Normed Fit Index (PNFI)              0.599
-  Bollen&amp;#39;s Relative Fit Index (RFI)              0.635
-  Bollen&amp;#39;s Incremental Fit Index (IFI)           0.733
-  Relative Noncentrality Index (RNI)             0.730
+  Comparative Fit Index (CFI)                    0.733
+  Tucker-Lewis Index (TLI)                       0.692
+  Bentler-Bonett Non-normed Fit Index (NNFI)     0.692
+  Bentler-Bonett Normed Fit Index (NFI)          0.681
+  Parsimony Normed Fit Index (PNFI)              0.591
+  Bollen&amp;#39;s Relative Fit Index (RFI)              0.632
+  Bollen&amp;#39;s Incremental Fit Index (IFI)           0.737
+  Relative Noncentrality Index (RNI)             0.733
 
 Loglikelihood and Information Criteria:
 
-  Loglikelihood user model (H0)             -17245.534
-  Loglikelihood unrestricted model (H1)     -16679.468
+  Loglikelihood user model (H0)             -17126.942
+  Loglikelihood unrestricted model (H1)     -16573.992
                                                       
-  Akaike (AIC)                               34611.069
-  Bayesian (BIC)                             34853.627
-  Sample-size adjusted Bayesian (BIC)        34663.228
+  Akaike (AIC)                               34383.884
+  Bayesian (BIC)                             34646.655
+  Sample-size adjusted Bayesian (BIC)        34440.390
 
 Root Mean Square Error of Approximation:
 
@@ -3643,28 +4438,28 @@ Root Mean Square Error of Approximation:
 
 Standardized Root Mean Square Residual:
 
-  RMR                                            0.181
-  RMR (No Mean)                                  0.181
-  SRMR                                           0.092
+  RMR                                            0.187
+  RMR (No Mean)                                  0.187
+  SRMR                                           0.091
 
 Other Fit Indices:
 
-  Hoelter Critical N (CN) alpha = 0.05         114.036
-  Hoelter Critical N (CN) alpha = 0.01         120.546
+  Hoelter Critical N (CN) alpha = 0.05         114.677
+  Hoelter Critical N (CN) alpha = 0.01         121.285
                                                       
-  Goodness of Fit Index (GFI)                    0.802
-  Adjusted Goodness of Fit Index (AGFI)          0.757
-  Parsimony Goodness of Fit Index (PGFI)         0.654
+  Goodness of Fit Index (GFI)                    0.804
+  Adjusted Goodness of Fit Index (AGFI)          0.755
+  Parsimony Goodness of Fit Index (PGFI)         0.643
                                                       
-  McDonald Fit Index (MFI)                       0.357
+  McDonald Fit Index (MFI)                       0.366
                                                       
-  Expected Cross-Validation Index (ECVI)         2.974&lt;/code&gt;&lt;/pre&gt;
+  Expected Cross-Validation Index (ECVI)         2.936&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;model_comparison &amp;lt;-performance::compare_performance(model_big5, model_big6)
 
 rmarkdown::paged_table(model_comparison)&lt;/code&gt;&lt;/pre&gt;
 &lt;div data-pagedtable="false"&gt;
 &lt;script data-pagedtable-source type="application/json"&gt;
-{"columns":[{"label":["Name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Model"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Chi2"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Chi2_df"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p_Chi2"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["Baseline"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["Baseline_df"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["p_Baseline"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["GFI"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["AGFI"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["NFI"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["NNFI"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["CFI"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["RMSEA"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["RMSEA_CI_low"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["RMSEA_CI_high"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["p_RMSEA"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["RMR"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["SRMR"],"name":[19],"type":["dbl"],"align":["right"]},{"label":["RFI"],"name":[20],"type":["dbl"],"align":["right"]},{"label":["PNFI"],"name":[21],"type":["dbl"],"align":["right"]},{"label":["IFI"],"name":[22],"type":["dbl"],"align":["right"]},{"label":["RNI"],"name":[23],"type":["dbl"],"align":["right"]},{"label":["Loglikelihood"],"name":[24],"type":["dbl"],"align":["right"]},{"label":["AIC"],"name":[25],"type":["dbl"],"align":["right"]},{"label":["AIC_wt"],"name":[26],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[27],"type":["dbl"],"align":["right"]},{"label":["BIC_wt"],"name":[28],"type":["dbl"],"align":["right"]},{"label":["BIC_adjusted"],"name":[29],"type":["dbl"],"align":["right"]}],"data":[{"1":"model_big5","2":"lavaan","3":"1043.136","4":"265","5":"0","6":"3513.829","7":"300","8":"0","9":"0.8152806","10":"0.7734573","11":"0.7031342","12":"0.7259007","13":"0.7578790","14":"0.08351484","15":"0.07822173","16":"0.08887477","17":"1.887379e-15","18":"0.1743771","19":"0.08600019","20":"0.6639255","21":"0.6211019","22":"0.7604874","23":"0.7578790","24":"-17201.04","25":"34522.07","26":"1.000000e+00","27":"34764.63","28":"1.000000e+00","29":"34574.23"},{"1":"model_big6","2":"lavaan","3":"1132.134","4":"265","5":"0","6":"3513.829","7":"300","8":"0","9":"0.8021582","10":"0.7573638","11":"0.6778062","12":"0.6945510","13":"0.7301867","14":"0.08816152","15":"0.08290861","16":"0.09348178","17":"3.719247e-14","18":"0.1809260","19":"0.09247950","20":"0.6352523","21":"0.5987288","22":"0.7330934","23":"0.7301867","24":"-17245.53","25":"34611.07","26":"4.723836e-20","27":"34853.63","28":"4.723836e-20","29":"34663.23"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["Name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Model"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Chi2"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Chi2_df"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p_Chi2"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["Baseline"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["Baseline_df"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["p_Baseline"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["GFI"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["AGFI"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["NFI"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["NNFI"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["CFI"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["RMSEA"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["RMSEA_CI_low"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["RMSEA_CI_high"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["p_RMSEA"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["RMR"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["SRMR"],"name":[19],"type":["dbl"],"align":["right"]},{"label":["RFI"],"name":[20],"type":["dbl"],"align":["right"]},{"label":["PNFI"],"name":[21],"type":["dbl"],"align":["right"]},{"label":["IFI"],"name":[22],"type":["dbl"],"align":["right"]},{"label":["RNI"],"name":[23],"type":["dbl"],"align":["right"]},{"label":["Loglikelihood"],"name":[24],"type":["dbl"],"align":["right"]},{"label":["AIC"],"name":[25],"type":["dbl"],"align":["right"]},{"label":["AIC_wt"],"name":[26],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[27],"type":["dbl"],"align":["right"]},{"label":["BIC_wt"],"name":[28],"type":["dbl"],"align":["right"]},{"label":["BIC_adjusted"],"name":[29],"type":["dbl"],"align":["right"]}],"data":[{"1":"model_big5","2":"lavaan","3":"1090.069","4":"265","5":"0","6":"3470.893","7":"300","8":"0","9":"0.8086236","10":"0.7652931","11":"0.6859399","12":"0.705433","13":"0.7397992","14":"0.08599657","15":"0.08072575","16":"0.09133459","17":"5.417888e-14","18":"0.1728950","19":"0.08680462","20":"0.6444603","21":"0.6059136","22":"0.7426399","23":"0.7397992","24":"-17119.03","25":"34358.05","26":"9.999975e-01","27":"34600.61","28":"1.000000e+00","29":"34410.21"},{"1":"model_big6","2":"lavaan","3":"1105.900","4":"260","5":"0","6":"3470.893","7":"300","8":"0","9":"0.8039676","10":"0.7549595","11":"0.6813787","12":"0.692188","13":"0.7332296","14":"0.08790871","15":"0.08260383","16":"0.09328222","17":"5.262457e-14","18":"0.1866024","19":"0.09099409","20":"0.6323601","21":"0.5905282","22":"0.7365529","23":"0.7332296","24":"-17126.94","25":"34383.88","26":"2.459084e-06","27":"34646.66","28":"1.003556e-10","29":"34440.39"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   &lt;/script&gt;
 &lt;/div&gt;
 &lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
@@ -3884,7 +4679,7 @@ clusters_df = pd.DataFrame(clusters, columns = [&amp;#39;cluster_group&amp;#39;]
 
 sns.set_theme(style=&amp;quot;whitegrid&amp;quot;)
 sns.catplot(x=&amp;quot;cluster_group&amp;quot;, kind=&amp;quot;count&amp;quot;, data=clusters_df)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e0411f2437_files/figure-html/unnamed-chunk-11-1.png" width="242" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c36b8425_files/figure-html/unnamed-chunk-11-1.png" width="242" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2 id="calculate-similarity-distance"&gt;Calculate similarity distance&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;By using &lt;code&gt;countvectorizer&lt;/code&gt;, we can turn a sentence into numbers for the computer to calculate similarity distance with the cosine similarity measurement (it is basically a number that indicates how closely related the two sets of words are).&lt;/li&gt;
@@ -3921,7 +4716,7 @@ fig.set_size_inches(120, 50)
 # Show the plotted dendrogram
 plt.grid(False)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e0411f2437_files/figure-html/unnamed-chunk-13-3.png" width="11520" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c36b8425_files/figure-html/unnamed-chunk-13-3.png" width="11520" /&gt;&lt;/p&gt;
 &lt;h2 id="concluding-remark"&gt;Concluding remark&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;While I am not an expert in movie critique, the movie plot data is a good venue to practice text cleaning with tokenization and stemming. The TF-IDF method is also widely implemented to extract meaningful information from textual data in general. Lastly, clustering is also a useful exploratory machine learning method to gain insights from unlabeled data to inform our decisions.&lt;/p&gt;&lt;/li&gt;
@@ -4029,7 +4824,7 @@ PISA_Subsetted$FEMALE &amp;lt;- recode_factor(PISA_Subsetted$FEMALE,
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;oceanbuoys %&amp;gt;% arrange(year) %&amp;gt;% vis_miss()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2e044e794625_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file334c19a67da6_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Missing Not at Random (MNAR)&lt;/p&gt;
 &lt;ul&gt;
@@ -4361,9 +5156,34 @@ head()&lt;/code&gt;&lt;/pre&gt;
       <title>Finding a home among the paradigm push-back with Dialectical Pluralism</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
       <link>https://taridwong.github.io/posts/2021-11-07-introducing-dialectical-pluralism</link>
-      <description>This entry discusses the reconciliation of quantitative and qualitative worldviews amidst the paradigm wars with pluralistic stance.
+      <description>
 
-(2 min read)</description>
+
+&lt;div class="figure"&gt;
+&lt;img src="https://www.relevantinsights.com/wp-content/uploads/2020/05/Qualitative-Quantitative-Research-For-New-Product-Development.png" style="width:50.0%" alt="" /&gt;
+&lt;p class="caption"&gt;Photo by Relevant Insight LLC&lt;/p&gt;
+&lt;/div&gt;
+&lt;h2 id="the-current-status-quo-of-paradigm-wars"&gt;The current status-quo of paradigm wars&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;In learning of mixed methods research, the issue of &lt;em&gt;paradigm wars&lt;/em&gt; is usually brought up in how it affects us, scholars, and the academia as a whole. I occasionally came across the over-endorsement of one method (oftentimes quantitative) to another in my conversation with colleagues like, “&lt;strong&gt;Psychology is the field that is largely explained by quantitative research&lt;/strong&gt;”, “&lt;strong&gt;We do not buy the notion that &lt;em&gt;p&lt;/em&gt;-value can conclude anything beyond numbers&lt;/strong&gt;”; these statements are the byproduct of paradigm wars, a methodological preference that divided academic community to these days &lt;a href="https://www.abc.us.org/ojs/index.php/ajtp/article/view/507"&gt;(Williams, 2020)&lt;/a&gt;. Implicit as it may be, the remnant of this conflict is still there.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="then-what-should-we-do-about-it"&gt;Then, what should we do about it?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;At methodological level, Mixed Methods Research (MMR) seems to be a realistic answer to this problem by synergizing both qualitative and quantitative data into a greater whole than the sum of the two &lt;a href="https://journals.sagepub.com/doi/10.1177/1558689815581222"&gt;(Fetters &amp;amp; Freshwater, 2015)&lt;/a&gt;. One philosophical mechanism behind MMR is Dialectical Pluralism (DP), a process philosophy that serves as a middle ground for both qualitative and quantitative paradigms for equal acknowledgement while offers equal voice to paradigm with lesser recognition.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;An interesting suggestion from &lt;a href="https://journals.sagepub.com/doi/full/10.1177/1558689815575861?casa_token=wOYWvNszEvQAAAAA%3AeNkxcE6l5kzRkjVIdQfMfmMzBQtqptRuHYwUv31K-EjnpEcbPr41BLOzdbIuQpHC38eHv12-85zE"&gt;Shannon-Baker (2016)&lt;/a&gt; is that qualitative or quantitative view should be used as our regard to data rather than the whole research; for that, we should consider our research framework as a fluid “stance” to research instead of an archaic notion of static concept.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="what-about-the-how"&gt;What about the how?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;As I realize the existence of multiple realities in social science, the next step could be to move beyond our current paradigm as &lt;a href="https://journals.sagepub.com/doi/full/10.1177/1558689815607692?casa_token=qS0WXE4b3tIAAAAA%3AuB66Vn274U-7lhn5lr6IRO6ysiQtIEIwhZcyP3qpzQUpXYnRsI8p91GfSyZK3ILa2Fy-p7S8foVl"&gt;Johnson (2017)&lt;/a&gt; suggests, “&lt;strong&gt;the next theoretical step in the paradigms dialog is to articulate a metaparadigm&lt;/strong&gt;” (p.159). Researchers are encouraged to apply the dialectic worldview in their practice, both &lt;em&gt;inter&lt;/em&gt;personally and &lt;em&gt;intra&lt;/em&gt;personally.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Interpersonally, researchers could seek a collaborative space with heterogeneous team members, and conclusions should be made based on the evidence of shared values. Ultimately, practical truths should be emphasized instead of absolute truths.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Intrapersonally, researchers could have internal dialogues that reconcile differences of their perspective through personal reflection. The more ideas a researcher has in their toolbox, the more versatile they can be, as &lt;a href="https://www.esquire.com/lifestyle/a4310/the-crack-up/"&gt;Fitzgerald (1936)&lt;/a&gt; said, “&lt;strong&gt;the test of a first-rate intelligence is the ability to hold two opposed ideas in the mind at the same time and still retain the ability to function&lt;/strong&gt;”.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="final-remarks-and-food-for-thought"&gt;Final remarks and food for thought&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;To me, learning about DP is quite impactful as it offers a middle ground for seemingly conflicting ideas to collaborate equally to further the body of knowledge than wresting internally over the some-old quarrel. That, my friend, could be a promising way for us to grow up as a versatile individuals (and researchers). Have a good one!&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>e30fd61efb53344445856c9ea37666ed</distill:md5>
       <category>Mixed methods research</category>
       <guid>https://taridwong.github.io/posts/2021-11-07-introducing-dialectical-pluralism</guid>
       <pubDate>Tue, 09 Nov 2021 00:00:00 +0000</pubDate>
