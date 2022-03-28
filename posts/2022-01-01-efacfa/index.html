@@ -132,7 +132,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--/radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-resource-manifest">
-  {"type":"character","attributes":{},"value":["corrmatrix.jpg","efacfa_files/anchor-4.2.2/anchor.min.js","efacfa_files/bowser-1.9.3/bowser.min.js","efacfa_files/distill-2.2.21/template.v2.js","efacfa_files/figure-html5/unnamed-chunk-13-1.png","efacfa_files/figure-html5/unnamed-chunk-19-1.png","efacfa_files/figure-html5/unnamed-chunk-21-1.png","efacfa_files/figure-html5/unnamed-chunk-22-1.png","efacfa_files/figure-html5/unnamed-chunk-23-1.png","efacfa_files/figure-html5/unnamed-chunk-24-1.png","efacfa_files/figure-html5/unnamed-chunk-5-1.png","efacfa_files/figure-html5/unnamed-chunk-6-1.png","efacfa_files/figure-html5/unnamed-chunk-8-1.png","efacfa_files/header-attrs-2.11/header-attrs.js","efacfa_files/jquery-3.6.0/jquery-3.6.0.js","efacfa_files/jquery-3.6.0/jquery-3.6.0.min.js","efacfa_files/jquery-3.6.0/jquery-3.6.0.min.map","efacfa_files/pagedtable-1.1/css/pagedtable.css","efacfa_files/pagedtable-1.1/js/pagedtable.js","efacfa_files/popper-2.6.0/popper.min.js","efacfa_files/tippy-6.2.7/tippy-bundle.umd.min.js","efacfa_files/tippy-6.2.7/tippy-light-border.css","efacfa_files/tippy-6.2.7/tippy.css","efacfa_files/tippy-6.2.7/tippy.umd.min.js","efacfa_files/webcomponents-2.0.0/webcomponents.js"]}
+  {"type":"character","attributes":{},"value":["corrmatrix.jpg","efacfa_files/anchor-4.2.2/anchor.min.js","efacfa_files/bowser-1.9.3/bowser.min.js","efacfa_files/distill-2.2.21/template.v2.js","efacfa_files/figure-html5/unnamed-chunk-13-1.png","efacfa_files/figure-html5/unnamed-chunk-19-1.png","efacfa_files/figure-html5/unnamed-chunk-21-1.png","efacfa_files/figure-html5/unnamed-chunk-22-1.png","efacfa_files/figure-html5/unnamed-chunk-23-1.png","efacfa_files/figure-html5/unnamed-chunk-24-1.png","efacfa_files/figure-html5/unnamed-chunk-5-1.png","efacfa_files/figure-html5/unnamed-chunk-6-1.png","efacfa_files/figure-html5/unnamed-chunk-8-1.png","efacfa_files/header-attrs-2.11/header-attrs.js","efacfa_files/header-attrs-2.12/header-attrs.js","efacfa_files/jquery-3.6.0/jquery-3.6.0.js","efacfa_files/jquery-3.6.0/jquery-3.6.0.min.js","efacfa_files/jquery-3.6.0/jquery-3.6.0.min.map","efacfa_files/pagedtable-1.1/css/pagedtable.css","efacfa_files/pagedtable-1.1/js/pagedtable.js","efacfa_files/popper-2.6.0/popper.min.js","efacfa_files/tippy-6.2.7/tippy-bundle.umd.min.js","efacfa_files/tippy-6.2.7/tippy-light-border.css","efacfa_files/tippy-6.2.7/tippy.css","efacfa_files/tippy-6.2.7/tippy.umd.min.js","efacfa_files/webcomponents-2.0.0/webcomponents.js"]}
   </script>
   <!--radix_placeholder_navigation_in_header-->
 <meta name="distill:offset" content="../.."/>
@@ -2392,7 +2392,7 @@ d-appendix d-footnote-list a.footnote-backlink {
   color: var(--hover-color, white);
 }</style>
 <!--/radix_placeholder_distill-->
-  <script src="../../site_libs/header-attrs-2.11/header-attrs.js"></script>
+  <script src="../../site_libs/header-attrs-2.12/header-attrs.js"></script>
   <link href="../../site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
   <script src="../../site_libs/pagedtable-1.1/js/pagedtable.js"></script>
   <script src="../../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -2495,6 +2495,7 @@ Show code
 </summary>
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://easystats.github.io/parameters/'>parameters</a></span><span class='op'>)</span> <span class='co'>#for parameter processing</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidymodels.tidymodels.org'>tidymodels</a></span><span class='op'>)</span> <span class='co'>#for data splitting</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span> <span class='co'>#toolbox for R</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://personality-project.org/r/psych/'>psych</a></span><span class='op'>)</span> <span class='co'>#for descriptive statistics and the data set</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='http://www.sthda.com/english/wiki/ggcorrplot'>ggcorrplot</a></span><span class='op'>)</span> <span class='co'>#for correlation matrix</span>
@@ -2502,7 +2503,7 @@ Show code
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://lavaan.ugent.be'>lavaan</a></span><span class='op'>)</span> <span class='co'>#for SEM</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://easystats.github.io/performance/'>performance</a></span><span class='op'>)</span> <span class='co'>#assessment of Regression Models Performance</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/SachaEpskamp/semPlot'>semPlot</a></span><span class='op'>)</span> <span class='co'>#to plot path model for CFA</span>
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>dlookr</span><span class='op'>)</span> <span class='co'>#missing data diagnosis</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/choonghyunryu/dlookr/'>dlookr</a></span><span class='op'>)</span> <span class='co'>#missing data diagnosis</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/amices/mice'>mice</a></span><span class='op'>)</span> <span class='co'>#missing data imputation</span>
 </code></pre>
 </div>
@@ -2548,7 +2549,7 @@ Show code
 </summary>
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#diagnose for missing value</span>
-<span class='fu'>dlookr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/dlookr/man/diagnose.data.frame.html'>diagnose</a></span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span>
+<span class='fu'>dlookr</span><span class='fu'>::</span><span class='fu'><a href='https://choonghyunryu.github.io/dlookr/reference/diagnose.data.frame.html'>diagnose</a></span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span>
 </code></pre>
 </div>
 </details>
@@ -2726,7 +2727,7 @@ Show code
 <pre><code># Is the data suitable for Factor Analysis?
 
   - KMO: The Kaiser, Meyer, Olkin (KMO) measure of sampling adequacy suggests that data seems appropriate for factor analysis (KMO = 0.84).
-  - Sphericity: Bartlett&#39;s test of sphericity suggests that there is sufficient significant correlation in the data for factor analysis (Chisq(300) = 10508.83, p &lt; .001).</code></pre>
+  - Sphericity: Bartlett&#39;s test of sphericity suggests that there is sufficient significant correlation in the data for factor analysis (Chisq(300) = 10244.89, p &lt; .001).</code></pre>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -2741,7 +2742,7 @@ Show code
 <pre><code># Is the data suitable for Factor Analysis?
 
   - KMO: The Kaiser, Meyer, Olkin (KMO) measure of sampling adequacy suggests that data seems appropriate for factor analysis (KMO = 0.84).
-  - Sphericity: Bartlett&#39;s test of sphericity suggests that there is sufficient significant correlation in the data for factor analysis (Chisq(300) = 9929.32, p &lt; .001).</code></pre>
+  - Sphericity: Bartlett&#39;s test of sphericity suggests that there is sufficient significant correlation in the data for factor analysis (Chisq(300) = 10210.30, p &lt; .001).</code></pre>
 </div>
 <ul>
 <li>The two datasets that we splitted are appropriate for factor analysis, so we can proceed with EFA as the first analysis</li>
@@ -2774,11 +2775,11 @@ Show code
 </code></pre>
 </div>
 </details>
-<pre><code> [1] 5.1260335 2.7283892 2.1703605 1.7962625 1.5810352 1.1067334
- [7] 0.8628232 0.8314676 0.7286709 0.7025545 0.6794529 0.6418044
-[13] 0.6236182 0.5865228 0.5568888 0.5537281 0.5017308 0.4883328
-[19] 0.4771046 0.4435182 0.4277177 0.3970359 0.3845808 0.3458697
-[25] 0.2577638</code></pre>
+<pre><code> [1] 5.1697200 2.6134230 2.1562029 1.7907326 1.6067099 1.0566407
+ [7] 0.8427603 0.7962665 0.7482662 0.7263301 0.6985177 0.6640562
+[13] 0.6544223 0.5997338 0.5573358 0.5424657 0.5117708 0.4961194
+[19] 0.4602673 0.4487993 0.4259742 0.4020084 0.3868776 0.3675815
+[25] 0.2770178</code></pre>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -2911,7 +2912,7 @@ Show code
 </details>
 <pre><code># Method Agreement Procedure:
 
-The choice of 6 dimensions is supported by 4 (17.39%) methods out of 23 (Optimal coordinates, Parallel analysis, Kaiser criterion, SE Scree).</code></pre>
+The choice of 6 dimensions is supported by 4 (21.05%) methods out of 19 (Optimal coordinates, Parallel analysis, Kaiser criterion, Scree (SE)).</code></pre>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -2925,28 +2926,24 @@ Show code
 </details>
 <pre><code>   n_Factors              Method              Family
 1          1 Acceleration factor               Scree
-2          1                 TLI                 Fit
-3          1               RMSEA                 Fit
-4          3                 CNG                 CNG
-5          4                beta Multiple_regression
-6          4                  R2            Scree_SE
-7          4    VSS complexity 1                 VSS
-8          5    VSS complexity 2                 VSS
-9          5       Velicer&#39;s MAP        Velicers_MAP
-10         6 Optimal coordinates               Scree
-11         6   Parallel analysis               Scree
-12         6    Kaiser criterion               Scree
-13         6            SE Scree            Scree_SE
-14         7                   t Multiple_regression
-15         7                   p Multiple_regression
-16         8                 BIC                 BIC
-17         8                 BIC                 Fit
-18        12      BIC (adjusted)                 BIC
-19        18                CRMS                 Fit
-20        22             Bentler             Bentler
-21        24            Bartlett             Barlett
-22        24            Anderson             Barlett
-23        24              Lawley             Barlett</code></pre>
+2          3                 CNG                 CNG
+3          4                beta Multiple_regression
+4          4          Scree (R2)            Scree_SE
+5          4    VSS complexity 1                 VSS
+6          5    VSS complexity 2                 VSS
+7          5       Velicer&#39;s MAP        Velicers_MAP
+8          6 Optimal coordinates               Scree
+9          6   Parallel analysis               Scree
+10         6    Kaiser criterion               Scree
+11         6          Scree (SE)            Scree_SE
+12         7                   t Multiple_regression
+13         7                   p Multiple_regression
+14         8                 BIC                 BIC
+15        12      BIC (adjusted)                 BIC
+16        22             Bentler             Bentler
+17        24            Bartlett             Barlett
+18        24            Anderson             Barlett
+19        24              Lawley             Barlett</code></pre>
 </div>
 <ul>
 <li>For more details, a summary table can be obtained</li>
@@ -2962,17 +2959,16 @@ Show code
 </div>
 </details>
 <pre><code>   n_Factors n_Methods
-1          1         3
+1          1         1
 2          3         1
 3          4         3
 4          5         2
 5          6         4
 6          7         2
-7          8         2
+7          8         1
 8         12         1
-9         18         1
-10        22         1
-11        24         3</code></pre>
+9         22         1
+10        24         3</code></pre>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -2996,7 +2992,7 @@ Show code
 </ul>
 <h3 id="train-test-split">Train test split</h3>
 <ul>
-<li>The data can be easily split into two sets with the data_partition() function, through which we will use 70% of the sample as the training and the rest as the test dataset.</li>
+<li>The data can be easily split into two sets with the <code>initial_split()</code> of the tidymodel package, through which we will use 70% of the sample as the training and the rest as the test dataset.</li>
 </ul>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -3004,11 +3000,14 @@ Show code
 Show code
 </summary>
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>partitions</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://easystats.github.io/parameters/reference/data_partition.html'>data_partition</a></span><span class='op'>(</span><span class='va'>bfi_CFA</span>, training_proportion <span class='op'>=</span> <span class='fl'>0.7</span>, 
-                             seed <span class='op'>=</span> <span class='fl'>999</span><span class='op'>)</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>999</span><span class='op'>)</span>
 
-<span class='va'>training</span> <span class='op'>&lt;-</span> <span class='va'>partitions</span><span class='op'>$</span><span class='va'>training</span>
-<span class='va'>test</span> <span class='op'>&lt;-</span> <span class='va'>partitions</span><span class='op'>$</span><span class='va'>test</span>
+<span class='co'># Put 3/4 of the data into the training set </span>
+<span class='va'>data_split</span> <span class='op'>&lt;-</span> <span class='fu'>initial_split</span><span class='op'>(</span><span class='va'>bfi_CFA</span>, prop <span class='op'>=</span> <span class='fl'>0.7</span><span class='op'>)</span>
+
+<span class='co'># Create data frames for the two sets:</span>
+<span class='va'>training</span> <span class='op'>&lt;-</span> <span class='fu'>training</span><span class='op'>(</span><span class='va'>data_split</span><span class='op'>)</span> <span class='co'>#3/4</span>
+<span class='va'>test</span>  <span class='op'>&lt;-</span> <span class='fu'>testing</span><span class='op'>(</span><span class='va'>data_split</span><span class='op'>)</span>  <span class='co'>#1/4</span>
 </code></pre>
 </div>
 </details>
@@ -3111,9 +3110,10 @@ Show code
 <pre><code># Latent variables
 MR2 =~ N1 + N2 + N3 + N4 + N5
 MR5 =~ A1 + A2 + A3 + A4 + A5
+MR1 =~ E1 + E2 + E4 + E5
 MR3 =~ C1 + C2 + C3 + C4 + C5
-MR1 =~ E1 + E2 + E4 + E5 + O4
-MR4 =~ E3 + O1 + O2 + O3 + O5</code></pre>
+MR4 =~ E3 + O1 + O3 + O4
+MR6 =~ O2 + O5</code></pre>
 </div>
 <h3 id="fit-and-compare-models">Fit and Compare models</h3>
 <ul>
@@ -3135,13 +3135,13 @@ Show code
 <pre><code>
 Model Test User Model:
 
-  Test statistic                              1043.136
+  Test statistic                               948.270
   Degrees of freedom                               265
   P-value                                        0.000
 
 Model Test Baseline Model:
 
-  Test statistic                              3513.829
+  Test statistic                              3122.085
   Degrees of freedom                               300
   P-value                                        0.000
 
@@ -3150,46 +3150,46 @@ User Model versus Baseline Model:
   Comparative Fit Index (CFI)                    0.758
   Tucker-Lewis Index (TLI)                       0.726
   Bentler-Bonett Non-normed Fit Index (NNFI)     0.726
-  Bentler-Bonett Normed Fit Index (NFI)          0.703
-  Parsimony Normed Fit Index (PNFI)              0.621
-  Bollen&#39;s Relative Fit Index (RFI)              0.664
-  Bollen&#39;s Incremental Fit Index (IFI)           0.760
+  Bentler-Bonett Normed Fit Index (NFI)          0.696
+  Parsimony Normed Fit Index (PNFI)              0.615
+  Bollen&#39;s Relative Fit Index (RFI)              0.656
+  Bollen&#39;s Incremental Fit Index (IFI)           0.761
   Relative Noncentrality Index (RNI)             0.758
 
 Loglikelihood and Information Criteria:
 
-  Loglikelihood user model (H0)             -17201.035
-  Loglikelihood unrestricted model (H1)     -16679.468
+  Loglikelihood user model (H0)             -17371.604
+  Loglikelihood unrestricted model (H1)     -16897.469
                                                       
-  Akaike (AIC)                               34522.071
-  Bayesian (BIC)                             34764.629
-  Sample-size adjusted Bayesian (BIC)        34574.230
+  Akaike (AIC)                               34863.208
+  Bayesian (BIC)                             35105.766
+  Sample-size adjusted Bayesian (BIC)        34915.367
 
 Root Mean Square Error of Approximation:
 
-  RMSEA                                          0.084
-  90 Percent confidence interval - lower         0.078
-  90 Percent confidence interval - upper         0.089
+  RMSEA                                          0.078
+  90 Percent confidence interval - lower         0.073
+  90 Percent confidence interval - upper         0.084
   P-value RMSEA &lt;= 0.05                          0.000
 
 Standardized Root Mean Square Residual:
 
   RMR                                            0.174
   RMR (No Mean)                                  0.174
-  SRMR                                           0.086
+  SRMR                                           0.083
 
 Other Fit Indices:
 
-  Hoelter Critical N (CN) alpha = 0.05         123.679
-  Hoelter Critical N (CN) alpha = 0.01         130.746
+  Hoelter Critical N (CN) alpha = 0.05         135.952
+  Hoelter Critical N (CN) alpha = 0.01         143.725
                                                       
-  Goodness of Fit Index (GFI)                    0.815
-  Adjusted Goodness of Fit Index (AGFI)          0.773
-  Parsimony Goodness of Fit Index (PGFI)         0.665
+  Goodness of Fit Index (GFI)                    0.833
+  Adjusted Goodness of Fit Index (AGFI)          0.795
+  Parsimony Goodness of Fit Index (PGFI)         0.679
                                                       
-  McDonald Fit Index (MFI)                       0.397
+  McDonald Fit Index (MFI)                       0.444
                                                       
-  Expected Cross-Validation Index (ECVI)         2.763</code></pre>
+  Expected Cross-Validation Index (ECVI)         2.537</code></pre>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -3204,61 +3204,61 @@ Show code
 <pre><code>
 Model Test User Model:
 
-  Test statistic                              1132.134
-  Degrees of freedom                               265
+  Test statistic                               931.725
+  Degrees of freedom                               260
   P-value                                        0.000
 
 Model Test Baseline Model:
 
-  Test statistic                              3513.829
+  Test statistic                              3122.085
   Degrees of freedom                               300
   P-value                                        0.000
 
 User Model versus Baseline Model:
 
-  Comparative Fit Index (CFI)                    0.730
-  Tucker-Lewis Index (TLI)                       0.695
-  Bentler-Bonett Non-normed Fit Index (NNFI)     0.695
-  Bentler-Bonett Normed Fit Index (NFI)          0.678
-  Parsimony Normed Fit Index (PNFI)              0.599
-  Bollen&#39;s Relative Fit Index (RFI)              0.635
-  Bollen&#39;s Incremental Fit Index (IFI)           0.733
-  Relative Noncentrality Index (RNI)             0.730
+  Comparative Fit Index (CFI)                    0.762
+  Tucker-Lewis Index (TLI)                       0.725
+  Bentler-Bonett Non-normed Fit Index (NNFI)     0.725
+  Bentler-Bonett Normed Fit Index (NFI)          0.702
+  Parsimony Normed Fit Index (PNFI)              0.608
+  Bollen&#39;s Relative Fit Index (RFI)              0.656
+  Bollen&#39;s Incremental Fit Index (IFI)           0.765
+  Relative Noncentrality Index (RNI)             0.762
 
 Loglikelihood and Information Criteria:
 
-  Loglikelihood user model (H0)             -17245.534
-  Loglikelihood unrestricted model (H1)     -16679.468
+  Loglikelihood user model (H0)             -17363.331
+  Loglikelihood unrestricted model (H1)     -16897.469
                                                       
-  Akaike (AIC)                               34611.069
-  Bayesian (BIC)                             34853.627
-  Sample-size adjusted Bayesian (BIC)        34663.228
+  Akaike (AIC)                               34856.662
+  Bayesian (BIC)                             35119.433
+  Sample-size adjusted Bayesian (BIC)        34913.168
 
 Root Mean Square Error of Approximation:
 
-  RMSEA                                          0.088
-  90 Percent confidence interval - lower         0.083
-  90 Percent confidence interval - upper         0.093
+  RMSEA                                          0.078
+  90 Percent confidence interval - lower         0.073
+  90 Percent confidence interval - upper         0.084
   P-value RMSEA &lt;= 0.05                          0.000
 
 Standardized Root Mean Square Residual:
 
-  RMR                                            0.181
-  RMR (No Mean)                                  0.181
-  SRMR                                           0.092
+  RMR                                            0.168
+  RMR (No Mean)                                  0.168
+  SRMR                                           0.081
 
 Other Fit Indices:
 
-  Hoelter Critical N (CN) alpha = 0.05         114.036
-  Hoelter Critical N (CN) alpha = 0.01         120.546
+  Hoelter Critical N (CN) alpha = 0.05         135.927
+  Hoelter Critical N (CN) alpha = 0.01         143.771
                                                       
-  Goodness of Fit Index (GFI)                    0.802
-  Adjusted Goodness of Fit Index (AGFI)          0.757
-  Parsimony Goodness of Fit Index (PGFI)         0.654
+  Goodness of Fit Index (GFI)                    0.837
+  Adjusted Goodness of Fit Index (AGFI)          0.797
+  Parsimony Goodness of Fit Index (PGFI)         0.670
                                                       
-  McDonald Fit Index (MFI)                       0.357
+  McDonald Fit Index (MFI)                       0.450
                                                       
-  Expected Cross-Validation Index (ECVI)         2.974</code></pre>
+  Expected Cross-Validation Index (ECVI)         2.522</code></pre>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <details>
@@ -3274,7 +3274,7 @@ Show code
 </details>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["Name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Model"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Chi2"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Chi2_df"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p_Chi2"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["Baseline"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["Baseline_df"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["p_Baseline"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["GFI"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["AGFI"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["NFI"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["NNFI"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["CFI"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["RMSEA"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["RMSEA_CI_low"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["RMSEA_CI_high"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["p_RMSEA"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["RMR"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["SRMR"],"name":[19],"type":["dbl"],"align":["right"]},{"label":["RFI"],"name":[20],"type":["dbl"],"align":["right"]},{"label":["PNFI"],"name":[21],"type":["dbl"],"align":["right"]},{"label":["IFI"],"name":[22],"type":["dbl"],"align":["right"]},{"label":["RNI"],"name":[23],"type":["dbl"],"align":["right"]},{"label":["Loglikelihood"],"name":[24],"type":["dbl"],"align":["right"]},{"label":["AIC"],"name":[25],"type":["dbl"],"align":["right"]},{"label":["AIC_wt"],"name":[26],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[27],"type":["dbl"],"align":["right"]},{"label":["BIC_wt"],"name":[28],"type":["dbl"],"align":["right"]},{"label":["BIC_adjusted"],"name":[29],"type":["dbl"],"align":["right"]}],"data":[{"1":"model_big5","2":"lavaan","3":"1043.136","4":"265","5":"0","6":"3513.829","7":"300","8":"0","9":"0.8152806","10":"0.7734573","11":"0.7031342","12":"0.7259007","13":"0.7578790","14":"0.08351484","15":"0.07822173","16":"0.08887477","17":"1.887379e-15","18":"0.1743771","19":"0.08600019","20":"0.6639255","21":"0.6211019","22":"0.7604874","23":"0.7578790","24":"-17201.04","25":"34522.07","26":"1.000000e+00","27":"34764.63","28":"1.000000e+00","29":"34574.23"},{"1":"model_big6","2":"lavaan","3":"1132.134","4":"265","5":"0","6":"3513.829","7":"300","8":"0","9":"0.8021582","10":"0.7573638","11":"0.6778062","12":"0.6945510","13":"0.7301867","14":"0.08816152","15":"0.08290861","16":"0.09348178","17":"3.719247e-14","18":"0.1809260","19":"0.09247950","20":"0.6352523","21":"0.5987288","22":"0.7330934","23":"0.7301867","24":"-17245.53","25":"34611.07","26":"4.723836e-20","27":"34853.63","28":"4.723836e-20","29":"34663.23"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+{"columns":[{"label":["Name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Model"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Chi2"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Chi2_df"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p_Chi2"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["Baseline"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["Baseline_df"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["p_Baseline"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["GFI"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["AGFI"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["NFI"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["NNFI"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["CFI"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["RMSEA"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["RMSEA_CI_low"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["RMSEA_CI_high"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["p_RMSEA"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["RMR"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["SRMR"],"name":[19],"type":["dbl"],"align":["right"]},{"label":["RFI"],"name":[20],"type":["dbl"],"align":["right"]},{"label":["PNFI"],"name":[21],"type":["dbl"],"align":["right"]},{"label":["IFI"],"name":[22],"type":["dbl"],"align":["right"]},{"label":["RNI"],"name":[23],"type":["dbl"],"align":["right"]},{"label":["Loglikelihood"],"name":[24],"type":["dbl"],"align":["right"]},{"label":["AIC"],"name":[25],"type":["dbl"],"align":["right"]},{"label":["AIC_wt"],"name":[26],"type":["dbl"],"align":["right"]},{"label":["BIC"],"name":[27],"type":["dbl"],"align":["right"]},{"label":["BIC_wt"],"name":[28],"type":["dbl"],"align":["right"]},{"label":["BIC_adjusted"],"name":[29],"type":["dbl"],"align":["right"]}],"data":[{"1":"model_big5","2":"lavaan","3":"948.2703","4":"265","5":"0","6":"3122.085","7":"300","8":"0","9":"0.8331027","10":"0.7953146","11":"0.6962702","12":"0.7259071","13":"0.7578846","14":"0.07825864","15":"0.07291107","16":"0.08367128","17":"7.638334e-14","18":"0.1735804","19":"0.08298493","20":"0.6561549","21":"0.6150387","22":"0.7608506","23":"0.7578846","24":"-17371.60","25":"34863.21","26":"0.03651776","27":"35105.77","28":"0.998924428","29":"34915.37"},{"1":"model_big6","2":"lavaan","3":"931.7248","4":"260","5":"0","6":"3122.085","7":"300","8":"0","9":"0.8373933","10":"0.7967417","11":"0.7015697","12":"0.7253566","13":"0.7619757","14":"0.07833719","15":"0.07293967","16":"0.08380106","17":"6.661338e-15","18":"0.1677189","19":"0.08133215","20":"0.6556574","21":"0.6080271","22":"0.7653023","23":"0.7619757","24":"-17363.33","25":"34856.66","26":"0.96348224","27":"35119.43","28":"0.001075572","29":"34913.17"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
 </div>
