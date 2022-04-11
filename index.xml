@@ -93,7 +93,7 @@ import seaborn as sns
 sns.set_theme(style=&amp;quot;darkgrid&amp;quot;)
 ax = sns.countplot(x=&amp;quot;class&amp;quot;, data = df)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f42d0a17bf_files/figure-html/unnamed-chunk-4-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c47a0b495c_files/figure-html/unnamed-chunk-4-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="data-preprocessing"&gt;Data Preprocessing&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;The thing is, the data point is still coded in strings (i.e., alphabets, words or other characters). We need to re-code them into the numerical format for the machine to recognize patterns of the data.&lt;/li&gt;
@@ -121,7 +121,7 @@ dtype: int64&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;sns.set_theme(style=&amp;quot;darkgrid&amp;quot;)
 ax = sns.countplot(x=&amp;quot;class&amp;quot;, data = df)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f42d0a17bf_files/figure-html/unnamed-chunk-6-3.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c47a0b495c_files/figure-html/unnamed-chunk-6-3.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;As always, I will create a training and a testing set for the models to learn from.&lt;/li&gt;
 &lt;/ul&gt;
@@ -134,7 +134,7 @@ y = df[&amp;#39;class&amp;#39;] #label
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.30, 
                                                     random_state = RANDOM_STATE)&lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id="performance-of-a-single-model"&gt;Performance of a Single Model&lt;/h2&gt;
-&lt;p&gt;###Naive Bayes&lt;/p&gt;
+&lt;h3 id="naive-bayes"&gt;Naive Bayes&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;First, I will test out the performance of Naive Bayes Classifier, which is one of the simplest machine learning algorithms in the field. The algorithm assumes that all predictor variables are independent to each other;this is not usually possible in the practical context; hence the name naive. However, Naive Bayes is fast, does not require much data, and can achieve great results if the assumption holds.&lt;/li&gt;
 &lt;/ul&gt;
@@ -289,7 +289,7 @@ clf_xgb.fit(X_train, y_train)
 #n_estimator is the number of boosting round
 
 # predictions&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;[23:08:07] WARNING: C:/Users/Administrator/workspace/xgboost-win64_release_1.5.1/src/learner.cc:1115: Starting in XGBoost 1.3.0, the default evaluation metric used with the objective &amp;#39;binary:logistic&amp;#39; was changed from &amp;#39;error&amp;#39; to &amp;#39;logloss&amp;#39;. Explicitly set eval_metric if you&amp;#39;d like to restore the old behavior.
+&lt;pre&gt;&lt;code&gt;[00:00:13] WARNING: C:/Users/Administrator/workspace/xgboost-win64_release_1.5.1/src/learner.cc:1115: Starting in XGBoost 1.3.0, the default evaluation metric used with the objective &amp;#39;binary:logistic&amp;#39; was changed from &amp;#39;error&amp;#39; to &amp;#39;logloss&amp;#39;. Explicitly set eval_metric if you&amp;#39;d like to restore the old behavior.
 XGBClassifier(base_score=0.5, booster=&amp;#39;gbtree&amp;#39;, colsample_bylevel=1,
               colsample_bynode=1, colsample_bytree=1, enable_categorical=False,
               gamma=0, gpu_id=-1, importance_type=None,
@@ -314,10 +314,13 @@ print(&amp;quot;Accuracy: {:0.4f}&amp;quot;.format(accuracy_score(y_test, pred_x
 &lt;li&gt;&lt;p&gt;The final type of ensemble model we will be discussing here is model stacking. Consider a relay race, in which sprinters run until they pass the baton over to the next on track. This is a good example of teamwork. While all team members must be strong competitors, each individual has a special role to play based on their abilities. In this case, we will have the lead runner (aka anchor model) that knows individual strengths and weaknesses of each team member. Second, they should have clearly define tasks to do. Each team member must know their responsibilities and focus on them. Finally, the anchor must participate in the race to carry out the final run.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Here’s a diagram depicting the architecture of stacking ensembles. Each individual model uses the same data set and input features. These are the first-layer estimators. Then, estimators pass their predictions as additional input features to the second-layer estimator.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2022-04-09-ensemblestack.png" style="width:150.0%" alt="Image from https://towardsai.net/p/l/machine-learning-model-stacking-in-python. No copyright infringement is intended" /&gt;&lt;br /&gt;
-- So far, we have seen ensemble methods that use simple arithmetic operations like the mean or the mode as combiners. However, in Stacking, the combiner is itself a trainable model. In addition, this combiner model has not only the predictions as input features, but also the original dataset. This allows it to determine which estimator is more accurate depending on the input features. In other words, it brings out the best ability in its team members to complete the task. The combiner model (aka meta learner) plays similar roles to the anchor in the relay race. It is also the last team member and the one which provides the final predictions.&lt;/p&gt;
+&lt;div class="figure"&gt;
+&lt;img src="https://taridwong.github.io//posts/2022-04-09-ensemblestack.png" style="width:150.0%" alt="" /&gt;
+&lt;p class="caption"&gt;Model stacking Flow chart. Image from &lt;a href="https://towardsai.net/p/l/machine-learning-model-stacking-in-python" class="uri"&gt;https://towardsai.net/p/l/machine-learning-model-stacking-in-python&lt;/a&gt;. No copyright infringement is intended&lt;/p&gt;
+&lt;/div&gt;
 &lt;ul&gt;
-&lt;li&gt;In this post, I will stack Knn, DT, Naive Bayes, and Random Forest classifiers together with logistic regression as the meta model (team leader).&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;So far, we have seen ensemble methods that use simple arithmetic operations like the mean or the mode as combiners. However, in Stacking, the combiner is itself a trainable model. In addition, this combiner model has not only the predictions as input features, but also the original dataset. This allows it to determine which estimator is more accurate depending on the input features. In other words, it brings out the best ability in its team members to complete the task. The combiner model (aka meta learner) plays similar roles to the anchor in the relay race. It is also the last team member and the one which provides the final predictions.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;In this post, I will stack Knn, DT, Naive Bayes, and Random Forest classifiers together with logistic regression as the meta model (team leader).&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="python"&gt;&lt;code&gt;clf_stack = StackingClassifier(classifiers=[clf_knn, clf_dt, clf_nb, clf_rf], meta_classifier=clf_lr)
 clf_stack.fit(X_train, y_train)&lt;/code&gt;&lt;/pre&gt;
@@ -442,7 +445,7 @@ StackingClassifier(classifiers=[KNeighborsClassifier(),
                                                       random_state=123))
 Text(0.5, 1.0, &amp;#39;StackingClassifier&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f42d0a17bf_files/figure-html/unnamed-chunk-18-5.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c47a0b495c_files/figure-html/unnamed-chunk-18-5.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;To summarize, Voting combines the predictions of individual models using the mode. As the mode is a categorical measure, Voting can only be applied to Classification. The Averaging method combines the individual predictions using the mean. In contrast to Voting, Averaging can be applied on both classification and regression. Bagging uses a large amount of “weak” estimators. Their predictions are then aggregated by Voting or Averaging. Boosting is based on the iterative learning principle, in which each model attempts to fix the errors from the previous one. Therefore, this approach uses a sequential model building. Finally, model stacking works by combining individual estimators, but the combiner is an estimator itself, instead of just an operation.&lt;/p&gt;&lt;/li&gt;
@@ -634,9 +637,9 @@ NA
 &lt;li&gt;Before we dive in further, we will be examining the data set for missing data ratio and patterns that could interfere with our analysis.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(PISA_Subsetted, sort_miss = TRUE, cluster = TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-4-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c44aee62ac_files/figure-html/unnamed-chunk-4-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;naniar::gg_miss_upset(PISA_Subsetted, nsets = 5, nintersects = 10)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-4-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c44aee62ac_files/figure-html/unnamed-chunk-4-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;It turns out we only have 1.8% of missing data. The missingness pattern indicates that the missing pair of perceived classroom cooperation and perceived classroom competition has the most frequency among all missing variables. There are also 91 cases that do not have any variable values. Given the discovered pattern, it makes more sense to remove them with listwise deletion instead of performing an imputation (aka plugging in possible numbers with an educated guess). Note that there is no rule of thumb in handling missing data. It depends on judgement of the researcher themselves. I tried imputing the data set as well and it gives no noticeable change, but I just want to try something different this time.&lt;/li&gt;
 &lt;/ul&gt;
@@ -648,7 +651,7 @@ NA
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot_intro(PISA_Subsetted, title = &amp;quot;Types of Variables&amp;quot;)+
   theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c44aee62ac_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file6c44aee62ac_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot shows us how many discrete and continuous variables that we have in the data set. Mext, we will plot structure of the data to check which variable is numerical and which variable is factor.&lt;/li&gt;
 &lt;/ul&gt;
@@ -670,17 +673,17 @@ CLASSCOMP       2.04   4.03  0.02    -0.04 0.01
 CLASSCOOP       1.68   3.82 -0.39    -0.47 0.01
 ATTCOMP         2.01   4.35  0.13     1.11 0.01&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot_histogram(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c44aee62ac_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;set.seed(123)
 plot_qq(PISA_Subsetted, sampled_rows = 1000L)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-8-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c44aee62ac_files/figure-html/unnamed-chunk-8-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The results of skewness and kurtosis indicate no departure from normality; that is, the data is normally distributed with all skewness stays between the range of -0.5 and 0.5, and all kurtosis stays between the range of -3 and 3 &lt;a href="https://www.taylorfrancis.com/books/mono/10.4324/9780203137819/introduction-statistical-concepts-debbie-hahs-vaughn-richard-lomax"&gt;(Lomax and Hahs-Vaughn, 2012)&lt;/a&gt;. The normality assumption is further confirmed with bell shape of the histogram and visualization from the Q-Q plots. Next, we will examine bivariate correlation between variables to investigate their relationships and confirm the absence of multicollinearity assumption.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Multicollinearity refers to the condition where relationships between our variables of interest is high; this which may influence the result of our analysis because we are having two variables that investigate the same thing &lt;a href="https://wires.onlinelibrary.wiley.com/doi/pdf/10.1002/wics.84?casa_token=CDV_J-e2DHsAAAAA%3AY7_DJTK8-IXnH4b1BsSLHpmSq6Peg1i4t8sanKhqtF-OAtQzQ_7JrGZpiNSf8Tn2B5xXm4OcvVlM"&gt;(Alin, 2010)&lt;/a&gt;. For example, when you investigate the influence of person’s weight to their height and included both weight in pound and weight in kilogram, the results can be messed up because you include variables that measure to much of the same thing.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot_correlation(PISA_Subsetted, type = &amp;quot;continuous&amp;quot;, title = &amp;quot;Correlation Matrix&amp;quot;) +
   theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-9-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c44aee62ac_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;img src="file6c44aee62ac_files/figure-html/unnamed-chunk-9-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;All variables exhibit positive correlation to each other. The matrix shows no multicollinearity as the highest correlation coefficient between variables is 0.26, which is far from extreme in terms of magnitude (.6 to .7 coefficients should be flagged). For your reference, the report of data exploration can be generated with a simple function of &lt;code&gt;create_report(PISA_Subsetted)&lt;/code&gt;.&lt;/li&gt;
 &lt;/ul&gt;
@@ -1112,7 +1115,7 @@ tune_resample &amp;lt;- tune_grid(
   grid = degree_grid)
 
 autoplot(tune_resample)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-34-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c44aee62ac_files/figure-html/unnamed-chunk-34-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We want RMSE to be as low as possible and R-Squared to be as high as possible. However, our models can only do so much. Their performance will remain somewhat steady when it reaches a certain point. In our case, it is from the 6th polynomial degree onward. While the plot suggests that the 10th polynomial degree performed the best, we do not want our model to be too complex as it can be harder to interpret. We want the model that performs the best and is easiest to interpret. For that, we might want to pick the model that comes right after a significant performance boost to not make it too complex while able to bring out its maximum performance, which is the 6th degree polynomial model (Sextic Regression).&lt;/li&gt;
 &lt;/ul&gt;
@@ -2550,7 +2553,7 @@ P6
        ylab = &amp;quot;Proportion of the examinee&amp;quot;,
        plotTitle = &amp;quot;Item Characteristic Curve of item 1&amp;quot;,
        colTheme=&amp;quot;dukes&amp;quot;, cex=1.5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f4d6b5f51_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c44c9c50cc_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will convert our score data into matrix for for further implementation with item analysis.&lt;/li&gt;
 &lt;/ul&gt;
@@ -4056,7 +4059,7 @@ NA
   }
 
 item.discrimination(responses)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f4d6b5f51_files/figure-html/unnamed-chunk-28-1.png" width="672" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c44c9c50cc_files/figure-html/unnamed-chunk-28-1.png" width="672" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;   item discrimination
 10   10    -0.04341855
 3     3     0.05061749
@@ -4118,7 +4121,7 @@ item.discrimination(responses)&lt;/code&gt;&lt;/pre&gt;
     }
 
 test_item.total(responses)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f4d6b5f51_files/figure-html/unnamed-chunk-29-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c44c9c50cc_files/figure-html/unnamed-chunk-29-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;   item    biserial
 10   10 -0.05493825
 3     3  0.06858871
@@ -4465,7 +4468,7 @@ dlookr::diagnose(data)&lt;/code&gt;&lt;/pre&gt;
 10 C5        integer            16           0.571            7
 # ... with 15 more rows, and 1 more variable: unique_rate &amp;lt;dbl&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(data, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c43eab4dda_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;There are some degree of missingness in the dataset as indicated by the missingness map. For good measure, we will impute it with the predictive mean matchmaking method by the &lt;code&gt;mice&lt;/code&gt; package.&lt;/li&gt;
 &lt;/ul&gt;
@@ -4502,7 +4505,7 @@ mice_model &amp;lt;- mice(data, method=&amp;#39;pmm&amp;#39;, seed = 123)&lt;/co
 &lt;pre class="r"&gt;&lt;code&gt;data_complete &amp;lt;- complete(mice_model)
 
 visdat::vis_miss(data_complete, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c43eab4dda_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;There is no missing value present in the dataset after the imputation. We can proceed with factor structure checking to assess whether the dataset is appropriate for factor analysis with &lt;code&gt;check_factorstructure()&lt;/code&gt;. Two existing methods are the &lt;em&gt;Bartlett’s Test of Sphericity&lt;/em&gt; and the &lt;em&gt;Kaiser, Meyer, Olkin (KMO)&lt;/em&gt; Measure of Sampling Adequacy (MSA).&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;The former tests whether a matrix is significantly different from an identity matrix. This statistical test for the presence of correlations among variables, providing the statistical probability that the correlation matrix has significant correlations among at least some of variables. As for factor analysis to work, some relationships between variables are needed, thus, a significant Bartlett’s test of sphericity is required to be significant.&lt;/p&gt;&lt;/li&gt;
@@ -4540,7 +4543,7 @@ ggcorrplot(data.corr,
   labs(title=&amp;quot;Correlation Matrix&amp;quot;)+
   theme(plot.title=element_text(face=&amp;#39;bold&amp;#39;,size=14,hjust=0.5,colour=&amp;quot;darkred&amp;quot;))+
   theme(legend.position=c(0.10,0.80), legend.box.just = &amp;quot;bottom&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-8-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c43eab4dda_files/figure-html/unnamed-chunk-8-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The green panel indicates positive relationships while the red panel indicates negative relationship. The cross symbol suggests that the relationship between two variables is not statistically significant.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Next, we would need to split the dataset into two to perform EFA and CFA, so that we can make sure to test the model on an unseen set of data.&lt;/p&gt;&lt;/li&gt;
@@ -4594,7 +4597,7 @@ eigenvals$values&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Then use the correlation matrix to create the scree plot
 
 scree(bfi_EFA_cor, factors = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c43eab4dda_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;From the above plot, The point where the slope of the curve is clearly leveling off (the “elbow) indicates that the number of factors that should be retained. For this case, the plot indicated that six factors should be retained.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;However, the dataset we use is for Big 5 personality traits with 5 factors, so we can investigate both 5 and 6 factors model to compare them both.&lt;/p&gt;&lt;/li&gt;
@@ -4713,7 +4716,7 @@ The choice of 6 dimensions is supported by 4 (21.05%) methods out of 19 (Optimal
 9         22         1
 10        24         3&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(n_factor) + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c43eab4dda_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Interestingly, most methods also suggest six factors from the model, which is consistent with the &lt;a href="https://en.wikipedia.org/wiki/HEXACO_model_of_personality_structure"&gt;HEXACO model&lt;/a&gt; of personalities that is similar with the Big 5 personality theory.&lt;/li&gt;
 &lt;/ul&gt;
@@ -4741,19 +4744,19 @@ test  &amp;lt;- testing(data_split)  #1/4&lt;/code&gt;&lt;/pre&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;structure_big5 &amp;lt;- psych::fa(training, nfactors = 5)
 fa.diagram(structure_big5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c43eab4dda_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big5$scores, na.rm = TRUE), 
      main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-22-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c43eab4dda_files/figure-html/unnamed-chunk-22-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Then, for the structure of the 6 factors model.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;structure_big6 &amp;lt;- psych::fa(training, nfactors = 6) 
 fa.diagram(structure_big6)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c43eab4dda_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big6$scores, na.rm = TRUE), 
      main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-24-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c43eab4dda_files/figure-html/unnamed-chunk-24-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will then transform both EFA models into &lt;code&gt;lavaan&lt;/code&gt; syntax to perform CFA.&lt;/li&gt;
 &lt;/ul&gt;
@@ -5127,7 +5130,7 @@ clusters_df = pd.DataFrame(clusters, columns = [&amp;#39;cluster_group&amp;#39;]
 
 sns.set_theme(style=&amp;quot;whitegrid&amp;quot;)
 sns.catplot(x=&amp;quot;cluster_group&amp;quot;, kind=&amp;quot;count&amp;quot;, data=clusters_df)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;seaborn.axisgrid.FacetGrid object at 0x0000000062A03280&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;seaborn.axisgrid.FacetGrid object at 0x0000000157FBED60&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id="calculate-similarity-distance"&gt;Calculate similarity distance&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;By using &lt;code&gt;countvectorizer&lt;/code&gt;, we can turn a sentence into numbers for the computer to calculate similarity distance with the cosine similarity measurement (it is basically a number that indicates how closely related the two sets of words are).&lt;/li&gt;
@@ -5164,7 +5167,7 @@ fig.set_size_inches(120, 50)
 # Show the plotted dendrogram
 plt.grid(False)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f47b7b460c_files/figure-html/unnamed-chunk-13-1.png" width="11520" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c4721454e_files/figure-html/unnamed-chunk-13-1.png" width="11520" /&gt;&lt;/p&gt;
 &lt;h2 id="concluding-remark"&gt;Concluding remark&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;While I am not an expert in movie critique, the movie plot data is a good venue to practice text cleaning with tokenization and stemming. The TF-IDF method is also widely implemented to extract meaningful information from textual data in general. Lastly, clustering is also a useful exploratory machine learning method to gain insights from unlabeled data to inform our decisions.&lt;/p&gt;&lt;/li&gt;
@@ -5272,7 +5275,7 @@ PISA_Subsetted$FEMALE &amp;lt;- recode_factor(PISA_Subsetted$FEMALE,
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;oceanbuoys %&amp;gt;% arrange(year) %&amp;gt;% vis_miss()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7f4567a2ca_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file6c414557ab9_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Missing Not at Random (MNAR)&lt;/p&gt;
 &lt;ul&gt;
