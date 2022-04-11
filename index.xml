@@ -7,7 +7,455 @@
     <description>Blogs about what I learned from my academic lives
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Sun, 27 Feb 2022 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 09 Apr 2022 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Combining Multiple Machine Learning Models with the Ensemble Methods</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2022-04-09-ensemble</link>
+      <description>
+
+
+&lt;h2 id="what-is-ensemble-methods"&gt;What is ensemble methods?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;When you’re building a machine learning model, people generally choose the one that performs the best according to some evaluation metric such as accuracy score or &lt;a href="https://en.wikipedia.org/wiki/F-score"&gt;F1 score&lt;/a&gt;. However, choosing one model over another, say decision tree over k-nearest Neighbor (Knn) or logistic Regression, may result in us discarding strengths of the remaining models which were able to learn different patterns that might have additional useful properties.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;When you conduct a survey, you don’t accept only one “best” answer. You consider a combined response of all the participants, and use statistics like the mode or the mean to represent the responses. The combined responses will likely lead to a better decision than relying on a single response. The same principle applies to ensemble methods, where we could form a new model by combining the existing ones. The combined model will have better performance than any of the individual models, or at least, be as good as the best individual model. In other words, ensemble learning methods is the usage of multiple machine learning models to maximize their predictive capability.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;In this post, I will be exploring the usage of ensemble machine learning models to predict which mushrooms are edible based on their properties (e.g., cap size, color, odor). The data set is from the UC-Irvine Machine Learning repository and is currently distributed for practice on &lt;a href="https://www.kaggle.com/datasets/uciml/mushroom-classification"&gt;Kaggle&lt;/a&gt;. I will explore the usage of one model, model voting, bootstrap aggregating (aka bagging), model boosting, and model stacking via Python.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="figure"&gt;
+&lt;img src="https://taridwong.github.io//posts/2022-04-09-ensemblerobot.png" style="width:40.0%" alt="" /&gt;
+&lt;p class="caption"&gt;Image from &lt;a href="https://www.irasutoya.com" class="uri"&gt;https://www.irasutoya.com&lt;/a&gt;. No copyright infringement is intended&lt;/p&gt;
+&lt;/div&gt;
+&lt;h2 id="setting-up-the-environment-and-data-set"&gt;Setting up the Environment and Data set&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Importing the necessary modules.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;import pandas as pd
+
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV
+
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB 
+from sklearn.tree import DecisionTreeClassifier
+from mlxtend.classifier import StackingClassifier
+import xgboost as xgb
+
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
+from sklearn.metrics import classification_report&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Importing the data set and examine the distribution of our targeted variable - the mushroom class. E stands for edible and P stands for poisonous.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;df = pd.read_csv(&amp;quot;mushrooms.csv&amp;quot;)
+
+# data set shape
+print(&amp;quot;There are {} rows and {} columns in this dataset&amp;quot;.format(df.shape[0], df.shape[1]))
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;There are 8124 rows and 23 columns in this dataset&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;df.info()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;class &amp;#39;pandas.core.frame.DataFrame&amp;#39;&amp;gt;
+RangeIndex: 8124 entries, 0 to 8123
+Data columns (total 23 columns):
+ #   Column                    Non-Null Count  Dtype 
+---  ------                    --------------  ----- 
+ 0   class                     8124 non-null   object
+ 1   cap-shape                 8124 non-null   object
+ 2   cap-surface               8124 non-null   object
+ 3   cap-color                 8124 non-null   object
+ 4   bruises                   8124 non-null   object
+ 5   odor                      8124 non-null   object
+ 6   gill-attachment           8124 non-null   object
+ 7   gill-spacing              8124 non-null   object
+ 8   gill-size                 8124 non-null   object
+ 9   gill-color                8124 non-null   object
+ 10  stalk-shape               8124 non-null   object
+ 11  stalk-root                8124 non-null   object
+ 12  stalk-surface-above-ring  8124 non-null   object
+ 13  stalk-surface-below-ring  8124 non-null   object
+ 14  stalk-color-above-ring    8124 non-null   object
+ 15  stalk-color-below-ring    8124 non-null   object
+ 16  veil-type                 8124 non-null   object
+ 17  veil-color                8124 non-null   object
+ 18  ring-number               8124 non-null   object
+ 19  ring-type                 8124 non-null   object
+ 20  spore-print-color         8124 non-null   object
+ 21  population                8124 non-null   object
+ 22  habitat                   8124 non-null   object
+dtypes: object(23)
+memory usage: 1.4+ MB&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;class_dict= {&amp;#39;e&amp;#39;: &amp;#39;edible&amp;#39; , &amp;#39;p&amp;#39;:&amp;#39;poisonous&amp;#39;}
+df[&amp;#39;class&amp;#39;] = df[&amp;#39;class&amp;#39;].map(class_dict)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_theme(style=&amp;quot;darkgrid&amp;quot;)
+ax = sns.countplot(x=&amp;quot;class&amp;quot;, data = df)
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file7f42d0a17bf_files/figure-html/unnamed-chunk-4-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;h2 id="data-preprocessing"&gt;Data Preprocessing&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;The thing is, the data point is still coded in strings (i.e., alphabets, words or other characters). We need to re-code them into the numerical format for the machine to recognize patterns of the data.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;
+from sklearn.preprocessing import LabelEncoder
+labelencoder=LabelEncoder()
+
+for col in df.columns:
+    df[col] = labelencoder.fit_transform(df[col])
+
+#The machine does not know about mushrooms. It only knows pattern of the data as reflected by the type of occurrence.
+
+#Checking the encoded values
+df[&amp;#39;stalk-color-above-ring&amp;#39;].unique()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;array([7, 3, 6, 4, 0, 2, 5, 1, 8])&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print(df.groupby(&amp;#39;class&amp;#39;).size())&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;class
+0    4208
+1    3916
+dtype: int64&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;I have re-coded labels of the data into numbers, with 0 means edible, 1 means poisonous.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;sns.set_theme(style=&amp;quot;darkgrid&amp;quot;)
+ax = sns.countplot(x=&amp;quot;class&amp;quot;, data = df)
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file7f42d0a17bf_files/figure-html/unnamed-chunk-6-3.png" width="960" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;As always, I will create a training and a testing set for the models to learn from.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;
+RANDOM_STATE = 123
+
+X = df.drop(&amp;#39;class&amp;#39;, axis=1) #features
+y = df[&amp;#39;class&amp;#39;] #label
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.30, 
+                                                    random_state = RANDOM_STATE)&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="performance-of-a-single-model"&gt;Performance of a Single Model&lt;/h2&gt;
+&lt;p&gt;###Naive Bayes&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;First, I will test out the performance of Naive Bayes Classifier, which is one of the simplest machine learning algorithms in the field. The algorithm assumes that all predictor variables are independent to each other;this is not usually possible in the practical context; hence the name naive. However, Naive Bayes is fast, does not require much data, and can achieve great results if the assumption holds.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;#Instantiate a Naive Bayes classifier
+clf_nb = GaussianNB()
+
+# Fit the model to the training set
+clf_nb.fit(X_train,y_train)
+
+# Calculate the predictions on the test set&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;GaussianNB()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;pred_nb = clf_nb.predict(X_test)
+
+# Evaluate the performance using the accuracy score
+print(&amp;quot;Accuracy: {:0.4f}&amp;quot;.format(accuracy_score(y_test, pred_nb)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Accuracy: 0.9130&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print(&amp;quot;F1: {:0.4f}&amp;quot;.format(f1_score(y_test, pred_nb)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;F1: 0.9091&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="logistic-regression"&gt;Logistic Regression&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Next, I will try performing Logistic Regression to with the same task to see if the result if going to be different. Logistic Regression is a regression model that predicts the probability of which category an input data point belongs to. The algorithm is one of the simplest and most commonly used models for for various classification problems such as spam detection or Diabetes prediction.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;clf_lr = LogisticRegression(max_iter = 450, random_state = RANDOM_STATE)
+
+clf_lr.fit(X_train,y_train)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;LogisticRegression(max_iter=450, random_state=123)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;pred_lr = clf_lr.predict(X_test)
+
+print(&amp;quot;Accuracy: {:0.4f}&amp;quot;.format(accuracy_score(y_test, pred_lr)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Accuracy: 0.9471&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print(&amp;quot;F1: {:0.4f}&amp;quot;.format(f1_score(y_test, pred_lr)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;F1: 0.9444&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The results show that logistic regression performs better than Naive Bayes as seen from higher accuracy and F-1 score (94 vs 91). This is just the performance of a single model. We can actually improve the prediction result if we pool multiple models together to tackle the same task. Let us try diving into model voting and averaging.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="voting-and-averaging"&gt;Voting and Averaging&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;One type of ensemble methods is majority voting, which combines the output of many classifiers by using the mode of the individual predictions. It is recommended to use an odd number of classifiers. For example, if we use four classifiers, the predictions for positive and negative classes could be tied. Therefore, we need at least three classifiers, and when problem constraints allow it, use five or more.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;There are some characteristics you need in your “crowd” for a voting ensemble to be effective. First, the ensemble needs to be diverse: you can do this by using different algorithms or different data sets. Second, each prediction needs to be independent and uncorrelated from the rest. Third, each model should be able to make its own prediction without relying on the other predictions. Finally, the ensemble model should aggregate individual predictions into a collective one. Keep in mind that Majority Voting is a technique which can only be applied to classification problems.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;In addition to the Naive Bayes model we called for earlier, I will call for two additional models to participate in this majority voting method, namely k-Nearest Neighbors (Knn) and Decision Tree (DT). Knn is a classification algorithm in which a new data point is classified based on similarity in the specific group of neighboring data points. DR is another algorithm that uses a tree-like model of decisions and their possible consequences, including chance event outcomes, resource costs, and utility to predict outcomes of a data point.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;clf_knn = KNeighborsClassifier(n_neighbors = 5)
+
+clf_dt = DecisionTreeClassifier(min_samples_leaf = 3, min_samples_split = 9, random_state = RANDOM_STATE)
+
+from mlxtend.classifier import EnsembleVoteClassifier
+
+clf_vote = EnsembleVoteClassifier(clfs=[clf_nb, clf_knn, clf_dt], voting = &amp;quot;hard&amp;quot;)
+
+clf_vote.fit(X_train, y_train)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;EnsembleVoteClassifier(clfs=[GaussianNB(), KNeighborsClassifier(),
+                             DecisionTreeClassifier(min_samples_leaf=3,
+                                                    min_samples_split=9,
+                                                    random_state=123)])&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;pred_vote = clf_vote.predict(X_test)
+
+score_vote = f1_score(pred_vote, y_test)
+
+print(&amp;quot;Accuracy: {:0.4f}&amp;quot;.format(accuracy_score(y_test, pred_vote)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Accuracy: 0.9996&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print(&amp;#39;F1-Score: {:.3f}&amp;#39;.format(score_vote))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;F1-Score: 1.000&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The accuracy and F1 scores increase to almost 1.00, which means that the combination of the three models works well in improving their performance. The voting we did above is called “hard voting”, where every individual classifier votes for a class, and the majority wins. In statistical terms, the predicted target label of the ensemble is the mode of the distribution of individually predicted labels. There is also “soft voting”, where every individual classifier provides a probability value that a specific data point belongs to a particular target class.&lt;br /&gt;
+&lt;/li&gt;
+&lt;li&gt;In this technique, the combined prediction is the mean of the individual predictions. For Regression, we use the predicted values. And for Classification, we use the predicted probabilities. As the mean doesn’t have ambiguous cases like the mode, we can use any number of estimators, as long as we have at least two of them.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;clf_ave = EnsembleVoteClassifier(clfs=[clf_nb, clf_lr, clf_knn, clf_dt], voting = &amp;quot;soft&amp;quot;)
+
+clf_ave.fit(X_train, y_train)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;EnsembleVoteClassifier(clfs=[GaussianNB(),
+                             LogisticRegression(max_iter=450, random_state=123),
+                             KNeighborsClassifier(),
+                             DecisionTreeClassifier(min_samples_leaf=3,
+                                                    min_samples_split=9,
+                                                    random_state=123)],
+                       voting=&amp;#39;soft&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;pred_ave = clf_ave.predict(X_test)
+
+score_ave = f1_score(pred_ave, y_test)
+
+print(&amp;quot;Accuracy: {:0.4f}&amp;quot;.format(accuracy_score(y_test, pred_ave)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Accuracy: 0.9979&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print(&amp;#39;F1-Score: {:.3f}&amp;#39;.format(score_ave))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;F1-Score: 0.998&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="bagging"&gt;Bagging&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Model Voting and averaging work by combining the predictions of already trained models. These estimators that we included in the voting process are so well trained that, in some cases, they produce decent results on their own. Voting is appropriate when you already have optimized models and want to improve performance further by combining them. But what happens when you don’t have these estimators trained beforehand? Well, that’s when “weak” estimators come into play.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The idea of “weak” doesn’t mean that it is a bad model, just that it is not as strong as a highly optimized, fine-tuned model. Bootstrap Aggregating (aka Bagging) is the ensemble method behind powerful machine learning algorithms such as random forests that works by combining several weak models together to work on the same task. To clarify, a weak model (e.g., a single DT) is the model which works just slightly better than random guessing (approximately 50%). Therefore, the error rate is less than 50% but close to it. However, they are light in terms of space and computational requirements, and fast during training and evaluation.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;You might be wondering how it is possible for a large group of “weak” models to be able to achieve good performance? This is the work of the “wisdom of the crowd”. Do ensemble methods with the same model have that potential? We have to refer to “&lt;a href="https://en.wikipedia.org/wiki/Condorcet%27s_jury_theorem"&gt;Condorcet’s Jury Theorem&lt;/a&gt;”. If a jury (or a model, in our case) has more than 50% probability of getting the right answer, adding more voters increases the probability that the majority decision is correct up to 100% (not exactly 100%, but close enough).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The requirements for this theorem are the following: First, all the models must be independent. Secondly, each model performs better than random guessing. And finally, all individual models have similar performance. If these three conditions are met, then adding more models increases the probability of the ensemble to be correct, and makes this probability tend to 1, equivalent to 100%! The second and third requirements can be fulfilled by using the same “weak” model for all the estimators, as then all will have a similar performance and be better than random guessing. Several jury theorems carry the optimistic message that, in suitable circumstances, “crowds are wise”: many individuals together (using, for instance, majority voting) tend to make good decisions, outperforming fewer or just one individual.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Let’s try using the Random Forest classifier, which is an ensemble of a large number of individual decision trees that are designed to be uncorrelated through randomization. Each tree is unique and has its own errors. A group of unique trees are able to produce results that are moving toward the right direction should the requirements mentioned above are fulfilled.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# random forest model creation
+clf_rf = RandomForestClassifier(random_state = RANDOM_STATE)
+clf_rf.fit(X_train, y_train)
+
+# predictions&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;RandomForestClassifier(random_state=123)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;pred_rfc = clf_rf.predict(X_test)
+
+print(&amp;quot;Accuracy: {:0.4f}&amp;quot;.format(accuracy_score(y_test, pred_rfc)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Accuracy: 1.0000&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print(&amp;quot;F1: {:0.4f}&amp;quot;.format(f1_score(y_test, pred_rfc)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;F1: 1.0000&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The codes below visualize the first five trees from the forest and export it as a png file.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;from sklearn import tree
+
+fn = X.columns #for features
+cn = df.columns[0] #for class
+
+fig, axes = plt.subplots(nrows = 1,ncols = 5,figsize = (10,2), dpi=900)
+for index in range(0, 5):
+    tree.plot_tree(clf_rf.estimators_[index],
+                   feature_names = fn, 
+                   class_names = cn,
+                   filled = True,
+                   ax = axes[index]);
+
+    axes[index].set_title(&amp;#39;Estimator: &amp;#39; + str(index), fontsize = 11)
+fig.savefig(&amp;#39;rf_5trees.png&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;div class="figure"&gt;
+&lt;img src="https://taridwong.github.io//posts/2022-04-09-ensemblerf_5trees.png" style="width:150.0%" alt="" /&gt;
+&lt;p class="caption"&gt;Five Samples of Trees from the Random Forest Model&lt;/p&gt;
+&lt;/div&gt;
+&lt;h2 id="boosting"&gt;Boosting&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The ensemble methods you’ve seen so far are based on an idea known as collective learning - that is, the wisdom of the crowd. For collective learning to be efficient, the estimators need to be independent and uncorrelated. In addition, all the estimators are learning the same task, for the same goal: to predict the target variable given the features. Gradual learning methods, on the other hand, are based on the principle of iterative learning. In this approach, each subsequent model tries to fix the errors of the previous model. Gradual learning creates dependent estimators, as each model takes advantage of the knowledge from the previous estimator.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;In gradual learning, instead of the same model being corrected in every iteration, a new model is built that tries to fix the errors of the previous model. While this learning approach sounds promising, you should remain vigilant. It’s possible that some incorrect predictions may be made due to noise in the data, not because those data points are hard to predict. Gradient Boosting is another popular and powerful gradual learning ensemble model.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;To explain how it works, let’s say that you want to predict values of a variable (e.g., whether a mushroom is edible, in our case). On the first iteration, our initial model is a weak estimator that is fit to the dataset. Then, on each subsequent iteration, a new model is built based pn error from the previous iteration. We repeat this process until the error is small enough such that the difference in performance is negligible. This is a peculiarity of Gradient Boosting, as the individual estimators are not combined through voting or averaging, but by addition. We had a model learn from its previous mistake.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;#Call the model
+clf_gbm = GradientBoostingClassifier(n_estimators = 100, learning_rate = 0.1, random_state=RANDOM_STATE)
+
+#Fit the model
+clf_gbm.fit(X_train, y_train)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;GradientBoostingClassifier(random_state=123)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;pred_gbm = clf_gbm.predict(X_test)
+
+print(&amp;quot;Accuracy: {:0.4f}&amp;quot;.format(accuracy_score(y_test, pred_gbm)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Accuracy: 1.0000&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print(&amp;quot;F1: {:0.4f}&amp;quot;.format(f1_score(y_test, pred_gbm)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;F1: 1.0000&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Another example of boosting model is Extreme Gradient Boosting (aka XGBoost). XGBoost regularly wins online data science competitions and is widely used across different industries. The model is known in its speed and performance. Because the core XGBoost algorithm is parallelizable (as opposed to sequential ensemble of normal Gradient boosting), it can harness all of the processing power of modern multi-core computers. The model also consistently outperforms almost all other single-algorithm methods in machine learning competitions and has been shown to achieve state-of-the-art performance on a variety of benchmark machine learning data sets.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;clf_xgb = xgb.XGBClassifier(objective=&amp;#39;binary:logistic&amp;#39;, n_estimators = 10, seed = RANDOM_STATE, use_label_encoder = False)
+clf_xgb.fit(X_train, y_train)
+
+#n_estimator is the number of boosting round
+
+# predictions&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[23:08:07] WARNING: C:/Users/Administrator/workspace/xgboost-win64_release_1.5.1/src/learner.cc:1115: Starting in XGBoost 1.3.0, the default evaluation metric used with the objective &amp;#39;binary:logistic&amp;#39; was changed from &amp;#39;error&amp;#39; to &amp;#39;logloss&amp;#39;. Explicitly set eval_metric if you&amp;#39;d like to restore the old behavior.
+XGBClassifier(base_score=0.5, booster=&amp;#39;gbtree&amp;#39;, colsample_bylevel=1,
+              colsample_bynode=1, colsample_bytree=1, enable_categorical=False,
+              gamma=0, gpu_id=-1, importance_type=None,
+              interaction_constraints=&amp;#39;&amp;#39;, learning_rate=0.300000012,
+              max_delta_step=0, max_depth=6, min_child_weight=1, missing=nan,
+              monotone_constraints=&amp;#39;()&amp;#39;, n_estimators=10, n_jobs=8,
+              num_parallel_tree=1, predictor=&amp;#39;auto&amp;#39;, random_state=123,
+              reg_alpha=0, reg_lambda=1, scale_pos_weight=1, seed=123,
+              subsample=1, tree_method=&amp;#39;exact&amp;#39;, use_label_encoder=False,
+              validate_parameters=1, verbosity=None)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;pred_xgb = clf_xgb.predict(X_test)
+
+print(&amp;quot;Accuracy: {:0.4f}&amp;quot;.format(accuracy_score(y_test, pred_xgb)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Accuracy: 1.0000&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print(&amp;quot;F1: {:0.4f}&amp;quot;.format(f1_score(y_test, pred_xgb)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;F1: 1.0000&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;It is worth mentioning that you should consider using XGBoost for any supervised machine learning task that fits the following criteria: first, having at least 1000 examples; second, you have a mixture of categorical and numeric features, or when you have just numeric features. XGBoost is not ideally suited for image recognition, computer vision, or natural language processing as such problems can be much better tackled using deep learning approaches.XGBoost is also not suitable when you have very small training sets (less than 100 training examples) or when the number of training examples is significantly smaller than the number of features being used for training as it could lead to model &lt;a href="https://www.ibm.com/cloud/learn/overfitting#:~:text=When%20the%20model%20memorizes%20the,that%20it%20was%20intended%20for."&gt;overfitting&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="stacking"&gt;Stacking&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The final type of ensemble model we will be discussing here is model stacking. Consider a relay race, in which sprinters run until they pass the baton over to the next on track. This is a good example of teamwork. While all team members must be strong competitors, each individual has a special role to play based on their abilities. In this case, we will have the lead runner (aka anchor model) that knows individual strengths and weaknesses of each team member. Second, they should have clearly define tasks to do. Each team member must know their responsibilities and focus on them. Finally, the anchor must participate in the race to carry out the final run.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Here’s a diagram depicting the architecture of stacking ensembles. Each individual model uses the same data set and input features. These are the first-layer estimators. Then, estimators pass their predictions as additional input features to the second-layer estimator.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2022-04-09-ensemblestack.png" style="width:150.0%" alt="Image from https://towardsai.net/p/l/machine-learning-model-stacking-in-python. No copyright infringement is intended" /&gt;&lt;br /&gt;
+- So far, we have seen ensemble methods that use simple arithmetic operations like the mean or the mode as combiners. However, in Stacking, the combiner is itself a trainable model. In addition, this combiner model has not only the predictions as input features, but also the original dataset. This allows it to determine which estimator is more accurate depending on the input features. In other words, it brings out the best ability in its team members to complete the task. The combiner model (aka meta learner) plays similar roles to the anchor in the relay race. It is also the last team member and the one which provides the final predictions.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;In this post, I will stack Knn, DT, Naive Bayes, and Random Forest classifiers together with logistic regression as the meta model (team leader).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;clf_stack = StackingClassifier(classifiers=[clf_knn, clf_dt, clf_nb, clf_rf], meta_classifier=clf_lr)
+clf_stack.fit(X_train, y_train)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;StackingClassifier(classifiers=[KNeighborsClassifier(),
+                                DecisionTreeClassifier(min_samples_leaf=3,
+                                                       min_samples_split=9,
+                                                       random_state=123),
+                                GaussianNB(),
+                                RandomForestClassifier(random_state=123)],
+                   meta_classifier=LogisticRegression(max_iter=450,
+                                                      random_state=123))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;pred_stack = clf_stack.predict(X_test)
+
+print(&amp;quot;Accuracy: {:0.4f}&amp;quot;.format(accuracy_score(y_test, pred_stack)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Accuracy: 1.0000&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print(&amp;quot;F1: {:0.4f}&amp;quot;.format(f1_score(y_test, pred_stack)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;F1: 1.0000&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;report_stack = classification_report(y_test, pred_stack)
+print(report_stack)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;              precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00      1271
+           1       1.00      1.00      1.00      1167
+
+    accuracy                           1.00      2438
+   macro avg       1.00      1.00      1.00      2438
+weighted avg       1.00      1.00      1.00      2438&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;from sklearn.metrics import confusion_matrix
+confusion_matrix(y_test, pred_stack)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;array([[1271,    0],
+       [   0, 1167]], dtype=int64)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;To lessen our burden in model optimization, we can also tune hyperparameters of our models (both base model and meta model) all at the same time as well. This way, we will know which combination of hyperparameter values yield the best result. We can use it in our final model development.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;params = {&amp;#39;kneighborsclassifier__n_neighbors&amp;#39;: [1, 5],
+          &amp;#39;randomforestclassifier__n_estimators&amp;#39;: [10, 50],
+          &amp;#39;meta_classifier__C&amp;#39;: [0.1, 10.0]}
+
+grid = GridSearchCV(estimator=clf_stack, 
+                    param_grid=params, 
+                    cv=5,
+                    refit=True)
+
+grid.fit(X_train, y_train)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;GridSearchCV(cv=5,
+             estimator=StackingClassifier(classifiers=[KNeighborsClassifier(),
+                                                       DecisionTreeClassifier(min_samples_leaf=3,
+                                                                              min_samples_split=9,
+                                                                              random_state=123),
+                                                       GaussianNB(),
+                                                       RandomForestClassifier(random_state=123)],
+                                          meta_classifier=LogisticRegression(max_iter=450,
+                                                                             random_state=123)),
+             param_grid={&amp;#39;kneighborsclassifier__n_neighbors&amp;#39;: [1, 5],
+                         &amp;#39;meta_classifier__C&amp;#39;: [0.1, 10.0],
+                         &amp;#39;randomforestclassifier__n_estimators&amp;#39;: [10, 50]})&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;cv_keys = (&amp;#39;mean_test_score&amp;#39;, &amp;#39;std_test_score&amp;#39;, &amp;#39;params&amp;#39;)
+
+for r, _ in enumerate(grid.cv_results_[&amp;#39;mean_test_score&amp;#39;]):
+    print(&amp;quot;%0.3f +/- %0.2f %r&amp;quot;
+          % (grid.cv_results_[cv_keys[0]][r],
+             grid.cv_results_[cv_keys[1]][r] / 2.0,
+             grid.cv_results_[cv_keys[2]][r]))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;1.000 +/- 0.00 {&amp;#39;kneighborsclassifier__n_neighbors&amp;#39;: 1, &amp;#39;meta_classifier__C&amp;#39;: 0.1, &amp;#39;randomforestclassifier__n_estimators&amp;#39;: 10}
+1.000 +/- 0.00 {&amp;#39;kneighborsclassifier__n_neighbors&amp;#39;: 1, &amp;#39;meta_classifier__C&amp;#39;: 0.1, &amp;#39;randomforestclassifier__n_estimators&amp;#39;: 50}
+1.000 +/- 0.00 {&amp;#39;kneighborsclassifier__n_neighbors&amp;#39;: 1, &amp;#39;meta_classifier__C&amp;#39;: 10.0, &amp;#39;randomforestclassifier__n_estimators&amp;#39;: 10}
+1.000 +/- 0.00 {&amp;#39;kneighborsclassifier__n_neighbors&amp;#39;: 1, &amp;#39;meta_classifier__C&amp;#39;: 10.0, &amp;#39;randomforestclassifier__n_estimators&amp;#39;: 50}
+1.000 +/- 0.00 {&amp;#39;kneighborsclassifier__n_neighbors&amp;#39;: 5, &amp;#39;meta_classifier__C&amp;#39;: 0.1, &amp;#39;randomforestclassifier__n_estimators&amp;#39;: 10}
+1.000 +/- 0.00 {&amp;#39;kneighborsclassifier__n_neighbors&amp;#39;: 5, &amp;#39;meta_classifier__C&amp;#39;: 0.1, &amp;#39;randomforestclassifier__n_estimators&amp;#39;: 50}
+1.000 +/- 0.00 {&amp;#39;kneighborsclassifier__n_neighbors&amp;#39;: 5, &amp;#39;meta_classifier__C&amp;#39;: 10.0, &amp;#39;randomforestclassifier__n_estimators&amp;#39;: 10}
+1.000 +/- 0.00 {&amp;#39;kneighborsclassifier__n_neighbors&amp;#39;: 5, &amp;#39;meta_classifier__C&amp;#39;: 10.0, &amp;#39;randomforestclassifier__n_estimators&amp;#39;: 50}&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print(&amp;#39;Best parameters: %s&amp;#39; % grid.best_params_)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Best parameters: {&amp;#39;kneighborsclassifier__n_neighbors&amp;#39;: 1, &amp;#39;meta_classifier__C&amp;#39;: 0.1, &amp;#39;randomforestclassifier__n_estimators&amp;#39;: 10}&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print(&amp;#39;Accuracy: %.2f&amp;#39; % grid.best_score_)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Accuracy: 1.00&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;I will be plotting the decision region below to visualize how each model perform compared to their collective performance from model stacking. The decision region of each model changes in accordance with its performance.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;import matplotlib.pyplot as plt
+from mlxtend.plotting import plot_decision_regions
+import matplotlib.gridspec as gridspec
+import itertools
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components = 2)
+
+X_np = X_train.to_numpy()
+y_np = y_train.to_numpy()
+
+X_np_reduced = pca.fit_transform(X_np)
+
+gs = gridspec.GridSpec(2, 2)
+
+fig = plt.figure(figsize=(10,8))
+
+for clf, lab, grd in zip([clf_knn, clf_dt, clf_nb, clf_stack], 
+                         [&amp;#39;KNN&amp;#39;, 
+                          &amp;#39;Decision Tree&amp;#39;, 
+                          &amp;#39;Naive Bayes&amp;#39;,
+                          &amp;#39;StackingClassifier&amp;#39;],
+                          itertools.product([0, 1], repeat=2)):
+
+    clf.fit(X_np_reduced, y_np)
+    ax = plt.subplot(gs[grd[0], grd[1]])
+    fig = plot_decision_regions(X=X_np_reduced, y=y_np, clf=clf)
+    plt.title(lab)
+    &lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;KNeighborsClassifier()
+Text(0.5, 1.0, &amp;#39;KNN&amp;#39;)
+DecisionTreeClassifier(min_samples_leaf=3, min_samples_split=9,
+                       random_state=123)
+Text(0.5, 1.0, &amp;#39;Decision Tree&amp;#39;)
+GaussianNB()
+Text(0.5, 1.0, &amp;#39;Naive Bayes&amp;#39;)
+StackingClassifier(classifiers=[KNeighborsClassifier(),
+                                DecisionTreeClassifier(min_samples_leaf=3,
+                                                       min_samples_split=9,
+                                                       random_state=123),
+                                GaussianNB(),
+                                RandomForestClassifier(random_state=123)],
+                   meta_classifier=LogisticRegression(max_iter=450,
+                                                      random_state=123))
+Text(0.5, 1.0, &amp;#39;StackingClassifier&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file7f42d0a17bf_files/figure-html/unnamed-chunk-18-5.png" width="960" /&gt;&lt;/p&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;To summarize, Voting combines the predictions of individual models using the mode. As the mode is a categorical measure, Voting can only be applied to Classification. The Averaging method combines the individual predictions using the mean. In contrast to Voting, Averaging can be applied on both classification and regression. Bagging uses a large amount of “weak” estimators. Their predictions are then aggregated by Voting or Averaging. Boosting is based on the iterative learning principle, in which each model attempts to fix the errors from the previous one. Therefore, this approach uses a sequential model building. Finally, model stacking works by combining individual estimators, but the combiner is an estimator itself, instead of just an operation.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Using ensemble techniques is an effective way to maximize the performance of our predictive model. However, a major drawback of this approach is model interpretability. While its performance is good, explaining how features interact with each other to form the result could be challenging. This is &lt;a href="https://www.technologyreview.com/2017/04/11/5113/the-dark-secret-at-the-heart-of-ai/"&gt;the black box problem&lt;/a&gt; that happens when the model is too complex that we don’t know how it actually works. If a single model performs relatively well, going for it would be a good compromise. The simpler the model is, the easier for us to explain the result to our audience. Rather than going full technical, we should consider perspectives of the audience as well to make our work accessible. As always, thank you very much for reading! Have a good one!&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>d8361145b69fd0e6d13645148059b1ef</distill:md5>
+      <category>Python</category>
+      <category>Supervised Machine Learning</category>
+      <guid>https://taridwong.github.io/posts/2022-04-09-ensemble</guid>
+      <pubDate>Sat, 09 Apr 2022 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2022-04-09-ensemble/robot.png" medium="image" type="image/png" width="626" height="528"/>
+    </item>
     <item>
       <title>Examining PISA 2018 Data Set with Statistical Learning Approach</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -186,9 +634,9 @@ NA
 &lt;li&gt;Before we dive in further, we will be examining the data set for missing data ratio and patterns that could interfere with our analysis.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(PISA_Subsetted, sort_miss = TRUE, cluster = TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file76815de3fc4_files/figure-html/unnamed-chunk-4-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-4-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;naniar::gg_miss_upset(PISA_Subsetted, nsets = 5, nintersects = 10)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file76815de3fc4_files/figure-html/unnamed-chunk-4-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-4-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;It turns out we only have 1.8% of missing data. The missingness pattern indicates that the missing pair of perceived classroom cooperation and perceived classroom competition has the most frequency among all missing variables. There are also 91 cases that do not have any variable values. Given the discovered pattern, it makes more sense to remove them with listwise deletion instead of performing an imputation (aka plugging in possible numbers with an educated guess). Note that there is no rule of thumb in handling missing data. It depends on judgement of the researcher themselves. I tried imputing the data set as well and it gives no noticeable change, but I just want to try something different this time.&lt;/li&gt;
 &lt;/ul&gt;
@@ -200,7 +648,7 @@ NA
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot_intro(PISA_Subsetted, title = &amp;quot;Types of Variables&amp;quot;)+
   theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file76815de3fc4_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file76815de3fc4_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot shows us how many discrete and continuous variables that we have in the data set. Mext, we will plot structure of the data to check which variable is numerical and which variable is factor.&lt;/li&gt;
 &lt;/ul&gt;
@@ -222,17 +670,17 @@ CLASSCOMP       2.04   4.03  0.02    -0.04 0.01
 CLASSCOOP       1.68   3.82 -0.39    -0.47 0.01
 ATTCOMP         2.01   4.35  0.13     1.11 0.01&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot_histogram(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file76815de3fc4_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;set.seed(123)
 plot_qq(PISA_Subsetted, sampled_rows = 1000L)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file76815de3fc4_files/figure-html/unnamed-chunk-8-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-8-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The results of skewness and kurtosis indicate no departure from normality; that is, the data is normally distributed with all skewness stays between the range of -0.5 and 0.5, and all kurtosis stays between the range of -3 and 3 &lt;a href="https://www.taylorfrancis.com/books/mono/10.4324/9780203137819/introduction-statistical-concepts-debbie-hahs-vaughn-richard-lomax"&gt;(Lomax and Hahs-Vaughn, 2012)&lt;/a&gt;. The normality assumption is further confirmed with bell shape of the histogram and visualization from the Q-Q plots. Next, we will examine bivariate correlation between variables to investigate their relationships and confirm the absence of multicollinearity assumption.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Multicollinearity refers to the condition where relationships between our variables of interest is high; this which may influence the result of our analysis because we are having two variables that investigate the same thing &lt;a href="https://wires.onlinelibrary.wiley.com/doi/pdf/10.1002/wics.84?casa_token=CDV_J-e2DHsAAAAA%3AY7_DJTK8-IXnH4b1BsSLHpmSq6Peg1i4t8sanKhqtF-OAtQzQ_7JrGZpiNSf8Tn2B5xXm4OcvVlM"&gt;(Alin, 2010)&lt;/a&gt;. For example, when you investigate the influence of person’s weight to their height and included both weight in pound and weight in kilogram, the results can be messed up because you include variables that measure to much of the same thing.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot_correlation(PISA_Subsetted, type = &amp;quot;continuous&amp;quot;, title = &amp;quot;Correlation Matrix&amp;quot;) +
   theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file76815de3fc4_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;img src="file76815de3fc4_files/figure-html/unnamed-chunk-9-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-9-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;All variables exhibit positive correlation to each other. The matrix shows no multicollinearity as the highest correlation coefficient between variables is 0.26, which is far from extreme in terms of magnitude (.6 to .7 coefficients should be flagged). For your reference, the report of data exploration can be generated with a simple function of &lt;code&gt;create_report(PISA_Subsetted)&lt;/code&gt;.&lt;/li&gt;
 &lt;/ul&gt;
@@ -664,7 +1112,7 @@ tune_resample &amp;lt;- tune_grid(
   grid = degree_grid)
 
 autoplot(tune_resample)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file76815de3fc4_files/figure-html/unnamed-chunk-34-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f42bf604b_files/figure-html/unnamed-chunk-34-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We want RMSE to be as low as possible and R-Squared to be as high as possible. However, our models can only do so much. Their performance will remain somewhat steady when it reaches a certain point. In our case, it is from the 6th polynomial degree onward. While the plot suggests that the 10th polynomial degree performed the best, we do not want our model to be too complex as it can be harder to interpret. We want the model that performs the best and is easiest to interpret. For that, we might want to pick the model that comes right after a significant performance boost to not make it too complex while able to bring out its maximum performance, which is the 6th degree polynomial model (Sextic Regression).&lt;/li&gt;
 &lt;/ul&gt;
@@ -2102,7 +2550,7 @@ P6
        ylab = &amp;quot;Proportion of the examinee&amp;quot;,
        plotTitle = &amp;quot;Item Characteristic Curve of item 1&amp;quot;,
        colTheme=&amp;quot;dukes&amp;quot;, cex=1.5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768f695d56_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f4d6b5f51_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will convert our score data into matrix for for further implementation with item analysis.&lt;/li&gt;
 &lt;/ul&gt;
@@ -3608,7 +4056,7 @@ NA
   }
 
 item.discrimination(responses)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768f695d56_files/figure-html/unnamed-chunk-28-1.png" width="672" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f4d6b5f51_files/figure-html/unnamed-chunk-28-1.png" width="672" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;   item discrimination
 10   10    -0.04341855
 3     3     0.05061749
@@ -3670,7 +4118,7 @@ item.discrimination(responses)&lt;/code&gt;&lt;/pre&gt;
     }
 
 test_item.total(responses)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768f695d56_files/figure-html/unnamed-chunk-29-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f4d6b5f51_files/figure-html/unnamed-chunk-29-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;   item    biserial
 10   10 -0.05493825
 3     3  0.06858871
@@ -4017,7 +4465,7 @@ dlookr::diagnose(data)&lt;/code&gt;&lt;/pre&gt;
 10 C5        integer            16           0.571            7
 # ... with 15 more rows, and 1 more variable: unique_rate &amp;lt;dbl&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(data, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768533e632a_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;There are some degree of missingness in the dataset as indicated by the missingness map. For good measure, we will impute it with the predictive mean matchmaking method by the &lt;code&gt;mice&lt;/code&gt; package.&lt;/li&gt;
 &lt;/ul&gt;
@@ -4054,7 +4502,7 @@ mice_model &amp;lt;- mice(data, method=&amp;#39;pmm&amp;#39;, seed = 123)&lt;/co
 &lt;pre class="r"&gt;&lt;code&gt;data_complete &amp;lt;- complete(mice_model)
 
 visdat::vis_miss(data_complete, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768533e632a_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;There is no missing value present in the dataset after the imputation. We can proceed with factor structure checking to assess whether the dataset is appropriate for factor analysis with &lt;code&gt;check_factorstructure()&lt;/code&gt;. Two existing methods are the &lt;em&gt;Bartlett’s Test of Sphericity&lt;/em&gt; and the &lt;em&gt;Kaiser, Meyer, Olkin (KMO)&lt;/em&gt; Measure of Sampling Adequacy (MSA).&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;The former tests whether a matrix is significantly different from an identity matrix. This statistical test for the presence of correlations among variables, providing the statistical probability that the correlation matrix has significant correlations among at least some of variables. As for factor analysis to work, some relationships between variables are needed, thus, a significant Bartlett’s test of sphericity is required to be significant.&lt;/p&gt;&lt;/li&gt;
@@ -4092,7 +4540,7 @@ ggcorrplot(data.corr,
   labs(title=&amp;quot;Correlation Matrix&amp;quot;)+
   theme(plot.title=element_text(face=&amp;#39;bold&amp;#39;,size=14,hjust=0.5,colour=&amp;quot;darkred&amp;quot;))+
   theme(legend.position=c(0.10,0.80), legend.box.just = &amp;quot;bottom&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768533e632a_files/figure-html/unnamed-chunk-8-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-8-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The green panel indicates positive relationships while the red panel indicates negative relationship. The cross symbol suggests that the relationship between two variables is not statistically significant.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Next, we would need to split the dataset into two to perform EFA and CFA, so that we can make sure to test the model on an unseen set of data.&lt;/p&gt;&lt;/li&gt;
@@ -4146,7 +4594,7 @@ eigenvals$values&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Then use the correlation matrix to create the scree plot
 
 scree(bfi_EFA_cor, factors = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768533e632a_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;From the above plot, The point where the slope of the curve is clearly leveling off (the “elbow) indicates that the number of factors that should be retained. For this case, the plot indicated that six factors should be retained.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;However, the dataset we use is for Big 5 personality traits with 5 factors, so we can investigate both 5 and 6 factors model to compare them both.&lt;/p&gt;&lt;/li&gt;
@@ -4265,7 +4713,7 @@ The choice of 6 dimensions is supported by 4 (21.05%) methods out of 19 (Optimal
 9         22         1
 10        24         3&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(n_factor) + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768533e632a_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Interestingly, most methods also suggest six factors from the model, which is consistent with the &lt;a href="https://en.wikipedia.org/wiki/HEXACO_model_of_personality_structure"&gt;HEXACO model&lt;/a&gt; of personalities that is similar with the Big 5 personality theory.&lt;/li&gt;
 &lt;/ul&gt;
@@ -4293,19 +4741,19 @@ test  &amp;lt;- testing(data_split)  #1/4&lt;/code&gt;&lt;/pre&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;structure_big5 &amp;lt;- psych::fa(training, nfactors = 5)
 fa.diagram(structure_big5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768533e632a_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big5$scores, na.rm = TRUE), 
      main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768533e632a_files/figure-html/unnamed-chunk-22-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-22-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Then, for the structure of the 6 factors model.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;structure_big6 &amp;lt;- psych::fa(training, nfactors = 6) 
 fa.diagram(structure_big6)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768533e632a_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big6$scores, na.rm = TRUE), 
      main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768533e632a_files/figure-html/unnamed-chunk-24-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f453c67459_files/figure-html/unnamed-chunk-24-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will then transform both EFA models into &lt;code&gt;lavaan&lt;/code&gt; syntax to perform CFA.&lt;/li&gt;
 &lt;/ul&gt;
@@ -4679,7 +5127,7 @@ clusters_df = pd.DataFrame(clusters, columns = [&amp;#39;cluster_group&amp;#39;]
 
 sns.set_theme(style=&amp;quot;whitegrid&amp;quot;)
 sns.catplot(x=&amp;quot;cluster_group&amp;quot;, kind=&amp;quot;count&amp;quot;, data=clusters_df)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768452413c2_files/figure-html/unnamed-chunk-11-1.png" width="242" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;seaborn.axisgrid.FacetGrid object at 0x0000000062A03280&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id="calculate-similarity-distance"&gt;Calculate similarity distance&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;By using &lt;code&gt;countvectorizer&lt;/code&gt;, we can turn a sentence into numbers for the computer to calculate similarity distance with the cosine similarity measurement (it is basically a number that indicates how closely related the two sets of words are).&lt;/li&gt;
@@ -4716,7 +5164,7 @@ fig.set_size_inches(120, 50)
 # Show the plotted dendrogram
 plt.grid(False)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file768452413c2_files/figure-html/unnamed-chunk-13-3.png" width="11520" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f47b7b460c_files/figure-html/unnamed-chunk-13-1.png" width="11520" /&gt;&lt;/p&gt;
 &lt;h2 id="concluding-remark"&gt;Concluding remark&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;While I am not an expert in movie critique, the movie plot data is a good venue to practice text cleaning with tokenization and stemming. The TF-IDF method is also widely implemented to extract meaningful information from textual data in general. Lastly, clustering is also a useful exploratory machine learning method to gain insights from unlabeled data to inform our decisions.&lt;/p&gt;&lt;/li&gt;
@@ -4773,42 +5221,21 @@ PISA_Subsetted &amp;lt;-  PISA_CAN %&amp;gt;%
 &lt;pre&gt;&lt;code&gt;Error in select(., REPEAT, FEMALE = ST004D01T, ESCS, DAYSKIP = ST062Q01TA, : unused arguments (REPEAT, FEMALE = ST004D01T, ESCS, DAYSKIP = ST062Q01TA, CLASSSKIP = ST062Q02TA, LATE = ST062Q03TA, BEINGBULLIED, DISCLIMA, ADAPTIVITY)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;#Recode variables into factor
 PISA_Subsetted$DAYSKIP &amp;lt;-as.factor(PISA_Subsetted$DAYSKIP)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Error:
-! Assigned data `as.factor(PISA_Subsetted$DAYSKIP)` must be compatible with existing data.
-x Existing data has 8158 rows.
-x Assigned data has 0 rows.
-i Only vectors of size 1 are recycled.&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.factor(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted$CLASSSKIP &amp;lt;-as.factor(PISA_Subsetted$CLASSSKIP)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Error:
-! Assigned data `as.factor(PISA_Subsetted$CLASSSKIP)` must be compatible with existing data.
-x Existing data has 8158 rows.
-x Assigned data has 0 rows.
-i Only vectors of size 1 are recycled.&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.factor(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted$LATE &amp;lt;-as.factor(PISA_Subsetted$LATE)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Error:
-! Assigned data `as.factor(PISA_Subsetted$LATE)` must be compatible with existing data.
-x Existing data has 8158 rows.
-x Assigned data has 0 rows.
-i Only vectors of size 1 are recycled.&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted$FEMALE &amp;lt;-as.factor(PISA_Subsetted$FEMALE)
-PISA_Subsetted$REPEAT &amp;lt;-as.factor(PISA_Subsetted$REPEAT)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Error:
-! Assigned data `as.factor(PISA_Subsetted$REPEAT)` must be compatible with existing data.
-x Existing data has 8158 rows.
-x Assigned data has 0 rows.
-i Only vectors of size 1 are recycled.&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.factor(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted$FEMALE &amp;lt;-as.factor(PISA_Subsetted$FEMALE)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.factor(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted$REPEAT &amp;lt;-as.factor(PISA_Subsetted$REPEAT)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.factor(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Renaming factor levels with dplyr
 PISA_Subsetted$FEMALE &amp;lt;- recode_factor(PISA_Subsetted$FEMALE, 
-                                       &amp;quot;1&amp;quot; = &amp;quot;1&amp;quot;, &amp;quot;2&amp;quot; = &amp;quot;0&amp;quot;)
-
-glimpse(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Rows: 8,158
-Columns: 5
-$ FEMALE        &amp;lt;fct&amp;gt; 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1~
-$ READING_SCORE &amp;lt;dbl&amp;gt; 480.756, 476.744, 489.858, 536.178, 566.755, 5~
-$ CLASSCOMP     &amp;lt;dbl&amp;gt; 1.5630, 0.0866, 0.6912, 1.2903, 0.2020, -0.043~
-$ CLASSCOOP     &amp;lt;dbl&amp;gt; 1.6762, -0.5358, 0.6012, 1.6762, 0.6012, 0.601~
-$ ATTCOMP       &amp;lt;dbl&amp;gt; 0.4352, 0.4352, -0.2661, 0.4352, 0.3709, 0.195~&lt;/code&gt;&lt;/pre&gt;
+                                       &amp;quot;1&amp;quot; = &amp;quot;1&amp;quot;, &amp;quot;2&amp;quot; = &amp;quot;0&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in recode(.x, !!!values, .default = .default, .missing = .missing): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;glimpse(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in glimpse(PISA_Subsetted): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The data set in this post was a Canadian student data subsetted from the Programme for Internal Student Assessment (PISA), which is an international assessment that measures 15-year-old students’ reading, mathematics, and science literacy every three years.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;From the &lt;code&gt;glimpse&lt;/code&gt; call above, our dataset has 9 variables and 22,653 data points.&lt;/p&gt;&lt;/li&gt;
@@ -4819,34 +5246,15 @@ $ ATTCOMP       &amp;lt;dbl&amp;gt; 0.4352, 0.4352, -0.2661, 0.4352, 0.3709, 0.1
 &lt;li&gt;&lt;p&gt;The plot provides a specific visualization of the amount of missing data, showing in black the location of missing values, and also providing information on the overall percentage of missing values overall (in the legend), and in each variable.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;dlookr::diagnose(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;# A tibble: 5 x 6
-  variables     types   missing_count missing_percent unique_count
-  &amp;lt;chr&amp;gt;         &amp;lt;chr&amp;gt;           &amp;lt;int&amp;gt;           &amp;lt;dbl&amp;gt;        &amp;lt;int&amp;gt;
-1 FEMALE        factor              0               0            2
-2 READING_SCORE numeric             0               0         8051
-3 CLASSCOMP     numeric             0               0           64
-4 CLASSCOOP     numeric             0               0           62
-5 ATTCOMP       numeric             0               0           63
-# ... with 1 more variable: unique_rate &amp;lt;dbl&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in dlookr::diagnose(PISA_Subsetted): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(PISA_Subsetted, sort_miss = TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7684264563d_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_dataframe(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;If we are curious about the proportion of missing data by groups, we can also group the dataset by our categorical variable of interest, say, gender, before examining the missingness ratio.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% group_by (FEMALE) %&amp;gt;%
   miss_var_summary()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;# A tibble: 8 x 4
-# Groups:   FEMALE [2]
-  FEMALE variable      n_miss pct_miss
-  &amp;lt;fct&amp;gt;  &amp;lt;chr&amp;gt;          &amp;lt;int&amp;gt;    &amp;lt;dbl&amp;gt;
-1 1      READING_SCORE      0        0
-2 1      CLASSCOMP          0        0
-3 1      CLASSCOOP          0        0
-4 1      ATTCOMP            0        0
-5 0      READING_SCORE      0        0
-6 0      CLASSCOMP          0        0
-7 0      CLASSCOOP          0        0
-8 0      ATTCOMP            0        0&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in group_by(., FEMALE): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;h3 id="types-of-missing-data"&gt;Types of Missing Data&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Yes, we know now that our data is missing, but not all missing data are created (or not created, pun wholeheartedly intended) equal. There are three types of missing data, MCAR, MAR, and MNAR.&lt;/p&gt;&lt;/li&gt;
@@ -4864,7 +5272,7 @@ $ ATTCOMP       &amp;lt;dbl&amp;gt; 0.4352, 0.4352, -0.2661, 0.4352, 0.3709, 0.1
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;oceanbuoys %&amp;gt;% arrange(year) %&amp;gt;% vis_miss()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7684264563d_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file7f4567a2ca_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Missing Not at Random (MNAR)&lt;/p&gt;
 &lt;ul&gt;
@@ -4882,8 +5290,7 @@ $ ATTCOMP       &amp;lt;dbl&amp;gt; 0.4352, 0.4352, -0.2661, 0.4352, 0.3709, 0.1
 &lt;li&gt;An upset plot from the &lt;code&gt;UpSetR&lt;/code&gt; package can be used to visualize the patterns of missingness, or rather the combinations of missingness across cases and variables.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_upset(PISA_Subsetted, nsets = 9, nintersects = 15)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Error in `as_shadow_upset()`:
-! upset plots for missing data requre at least two variables to have missing data, there are no missing values in your data! This is probably a good thing.&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.data.frame(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The small bar plot to the left indicated the amount of missingness in variables. Consistent with the missingness diagnosis, the variable &lt;code&gt;BEINGBULLIED&lt;/code&gt; has the most missing data, following by &lt;code&gt;DAYSKIP&lt;/code&gt; and &lt;code&gt;CLASSKIP&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;The dot plot to the right showed combinations of variable that are missing in the data set. For example, there are 1,234 cases that have missing data in the variable &lt;code&gt;LATE&lt;/code&gt;, &lt;code&gt;CLASSKIP&lt;/code&gt;, &lt;code&gt;DAYSKIP&lt;/code&gt;, and &lt;code&gt;BEINGBULLIED&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
@@ -4898,37 +5305,27 @@ $ ATTCOMP       &amp;lt;dbl&amp;gt; 0.4352, 0.4352, -0.2661, 0.4352, 0.3709, 0.1
 &lt;li&gt;This plot shows the number of missing values in each variable in a dataset.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% miss_var_table()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;# A tibble: 1 x 3
-  n_miss_in_var n_vars pct_vars
-          &amp;lt;int&amp;gt;  &amp;lt;int&amp;gt;    &amp;lt;dbl&amp;gt;
-1             0      5      100&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_null(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_var(PISA_Subsetted, show_pct = TRUE) &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7684264563d_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_dataframe(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;h4 id="missingness-in-cases-with-gg_miss_case"&gt;Missingness in cases with &lt;code&gt;gg_miss_case&lt;/code&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot shows the number of missing values in each case. For example, the table showed that there are 2 cases with 9 missing variables (i.e., no data in all variables), and there are 1050 cases with 8 missing variables.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% miss_case_table()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;# A tibble: 1 x 3
-  n_miss_in_case n_cases pct_cases
-           &amp;lt;int&amp;gt;   &amp;lt;int&amp;gt;     &amp;lt;dbl&amp;gt;
-1              0    8158       100&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_null(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_case(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7684264563d_files/figure-html/unnamed-chunk-11-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_null(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;h4 id="missingness-across-factors-with-gg_miss_fct"&gt;Missingness across factors with &lt;code&gt;gg_miss_fct&lt;/code&gt;&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot shows the number of missingness in each column, broken down by a categorical variable from the dataset.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_fct(x = PISA_Subsetted, fct = REPEAT) + 
   labs(title = &amp;quot;Missing data by the History of Class Repetition&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Error in `dplyr::mutate_at()`:
-! Can&amp;#39;t subset columns that don&amp;#39;t exist.
-x Column `REPEAT` doesn&amp;#39;t exist.&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in tbl_vars_dispatch(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_fct(x = PISA_Subsetted, fct = LATE) + 
   labs(title = &amp;quot;Missing data by Lateness History&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Error in `dplyr::mutate_at()`:
-! Can&amp;#39;t subset columns that don&amp;#39;t exist.
-x Column `LATE` doesn&amp;#39;t exist.&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in tbl_vars_dispatch(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;The heatmap above showed the proportion of missing data we have in each response of the selected categorical variable; for example, the history of class repetition (&lt;code&gt;REPEAT&lt;/code&gt;), with &lt;code&gt;0&lt;/code&gt; as no, &lt;code&gt;1&lt;/code&gt; as yes, and &lt;code&gt;NA&lt;/code&gt; as missing.&lt;/li&gt;
 &lt;/ul&gt;
@@ -4938,9 +5335,7 @@ x Column `LATE` doesn&amp;#39;t exist.&lt;/code&gt;&lt;/pre&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;gg_miss_span(PISA_Subsetted, REPEAT, span_every = 2000) +
   theme_dark()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Error in `dplyr::select()`:
-! Can&amp;#39;t subset columns that don&amp;#39;t exist.
-x Column `REPEAT` doesn&amp;#39;t exist.&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_null(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;The plot went over the data and showed us how many missing data we have every 2000 data points that it went through.&lt;/li&gt;
 &lt;/ul&gt;
@@ -4949,12 +5344,12 @@ x Column `REPEAT` doesn&amp;#39;t exist.&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;This plot showed the cumulative amount of missing value over the data set. A sharp increase in cumulative missing value could indicate missing patterns to be discovered.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% gg_miss_case_cumsum(breaks = 2000) + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7684264563d_files/figure-html/unnamed-chunk-14-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_null(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot showed the cumulative amount of missing value over the variable. We could examine the relative proportion of missing values across variables via this plot.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_Subsetted %&amp;gt;% gg_miss_var_cumsum() + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file7684264563d_files/figure-html/unnamed-chunk-15-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;Error in test_if_null(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id="what-should-we-do-with-the-missing-data"&gt;What should we do with the missing data&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Now that we know we have missing data, there are numerous ways we can deal with it such as disregarding them with complete case analysis, or making educated guesses with imputation.&lt;/p&gt;&lt;/li&gt;
@@ -4969,15 +5364,10 @@ x Column `REPEAT` doesn&amp;#39;t exist.&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;This often results in losing 20% to 50% of the data.&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class="r"&gt;&lt;code&gt;PISA_Listwise &amp;lt;- PISA_Subsetted[complete.cases(PISA_Subsetted), ]
-glimpse(PISA_Listwise)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Rows: 8,158
-Columns: 5
-$ FEMALE        &amp;lt;fct&amp;gt; 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1~
-$ READING_SCORE &amp;lt;dbl&amp;gt; 480.756, 476.744, 489.858, 536.178, 566.755, 5~
-$ CLASSCOMP     &amp;lt;dbl&amp;gt; 1.5630, 0.0866, 0.6912, 1.2903, 0.2020, -0.043~
-$ CLASSCOOP     &amp;lt;dbl&amp;gt; 1.6762, -0.5358, 0.6012, 1.6762, 0.6012, 0.601~
-$ ATTCOMP       &amp;lt;dbl&amp;gt; 0.4352, 0.4352, -0.2661, 0.4352, 0.3709, 0.195~&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_Listwise &amp;lt;- PISA_Subsetted[complete.cases(PISA_Subsetted), ]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in eval(expr, envir, enclos): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;glimpse(PISA_Listwise)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in glimpse(PISA_Listwise): object &amp;#39;PISA_Listwise&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Notice that the size of our dataset got reduced to 18,327 cases. This happaned from deleting all cases with missing value.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;&lt;strong&gt;Pairwise deletion&lt;/strong&gt; is the method that deletes cases only if they have missing data on variables involved in a particular computation, so we can still retain the data for other analyses that do not involve variables that are missing. However, the effective sample size can vary from one analysis to another.&lt;/p&gt;&lt;/li&gt;
@@ -4985,9 +5375,7 @@ $ ATTCOMP       &amp;lt;dbl&amp;gt; 0.4352, 0.4352, -0.2661, 0.4352, 0.3709, 0.1
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;pairwise_var &amp;lt;- c(&amp;quot;BEINGBULLIED&amp;quot;, &amp;quot;DISCLIMA&amp;quot;)
 cov(PISA_Subsetted[pairwise_var], use=&amp;quot;pairwise.complete.obs&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Error in `stop_subscript()`:
-! Can&amp;#39;t subset columns that don&amp;#39;t exist.
-x Columns `BEINGBULLIED` and `DISCLIMA` don&amp;#39;t exist.&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.data.frame(x): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;&lt;strong&gt;HOWEVER&lt;/strong&gt;, the bias caused by using listwise/pairwise deletion has been shown in simulations to grossly exaggerate or underestimate some effects.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Despite giving valid estimates when data are MCAR, the statistical power will be severely reduced when there is a lot of missingness. If the missingness is MAR or MNAR, removing them introduces bias to models built on these data.&lt;/p&gt;&lt;/li&gt;
@@ -5008,11 +5396,7 @@ x Columns `BEINGBULLIED` and `DISCLIMA` don&amp;#39;t exist.&lt;/code&gt;&lt;/pr
 &lt;pre class="r"&gt;&lt;code&gt;PISA_meanimp &amp;lt;- PISA_Subsetted %&amp;gt;%
   mutate(DISCLIMA_imp = ifelse(is.na(DISCLIMA), TRUE, FALSE)) %&amp;gt;%
   mutate(ADAPTIVITY_imp = ifelse(is.na(ADAPTIVITY), TRUE, FALSE))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Error in `mutate()`:
-! Problem while computing `DISCLIMA_imp =
-  ifelse(is.na(DISCLIMA), TRUE, FALSE)`.
-Caused by error in `ifelse()`:
-! object &amp;#39;DISCLIMA&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in mutate(., DISCLIMA_imp = ifelse(is.na(DISCLIMA), TRUE, FALSE)): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_meanimp[c(&amp;quot;DISCLIMA_imp&amp;quot;,&amp;quot;ADAPTIVITY_imp&amp;quot;)] %&amp;gt;% head()&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Error in head(.): object &amp;#39;PISA_meanimp&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
@@ -5043,7 +5427,7 @@ head()&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;&lt;p&gt;Basically, it is like you have a data point with missing values asks its neighbors what value do they have on the variable that it is missing. That data point then replace its missing values with the value of its nearest neighbor.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_kNNimp &amp;lt;- VIM::kNN(PISA_Subsetted, k = 6, variable = c(&amp;quot;DISCLIMA&amp;quot;, &amp;quot;ADAPTIVITY&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Error: subscript out of bounds&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in check_data(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_kNNimp[c(&amp;quot;DISCLIMA&amp;quot;, &amp;quot;ADAPTIVITY&amp;quot;,&amp;quot;DISCLIMA_imp&amp;quot;,&amp;quot;ADAPTIVITY_imp&amp;quot;)] %&amp;gt;% head()&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Error in head(.): object &amp;#39;PISA_kNNimp&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
@@ -5062,9 +5446,7 @@ head()&lt;/code&gt;&lt;/pre&gt;
 &lt;/ul&gt;
 &lt;h5 id="linear-regression-imputation"&gt;Linear Regression Imputation&lt;/h5&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_lmreg &amp;lt;- impute_lm(PISA_Subsetted, DISCLIMA + ADAPTIVITY ~.)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Error in `stop_subscript()`:
-! Can&amp;#39;t subset columns that don&amp;#39;t exist.
-x Columns `DISCLIMA` and `ADAPTIVITY` don&amp;#39;t exist.&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in groups(dat, formula): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_lmreg %&amp;gt;% 
   is.na() %&amp;gt;%
   colSums()&lt;/code&gt;&lt;/pre&gt;
@@ -5076,14 +5458,15 @@ x Columns `DISCLIMA` and `ADAPTIVITY` don&amp;#39;t exist.&lt;/code&gt;&lt;/pre&
 &lt;ul&gt;
 &lt;li&gt;Logistic regression imputation is similar to linear regression imputation, with a difference in the nature of missing value (Continuous vs Binary).&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class="r"&gt;&lt;code&gt;missing_REPEAT &amp;lt;- is.na(PISA_Subsetted$REPEAT)
-head(missing_REPEAT, 20)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;logical(0)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="r"&gt;&lt;code&gt;PISA_logregimp &amp;lt;- PISA_Subsetted
-
-logreg_model &amp;lt;- glm(REPEAT ~ DAYSKIP + BEINGBULLIED + ESCS,
+&lt;pre class="r"&gt;&lt;code&gt;missing_REPEAT &amp;lt;- is.na(PISA_Subsetted$REPEAT)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in eval(expr, envir, enclos): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;head(missing_REPEAT, 20)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in head(missing_REPEAT, 20): object &amp;#39;missing_REPEAT&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_logregimp &amp;lt;- PISA_Subsetted&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in eval(expr, envir, enclos): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;logreg_model &amp;lt;- glm(REPEAT ~ DAYSKIP + BEINGBULLIED + ESCS,
                 data = PISA_Subsetted, family = binomial)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Error in eval(predvars, data, env): object &amp;#39;REPEAT&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.data.frame(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;preds &amp;lt;- predict(logreg_model, type = &amp;quot;response&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Error in h(simpleError(msg, call)): error in evaluating the argument &amp;#39;object&amp;#39; in selecting a method for function &amp;#39;predict&amp;#39;: object &amp;#39;logreg_model&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;preds &amp;lt;- ifelse(preds &amp;gt;= 0.5, 1, 0)&lt;/code&gt;&lt;/pre&gt;
@@ -5093,12 +5476,11 @@ logreg_model &amp;lt;- glm(REPEAT ~ DAYSKIP + BEINGBULLIED + ESCS,
 &lt;pre class="r"&gt;&lt;code&gt;table(preds[missing_REPEAT])&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Error in table(preds[missing_REPEAT]): object &amp;#39;preds&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;table(PISA_Subsetted$REPEAT)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt; table of extent 0 &amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in table(PISA_Subsetted$REPEAT): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;PISA_logregimp %&amp;gt;% 
   is.na() %&amp;gt;%
   colSums()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;       FEMALE READING_SCORE     CLASSCOMP     CLASSCOOP       ATTCOMP 
-            0             0             0             0             0 &lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in is.data.frame(x): object &amp;#39;PISA_logregimp&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;h4 id="multiple-imputation-by-chained-equation"&gt;Multiple Imputation by Chained Equation&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Multiple Imputation by Chained Equation (MICE) - also known as sequential regression multiple imputation - is an emerging method in dealing with missing values by implementing the imputation multiple times as opposed to the single imputation methods mentioned above &lt;a href="https://onlinelibrary.wiley.com/doi/10.1002/mpr.329"&gt;(Azur et al., 2011)&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
@@ -5108,61 +5490,13 @@ logreg_model &amp;lt;- glm(REPEAT ~ DAYSKIP + BEINGBULLIED + ESCS,
 &lt;li&gt;&lt;p&gt;The rationale is that PMM produces little biased estimates when missing data is below 50% and not systematically missing in a large data set &lt;a href="https://stefvanbuuren.name/fimd/sec-pmm.html"&gt;(van Buuren, 2018)&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;mice_model &amp;lt;- mice(PISA_Subsetted, method=&amp;#39;pmm&amp;#39;, seed = 123)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;
- iter imp variable
-  1   1
-  1   2
-  1   3
-  1   4
-  1   5
-  2   1
-  2   2
-  2   3
-  2   4
-  2   5
-  3   1
-  3   2
-  3   3
-  3   4
-  3   5
-  4   1
-  4   2
-  4   3
-  4   4
-  4   5
-  5   1
-  5   2
-  5   3
-  5   4
-  5   5&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="r"&gt;&lt;code&gt;PISA_miceimp &amp;lt;- complete(mice_model)
-
-psych::describe(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;              vars    n   mean    sd median trimmed   mad    min
-FEMALE*          1 8158   1.46  0.50   1.00    1.45  0.00   1.00
-READING_SCORE    2 8158 411.26 88.42 402.43  408.00 91.53 146.33
-CLASSCOMP        3 8158   0.20  0.87   0.20    0.19  0.73  -1.99
-CLASSCOOP        4 8158   0.20  0.92   0.60    0.22  1.07  -2.14
-ATTCOMP          5 8158   0.03  0.79   0.20    0.00  0.65  -2.35
-                 max  range  skew kurtosis   se
-FEMALE*         2.00   1.00  0.18    -1.97 0.01
-READING_SCORE 720.09 573.76  0.32    -0.37 0.98
-CLASSCOMP       2.04   4.03  0.02    -0.04 0.01
-CLASSCOOP       1.68   3.82 -0.39    -0.47 0.01
-ATTCOMP         2.01   4.35  0.13     1.11 0.01&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in check.dataform(data): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;PISA_miceimp &amp;lt;- complete(mice_model)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in complete(mice_model): object &amp;#39;mice_model&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;psych::describe(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in psych::describe(PISA_Subsetted): object &amp;#39;PISA_Subsetted&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;psych::describe(PISA_miceimp)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;              vars    n   mean    sd median trimmed   mad    min
-FEMALE*          1 8158   1.46  0.50   1.00    1.45  0.00   1.00
-READING_SCORE    2 8158 411.26 88.42 402.43  408.00 91.53 146.33
-CLASSCOMP        3 8158   0.20  0.87   0.20    0.19  0.73  -1.99
-CLASSCOOP        4 8158   0.20  0.92   0.60    0.22  1.07  -2.14
-ATTCOMP          5 8158   0.03  0.79   0.20    0.00  0.65  -2.35
-                 max  range  skew kurtosis   se
-FEMALE*         2.00   1.00  0.18    -1.97 0.01
-READING_SCORE 720.09 573.76  0.32    -0.37 0.98
-CLASSCOMP       2.04   4.03  0.02    -0.04 0.01
-CLASSCOOP       1.68   3.82 -0.39    -0.47 0.01
-ATTCOMP         2.01   4.35  0.13     1.11 0.01&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Error in psych::describe(PISA_miceimp): object &amp;#39;PISA_miceimp&amp;#39; not found&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The message above shows that the algorithm went over the data set 5 times per iteration, with the total of 25 times in 5 iterations (5 x 5). In other words, the machine imputed the missing over and over again until the change becomes minimal to give us the most stable replacement value as possible.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;There is no substantial difference in descriptive statistics of the pre-imputed and post imputed data set. Given that we gained 10% of our data back, it is a win for us.&lt;/p&gt;&lt;/li&gt;
