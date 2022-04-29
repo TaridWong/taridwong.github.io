@@ -7,7 +7,271 @@
     <description>Blogs about what I learned from my academic lives
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Mon, 18 Apr 2022 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 28 Apr 2022 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Addressing Data Imbalance with Semi-Supervised Learning</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2022-04-28-semisupervised</link>
+      <description>
+
+
+&lt;h2 id="introduction"&gt;Introduction&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://blogs.sas.com/content/subconsciousmusings/2020/12/09/machine-learning-algorithm-use/"&gt;Machine Learning (ML)&lt;/a&gt; is a process of learning the best possible and most relevant patterns, relationships, or associations from a data set to predict the outcomes on unseen data. Broadly, there are three types of ML process:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;1.  Supervised Learning, which is a process that trains a ML model on a labelled data set. The model aims to find the relationships among the independent and dependent variable to predict unseen data we may receive in the future.  
+2.  Unsupervised Learning, which is a process of training a ML model on a dataset in which the target variable is not known. The model aims to find the most relevant patterns in the data or the segments of data.  
+3.  Semi-Supervised Learning, which is a combination of supervised and unsupervised learning processes in which the unlabeled data is used to train a model as well. In this approach, the properties of unsupervised learning are used to learn the best possible representation of data, and the properties of supervised learning are used to learn the relationships to make predictions.&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Each ML algorithm has its own use under the consideration of a) the size, quality, and nature of data, b) The available computational time, c) The urgency of the task, and d) the expected result. Among the vast availability of algorithms, each ML type has its own role in tackling different types of data science problem depending on the mentioned considerations. The ML algorithm cheat sheet below is a good starting point to choose algorithms that are appropriate for your specific problems.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="figure"&gt;
+&lt;img src="https://taridwong.github.io//posts/2022-04-28-semisupervisedmldiagram.png" style="width:60.0%" alt="" /&gt;
+&lt;p class="caption"&gt;Image from &lt;a href="https://blogs.sas.com/content/subconsciousmusings/2020/12/09/machine-learning-algorithm-use/" class="uri"&gt;https://blogs.sas.com/content/subconsciousmusings/2020/12/09/machine-learning-algorithm-use/&lt;/a&gt;. No copyright infringement is intended&lt;/p&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;We have previously discussed about the use supervised and unsupervised ML separately in other posts. However, the problem we will tackle in this post requires the ability of both unsupervised and supervised learning, which is why I will use semi-supervised learning in this post to solve data imbalance problem by generating a pseudo-labeled data and use it to train an ML model to perform a classification.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="figure"&gt;
+&lt;img src="https://taridwong.github.io//posts/2022-04-28-semisupervisedsemi-ml.png" style="width:70.0%" alt="" /&gt;
+&lt;p class="caption"&gt;Image from &lt;a href="https://teksands.ai/blog/semi-supervised-learning" class="uri"&gt;https://teksands.ai/blog/semi-supervised-learning&lt;/a&gt;. No copyright infringement is intended&lt;/p&gt;
+&lt;/div&gt;
+&lt;h2 id="data-set-preparation"&gt;Data Set Preparation&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Semi-supervised learning is a restatement of the missing data imputation problem, which is specific to small data set with missing-label cases. This problem is commonly encountered in data set generation contexts as retrieving clean data can be costly and time consuming. Applying supervised machine learning techniques to small data set might yield poor results that cannot be further used; thus, it would be more useful to address this problem with a combination of both machine learning approaches (i.e., unsupervised and supervised) for optimal results.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;For this post, I will be using the &lt;a href="https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud"&gt;Credit Card Fraud Detection&lt;/a&gt; data set from the &lt;a href="https://mlg.ulb.ac.be/"&gt;Université Libre de Bruxelles (Brussels, Belgium) machine learning group&lt;/a&gt; The dataset contains transactions made by credit cards in September 2013 by European cardholders. This dataset presents transactions that occurred in two days, where we have 492 fraud transactions out of 284,807 transactions. We will first importing in Python modules and the data set as usual.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;from keras.layers import Input, Dense
+from keras.models import Model, Sequential
+from keras import regularizers
+from sklearn.model_selection import train_test_split 
+from sklearn import metrics
+from sklearn.metrics import classification_report, accuracy_score
+from sklearn.manifold import TSNE
+from sklearn import preprocessing 
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix
+
+import matplotlib.pyplot as plt
+import pandas as pd 
+import numpy as np
+import seaborn as sns&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;sns.set(style=&amp;quot;whitegrid&amp;quot;)
+np.random.seed(203)
+
+data = pd.read_csv(&amp;quot;creditcard.csv&amp;quot;)
+data[&amp;quot;Time&amp;quot;] = data[&amp;quot;Time&amp;quot;].apply(lambda x : x / 3600 % 24)
+data.head()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;       Time        V1        V2        V3  ...       V27       V28  Amount  Class
+0  0.000000 -1.359807 -0.072781  2.536347  ...  0.133558 -0.021053  149.62      0
+1  0.000000  1.191857  0.266151  0.166480  ... -0.008983  0.014724    2.69      0
+2  0.000278 -1.358354 -1.340163  1.773209  ... -0.055353 -0.059752  378.66      0
+3  0.000278 -0.966272 -0.185226  1.792993  ...  0.062723  0.061458  123.50      0
+4  0.000556 -1.158233  0.877737  1.548718  ...  0.219422  0.215153   69.99      0
+
+[5 rows x 31 columns]&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;To check if the data is imbalance, we will count the target variable by its value (i.e., 0, 1). The result below indicates that the data is highly imbalance as only 0.17 % cases are fraud transactions. This problem could lower performance of a supervised ML model as the machine learns only one class (0) and discard the other class as noises.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;vc = data[&amp;#39;Class&amp;#39;].value_counts().to_frame().reset_index()
+vc[&amp;#39;percent&amp;#39;] = vc[&amp;quot;Class&amp;quot;].apply(lambda x : round(100*float(x) / len(data), 2))
+vc = vc.rename(columns = {&amp;quot;index&amp;quot; : &amp;quot;Target&amp;quot;, &amp;quot;Class&amp;quot; : &amp;quot;Count&amp;quot;})
+vc&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;   Target   Count  percent
+0       0  284315    99.83
+1       1     492     0.17&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We will also sample 1000 non-fraud data and merge it with fraud data to form a data set for this task.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;non_fraud = data[data[&amp;#39;Class&amp;#39;] == 0].sample(1000)
+fraud = data[data[&amp;#39;Class&amp;#39;] == 1]
+
+df = non_fraud.append(fraud).sample(frac=1).reset_index(drop=True)
+X = df.drop([&amp;#39;Class&amp;#39;], axis = 1).values
+Y = df[&amp;quot;Class&amp;quot;].values  &lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="visualize-fraud-and-nonfraud-transactions"&gt;Visualize Fraud and NonFraud Transactions&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Let’s visualize the nature of fraud and non-fraud transactions using T-SNE. T-SNE (t-Distributed Stochastic Neighbor Embedding) is an unsupervised technique primarily used for data exploration and visualizing high-dimensional data. The technique reduces dimensionality of the data set and produces only components with maximum information. Every dot in the following represents a transaction. Non Fraud transactions are coded as “0” - the red dot, while Fraud transactions are coded as “1” - the blue dot. The two axis are the components extracted by T-SNE.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;tsne = TSNE(n_components=2, random_state=0)
+
+TSNE_result = tsne.fit_transform(X)
+
+plt.figure(figsize=(16,10))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1600x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;sns.scatterplot(TSNE_result[:,0], TSNE_result[:,1], hue=Y, legend=&amp;#39;full&amp;#39;, palette=&amp;quot;hls&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:&amp;gt;
+
+C:\Users\tarid\ANACON~1\lib\site-packages\seaborn\_decorators.py:36: FutureWarning: Pass the following variables as keyword args: x, y. From version 0.12, the only valid positional argument will be `data`, and passing other arguments without an explicit keyword will result in an error or misinterpretation.
+  warnings.warn(&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The graph above shoes that there are many non_fraud transactions which are very close to fraud transactions. This pattern makes the data challenging to classify as they are ambiguous. This problem can be mitigated by using AutoEncoders, which is another unsupervised learning algorithm.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="autoencoders"&gt;AutoEncoders&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Autoencoders are a special type of neural network architectures in which the output is same as the input. In other words, an autoencoder, once trained on appropriate training data, can be used to generate compressed copies of input data point while preserve most of the information (features) from the input. For our case, the model will try to learn the best representation of non-fraud cases and generate the representations of fraud cases.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;As for how it works, Autoencoders are designed to have a bottle-neck architecture with a few neurons to comprehensively compress the knowledge about representation of the original input for the machine to reproduce it by using decoders. The picture below shows architecture of the machine in how it learns from the input data.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2022-04-28-semisupervisedautoencoder.png" style="width:60.0%" alt="Image from https://www.jeremyjordan.me/autoencoders. No copyright infringement is intended" /&gt;&lt;br /&gt;
+- First, we will create a network with one input layer and one output layer. Both of them will have identical dimensions.&lt;/p&gt;
+&lt;pre class="python"&gt;&lt;code&gt;## input layer 
+input_layer = Input(shape=(X.shape[1],))
+
+## encoding part
+encoded = Dense(100, activation=&amp;#39;tanh&amp;#39;, activity_regularizer=regularizers.l1(10e-5))(input_layer)
+encoded = Dense(50, activation=&amp;#39;relu&amp;#39;)(encoded)
+
+## decoding part
+decoded = Dense(50, activation=&amp;#39;tanh&amp;#39;)(encoded)
+decoded = Dense(100, activation=&amp;#39;tanh&amp;#39;)(decoded)
+
+## output layer
+output_layer = Dense(X.shape[1], activation=&amp;#39;relu&amp;#39;)(decoded)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Next, we will create the model architecture by compiling the above input layer and output layers. We will also add the optimizer and loss function. I am using “adadelta” as the optimizer and “mse” as the loss function. I will also transform the data with min-max scaling to make it easier for the model to process.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;autoencoder = Model(input_layer, output_layer)
+autoencoder.compile(optimizer=&amp;quot;adadelta&amp;quot;, loss=&amp;quot;mse&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;x = data.drop([&amp;quot;Class&amp;quot;], axis=1)
+y = data[&amp;quot;Class&amp;quot;].values
+
+x_scale = preprocessing.MinMaxScaler().fit_transform(x.values)
+x_norm, x_fraud = x_scale[y == 0], x_scale[y == 1]&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;One advantage of using autoencoders is that we do not need a large amount of data to teach the machine. We will use only 2000 rows of non fraud cases to train the autoencoder. The choice of small samples from the original data set is based on the intuition that one class characteristics (non fraud) will differ from that of the other (fraud). To distinguish these characteristics, we need to show the autoencoders only one class of data. This is because the autoencoder will try to learn only one class and automatically distinguish the other class.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;autoencoder.fit(x_norm[0:2000], x_norm[0:2000], 
+                batch_size = 256, epochs = 10, 
+                shuffle = True, validation_split = 0.20)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Epoch 1/10
+
+1/7 [===&amp;gt;..........................] - ETA: 3s - loss: 0.2599
+7/7 [==============================] - 1s 32ms/step - loss: 0.2596 - val_loss: 0.2582
+Epoch 2/10
+
+1/7 [===&amp;gt;..........................] - ETA: 0s - loss: 0.2595
+7/7 [==============================] - 0s 8ms/step - loss: 0.2593 - val_loss: 0.2578
+Epoch 3/10
+
+1/7 [===&amp;gt;..........................] - ETA: 0s - loss: 0.2595
+7/7 [==============================] - 0s 7ms/step - loss: 0.2590 - val_loss: 0.2575
+Epoch 4/10
+
+1/7 [===&amp;gt;..........................] - ETA: 0s - loss: 0.2587
+7/7 [==============================] - 0s 8ms/step - loss: 0.2586 - val_loss: 0.2571
+Epoch 5/10
+
+1/7 [===&amp;gt;..........................] - ETA: 0s - loss: 0.2586
+7/7 [==============================] - 0s 8ms/step - loss: 0.2583 - val_loss: 0.2568
+Epoch 6/10
+
+1/7 [===&amp;gt;..........................] - ETA: 0s - loss: 0.2581
+7/7 [==============================] - 0s 8ms/step - loss: 0.2579 - val_loss: 0.2564
+Epoch 7/10
+
+1/7 [===&amp;gt;..........................] - ETA: 0s - loss: 0.2572
+7/7 [==============================] - 0s 8ms/step - loss: 0.2575 - val_loss: 0.2560
+Epoch 8/10
+
+1/7 [===&amp;gt;..........................] - ETA: 0s - loss: 0.2569
+7/7 [==============================] - 0s 8ms/step - loss: 0.2571 - val_loss: 0.2556
+Epoch 9/10
+
+1/7 [===&amp;gt;..........................] - ETA: 0s - loss: 0.2566
+7/7 [==============================] - 0s 8ms/step - loss: 0.2567 - val_loss: 0.2551
+Epoch 10/10
+
+1/7 [===&amp;gt;..........................] - ETA: 0s - loss: 0.2571
+7/7 [==============================] - 0s 8ms/step - loss: 0.2562 - val_loss: 0.2547
+&amp;lt;keras.callbacks.History object at 0x000000000D36F8B0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="obtain-the-generated-data"&gt;Obtain the Generated Data&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;After training the model, we can obtain representation of the data (aka its latent pattern) to learn how the data is distributed by accessing the model. A latent variable is a random variable that cannot be observed directly, but it lays the foundation of how the data is distributed. Latent variables also give us a low-level representation of high-dimensional data. They give us an abstract representation of how the data is distributed. We will also extract the generated “fraud” and “non-fraud” data to create a new data set to be used. We will also visualize the new data for comparison.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;hidden_representation = Sequential()
+hidden_representation.add(autoencoder.layers[0])
+hidden_representation.add(autoencoder.layers[1])
+hidden_representation.add(autoencoder.layers[2])&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;norm_hid_rep = hidden_representation.predict(x_norm[:3000])
+fraud_hid_rep = hidden_representation.predict(x_fraud)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;new_x = np.append(norm_hid_rep, fraud_hid_rep, axis = 0)
+new_y_not_fraud = np.zeros(norm_hid_rep.shape[0])
+new_y_fraud = np.ones(fraud_hid_rep.shape[0])
+new_y = np.append(new_y_not_fraud, new_y_fraud)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;TSNE_result_new = tsne.fit_transform(new_x)
+plt.figure(figsize=(16,10))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1600x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;sns.scatterplot(TSNE_result_new[:,0], TSNE_result_new[:,1], hue=new_y, legend=&amp;#39;full&amp;#39;, palette=&amp;quot;hls&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:&amp;gt;
+
+C:\Users\tarid\ANACON~1\lib\site-packages\seaborn\_decorators.py:36: FutureWarning: Pass the following variables as keyword args: x, y. From version 0.12, the only valid positional argument will be `data`, and passing other arguments without an explicit keyword will result in an error or misinterpretation.
+  warnings.warn(&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The new TSNE plot shows that both fraud and non-fraud transactions are pretty visible and linearly separable. We can use simple linear models such as logistic regression to classify this data without the needs for complex models like Random Forest that could be harder to interpret.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="linear-classifier"&gt;Linear Classifier&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;As usual, we will divide the new data set into a training and a testing asset before passing them to a logistic regression model. We will request for a Receiver Operator Characteristic (ROC) curve to evaluate accuracy of our classifier. We will also request for a confusion matrix to map out a summary of prediction results.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;X_train, X_test, y_train, y_test = train_test_split(new_x, new_y, test_size=0.3)
+
+clf_lr = LogisticRegression(max_iter = 450, random_state = 123)
+clf_lr.fit(X_train,y_train)  &lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;LogisticRegression(max_iter=450, random_state=123)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;pred_lr = clf_lr.predict(X_test)
+print(&amp;quot;Accuracy: {:0.4f}&amp;quot;.format(accuracy_score(y_test, pred_lr)))  &lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Accuracy: 0.9828&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;report_lr = classification_report(y_test, pred_lr)
+print(report_lr)  &lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;              precision    recall  f1-score   support
+
+         0.0       0.98      1.00      0.99       894
+         1.0       1.00      0.88      0.94       154
+
+    accuracy                           0.98      1048
+   macro avg       0.99      0.94      0.96      1048
+weighted avg       0.98      0.98      0.98      1048&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;y_pred_proba_lr = clf_lr.predict_proba(X_test)[::,1]
+fpr_lr, tpr_lr, _ = metrics.roc_curve(y_test,  y_pred_proba_lr)
+
+auc_lr = metrics.roc_auc_score(y_test, y_pred_proba_lr)
+plt.plot(fpr_lr,tpr_lr, label=&amp;quot;AUC for Logistic Regression = &amp;quot;+str(auc_lr.round(3)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x000000000C25F130&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.legend(loc=&amp;quot;lower right&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x000000000C24DE50&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;#39;True Positive Rate&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0, 0.5, &amp;#39;True Positive Rate&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.xlabel(&amp;#39;False Positive Rate&amp;#39;)
+           &lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 0, &amp;#39;False Positive Rate&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Receiver-Operator Curve (ROC)&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Receiver-Operator Curve (ROC)&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file15f82da2519_files/figure-html/unnamed-chunk-17-1.png" width="1536" /&gt;&lt;/p&gt;
+&lt;pre class="python"&gt;&lt;code&gt;conf_matrix = confusion_matrix(y_test, pred_lr)
+sns.heatmap(conf_matrix.T, square=True, annot=True, fmt=&amp;#39;d&amp;#39;, cbar=False)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.xlabel(&amp;#39;true label&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 77.24999999999999, &amp;#39;true label&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;#39;predicted label&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(402.25000000000006, 0.5, &amp;#39;predicted label&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Confusion matrix of Logistic Regression&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Confusion matrix of Logistic Regression&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file15f82da2519_files/figure-html/unnamed-chunk-18-3.png" width="1536" /&gt;&lt;/p&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Our logistic regression model shows a satisfaction result with the accuracy of 99.52%. The application of autoencoders as the unsupervised part in this task shows that semi-supervised learning can be effective at handling the case where there is a lack of labeled data to train our machine. Manual data labeling by human is an expensive and time-consuming process, which is why this approach to machine learning could be very helpful in lessening the task on our end. Semi-supervised learning can be used for the classification of web pages, audio, images, or even textual and numerical data where human labeling is not possible. As always, thank you for reading this!&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>5b75cb2ac18e56d7a34e19c0032dbc97</distill:md5>
+      <category>Python</category>
+      <category>Unsupervised Machine Learning</category>
+      <category>Supervised Machine Learning</category>
+      <guid>https://taridwong.github.io/posts/2022-04-28-semisupervised</guid>
+      <pubDate>Thu, 28 Apr 2022 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2022-04-28-semisupervised/semi-ml.png" medium="image" type="image/png" width="900" height="450"/>
+    </item>
     <item>
       <title>Examining Customer Cluster with Unsupervised Machine Learning</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -92,25 +356,37 @@ dtype: int64&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;We will first begin by exploring distribution of the data set to examine if their distribution is normal. Then, we can examine the distribution of each variable pair as indicated by density plots and scatter plots. We will also examine correlation coefficients between all variables with a heatmap and potential clusters with a cluster map as well.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class="python"&gt;&lt;code&gt;plt.figure(1 , figsize = (15 , 6))
-n = 0 
+&lt;pre class="python"&gt;&lt;code&gt;plt.figure(1 , figsize = (15 , 6))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1600x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;n = 0 
 for x in [&amp;#39;Age&amp;#39; , &amp;#39;Annual Income (k$)&amp;#39; , &amp;#39;Spending Score (1-100)&amp;#39;]:
     n += 1
     plt.subplot(1 , 3 , n)
     plt.subplots_adjust(hspace = 0.5 , wspace = 0.5)
     sns.distplot(df[x] , bins = 15)
     plt.title(&amp;#39;Distplot of {}&amp;#39;.format(x))
-    
-plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29146e02d83_files/figure-html/unnamed-chunk-5-1.png" width="1440" /&gt;&lt;/p&gt;
-&lt;pre class="python"&gt;&lt;code&gt;sns.heatmap(df.corr(), annot=True, cmap=&amp;quot;YlGnBu&amp;quot;)
-plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29146e02d83_files/figure-html/unnamed-chunk-6-3.png" width="1440" /&gt;&lt;/p&gt;
-&lt;pre class="python"&gt;&lt;code&gt;plt.figure(1, figsize = (16 ,8))
-sns.clustermap(df)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29146e02d83_files/figure-html/unnamed-chunk-7-5.png" width="494" /&gt;&lt;/p&gt;
+    &lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:&amp;gt;
+&amp;lt;AxesSubplot:xlabel=&amp;#39;Age&amp;#39;, ylabel=&amp;#39;Density&amp;#39;&amp;gt;
+Text(0.5, 1.0, &amp;#39;Distplot of Age&amp;#39;)
+&amp;lt;AxesSubplot:&amp;gt;
+&amp;lt;AxesSubplot:xlabel=&amp;#39;Annual Income (k$)&amp;#39;, ylabel=&amp;#39;Density&amp;#39;&amp;gt;
+Text(0.5, 1.0, &amp;#39;Distplot of Annual Income (k$)&amp;#39;)
+&amp;lt;AxesSubplot:&amp;gt;
+&amp;lt;AxesSubplot:xlabel=&amp;#39;Spending Score (1-100)&amp;#39;, ylabel=&amp;#39;Density&amp;#39;&amp;gt;
+Text(0.5, 1.0, &amp;#39;Distplot of Spending Score (1-100)&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file15f84fbc143f_files/figure-html/unnamed-chunk-5-1.png" width="1536" /&gt;&lt;/p&gt;
+&lt;pre class="python"&gt;&lt;code&gt;sns.heatmap(df.corr(), annot=True, cmap=&amp;quot;YlGnBu&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file15f84fbc143f_files/figure-html/unnamed-chunk-6-3.png" width="1536" /&gt;&lt;/p&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.figure(1, figsize = (16 ,8))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1600x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;sns.clustermap(df)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;seaborn.matrix.ClusterGrid object at 0x000000000D22A1C0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;sns.pairplot(df, vars = [&amp;#39;Spending Score (1-100)&amp;#39;, &amp;#39;Annual Income (k$)&amp;#39;, &amp;#39;Age&amp;#39;], hue = &amp;quot;Gender&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29146e02d83_files/figure-html/unnamed-chunk-8-7.png" width="405" /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;seaborn.axisgrid.PairGrid object at 0x000000000D22A1C0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id="k-means-clustering"&gt;K-Means Clustering&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;K-means clustering is one of the simplest and popular unsupervised machine learning algorithms. For this method, we define a target number &lt;em&gt;&lt;strong&gt;k&lt;/strong&gt;&lt;/em&gt;, which refers to the number of centroids you need in the dataset. A centroid is the imaginary or real location representing the center of the cluster; then, the algorithm allocates every data point to the nearest cluster, while keeping the centroids as small as possible. The &lt;strong&gt;means&lt;/strong&gt; in the K-means refers to averaging of the data in finding their corresponding centroids.&lt;/p&gt;&lt;/li&gt;
@@ -120,37 +396,18 @@ sns.clustermap(df)&lt;/code&gt;&lt;/pre&gt;
 &lt;img src="https://media.giphy.com/media/iw6Gq7ZTM2m5rDS9Su/giphy.gif" alt="" /&gt;
 &lt;p class="caption"&gt;The Process of K-means Clustering by Allison Horst. No copyright infringement intended&lt;/p&gt;
 &lt;/div&gt;
-&lt;pre class="python"&gt;&lt;code&gt;plt.figure(1 , figsize = (15 , 7))
-plt.title(&amp;#39;Scatter plot of Age v/s Spending Score&amp;#39;, fontsize = 20)
-plt.xlabel(&amp;#39;Age&amp;#39;)
-plt.ylabel(&amp;#39;Spending Score&amp;#39;)
-plt.scatter( x = &amp;#39;Age&amp;#39;, y = &amp;#39;Spending Score (1-100)&amp;#39;, data = df, s = 100)
-plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Traceback (most recent call last):
-  File &amp;quot;C:\Users\tarid\ANACON~1\lib\site-packages\matplotlib\backends\backend_qt.py&amp;quot;, line 455, in _draw_idle
-    self.draw()
-  File &amp;quot;C:\Users\tarid\ANACON~1\lib\site-packages\matplotlib\backends\backend_agg.py&amp;quot;, line 436, in draw
-    self.figure.draw(self.renderer)
-  File &amp;quot;C:\Users\tarid\ANACON~1\lib\site-packages\matplotlib\artist.py&amp;quot;, line 73, in draw_wrapper
-    result = draw(artist, renderer, *args, **kwargs)
-  File &amp;quot;C:\Users\tarid\ANACON~1\lib\site-packages\matplotlib\artist.py&amp;quot;, line 50, in draw_wrapper
-    return draw(artist, renderer)
-  File &amp;quot;C:\Users\tarid\ANACON~1\lib\site-packages\matplotlib\figure.py&amp;quot;, line 2810, in draw
-    mimage._draw_list_compositing_images(
-  File &amp;quot;C:\Users\tarid\ANACON~1\lib\site-packages\matplotlib\image.py&amp;quot;, line 132, in _draw_list_compositing_images
-    a.draw(renderer)
-  File &amp;quot;C:\Users\tarid\ANACON~1\lib\site-packages\matplotlib\artist.py&amp;quot;, line 50, in draw_wrapper
-    return draw(artist, renderer)
-  File &amp;quot;C:\Users\tarid\ANACON~1\lib\site-packages\matplotlib\axes\_base.py&amp;quot;, line 3046, in draw
-    self._update_title_position(renderer)
-  File &amp;quot;C:\Users\tarid\ANACON~1\lib\site-packages\matplotlib\axes\_base.py&amp;quot;, line 2984, in _update_title_position
-    if (ax.xaxis.get_ticks_position() in [&amp;#39;top&amp;#39;, &amp;#39;unknown&amp;#39;]
-  File &amp;quot;C:\Users\tarid\ANACON~1\lib\site-packages\matplotlib\axis.py&amp;quot;, line 2232, in get_ticks_position
-    self._get_ticks_position()]
-  File &amp;quot;C:\Users\tarid\ANACON~1\lib\site-packages\matplotlib\axis.py&amp;quot;, line 1936, in _get_ticks_position
-    major = self.majorTicks[0]
-IndexError: list index out of range&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29146e02d83_files/figure-html/unnamed-chunk-9-9.png" width="1440" /&gt;&lt;/p&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.figure(1 , figsize = (15 , 7))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1600x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;#39;Scatter plot of Age v/s Spending Score&amp;#39;, fontsize = 20)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Scatter plot of Age v/s Spending Score&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.xlabel(&amp;#39;Age&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 0, &amp;#39;Age&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;#39;Spending Score&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0, 0.5, &amp;#39;Spending Score&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.scatter( x = &amp;#39;Age&amp;#39;, y = &amp;#39;Spending Score (1-100)&amp;#39;, data = df, s = 100)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.collections.PathCollection object at 0x000000000C2684F0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file15f84fbc143f_files/figure-html/unnamed-chunk-9-5.png" width="1536" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Clustering is basically the process of mapping data points into classes of similar objects. The scatter plot above maps the relationship between customers’ age and their spending score. It could be challenging at this point to determine how many clusters can be seen in this 2D pane. This is where clustering comes into play. We will first examine how many clusters should we group the data points into with the elbow method. To find the optimal K for a dataset, we need to find the point where the decrease in inertia begins to slow. K=3 is the “elbow” of this graph, so the points after that are K=4 or K=5.&lt;/li&gt;
 &lt;/ul&gt;
@@ -177,13 +434,16 @@ KMeans(algorithm=&amp;#39;full&amp;#39;, n_clusters=11, random_state=111)
 KMeans(algorithm=&amp;#39;full&amp;#39;, n_clusters=12, random_state=111)
 KMeans(algorithm=&amp;#39;full&amp;#39;, n_clusters=13, random_state=111)
 KMeans(algorithm=&amp;#39;full&amp;#39;, n_clusters=14, random_state=111)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="python"&gt;&lt;code&gt;plt.figure(1 , figsize = (15 ,6))
-plt.plot(np.arange(1 , 15) , inertia , &amp;#39;o&amp;#39;)
-plt.plot(np.arange(1 , 15) , inertia , &amp;#39;-&amp;#39; , alpha = 0.5)
-plt.xlabel(&amp;#39;Number of Clusters&amp;#39;) , plt.ylabel(&amp;#39;Inertia&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.figure(1 , figsize = (15 ,6))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1600x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.plot(np.arange(1 , 15) , inertia , &amp;#39;o&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x000000007FE43700&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.plot(np.arange(1 , 15) , inertia , &amp;#39;-&amp;#39; , alpha = 0.5)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x000000007FEA8CD0&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.xlabel(&amp;#39;Number of Clusters&amp;#39;) , plt.ylabel(&amp;#39;Inertia&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;(Text(0.5, 0, &amp;#39;Number of Clusters&amp;#39;), Text(0, 0.5, &amp;#39;Inertia&amp;#39;))&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29146e02d83_files/figure-html/unnamed-chunk-10-11.png" width="1440" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f84fbc143f_files/figure-html/unnamed-chunk-10-7.png" width="1536" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The elbow plot shows that grouping the data into 4 or 5 clusters seems to be the best as the inertia, which measures how well a dataset was clustered by K-Means, seems to reach the optimal point at 4 and 5 clusters. A good model is the one with low inertia AND a low number of clusters (K). However, this is a tradeoff because as K increases, inertia decreases. We want the inertia to be as low as possible, but we don’t want to have 12+ clusters as well (I mean, why would you group your data anyway if you want it to have a lot of clusters). We can try clustering the data into 4 clusters first, then we can go with 5 later.&lt;/li&gt;
 &lt;/ul&gt;
@@ -200,20 +460,24 @@ y_min, y_max = X1[:, 1].min() - 1, X1[:, 1].max() + 1
 xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
 Z = algorithm.predict(np.c_[xx.ravel(), yy.ravel()]) 
 
-plt.figure(1 , figsize = (15 , 7) )
-plt.clf()
+plt.figure(1 , figsize = (15 , 7) )&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1600x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.clf()
 Z = Z.reshape(xx.shape)
 plt.imshow(Z , interpolation=&amp;#39;nearest&amp;#39;, 
            extent=(xx.min(), xx.max(), yy.min(), yy.max()),
-           cmap = plt.cm.Pastel2, aspect = &amp;#39;auto&amp;#39;, origin=&amp;#39;lower&amp;#39;)
-
-plt.scatter( x = &amp;#39;Age&amp;#39;, y = &amp;#39;Spending Score (1-100)&amp;#39;, data = df, c = labels1, s = 100)
-plt.scatter(x = centroids1[: , 0] , y =  centroids1[: , 1] , s = 300 , c = &amp;#39;red&amp;#39; , alpha = 0.5)
-plt.ylabel(&amp;#39;Spending Score (1-100)&amp;#39;) , plt.xlabel(&amp;#39;Age&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+           cmap = plt.cm.Pastel2, aspect = &amp;#39;auto&amp;#39;, origin=&amp;#39;lower&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.image.AxesImage object at 0x000000001061FA30&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.scatter( x = &amp;#39;Age&amp;#39;, y = &amp;#39;Spending Score (1-100)&amp;#39;, data = df, c = labels1, s = 100)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.collections.PathCollection object at 0x00000000102AA700&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.scatter(x = centroids1[: , 0] , y =  centroids1[: , 1] , s = 300 , c = &amp;#39;red&amp;#39; , alpha = 0.5)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.collections.PathCollection object at 0x000000001029E400&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;#39;Spending Score (1-100)&amp;#39;) , plt.xlabel(&amp;#39;Age&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;(Text(0, 0.5, &amp;#39;Spending Score (1-100)&amp;#39;), Text(0.5, 0, &amp;#39;Age&amp;#39;))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Four Clusters&amp;quot;, loc=&amp;#39;center&amp;#39;)
-plt.show()  &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29146e02d83_files/figure-html/unnamed-chunk-11-13.png" width="1440" /&gt;&lt;/p&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Four Clusters&amp;quot;, loc=&amp;#39;center&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Four Clusters&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.show()  &lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file15f84fbc143f_files/figure-html/unnamed-chunk-11-9.png" width="1536" /&gt;&lt;/p&gt;
 &lt;pre class="python"&gt;&lt;code&gt;#%%Applying KMeans for k=5
 
 algorithm = (KMeans(n_clusters = 5, init=&amp;#39;k-means++&amp;#39;, n_init = 10, max_iter=300, 
@@ -229,20 +493,24 @@ y_min, y_max = X1[:, 1].min() - 1, X1[:, 1].max() + 1
 xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
 Z = algorithm.predict(np.c_[xx.ravel(), yy.ravel()]) 
 
-plt.figure(1 , figsize = (15 , 7) )
-plt.clf()
+plt.figure(1 , figsize = (15 , 7) )&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1600x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.clf()
 Z = Z.reshape(xx.shape)
 plt.imshow(Z , interpolation=&amp;#39;nearest&amp;#39;, 
            extent=(xx.min(), xx.max(), yy.min(), yy.max()),
-           cmap = plt.cm.Pastel2, aspect = &amp;#39;auto&amp;#39;, origin=&amp;#39;lower&amp;#39;)
-
-plt.scatter( x = &amp;#39;Age&amp;#39;, y = &amp;#39;Spending Score (1-100)&amp;#39;, data = df, c = labels1, s = 100)
-plt.scatter(x = centroids1[: , 0] , y =  centroids1[: , 1] , s = 300 , c = &amp;#39;red&amp;#39; , alpha = 0.5)
-plt.ylabel(&amp;#39;Spending Score (1-100)&amp;#39;) , plt.xlabel(&amp;#39;Age&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+           cmap = plt.cm.Pastel2, aspect = &amp;#39;auto&amp;#39;, origin=&amp;#39;lower&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.image.AxesImage object at 0x00000000100A55E0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.scatter( x = &amp;#39;Age&amp;#39;, y = &amp;#39;Spending Score (1-100)&amp;#39;, data = df, c = labels1, s = 100)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.collections.PathCollection object at 0x00000000100A5C70&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.scatter(x = centroids1[: , 0] , y =  centroids1[: , 1] , s = 300 , c = &amp;#39;red&amp;#39; , alpha = 0.5)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.collections.PathCollection object at 0x000000007FE57130&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;#39;Spending Score (1-100)&amp;#39;) , plt.xlabel(&amp;#39;Age&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;(Text(0, 0.5, &amp;#39;Spending Score (1-100)&amp;#39;), Text(0.5, 0, &amp;#39;Age&amp;#39;))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Five Clusters&amp;quot;, loc=&amp;#39;center&amp;#39;)
-plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29146e02d83_files/figure-html/unnamed-chunk-12-15.png" width="1440" /&gt;&lt;/p&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Five Clusters&amp;quot;, loc=&amp;#39;center&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Five Clusters&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file15f84fbc143f_files/figure-html/unnamed-chunk-12-11.png" width="1536" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The two diagrams above show what it is like when we group the data into 4 and 5 clusters. It is important that the clusters are stable. Even though the algorithm begins by randomly initializing the cluster centers, if the k-means algorithm is the right choice for the data, then different runs of the algorithm will result in similar clusters in terms of size and variable distribution. If there is a lot of change in clusters between the different iterations of the algorithm, then k-means clustering may not be the right choice for the data. However, it is not possible to validate that the clusters obtained from the algorithm are accurate because there is no patient labeling; thus, it is necessary to examine how the clusters change between different iterations of the algorithm and check if the number of clusters makes sense in both theoretical and practical sense. We can also have domain experts give their opinions about if the clusters of customer make practical sense.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;For one more practice, we can try making a cluster based on annual income and spending score.&lt;/p&gt;&lt;/li&gt;
@@ -265,13 +533,16 @@ KMeans(algorithm=&amp;#39;full&amp;#39;, n_clusters=7, random_state=111)
 KMeans(algorithm=&amp;#39;full&amp;#39;, random_state=111)
 KMeans(algorithm=&amp;#39;full&amp;#39;, n_clusters=9, random_state=111)
 KMeans(algorithm=&amp;#39;full&amp;#39;, n_clusters=10, random_state=111)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="python"&gt;&lt;code&gt;plt.figure(1 , figsize = (15 ,6))
-plt.plot(np.arange(1 , 11) , inertia , &amp;#39;o&amp;#39;)
-plt.plot(np.arange(1 , 11) , inertia , &amp;#39;-&amp;#39; , alpha = 0.5)
-plt.xlabel(&amp;#39;Number of Clusters&amp;#39;) , plt.ylabel(&amp;#39;Inertia&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.figure(1 , figsize = (15 ,6))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1600x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.plot(np.arange(1 , 11) , inertia , &amp;#39;o&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x00000000086EC0A0&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.plot(np.arange(1 , 11) , inertia , &amp;#39;-&amp;#39; , alpha = 0.5)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x00000000086EC520&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.xlabel(&amp;#39;Number of Clusters&amp;#39;) , plt.ylabel(&amp;#39;Inertia&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;(Text(0.5, 0, &amp;#39;Number of Clusters&amp;#39;), Text(0, 0.5, &amp;#39;Inertia&amp;#39;))&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29146e02d83_files/figure-html/unnamed-chunk-13-17.png" width="1440" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f84fbc143f_files/figure-html/unnamed-chunk-13-13.png" width="1536" /&gt;&lt;/p&gt;
 &lt;pre class="python"&gt;&lt;code&gt;algorithm = (KMeans(n_clusters = 5 ,init=&amp;#39;k-means++&amp;#39;, n_init = 10 ,max_iter=300, 
                         tol=0.0001,  random_state= 111  , algorithm=&amp;#39;elkan&amp;#39;) )
 algorithm.fit(X2)&lt;/code&gt;&lt;/pre&gt;
@@ -289,21 +560,25 @@ Z2 = algorithm.predict(np.c_[xx.ravel(), yy.ravel()])
 
 #%%
 
-plt.figure(1 , figsize = (15 , 7) )
-plt.clf()
+plt.figure(1 , figsize = (15 , 7) )&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1600x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.clf()
 Z2 = Z2.reshape(xx.shape)
 plt.imshow(Z2 , interpolation=&amp;#39;nearest&amp;#39;, 
            extent=(xx.min(), xx.max(), yy.min(), yy.max()),
-           cmap = plt.cm.Pastel2, aspect = &amp;#39;auto&amp;#39;, origin=&amp;#39;lower&amp;#39;)
-
-plt.scatter( x = &amp;#39;Annual Income (k$)&amp;#39; ,y = &amp;#39;Spending Score (1-100)&amp;#39; , data = df , c = labels2 , 
-            s = 100 )
-plt.scatter(x = centroids2[: , 0] , y =  centroids2[: , 1] , s = 300 , c = &amp;#39;red&amp;#39; , alpha = 0.5)
-plt.ylabel(&amp;#39;Spending Score (1-100)&amp;#39;) , plt.xlabel(&amp;#39;Annual Income (k$)&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+           cmap = plt.cm.Pastel2, aspect = &amp;#39;auto&amp;#39;, origin=&amp;#39;lower&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.image.AxesImage object at 0x000000007FA51C10&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.scatter( x = &amp;#39;Annual Income (k$)&amp;#39; ,y = &amp;#39;Spending Score (1-100)&amp;#39; , data = df , c = labels2 , 
+            s = 100 )&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.collections.PathCollection object at 0x000000007FA51700&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.scatter(x = centroids2[: , 0] , y =  centroids2[: , 1] , s = 300 , c = &amp;#39;red&amp;#39; , alpha = 0.5)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.collections.PathCollection object at 0x000000007FA51A90&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;#39;Spending Score (1-100)&amp;#39;) , plt.xlabel(&amp;#39;Annual Income (k$)&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;(Text(0, 0.5, &amp;#39;Spending Score (1-100)&amp;#39;), Text(0.5, 0, &amp;#39;Annual Income (k$)&amp;#39;))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Five Clusters&amp;quot;, loc=&amp;#39;center&amp;#39;)
-plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29146e02d83_files/figure-html/unnamed-chunk-14-19.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Five Clusters&amp;quot;, loc=&amp;#39;center&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Five Clusters&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file15f84fbc143f_files/figure-html/unnamed-chunk-14-15.png" width="1536" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2 id="hierarchical-clustering"&gt;Hierarchical Clustering&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;An alternative to k-means clustering is hierarchical clustering (also known as hierarchical cluster analysis), which groups similar objects into hierarchies (or levels) of clusters. The end product is a set of clusters, where each cluster is distinct on its own, and the objects within each cluster are broadly similar to each other. This method works well when data have a nested structure - meaning that one characteristic is related to another (e.g., spending habit of a certain age group).&lt;/p&gt;&lt;/li&gt;
@@ -314,14 +589,18 @@ plt.show()&lt;/code&gt;&lt;/pre&gt;
 &lt;img src="https://media.giphy.com/media/lAIiI3FGKBw8jhCHYG/giphy.gif" alt="" /&gt;
 &lt;p class="caption"&gt;The Process of Hierarchical Clustering by Allison Horst. No copyright infringement intended&lt;/p&gt;
 &lt;/div&gt;
-&lt;pre class="python"&gt;&lt;code&gt;plt.figure(1, figsize = (16 ,8))
-dendrogram = sch.dendrogram(sch.linkage(df, method  = &amp;quot;ward&amp;quot;))
+&lt;pre class="python"&gt;&lt;code&gt;plt.figure(1, figsize = (16 ,8))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1600x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;dendrogram = sch.dendrogram(sch.linkage(df, method  = &amp;quot;ward&amp;quot;))
 
-plt.title(&amp;#39;Dendrogram&amp;#39;)
-plt.xlabel(&amp;#39;Customers&amp;#39;)
-plt.ylabel(&amp;#39;Euclidean distances&amp;#39;)
-plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29146e02d83_files/figure-html/unnamed-chunk-15-21.png" width="1440" /&gt;&lt;/p&gt;
+plt.title(&amp;#39;Dendrogram&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Dendrogram&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.xlabel(&amp;#39;Customers&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 0, &amp;#39;Customers&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;#39;Euclidean distances&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0, 0.5, &amp;#39;Euclidean distances&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file15f84fbc143f_files/figure-html/unnamed-chunk-15-17.png" width="1536" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Next, we will try agglomerative clustering. This method is known as a “bottom-up” approach; that is, each observation starts in its own cluster, and pairs of clusters are merged as one amd moved up the hierarchy. We start with each object forming a separate group. It keeps on merging the objects or groups that are close to one another. The iteration keeps on doing so until all of the groups are merged into one or until the termination condition holds.&lt;/li&gt;
 &lt;/ul&gt;
@@ -340,16 +619,24 @@ y_hc&lt;/code&gt;&lt;/pre&gt;
        0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
        0, 1], dtype=int64)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;X = df.iloc[:, [3,4]].values
-plt.scatter(X[y_hc==0, 0], X[y_hc==0, 1], s=100, c=&amp;#39;red&amp;#39;, label =&amp;#39;Cluster 1&amp;#39;)
-plt.scatter(X[y_hc==1, 0], X[y_hc==1, 1], s=100, c=&amp;#39;blue&amp;#39;, label =&amp;#39;Cluster 2&amp;#39;)
-plt.scatter(X[y_hc==2, 0], X[y_hc==2, 1], s=100, c=&amp;#39;green&amp;#39;, label =&amp;#39;Cluster 3&amp;#39;)
-plt.scatter(X[y_hc==3, 0], X[y_hc==3, 1], s=100, c=&amp;#39;purple&amp;#39;, label =&amp;#39;Cluster 4&amp;#39;)
-plt.scatter(X[y_hc==4, 0], X[y_hc==4, 1], s=100, c=&amp;#39;orange&amp;#39;, label =&amp;#39;Cluster 5&amp;#39;)
-plt.title(&amp;#39;Clusters of Customers (Hierarchical Clustering Model)&amp;#39;)
-plt.xlabel(&amp;#39;Annual Income(k$)&amp;#39;)
-plt.ylabel(&amp;#39;Spending Score(1-100)&amp;#39;)
-plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29146e02d83_files/figure-html/unnamed-chunk-16-23.png" width="1440" /&gt;&lt;/p&gt;
+plt.scatter(X[y_hc==0, 0], X[y_hc==0, 1], s=100, c=&amp;#39;red&amp;#39;, label =&amp;#39;Cluster 1&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.collections.PathCollection object at 0x00000000106BA250&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.scatter(X[y_hc==1, 0], X[y_hc==1, 1], s=100, c=&amp;#39;blue&amp;#39;, label =&amp;#39;Cluster 2&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.collections.PathCollection object at 0x00000000106BAFD0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.scatter(X[y_hc==2, 0], X[y_hc==2, 1], s=100, c=&amp;#39;green&amp;#39;, label =&amp;#39;Cluster 3&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.collections.PathCollection object at 0x00000000106BAA00&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.scatter(X[y_hc==3, 0], X[y_hc==3, 1], s=100, c=&amp;#39;purple&amp;#39;, label =&amp;#39;Cluster 4&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.collections.PathCollection object at 0x000000000C1B6D90&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.scatter(X[y_hc==4, 0], X[y_hc==4, 1], s=100, c=&amp;#39;orange&amp;#39;, label =&amp;#39;Cluster 5&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.collections.PathCollection object at 0x000000000C1B6820&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;#39;Clusters of Customers (Hierarchical Clustering Model)&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Clusters of Customers (Hierarchical Clustering Model)&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.xlabel(&amp;#39;Annual Income(k$)&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 0, &amp;#39;Annual Income(k$)&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;#39;Spending Score(1-100)&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0, 0.5, &amp;#39;Spending Score(1-100)&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file15f84fbc143f_files/figure-html/unnamed-chunk-16-19.png" width="1536" /&gt;&lt;/p&gt;
 &lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;The main advantage of clustering over classification is that it is adaptable to changes and helps single out useful features that distinguish different groups. This is a useful tool for data scientists to understand raw data with unsupervised learning. The methods is best used for exploratory purposes for applications such as the investigation of a group that stands out the most and identify useful features that affect them. Specifically, The method can be used to discover distinct groups in their customer base, categorize genes with similar functionality, gain insight into structures inherent to populations in Biology, or even classify documents on the web for information discovery by combining clustering with natural language processing techniques. As always, thank you very much for reading this!&lt;/li&gt;
@@ -447,7 +734,7 @@ import seaborn as sns
 sns.set_theme(style=&amp;quot;darkgrid&amp;quot;)
 ax = sns.countplot(x=&amp;quot;class&amp;quot;, data = df)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2914716f4104_files/figure-html/unnamed-chunk-4-1.png" width="1440" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f852b16296_files/figure-html/unnamed-chunk-4-1.png" width="1536" /&gt;&lt;/p&gt;
 &lt;h2 id="data-preprocessing"&gt;Data Preprocessing&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;The thing is, the data point is still coded in strings (i.e., alphabets, words or other characters). We need to re-code them into the numerical format for the machine to recognize patterns of the data.&lt;/li&gt;
@@ -475,7 +762,7 @@ dtype: int64&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;sns.set_theme(style=&amp;quot;darkgrid&amp;quot;)
 ax = sns.countplot(x=&amp;quot;class&amp;quot;, data = df)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2914716f4104_files/figure-html/unnamed-chunk-6-3.png" width="1440" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f852b16296_files/figure-html/unnamed-chunk-6-3.png" width="1536" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;As always, I will create a training and a testing set for the models to learn from.&lt;/li&gt;
 &lt;/ul&gt;
@@ -643,7 +930,7 @@ clf_xgb.fit(X_train, y_train)
 #n_estimator is the number of boosting round
 
 # predictions&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;[17:18:12] WARNING: C:/Users/Administrator/workspace/xgboost-win64_release_1.5.1/src/learner.cc:1115: Starting in XGBoost 1.3.0, the default evaluation metric used with the objective &amp;#39;binary:logistic&amp;#39; was changed from &amp;#39;error&amp;#39; to &amp;#39;logloss&amp;#39;. Explicitly set eval_metric if you&amp;#39;d like to restore the old behavior.
+&lt;pre&gt;&lt;code&gt;[18:49:46] WARNING: C:/Users/Administrator/workspace/xgboost-win64_release_1.5.1/src/learner.cc:1115: Starting in XGBoost 1.3.0, the default evaluation metric used with the objective &amp;#39;binary:logistic&amp;#39; was changed from &amp;#39;error&amp;#39; to &amp;#39;logloss&amp;#39;. Explicitly set eval_metric if you&amp;#39;d like to restore the old behavior.
 XGBClassifier(base_score=0.5, booster=&amp;#39;gbtree&amp;#39;, colsample_bylevel=1,
               colsample_bynode=1, colsample_bytree=1, enable_categorical=False,
               gamma=0, gpu_id=-1, importance_type=None,
@@ -799,7 +1086,7 @@ StackingClassifier(classifiers=[KNeighborsClassifier(),
                                                       random_state=123))
 Text(0.5, 1.0, &amp;#39;StackingClassifier&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2914716f4104_files/figure-html/unnamed-chunk-18-5.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f852b16296_files/figure-html/unnamed-chunk-18-5.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;To summarize, Voting combines the predictions of individual models using the mode. As the mode is a categorical measure, Voting can only be applied to Classification. The Averaging method combines the individual predictions using the mean. In contrast to Voting, Averaging can be applied on both classification and regression. Bagging uses a large amount of “weak” estimators. Their predictions are then aggregated by Voting or Averaging. Boosting is based on the iterative learning principle, in which each model attempts to fix the errors from the previous one. Therefore, this approach uses a sequential model building. Finally, model stacking works by combining individual estimators, but the combiner is an estimator itself, instead of just an operation.&lt;/p&gt;&lt;/li&gt;
@@ -991,9 +1278,9 @@ NA
 &lt;li&gt;Before we dive in further, we will be examining the data set for missing data ratio and patterns that could interfere with our analysis.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(PISA_Subsetted, sort_miss = TRUE, cluster = TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29147d9d248e_files/figure-html/unnamed-chunk-4-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f823693b12_files/figure-html/unnamed-chunk-4-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;naniar::gg_miss_upset(PISA_Subsetted, nsets = 5, nintersects = 10)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29147d9d248e_files/figure-html/unnamed-chunk-4-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f823693b12_files/figure-html/unnamed-chunk-4-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;It turns out we only have 1.8% of missing data. The missingness pattern indicates that the missing pair of perceived classroom cooperation and perceived classroom competition has the most frequency among all missing variables. There are also 91 cases that do not have any variable values. Given the discovered pattern, it makes more sense to remove them with listwise deletion instead of performing an imputation (aka plugging in possible numbers with an educated guess). Note that there is no rule of thumb in handling missing data. It depends on judgement of the researcher themselves. I tried imputing the data set as well and it gives no noticeable change, but I just want to try something different this time.&lt;/li&gt;
 &lt;/ul&gt;
@@ -1005,7 +1292,7 @@ NA
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot_intro(PISA_Subsetted, title = &amp;quot;Types of Variables&amp;quot;)+
   theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29147d9d248e_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file29147d9d248e_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f823693b12_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file15f823693b12_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;This plot shows us how many discrete and continuous variables that we have in the data set. Mext, we will plot structure of the data to check which variable is numerical and which variable is factor.&lt;/li&gt;
 &lt;/ul&gt;
@@ -1027,17 +1314,17 @@ CLASSCOMP       2.04   4.03  0.02    -0.04 0.01
 CLASSCOOP       1.68   3.82 -0.39    -0.47 0.01
 ATTCOMP         2.01   4.35  0.13     1.11 0.01&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot_histogram(PISA_Subsetted)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29147d9d248e_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f823693b12_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;set.seed(123)
 plot_qq(PISA_Subsetted, sampled_rows = 1000L)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29147d9d248e_files/figure-html/unnamed-chunk-8-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f823693b12_files/figure-html/unnamed-chunk-8-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The results of skewness and kurtosis indicate no departure from normality; that is, the data is normally distributed with all skewness stays between the range of -0.5 and 0.5, and all kurtosis stays between the range of -3 and 3 &lt;a href="https://www.taylorfrancis.com/books/mono/10.4324/9780203137819/introduction-statistical-concepts-debbie-hahs-vaughn-richard-lomax"&gt;(Lomax and Hahs-Vaughn, 2012)&lt;/a&gt;. The normality assumption is further confirmed with bell shape of the histogram and visualization from the Q-Q plots. Next, we will examine bivariate correlation between variables to investigate their relationships and confirm the absence of multicollinearity assumption.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Multicollinearity refers to the condition where relationships between our variables of interest is high; this which may influence the result of our analysis because we are having two variables that investigate the same thing &lt;a href="https://wires.onlinelibrary.wiley.com/doi/pdf/10.1002/wics.84?casa_token=CDV_J-e2DHsAAAAA%3AY7_DJTK8-IXnH4b1BsSLHpmSq6Peg1i4t8sanKhqtF-OAtQzQ_7JrGZpiNSf8Tn2B5xXm4OcvVlM"&gt;(Alin, 2010)&lt;/a&gt;. For example, when you investigate the influence of person’s weight to their height and included both weight in pound and weight in kilogram, the results can be messed up because you include variables that measure to much of the same thing.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot_correlation(PISA_Subsetted, type = &amp;quot;continuous&amp;quot;, title = &amp;quot;Correlation Matrix&amp;quot;) +
   theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29147d9d248e_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;img src="file29147d9d248e_files/figure-html/unnamed-chunk-9-2.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f823693b12_files/figure-html/unnamed-chunk-9-1.png" width="672" /&gt;&lt;img src="file15f823693b12_files/figure-html/unnamed-chunk-9-2.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;All variables exhibit positive correlation to each other. The matrix shows no multicollinearity as the highest correlation coefficient between variables is 0.26, which is far from extreme in terms of magnitude (.6 to .7 coefficients should be flagged). For your reference, the report of data exploration can be generated with a simple function of &lt;code&gt;create_report(PISA_Subsetted)&lt;/code&gt;.&lt;/li&gt;
 &lt;/ul&gt;
@@ -1469,7 +1756,7 @@ tune_resample &amp;lt;- tune_grid(
   grid = degree_grid)
 
 autoplot(tune_resample)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29147d9d248e_files/figure-html/unnamed-chunk-34-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f823693b12_files/figure-html/unnamed-chunk-34-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We want RMSE to be as low as possible and R-Squared to be as high as possible. However, our models can only do so much. Their performance will remain somewhat steady when it reaches a certain point. In our case, it is from the 6th polynomial degree onward. While the plot suggests that the 10th polynomial degree performed the best, we do not want our model to be too complex as it can be harder to interpret. We want the model that performs the best and is easiest to interpret. For that, we might want to pick the model that comes right after a significant performance boost to not make it too complex while able to bring out its maximum performance, which is the 6th degree polynomial model (Sextic Regression).&lt;/li&gt;
 &lt;/ul&gt;
@@ -2907,7 +3194,7 @@ P6
        ylab = &amp;quot;Proportion of the examinee&amp;quot;,
        plotTitle = &amp;quot;Item Characteristic Curve of item 1&amp;quot;,
        colTheme=&amp;quot;dukes&amp;quot;, cex=1.5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29144137ee5_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f8a977b99_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will convert our score data into matrix for for further implementation with item analysis.&lt;/li&gt;
 &lt;/ul&gt;
@@ -4415,7 +4702,7 @@ NA
   }
 
 item.discrimination(responses)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29144137ee5_files/figure-html/unnamed-chunk-28-1.png" width="672" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f8a977b99_files/figure-html/unnamed-chunk-28-1.png" width="672" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;   item discrimination
 10   10    -0.04341855
 3     3     0.05061749
@@ -4477,7 +4764,7 @@ item.discrimination(responses)&lt;/code&gt;&lt;/pre&gt;
     }
 
 test_item.total(responses)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29144137ee5_files/figure-html/unnamed-chunk-29-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f8a977b99_files/figure-html/unnamed-chunk-29-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;   item    biserial
 10   10 -0.05493825
 3     3  0.06858871
@@ -4824,7 +5111,7 @@ dlookr::diagnose(data)&lt;/code&gt;&lt;/pre&gt;
 10 C5        integer            16           0.571            7
 # ... with 15 more rows, and 1 more variable: unique_rate &amp;lt;dbl&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;visdat::vis_miss(data, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29142156e81_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f8656aba2_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;There are some degree of missingness in the dataset as indicated by the missingness map. For good measure, we will impute it with the predictive mean matchmaking method by the &lt;code&gt;mice&lt;/code&gt; package.&lt;/li&gt;
 &lt;/ul&gt;
@@ -4861,7 +5148,7 @@ mice_model &amp;lt;- mice(data, method=&amp;#39;pmm&amp;#39;, seed = 123)&lt;/co
 &lt;pre class="r"&gt;&lt;code&gt;data_complete &amp;lt;- complete(mice_model)
 
 visdat::vis_miss(data_complete, sort_miss = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29142156e81_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f8656aba2_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;There is no missing value present in the dataset after the imputation. We can proceed with factor structure checking to assess whether the dataset is appropriate for factor analysis with &lt;code&gt;check_factorstructure()&lt;/code&gt;. Two existing methods are the &lt;em&gt;Bartlett’s Test of Sphericity&lt;/em&gt; and the &lt;em&gt;Kaiser, Meyer, Olkin (KMO)&lt;/em&gt; Measure of Sampling Adequacy (MSA).&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;The former tests whether a matrix is significantly different from an identity matrix. This statistical test for the presence of correlations among variables, providing the statistical probability that the correlation matrix has significant correlations among at least some of variables. As for factor analysis to work, some relationships between variables are needed, thus, a significant Bartlett’s test of sphericity is required to be significant.&lt;/p&gt;&lt;/li&gt;
@@ -4899,7 +5186,7 @@ ggcorrplot(data.corr,
   labs(title=&amp;quot;Correlation Matrix&amp;quot;)+
   theme(plot.title=element_text(face=&amp;#39;bold&amp;#39;,size=14,hjust=0.5,colour=&amp;quot;darkred&amp;quot;))+
   theme(legend.position=c(0.10,0.80), legend.box.just = &amp;quot;bottom&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29142156e81_files/figure-html/unnamed-chunk-8-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f8656aba2_files/figure-html/unnamed-chunk-8-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The green panel indicates positive relationships while the red panel indicates negative relationship. The cross symbol suggests that the relationship between two variables is not statistically significant.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Next, we would need to split the dataset into two to perform EFA and CFA, so that we can make sure to test the model on an unseen set of data.&lt;/p&gt;&lt;/li&gt;
@@ -4953,7 +5240,7 @@ eigenvals$values&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Then use the correlation matrix to create the scree plot
 
 scree(bfi_EFA_cor, factors = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29142156e81_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f8656aba2_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;From the above plot, The point where the slope of the curve is clearly leveling off (the “elbow) indicates that the number of factors that should be retained. For this case, the plot indicated that six factors should be retained.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;However, the dataset we use is for Big 5 personality traits with 5 factors, so we can investigate both 5 and 6 factors model to compare them both.&lt;/p&gt;&lt;/li&gt;
@@ -5072,7 +5359,7 @@ The choice of 6 dimensions is supported by 4 (21.05%) methods out of 19 (Optimal
 9         22         1
 10        24         3&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(n_factor) + theme_bw()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29142156e81_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f8656aba2_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Interestingly, most methods also suggest six factors from the model, which is consistent with the &lt;a href="https://en.wikipedia.org/wiki/HEXACO_model_of_personality_structure"&gt;HEXACO model&lt;/a&gt; of personalities that is similar with the Big 5 personality theory.&lt;/li&gt;
 &lt;/ul&gt;
@@ -5100,19 +5387,19 @@ test  &amp;lt;- testing(data_split)  #1/4&lt;/code&gt;&lt;/pre&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;structure_big5 &amp;lt;- psych::fa(training, nfactors = 5)
 fa.diagram(structure_big5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29142156e81_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f8656aba2_files/figure-html/unnamed-chunk-21-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big5$scores, na.rm = TRUE), 
      main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29142156e81_files/figure-html/unnamed-chunk-22-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f8656aba2_files/figure-html/unnamed-chunk-22-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Then, for the structure of the 6 factors model.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;structure_big6 &amp;lt;- psych::fa(training, nfactors = 6) 
 fa.diagram(structure_big6)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29142156e81_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f8656aba2_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(density(structure_big6$scores, na.rm = TRUE), 
      main = &amp;quot;Factor Scores&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29142156e81_files/figure-html/unnamed-chunk-24-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f8656aba2_files/figure-html/unnamed-chunk-24-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will then transform both EFA models into &lt;code&gt;lavaan&lt;/code&gt; syntax to perform CFA.&lt;/li&gt;
 &lt;/ul&gt;
@@ -5485,7 +5772,7 @@ clusters_df = pd.DataFrame(clusters, columns = [&amp;#39;cluster_group&amp;#39;]
 
 sns.set_theme(style=&amp;quot;whitegrid&amp;quot;)
 sns.catplot(x=&amp;quot;cluster_group&amp;quot;, kind=&amp;quot;count&amp;quot;, data=clusters_df)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;seaborn.axisgrid.FacetGrid object at 0x00000000050C5DC0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;seaborn.axisgrid.FacetGrid object at 0x000000000C1AA250&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id="calculate-similarity-distance"&gt;Calculate similarity distance&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;By using &lt;code&gt;countvectorizer&lt;/code&gt;, we can turn a sentence into numbers for the computer to calculate similarity distance with the cosine similarity measurement (it is basically a number that indicates how closely related the two sets of words are).&lt;/li&gt;
@@ -5522,7 +5809,7 @@ fig.set_size_inches(120, 50)
 # Show the plotted dendrogram
 plt.grid(False)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file291460ecba0_files/figure-html/unnamed-chunk-13-1.png" width="11520" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f861bc1099_files/figure-html/unnamed-chunk-13-1.png" width="11520" /&gt;&lt;/p&gt;
 &lt;h2 id="concluding-remark"&gt;Concluding remark&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;While I am not an expert in movie critique, the movie plot data is a good venue to practice text cleaning with tokenization and stemming. The TF-IDF method is also widely implemented to extract meaningful information from textual data in general. Lastly, clustering is also a useful exploratory machine learning method to gain insights from unlabeled data to inform our decisions.&lt;/p&gt;&lt;/li&gt;
@@ -5630,7 +5917,7 @@ PISA_Subsetted$FEMALE &amp;lt;- recode_factor(PISA_Subsetted$FEMALE,
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;oceanbuoys %&amp;gt;% arrange(year) %&amp;gt;% vis_miss()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file29145a264519_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file15f816de2c3a_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Missing Not at Random (MNAR)&lt;/p&gt;
 &lt;ul&gt;
