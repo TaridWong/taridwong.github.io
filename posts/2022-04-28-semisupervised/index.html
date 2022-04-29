@@ -136,7 +136,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--/radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-resource-manifest">
-  {"type":"character","attributes":{},"value":["autoencoder.png","creditcard.csv","mldiagram.png","semi-ml.png","semisupervised_files/anchor-4.2.2/anchor.min.js","semisupervised_files/bowser-1.9.3/bowser.min.js","semisupervised_files/distill-2.2.21/template.v2.js","semisupervised_files/figure-html5/unnamed-chunk-15-3.png","semisupervised_files/figure-html5/unnamed-chunk-16-3.png","semisupervised_files/figure-html5/unnamed-chunk-17-5.png","semisupervised_files/figure-html5/unnamed-chunk-18-5.png","semisupervised_files/figure-html5/unnamed-chunk-18-7.png","semisupervised_files/figure-html5/unnamed-chunk-7-1.png","semisupervised_files/header-attrs-2.13/header-attrs.js","semisupervised_files/jquery-3.6.0/jquery-3.6.0.js","semisupervised_files/jquery-3.6.0/jquery-3.6.0.min.js","semisupervised_files/jquery-3.6.0/jquery-3.6.0.min.map","semisupervised_files/popper-2.6.0/popper.min.js","semisupervised_files/tippy-6.2.7/tippy-bundle.umd.min.js","semisupervised_files/tippy-6.2.7/tippy-light-border.css","semisupervised_files/tippy-6.2.7/tippy.css","semisupervised_files/tippy-6.2.7/tippy.umd.min.js","semisupervised_files/webcomponents-2.0.0/webcomponents.js"]}
+  {"type":"character","attributes":{},"value":["autoencoder.png","creditcard.csv","mldiagram.png","semi-ml.png","semisupervised_files/anchor-4.2.2/anchor.min.js","semisupervised_files/bowser-1.9.3/bowser.min.js","semisupervised_files/distill-2.2.21/template.v2.js","semisupervised_files/figure-html5/unnamed-chunk-15-3.png","semisupervised_files/figure-html5/unnamed-chunk-16-3.png","semisupervised_files/figure-html5/unnamed-chunk-17-5.png","semisupervised_files/figure-html5/unnamed-chunk-18-5.png","semisupervised_files/figure-html5/unnamed-chunk-18-7.png","semisupervised_files/figure-html5/unnamed-chunk-7-1.png","semisupervised_files/header-attrs-2.13/header-attrs.js","semisupervised_files/header-attrs-2.14/header-attrs.js","semisupervised_files/jquery-3.6.0/jquery-3.6.0.js","semisupervised_files/jquery-3.6.0/jquery-3.6.0.min.js","semisupervised_files/jquery-3.6.0/jquery-3.6.0.min.map","semisupervised_files/popper-2.6.0/popper.min.js","semisupervised_files/tippy-6.2.7/tippy-bundle.umd.min.js","semisupervised_files/tippy-6.2.7/tippy-light-border.css","semisupervised_files/tippy-6.2.7/tippy.css","semisupervised_files/tippy-6.2.7/tippy.umd.min.js","semisupervised_files/webcomponents-2.0.0/webcomponents.js"]}
   </script>
   <!--radix_placeholder_navigation_in_header-->
 <meta name="distill:offset" content="../.."/>
@@ -2396,7 +2396,7 @@ d-appendix d-footnote-list a.footnote-backlink {
   color: var(--hover-color, white);
 }</style>
 <!--/radix_placeholder_distill-->
-  <script src="../../site_libs/header-attrs-2.13/header-attrs.js"></script>
+  <script src="../../site_libs/header-attrs-2.14/header-attrs.js"></script>
   <script src="../../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
   <script src="../../site_libs/popper-2.6.0/popper.min.js"></script>
   <link href="../../site_libs/tippy-6.2.7/tippy.css" rel="stylesheet" />
@@ -2461,12 +2461,14 @@ gtag('config', 'G-N6RYE4NFCW');
   <a href="../../index.html#category:Supervised_Machine_Learning" class="dt-tag">Supervised Machine Learning</a>
 </div>
 <!--/radix_placeholder_categories-->
-<p><p>For this post, I will use semi-supervised learning approach to perform a classification task with a highly imbalance data.</p>
+<p><p>For this post, I will use semi-supervised learning approach to
+perform a classification task with a highly imbalance data.</p>
 <p>(7 min read)</p></p>
 </div>
 
 <div class="d-byline">
-  Tarid Wongvorachan  (University of Alberta)<a href="https://www.ualberta.ca" class="uri">https://www.ualberta.ca</a>
+  Tarid Wongvorachan  (University of Alberta)<a
+href="https://www.ualberta.ca" class="uri">https://www.ualberta.ca</a>
   
 <br/>2022-04-28
 </div>
@@ -2478,9 +2480,11 @@ gtag('config', 'G-N6RYE4NFCW');
 <ul>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#data-set-preparation">Data Set Preparation</a></li>
-<li><a href="#visualize-fraud-and-nonfraud-transactions">Visualize Fraud and NonFraud Transactions</a></li>
+<li><a href="#visualize-fraud-and-nonfraud-transactions">Visualize Fraud
+and NonFraud Transactions</a></li>
 <li><a href="#autoencoders">AutoEncoders</a></li>
-<li><a href="#obtain-the-generated-data">Obtain the Generated Data</a></li>
+<li><a href="#obtain-the-generated-data">Obtain the Generated
+Data</a></li>
 <li><a href="#linear-classifier">Linear Classifier</a></li>
 <li><a href="#conclusion">Conclusion</a></li>
 </ul>
@@ -2488,32 +2492,87 @@ gtag('config', 'G-N6RYE4NFCW');
 </div>
 <h2 id="introduction">Introduction</h2>
 <ul>
-<li><p><a href="https://blogs.sas.com/content/subconsciousmusings/2020/12/09/machine-learning-algorithm-use/">Machine Learning (ML)</a> is a process of learning the best possible and most relevant patterns, relationships, or associations from a data set to predict the outcomes on unseen data. Broadly, there are three types of ML process:</p></li>
-<li><p>Supervised Learning, which is a process that trains a ML model on a labelled data set. The model aims to find the relationships among the independent and dependent variable to predict unseen data we may receive in the future.</p></li>
-<li><p>Unsupervised Learning, which is a process of training a ML model on a dataset in which the target variable is not known. The model aims to find the most relevant patterns in the data or the segments of data.</p></li>
-<li><p>Semi-Supervised Learning, which is a combination of supervised and unsupervised learning processes in which the unlabeled data is used to train a model as well. In this approach, the properties of unsupervised learning are used to learn the best possible representation of data, and the properties of supervised learning are used to learn the relationships to make predictions.</p></li>
-<li><p>Each ML algorithm has its own use under the consideration of a) the size, quality, and nature of data, b) The available computational time, c) The urgency of the task, and d) the expected result. Among the vast availability of algorithms, each ML type has its own role in tackling different types of data science problem depending on the mentioned considerations. The ML algorithm cheat sheet below is a good starting point to choose algorithms that are appropriate for your specific problems.</p></li>
+<li><p><a
+href="https://blogs.sas.com/content/subconsciousmusings/2020/12/09/machine-learning-algorithm-use/">Machine
+Learning (ML)</a> is a process of learning the best possible and most
+relevant patterns, relationships, or associations from a data set to
+predict the outcomes on unseen data. Broadly, there are three types of
+ML process:</p></li>
+<li><p>Supervised Learning, which is a process that trains a ML model on
+a labelled data set. The model aims to find the relationships among the
+independent and dependent variable to predict unseen data we may receive
+in the future.</p></li>
+<li><p>Unsupervised Learning, which is a process of training a ML model
+on a dataset in which the target variable is not known. The model aims
+to find the most relevant patterns in the data or the segments of
+data.</p></li>
+<li><p>Semi-Supervised Learning, which is a combination of supervised
+and unsupervised learning processes in which the unlabeled data is used
+to train a model as well. In this approach, the properties of
+unsupervised learning are used to learn the best possible representation
+of data, and the properties of supervised learning are used to learn the
+relationships to make predictions.</p></li>
+<li><p>Each ML algorithm has its own use under the consideration of a)
+the size, quality, and nature of data, b) The available computational
+time, c) The urgency of the task, and d) the expected result. Among the
+vast availability of algorithms, each ML type has its own role in
+tackling different types of data science problem depending on the
+mentioned considerations. The ML algorithm cheat sheet below is a good
+starting point to choose algorithms that are appropriate for your
+specific problems.</p></li>
 </ul>
 <figure>
-<img src="mldiagram.png" style="width:60.0%" alt="Image from https://blogs.sas.com/content/subconsciousmusings/2020/12/09/machine-learning-algorithm-use/. No copyright infringement is intended" /><figcaption aria-hidden="true">Image from <a href="https://blogs.sas.com/content/subconsciousmusings/2020/12/09/machine-learning-algorithm-use/" class="uri">https://blogs.sas.com/content/subconsciousmusings/2020/12/09/machine-learning-algorithm-use/</a>. No copyright infringement is intended</figcaption>
+<img src="mldiagram.png" style="width:60.0%"
+alt="Image from https://blogs.sas.com/content/subconsciousmusings/2020/12/09/machine-learning-algorithm-use/. No copyright infringement is intended" />
+<figcaption aria-hidden="true">Image from <a
+href="https://blogs.sas.com/content/subconsciousmusings/2020/12/09/machine-learning-algorithm-use/"
+class="uri">https://blogs.sas.com/content/subconsciousmusings/2020/12/09/machine-learning-algorithm-use/</a>.
+No copyright infringement is intended</figcaption>
 </figure>
 <ul>
-<li>We have previously discussed about the use supervised and unsupervised ML separately in other posts. However, the problem we will tackle in this post requires the ability of both unsupervised and supervised learning, which is why I will use semi-supervised learning in this post to solve data imbalance problem by generating a pseudo-labeled data and use it to train an ML model to perform a classification.</li>
+<li>We have previously discussed about the use supervised and
+unsupervised ML separately in other posts. However, the problem we will
+tackle in this post requires the ability of both unsupervised and
+supervised learning, which is why I will use semi-supervised learning in
+this post to solve data imbalance problem by generating a pseudo-labeled
+data and use it to train an ML model to perform a classification.</li>
 </ul>
 <figure>
-<img src="semi-ml.png" style="width:70.0%" alt="Image from https://teksands.ai/blog/semi-supervised-learning. No copyright infringement is intended" /><figcaption aria-hidden="true">Image from <a href="https://teksands.ai/blog/semi-supervised-learning" class="uri">https://teksands.ai/blog/semi-supervised-learning</a>. No copyright infringement is intended</figcaption>
+<img src="semi-ml.png" style="width:70.0%"
+alt="Image from https://teksands.ai/blog/semi-supervised-learning. No copyright infringement is intended" />
+<figcaption aria-hidden="true">Image from <a
+href="https://teksands.ai/blog/semi-supervised-learning"
+class="uri">https://teksands.ai/blog/semi-supervised-learning</a>. No
+copyright infringement is intended</figcaption>
 </figure>
 <h2 id="data-set-preparation">Data Set Preparation</h2>
 <ul>
-<li><p>Semi-supervised learning is a restatement of the missing data imputation problem, which is specific to small data set with missing-label cases. This problem is commonly encountered in data set generation contexts as retrieving clean data can be costly and time consuming. Applying supervised machine learning techniques to small data set might yield poor results that cannot be further used; thus, it would be more useful to address this problem with a combination of both machine learning approaches (i.e., unsupervised and supervised) for optimal results.</p></li>
-<li><p>For this post, I will be using the <a href="https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud">Credit Card Fraud Detection</a> data set from the <a href="https://mlg.ulb.ac.be/">Université Libre de Bruxelles (Brussels, Belgium) machine learning group</a> The dataset contains transactions made by credit cards in September 2013 by European cardholders. This dataset presents transactions that occurred in two days, where we have 492 fraud transactions out of 284,807 transactions. We will first importing in Python modules and the data set as usual.</p></li>
+<li><p>Semi-supervised learning is a restatement of the missing data
+imputation problem, which is specific to small data set with
+missing-label cases. This problem is commonly encountered in data set
+generation contexts as retrieving clean data can be costly and time
+consuming. Applying supervised machine learning techniques to small data
+set might yield poor results that cannot be further used; thus, it would
+be more useful to address this problem with a combination of both
+machine learning approaches (i.e., unsupervised and supervised) for
+optimal results.</p></li>
+<li><p>For this post, I will be using the <a
+href="https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud">Credit
+Card Fraud Detection</a> data set from the <a
+href="https://mlg.ulb.ac.be/">Université Libre de Bruxelles (Brussels,
+Belgium) machine learning group</a> The dataset contains transactions
+made by credit cards in September 2013 by European cardholders. This
+dataset presents transactions that occurred in two days, where we have
+492 fraud transactions out of 284,807 transactions. We will first
+importing in Python modules and the data set as usual.</p></li>
 </ul>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras.layers <span class="im">import</span> Input, Dense</span>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras.layers <span class="im">import</span> Input, Dense</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras.models <span class="im">import</span> Model, Sequential</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> keras <span class="im">import</span> regularizers</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split </span>
@@ -2535,7 +2594,8 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>sns.<span class="bu">set</span>(style<span class="op">=</span><span class="st">&quot;whitegrid&quot;</span>)</span>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>sns.<span class="bu">set</span>(style<span class="op">=</span><span class="st">&quot;whitegrid&quot;</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">203</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">&quot;creditcard.csv&quot;</span>)</span>
@@ -2552,14 +2612,19 @@ Show code
 [5 rows x 31 columns]</code></pre>
 </div>
 <ul>
-<li>To check if the data is imbalance, we will count the target variable by its value (i.e., 0, 1). The result below indicates that the data is highly imbalance as only 0.17 % cases are fraud transactions. This problem could lower performance of a supervised ML model as the machine learns only one class (0) and discard the other class as noises.</li>
+<li>To check if the data is imbalance, we will count the target variable
+by its value (i.e., 0, 1). The result below indicates that the data is
+highly imbalance as only 0.17 % cases are fraud transactions. This
+problem could lower performance of a supervised ML model as the machine
+learns only one class (0) and discard the other class as noises.</li>
 </ul>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>vc <span class="op">=</span> data[<span class="st">&#39;Class&#39;</span>].value_counts().to_frame().reset_index()</span>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>vc <span class="op">=</span> data[<span class="st">&#39;Class&#39;</span>].value_counts().to_frame().reset_index()</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>vc[<span class="st">&#39;percent&#39;</span>] <span class="op">=</span> vc[<span class="st">&quot;Class&quot;</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> x : <span class="bu">round</span>(<span class="dv">100</span><span class="op">*</span><span class="bu">float</span>(x) <span class="op">/</span> <span class="bu">len</span>(data), <span class="dv">2</span>))</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>vc <span class="op">=</span> vc.rename(columns <span class="op">=</span> {<span class="st">&quot;index&quot;</span> : <span class="st">&quot;Target&quot;</span>, <span class="st">&quot;Class&quot;</span> : <span class="st">&quot;Count&quot;</span>})</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>vc</span></code></pre></div>
@@ -2569,14 +2634,16 @@ Show code
 1       1     492     0.17</code></pre>
 </div>
 <ul>
-<li>We will also sample 1000 non-fraud data and merge it with fraud data to form a data set for this task.</li>
+<li>We will also sample 1000 non-fraud data and merge it with fraud data
+to form a data set for this task.</li>
 </ul>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>non_fraud <span class="op">=</span> data[data[<span class="st">&#39;Class&#39;</span>] <span class="op">==</span> <span class="dv">0</span>].sample(<span class="dv">1000</span>)</span>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>non_fraud <span class="op">=</span> data[data[<span class="st">&#39;Class&#39;</span>] <span class="op">==</span> <span class="dv">0</span>].sample(<span class="dv">1000</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>fraud <span class="op">=</span> data[data[<span class="st">&#39;Class&#39;</span>] <span class="op">==</span> <span class="dv">1</span>]</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> non_fraud.append(fraud).sample(frac<span class="op">=</span><span class="dv">1</span>).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
@@ -2584,17 +2651,26 @@ Show code
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> df[<span class="st">&quot;Class&quot;</span>].values  </span></code></pre></div>
 </details>
 </div>
-<h2 id="visualize-fraud-and-nonfraud-transactions">Visualize Fraud and NonFraud Transactions</h2>
+<h2 id="visualize-fraud-and-nonfraud-transactions">Visualize Fraud and
+NonFraud Transactions</h2>
 <ul>
-<li>Let’s visualize the nature of fraud and non-fraud transactions using T-SNE. T-SNE (t-Distributed Stochastic Neighbor Embedding) is an unsupervised technique primarily used for data exploration and visualizing high-dimensional data. The technique reduces dimensionality of the data set and produces only components with maximum information. Every dot in the following represents a transaction. Non Fraud transactions are coded as “0” - the red dot, while Fraud transactions are coded as “1” - the blue dot. The two axis are the components extracted by T-SNE.<br />
-
+<li>Let’s visualize the nature of fraud and non-fraud transactions using
+T-SNE. T-SNE (t-Distributed Stochastic Neighbor Embedding) is an
+unsupervised technique primarily used for data exploration and
+visualizing high-dimensional data. The technique reduces dimensionality
+of the data set and produces only components with maximum information.
+Every dot in the following represents a transaction. Non Fraud
+transactions are coded as “0” - the red dot, while Fraud transactions
+are coded as “1” - the blue dot. The two axis are the components
+extracted by T-SNE.<br />
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary></li>
 </ul>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>tsne <span class="op">=</span> TSNE(n_components<span class="op">=</span><span class="dv">2</span>, random_state<span class="op">=</span><span class="dv">0</span>)</span>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>tsne <span class="op">=</span> TSNE(n_components<span class="op">=</span><span class="dv">2</span>, random_state<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>TSNE_result <span class="op">=</span> tsne.fit_transform(X)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -2603,21 +2679,38 @@ Show code
 <p><img src="semisupervised_files/figure-html5/unnamed-chunk-7-1.png" width="624" /></p>
 </div>
 <ul>
-<li>The graph above shoes that there are many non_fraud transactions which are very close to fraud transactions. This pattern makes the data challenging to classify as they are ambiguous. This problem can be mitigated by using AutoEncoders, which is another unsupervised learning algorithm.</li>
+<li>The graph above shoes that there are many non_fraud transactions
+which are very close to fraud transactions. This pattern makes the data
+challenging to classify as they are ambiguous. This problem can be
+mitigated by using AutoEncoders, which is another unsupervised learning
+algorithm.</li>
 </ul>
 <h2 id="autoencoders">AutoEncoders</h2>
 <ul>
-<li><p>Autoencoders are a special type of neural network architectures in which the output is same as the input. In other words, an autoencoder, once trained on appropriate training data, can be used to generate compressed copies of input data point while preserve most of the information (features) from the input. For our case, the model will try to learn the best representation of non-fraud cases and generate the representations of fraud cases.</p></li>
-<li><p>As for how it works, Autoencoders are designed to have a bottle-neck architecture with a few neurons to comprehensively compress the knowledge about representation of the original input for the machine to reproduce it by using decoders. The picture below shows architecture of the machine in how it learns from the input data.</p></li>
+<li><p>Autoencoders are a special type of neural network architectures
+in which the output is same as the input. In other words, an
+autoencoder, once trained on appropriate training data, can be used to
+generate compressed copies of input data point while preserve most of
+the information (features) from the input. For our case, the model will
+try to learn the best representation of non-fraud cases and generate the
+representations of fraud cases.</p></li>
+<li><p>As for how it works, Autoencoders are designed to have a
+bottle-neck architecture with a few neurons to comprehensively compress
+the knowledge about representation of the original input for the machine
+to reproduce it by using decoders. The picture below shows architecture
+of the machine in how it learns from the input data.</p></li>
 </ul>
-<p><img src="autoencoder.png" style="width:50.0%" alt="Image from https://www.jeremyjordan.me/autoencoders. No copyright infringement is intended" /><br />
-- First, we will create a network with one input layer and one output layer. Both of them will have identical dimensions.</p>
+<p><img src="autoencoder.png" style="width:50.0%"
+alt="Image from https://www.jeremyjordan.me/autoencoders. No copyright infringement is intended" /><br />
+- First, we will create a network with one input layer and one output
+layer. Both of them will have identical dimensions.</p>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">## input layer </span></span>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">## input layer </span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>input_layer <span class="op">=</span> Input(shape<span class="op">=</span>(X.shape[<span class="dv">1</span>],))</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">## encoding part</span></span>
@@ -2633,14 +2726,19 @@ Show code
 </details>
 </div>
 <ul>
-<li>Next, we will create the model architecture by compiling the above input layer and output layers. We will also add the optimizer and loss function. I am using “adadelta” as the optimizer and “mse” as the loss function. I will also transform the data with min-max scaling to make it easier for the model to process.</li>
+<li>Next, we will create the model architecture by compiling the above
+input layer and output layers. We will also add the optimizer and loss
+function. I am using “adadelta” as the optimizer and “mse” as the loss
+function. I will also transform the data with min-max scaling to make it
+easier for the model to process.</li>
 </ul>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>autoencoder <span class="op">=</span> Model(input_layer, output_layer)</span>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>autoencoder <span class="op">=</span> Model(input_layer, output_layer)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>autoencoder.<span class="bu">compile</span>(optimizer<span class="op">=</span><span class="st">&quot;adadelta&quot;</span>, loss<span class="op">=</span><span class="st">&quot;mse&quot;</span>)</span></code></pre></div>
 </details>
 </div>
@@ -2649,7 +2747,8 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> data.drop([<span class="st">&quot;Class&quot;</span>], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> data.drop([<span class="st">&quot;Class&quot;</span>], axis<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> data[<span class="st">&quot;Class&quot;</span>].values</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>x_scale <span class="op">=</span> preprocessing.MinMaxScaler().fit_transform(x.values)</span>
@@ -2657,28 +2756,45 @@ Show code
 </details>
 </div>
 <ul>
-<li>One advantage of using autoencoders is that we do not need a large amount of data to teach the machine. We will use only 2000 rows of non fraud cases to train the autoencoder. The choice of small samples from the original data set is based on the intuition that one class characteristics (non fraud) will differ from that of the other (fraud). To distinguish these characteristics, we need to show the autoencoders only one class of data. This is because the autoencoder will try to learn only one class and automatically distinguish the other class.</li>
+<li>One advantage of using autoencoders is that we do not need a large
+amount of data to teach the machine. We will use only 2000 rows of non
+fraud cases to train the autoencoder. The choice of small samples from
+the original data set is based on the intuition that one class
+characteristics (non fraud) will differ from that of the other (fraud).
+To distinguish these characteristics, we need to show the autoencoders
+only one class of data. This is because the autoencoder will try to
+learn only one class and automatically distinguish the other class.</li>
 </ul>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>autoencoder.fit(x_norm[<span class="dv">0</span>:<span class="dv">2000</span>], x_norm[<span class="dv">0</span>:<span class="dv">2000</span>], </span>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>autoencoder.fit(x_norm[<span class="dv">0</span>:<span class="dv">2000</span>], x_norm[<span class="dv">0</span>:<span class="dv">2000</span>], </span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                batch_size <span class="op">=</span> <span class="dv">256</span>, epochs <span class="op">=</span> <span class="dv">10</span>, </span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                shuffle <span class="op">=</span> <span class="va">True</span>, validation_split <span class="op">=</span> <span class="fl">0.20</span>)</span></code></pre></div>
 </details>
 </div>
 <h2 id="obtain-the-generated-data">Obtain the Generated Data</h2>
 <ul>
-<li>After training the model, we can obtain representation of the data (aka its latent pattern) to learn how the data is distributed by accessing the model. A latent variable is a random variable that cannot be observed directly, but it lays the foundation of how the data is distributed. Latent variables also give us a low-level representation of high-dimensional data. They give us an abstract representation of how the data is distributed. We will also extract the generated “fraud” and “non-fraud” data to create a new data set to be used. We will also visualize the new data for comparison.</li>
+<li>After training the model, we can obtain representation of the data
+(aka its latent pattern) to learn how the data is distributed by
+accessing the model. A latent variable is a random variable that cannot
+be observed directly, but it lays the foundation of how the data is
+distributed. Latent variables also give us a low-level representation of
+high-dimensional data. They give us an abstract representation of how
+the data is distributed. We will also extract the generated “fraud” and
+“non-fraud” data to create a new data set to be used. We will also
+visualize the new data for comparison.</li>
 </ul>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>hidden_representation <span class="op">=</span> Sequential()</span>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>hidden_representation <span class="op">=</span> Sequential()</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>hidden_representation.add(autoencoder.layers[<span class="dv">0</span>])</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>hidden_representation.add(autoencoder.layers[<span class="dv">1</span>])</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>hidden_representation.add(autoencoder.layers[<span class="dv">2</span>])</span></code></pre></div>
@@ -2689,7 +2805,8 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>norm_hid_rep <span class="op">=</span> hidden_representation.predict(x_norm[:<span class="dv">3000</span>])</span>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>norm_hid_rep <span class="op">=</span> hidden_representation.predict(x_norm[:<span class="dv">3000</span>])</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>fraud_hid_rep <span class="op">=</span> hidden_representation.predict(x_fraud)</span></code></pre></div>
 </details>
 </div>
@@ -2698,7 +2815,8 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>new_x <span class="op">=</span> np.append(norm_hid_rep, fraud_hid_rep, axis <span class="op">=</span> <span class="dv">0</span>)</span>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>new_x <span class="op">=</span> np.append(norm_hid_rep, fraud_hid_rep, axis <span class="op">=</span> <span class="dv">0</span>)</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>new_y_not_fraud <span class="op">=</span> np.zeros(norm_hid_rep.shape[<span class="dv">0</span>])</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>new_y_fraud <span class="op">=</span> np.ones(fraud_hid_rep.shape[<span class="dv">0</span>])</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>new_y <span class="op">=</span> np.append(new_y_not_fraud, new_y_fraud)</span></code></pre></div>
@@ -2709,24 +2827,33 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>TSNE_result_new <span class="op">=</span> tsne.fit_transform(new_x)</span>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>TSNE_result_new <span class="op">=</span> tsne.fit_transform(new_x)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(TSNE_result_new[:,<span class="dv">0</span>], TSNE_result_new[:,<span class="dv">1</span>], hue<span class="op">=</span>new_y, legend<span class="op">=</span><span class="st">&#39;full&#39;</span>, palette<span class="op">=</span><span class="st">&quot;hls&quot;</span>)</span></code></pre></div>
 </details>
 <p><img src="semisupervised_files/figure-html5/unnamed-chunk-16-3.png" width="624" /></p>
 </div>
 <ul>
-<li>The new TSNE plot shows that both fraud and non-fraud transactions are pretty visible and linearly separable. We can use simple linear models such as logistic regression to classify this data without the needs for complex models like Random Forest that could be harder to interpret.</li>
+<li>The new TSNE plot shows that both fraud and non-fraud transactions
+are pretty visible and linearly separable. We can use simple linear
+models such as logistic regression to classify this data without the
+needs for complex models like Random Forest that could be harder to
+interpret.</li>
 </ul>
 <h2 id="linear-classifier">Linear Classifier</h2>
 <ul>
-<li>As usual, we will divide the new data set into a training and a testing asset before passing them to a logistic regression model. We will also request for a confusion matrix to map out a summary of prediction results.</li>
+<li>As usual, we will divide the new data set into a training and a
+testing asset before passing them to a logistic regression model. We
+will also request for a confusion matrix to map out a summary of
+prediction results.</li>
 </ul>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(new_x, new_y, test_size<span class="op">=</span><span class="fl">0.3</span>)</span>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(new_x, new_y, test_size<span class="op">=</span><span class="fl">0.3</span>)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>clf_lr <span class="op">=</span> LogisticRegression(max_iter <span class="op">=</span> <span class="dv">450</span>, random_state <span class="op">=</span> <span class="dv">123</span>)</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>clf_lr.fit(X_train,y_train)  </span></code></pre></div>
@@ -2736,32 +2863,35 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>pred_lr <span class="op">=</span> clf_lr.predict(X_test)</span>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>pred_lr <span class="op">=</span> clf_lr.predict(X_test)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Accuracy: </span><span class="sc">{:0.4f}</span><span class="st">&quot;</span>.<span class="bu">format</span>(accuracy_score(y_test, pred_lr)))  </span></code></pre></div>
 </details>
-<pre><code>Accuracy: 0.9847</code></pre>
+<pre><code>Accuracy: 0.9781</code></pre>
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>report_lr <span class="op">=</span> classification_report(y_test, pred_lr)</span>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>report_lr <span class="op">=</span> classification_report(y_test, pred_lr)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(report_lr)  </span></code></pre></div>
 </details>
 <pre><code>              precision    recall  f1-score   support
 
-         0.0       0.98      1.00      0.99       894
-         1.0       1.00      0.90      0.95       154
+         0.0       0.97      1.00      0.99       894
+         1.0       1.00      0.85      0.92       154
 
     accuracy                           0.98      1048
-   macro avg       0.99      0.95      0.97      1048
-weighted avg       0.99      0.98      0.98      1048</code></pre>
+   macro avg       0.99      0.93      0.95      1048
+weighted avg       0.98      0.98      0.98      1048</code></pre>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>conf_matrix <span class="op">=</span> confusion_matrix(y_test, pred_lr)</span>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>conf_matrix <span class="op">=</span> confusion_matrix(y_test, pred_lr)</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>sns.heatmap(conf_matrix.T, square<span class="op">=</span><span class="va">True</span>, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">&#39;d&#39;</span>, cbar<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">&#39;true label&#39;</span>)</span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">&#39;predicted label&#39;</span>)</span>
@@ -2772,9 +2902,19 @@ Show code
 </div>
 <h2 id="conclusion">Conclusion</h2>
 <ul>
-<li>Our logistic regression model shows a satisfaction result with the accuracy of 99.52%. The application of autoencoders as the unsupervised part in this task shows that semi-supervised learning can be effective at handling the case where there is a lack of labeled data to train our machine. Manual data labeling by human is an expensive and time-consuming process, which is why this approach to machine learning could be very helpful in lessening the task on our end. Semi-supervised learning can be used for the classification of web pages, audio, images, or even textual and numerical data where human labeling is not possible. As always, thank you for reading this!</li>
+<li>Our logistic regression model shows a satisfaction result with the
+accuracy of 99.52%. The application of autoencoders as the unsupervised
+part in this task shows that semi-supervised learning can be effective
+at handling the case where there is a lack of labeled data to train our
+machine. Manual data labeling by human is an expensive and
+time-consuming process, which is why this approach to machine learning
+could be very helpful in lessening the task on our end. Semi-supervised
+learning can be used for the classification of web pages, audio, images,
+or even textual and numerical data where human labeling is not possible.
+As always, thank you for reading this!</li>
 </ul>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <div class="article-footer">
   <p class="social_footer">
