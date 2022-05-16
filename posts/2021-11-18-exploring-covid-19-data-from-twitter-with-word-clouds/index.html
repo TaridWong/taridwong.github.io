@@ -50,16 +50,17 @@ pre.numberSource code > span > a:first-child::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {   }
+  { color: #00769e; background-color: #f1f3f5; }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
+code span { color: #00769e; } /* Normal */
 code span.al { color: #ad0000; } /* Alert */
 code span.an { color: #5e5e5e; } /* Annotation */
-code span.at { } /* Attribute */
+code span.at { color: #657422; } /* Attribute */
 code span.bn { color: #ad0000; } /* BaseN */
 code span.bu { } /* BuiltIn */
-code span.cf { color: #007ba5; } /* ControlFlow */
+code span.cf { color: #00769e; } /* ControlFlow */
 code span.ch { color: #20794d; } /* Char */
 code span.cn { color: #8f5902; } /* Constant */
 code span.co { color: #5e5e5e; } /* Comment */
@@ -73,9 +74,9 @@ code span.fl { color: #ad0000; } /* Float */
 code span.fu { color: #4758ab; } /* Function */
 code span.im { } /* Import */
 code span.in { color: #5e5e5e; } /* Information */
-code span.kw { color: #007ba5; } /* Keyword */
+code span.kw { color: #00769e; } /* Keyword */
 code span.op { color: #5e5e5e; } /* Operator */
-code span.ot { color: #007ba5; } /* Other */
+code span.ot { color: #00769e; } /* Other */
 code span.pp { color: #ad0000; } /* Preprocessor */
 code span.sc { color: #5e5e5e; } /* SpecialChar */
 code span.ss { color: #20794d; } /* SpecialString */
@@ -136,7 +137,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--/radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-resource-manifest">
-  {"type":"character","attributes":{},"value":["exploring-covid-19-data-from-twitter-with-word-clouds_files/anchor-4.2.2/anchor.min.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/bowser-1.9.3/bowser.min.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/distill-2.2.21/template.v2.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/figure-html5/unnamed-chunk-5-1.png","exploring-covid-19-data-from-twitter-with-word-clouds_files/figure-html5/unnamed-chunk-6-3.png","exploring-covid-19-data-from-twitter-with-word-clouds_files/figure-html5/unnamed-chunk-7-5.png","exploring-covid-19-data-from-twitter-with-word-clouds_files/header-attrs-2.11/header-attrs.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/jquery-3.6.0/jquery-3.6.0.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/jquery-3.6.0/jquery-3.6.0.min.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/jquery-3.6.0/jquery-3.6.0.min.map","exploring-covid-19-data-from-twitter-with-word-clouds_files/popper-2.6.0/popper.min.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/tippy-6.2.7/tippy-bundle.umd.min.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/tippy-6.2.7/tippy-light-border.css","exploring-covid-19-data-from-twitter-with-word-clouds_files/tippy-6.2.7/tippy.css","exploring-covid-19-data-from-twitter-with-word-clouds_files/tippy-6.2.7/tippy.umd.min.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/webcomponents-2.0.0/webcomponents.js","text-query-tweets.csv","word-cloud-pv.png"]}
+  {"type":"character","attributes":{},"value":["exploring-covid-19-data-from-twitter-with-word-clouds_files/anchor-4.2.2/anchor.min.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/bowser-1.9.3/bowser.min.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/distill-2.2.21/template.v2.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/figure-html5/unnamed-chunk-5-1.png","exploring-covid-19-data-from-twitter-with-word-clouds_files/figure-html5/unnamed-chunk-6-3.png","exploring-covid-19-data-from-twitter-with-word-clouds_files/figure-html5/unnamed-chunk-7-5.png","exploring-covid-19-data-from-twitter-with-word-clouds_files/header-attrs-2.11/header-attrs.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/header-attrs-2.14/header-attrs.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/jquery-3.6.0/jquery-3.6.0.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/jquery-3.6.0/jquery-3.6.0.min.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/jquery-3.6.0/jquery-3.6.0.min.map","exploring-covid-19-data-from-twitter-with-word-clouds_files/popper-2.6.0/popper.min.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/tippy-6.2.7/tippy-bundle.umd.min.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/tippy-6.2.7/tippy-light-border.css","exploring-covid-19-data-from-twitter-with-word-clouds_files/tippy-6.2.7/tippy.css","exploring-covid-19-data-from-twitter-with-word-clouds_files/tippy-6.2.7/tippy.umd.min.js","exploring-covid-19-data-from-twitter-with-word-clouds_files/webcomponents-2.0.0/webcomponents.js","text-query-tweets.csv","word-cloud-pv.png"]}
   </script>
   <!--radix_placeholder_navigation_in_header-->
 <meta name="distill:offset" content="../.."/>
@@ -1056,10 +1057,6 @@ figure img.external {
   margin-top: 1.5em;
 }
 
-.figure img {
-  width: 100%;
-}
-
 .figure .caption {
   color: rgba(0, 0, 0, 0.6);
   font-size: 12px;
@@ -1889,6 +1886,12 @@ function init_distill() {
 
     // hoverable references
     $('span.citation[data-cites]').each(function() {
+      if ($(this).children()[0].nodeName == "D-FOOTNOTE") {
+        var fn = $(this).children()[0]
+        $(this).html(fn.shadowRoot.querySelector("sup"))
+        $(this).id = fn.id
+        fn.remove()
+      }
       var refs = $(this).attr('data-cites').split(" ");
       var refHtml = refs.map(function(ref) {
         return "<p>" + $('#ref-' + ref).html() + "</p>";
@@ -1903,6 +1906,31 @@ function init_distill() {
         placement: 'bottom-start'
       });
     });
+
+    // fix footnotes in tables (#411)
+    // replacing broken distill.pub feature
+    $('table d-footnote').each(function() {
+      // we replace internal showAtNode methode which is triggered when hovering a footnote
+      this.hoverBox.showAtNode = function(node) {
+        // ported from https://github.com/distillpub/template/pull/105/files
+        calcOffset = function(elem) {
+            let x = elem.offsetLeft;
+            let y = elem.offsetTop;
+            // Traverse upwards until an `absolute` element is found or `elem`
+            // becomes null.
+            while (elem = elem.offsetParent && elem.style.position != 'absolute') {
+                x += elem.offsetLeft;
+                y += elem.offsetTop;
+            }
+
+            return { left: x, top: y };
+        }
+        // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetTop
+        const bbox = node.getBoundingClientRect();
+        const offset = calcOffset(node);
+        this.show([offset.left + bbox.width, offset.top + bbox.height]);
+      }
+    })
 
     // clear polling timer
     clearInterval(tid);
@@ -2002,6 +2030,8 @@ function init_common() {
   // mark non-body figures created by knitr chunks as 100% width
   $('.layout-chunk').each(function(i, val) {
     var figures = $(this).find('img, .html-widget');
+    // ignore leaflet img layers (#106)
+    figures = figures.filter(':not(img[class*="leaflet"])')
     if ($(this).attr('data-layout') !== "l-body") {
       figures.css('width', '100%');
     } else {
@@ -2024,7 +2054,7 @@ function init_common() {
   // get rid of index.html references in header
   if (window.location.protocol !== "file:") {
     $('.distill-site-header a[href]').each(function(i,val) {
-      $(this).attr('href', $(this).attr('href').replace("index.html", "./"));
+      $(this).attr('href', $(this).attr('href').replace(/^index[.]html/, "./"));
     });
   }
 
@@ -2396,7 +2426,7 @@ d-appendix d-footnote-list a.footnote-backlink {
   color: var(--hover-color, white);
 }</style>
 <!--/radix_placeholder_distill-->
-  <script src="../../site_libs/header-attrs-2.11/header-attrs.js"></script>
+  <script src="../../site_libs/header-attrs-2.14/header-attrs.js"></script>
   <script src="../../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
   <script src="../../site_libs/popper-2.6.0/popper.min.js"></script>
   <link href="../../site_libs/tippy-6.2.7/tippy.css" rel="stylesheet" />
@@ -2462,12 +2492,16 @@ gtag('config', 'G-N6RYE4NFCW');
   <a href="../../index.html#category:COVID-19" class="dt-tag">COVID-19</a>
 </div>
 <!--/radix_placeholder_categories-->
-<p><p>This entry focuses on the exploration of twitter data from Alberta’s Chief Medical Officer of Health via word cloud and topic modeling to gain insights in characteristics of public health messaging during the COVID-19 pandemic.</p>
+<p><p>This entry focuses on the exploration of twitter data from
+Alberta’s Chief Medical Officer of Health via word cloud and topic
+modeling to gain insights in characteristics of public health messaging
+during the COVID-19 pandemic.</p>
 <p>(7 min read)</p></p>
 </div>
 
 <div class="d-byline">
-  Tarid Wongvorachan  (University of Alberta)<a href="https://www.ualberta.ca" class="uri">https://www.ualberta.ca</a>
+  Tarid Wongvorachan  (University of Alberta)<a
+href="https://www.ualberta.ca" class="uri">https://www.ualberta.ca</a>
   
 <br/>2021-11-23
 </div>
@@ -2477,35 +2511,83 @@ gtag('config', 'G-N6RYE4NFCW');
 <nav class="l-text toc figcaption" id="TOC">
 <h3>Contents</h3>
 <ul>
-<li><a href="#covid-19-situation-in-alberta-canada">COVID-19 situation in Alberta, Canada</a></li>
-<li><a href="#text-mining-and-word-cloud-fundamentals">Text mining and word cloud fundamentals</a></li>
-<li><a href="#lets-clean-the-text-first">Let’s clean the text first</a></li>
-<li><a href="#so-this-is-whats-happening-over-time">So this is what’s happening over time</a></li>
-<li><a href="#lets-see-the-big-picture-with-word-cloud">Let’s see the big picture with word cloud</a></li>
-<li><a href="#common-word-bar-plot-and-text-preprocessing-for-topic-modeling">Common word bar plot and text preprocessing for topic modeling</a></li>
-<li><a href="#finally-lets-see-potential-topics-from-dr.-hinshaws-tweet">Finally, let’s see potential topics from Dr. Hinshaw’s tweet</a></li>
-<li><a href="#wrapping-up-here.-what-can-we-conclude">Wrapping up here. What can we conclude?</a></li>
+<li><a href="#covid-19-situation-in-alberta-canada">COVID-19 situation
+in Alberta, Canada</a></li>
+<li><a href="#text-mining-and-word-cloud-fundamentals">Text mining and
+word cloud fundamentals</a></li>
+<li><a href="#lets-clean-the-text-first">Let’s clean the text
+first</a></li>
+<li><a href="#so-this-is-whats-happening-over-time">So this is what’s
+happening over time</a></li>
+<li><a href="#lets-see-the-big-picture-with-word-cloud">Let’s see the
+big picture with word cloud</a></li>
+<li><a
+href="#common-word-bar-plot-and-text-preprocessing-for-topic-modeling">Common
+word bar plot and text preprocessing for topic modeling</a></li>
+<li><a
+href="#finally-lets-see-potential-topics-from-dr.-hinshaws-tweet">Finally,
+let’s see potential topics from Dr. Hinshaw’s tweet</a></li>
+<li><a href="#wrapping-up-here.-what-can-we-conclude">Wrapping up here.
+What can we conclude?</a></li>
 </ul>
 </nav>
 </div>
-<h2 id="covid-19-situation-in-alberta-canada">COVID-19 situation in Alberta, Canada</h2>
+<h2 id="covid-19-situation-in-alberta-canada">COVID-19 situation in
+Alberta, Canada</h2>
 <ul>
-<li><p>The province of Alberta, Canada, has suffered from the COVID-19 pandemic like all other places. Alberta has gone through cycles of reopening and returning to provincial lock down since April 2020. The province, however, has lifted almost all restrictions and enacted its reopening plan on the recent <a href="https://calgary.ctvnews.ca/alberta-moves-to-stage-3-of-reopening-plan-on-canada-day-1.5475913">Canada day</a> when 70% of Alberta population has received at least one dose of <a href="https://www.canada.ca/en/public-health/services/diseases/coronavirus-disease-covid-19/vaccines.html">approved COVID-19 vaccination</a>.</p></li>
-<li><p>The navigation of the province through this pandemic was led by the Alberta’s Chief Medical Officer of Health, <a href="https://www.alberta.ca/office-of-the-chief-medical-officer-of-health.aspx">Dr. Deena Hinshaw</a>. Dr.Hinshaw usually held public health briefings almost every day during wave 1 to wave 3 of the pandemic, but her communication channel has changed in wave 4 as less public health briefing was held and more tweets were posted on the <a href="https://twitter.com/CMOH_Alberta">her account</a>.</p></li>
-<li><p>For that, I believe we could use <a href="https://en.wikipedia.org/wiki/Natural_language_processing">Natural Language Processing (NLP)</a> techniques to extract themes and characteristics from Dr.Hinshaw’s tweet to examine the essence of public health messages since the provincial reopening date, specifically from July 1st to October 31st, 2021.</p></li>
+<li><p>The province of Alberta, Canada, has suffered from the COVID-19
+pandemic like all other places. Alberta has gone through cycles of
+reopening and returning to provincial lock down since April 2020. The
+province, however, has lifted almost all restrictions and enacted its
+reopening plan on the recent <a
+href="https://calgary.ctvnews.ca/alberta-moves-to-stage-3-of-reopening-plan-on-canada-day-1.5475913">Canada
+day</a> when 70% of Alberta population has received at least one dose of
+<a
+href="https://www.canada.ca/en/public-health/services/diseases/coronavirus-disease-covid-19/vaccines.html">approved
+COVID-19 vaccination</a>.</p></li>
+<li><p>The navigation of the province through this pandemic was led by
+the Alberta’s Chief Medical Officer of Health, <a
+href="https://www.alberta.ca/office-of-the-chief-medical-officer-of-health.aspx">Dr. Deena
+Hinshaw</a>. Dr.Hinshaw usually held public health briefings almost
+every day during wave 1 to wave 3 of the pandemic, but her communication
+channel has changed in wave 4 as less public health briefing was held
+and more tweets were posted on the <a
+href="https://twitter.com/CMOH_Alberta">her account</a>.</p></li>
+<li><p>For that, I believe we could use <a
+href="https://en.wikipedia.org/wiki/Natural_language_processing">Natural
+Language Processing (NLP)</a> techniques to extract themes and
+characteristics from Dr.Hinshaw’s tweet to examine the essence of public
+health messages since the provincial reopening date, specifically from
+July 1st to October 31st, 2021.</p></li>
 </ul>
-<h2 id="text-mining-and-word-cloud-fundamentals">Text mining and word cloud fundamentals</h2>
+<h2 id="text-mining-and-word-cloud-fundamentals">Text mining and word
+cloud fundamentals</h2>
 <ul>
-<li><p>For this post, we will use text mining and word clouds to initially explore characteristics of the data set. Text mining is an exploratory method for textual data under Natural Language Processing (NLP), a branch of Artificial Intelligence concerning the understanding of words and spoken texts. NLP is also a type of unsupervised machine learning approach to discover hidden structures in the data to inform decisions made by experts of the subject matter.</p></li>
-<li><p>Word cloud is also a popular way to to communicate findings from textual data in a visually engaging way. The more frequent a word appear in the data set (or corpus) the bigger that word will be in the cloud.</p></li>
-<li><p>We will use Python to perform this analysis on R platform with <code>reticulate::repl_python()</code>. First of all, we will be importing necessary modules and twitter data set that we mined from Dr. Hinshaw’s account with <code>pd.read_csv</code>. There are 538 tweets in total, and we can print out examples of the tweets via <code>tweets_df.Text.head(5)</code>.</p></li>
+<li><p>For this post, we will use text mining and word clouds to
+initially explore characteristics of the data set. Text mining is an
+exploratory method for textual data under Natural Language Processing
+(NLP), a branch of Artificial Intelligence concerning the understanding
+of words and spoken texts. NLP is also a type of unsupervised machine
+learning approach to discover hidden structures in the data to inform
+decisions made by experts of the subject matter.</p></li>
+<li><p>Word cloud is also a popular way to to communicate findings from
+textual data in a visually engaging way. The more frequent a word appear
+in the data set (or corpus) the bigger that word will be in the
+cloud.</p></li>
+<li><p>We will use Python to perform this analysis on R platform with
+<code>reticulate::repl_python()</code>. First of all, we will be
+importing necessary modules and twitter data set that we mined from
+Dr. Hinshaw’s account with <code>pd.read_csv</code>. There are 538
+tweets in total, and we can print out examples of the tweets via
+<code>tweets_df.Text.head(5)</code>.</p></li>
 </ul>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Import necessary modules</span></span>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Import necessary modules</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np <span class="co">#for numpy array</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd <span class="co">#for data reading and processing</span></span>
@@ -2514,7 +2596,7 @@ Show code
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> wordcloud <span class="im">import</span> WordCloud, STOPWORDS <span class="co">#for word clouds</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.stem <span class="im">import</span> WordNetLemmatizer <span class="co">#to reduce text to base form</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_extraction <span class="im">import</span> text</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_extraction.text <span class="im">import</span> CountVectorizer</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_extraction.text <span class="im">import</span> TfidfVectorizer</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.decomposition <span class="im">import</span> LatentDirichletAllocation <span class="im">as</span> LDA <span class="co">#for topic modeling</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
@@ -2531,7 +2613,8 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tweets_df.Text.head(<span class="dv">5</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tweets_df.Text.head(<span class="dv">5</span>))</span></code></pre></div>
 </details>
 <pre><code>0    We all have the ability to take small actions ...
 1    As we head into Halloween weekend, I encourage...
@@ -2542,16 +2625,34 @@ Name: Text, dtype: object</code></pre>
 </div>
 <h2 id="lets-clean-the-text-first">Let’s clean the text first</h2>
 <ul>
-<li><p>After we imported our data into the system, we have to clean our data to get rid of textual elements that we do not need such as punctuation, numbers, as well as convert all words to lower case. Painful as it may be, this has to be done. It took me days (not that much, but I felt it that way) to clean all of this and make sure that no junk is left behind (well, there could be. Do let me know if you find any).</p></li>
-<li><p>The phrase “Garbage in, garbage out” is really applicable here in data work context. If you let any junk (corrupted data) in, the most you will get is processed junk. After we cleaned the text, let us print them out again to see what they look like. All numbers are gone. All texts are in lowercase. All URLs and punctuation is gone. Good riddance!</p></li>
-<li><p>ATTN nerds: Note that in the code below, we will pass the original <code>Text</code> column in <code>tweets_df</code> to the <code>re.sub</code> function only once. For the second cleaning function onward, we will pass <code>tweets_df['Text_processed']</code> instead to stack our text cleaning results on the same column. Yes, I wrote this to remind myself because I struggled on it for hours (half an hour, actually).</p></li>
+<li><p>After we imported our data into the system, we have to clean our
+data to get rid of textual elements that we do not need such as
+punctuation, numbers, as well as convert all words to lower case.
+Painful as it may be, this has to be done. It took me days (not that
+much, but I felt it that way) to clean all of this and make sure that no
+junk is left behind (well, there could be. Do let me know if you find
+any).</p></li>
+<li><p>The phrase “Garbage in, garbage out” is really applicable here in
+data work context. If you let any junk (corrupted data) in, the most you
+will get is processed junk. After we cleaned the text, let us print them
+out again to see what they look like. All numbers are gone. All texts
+are in lowercase. All URLs and punctuation is gone. Good
+riddance!</p></li>
+<li><p>ATTN nerds: Note that in the code below, we will pass the
+original <code>Text</code> column in <code>tweets_df</code> to the
+<code>re.sub</code> function only once. For the second cleaning function
+onward, we will pass <code>tweets_df['Text_processed']</code> instead to
+stack our text cleaning results on the same column. Yes, I wrote this to
+remind myself because I struggled on it for hours (half an hour,
+actually).</p></li>
 </ul>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#remove all numbers from the text with list comprehension</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>tweets_df[<span class="st">&#39;Text_processed&#39;</span>] <span class="op">=</span> tweets_df[<span class="st">&#39;Text&#39;</span>].<span class="bu">map</span>(<span class="kw">lambda</span> x: re.sub(<span class="vs">r&#39;[0-9]+&#39;</span>, <span class="st">&#39;&#39;</span>, x))</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -2574,13 +2675,15 @@ Show code
 4    here is a summary of the latest covidab number...
 Name: Text_processed, dtype: object</code></pre>
 </div>
-<h2 id="so-this-is-whats-happening-over-time">So this is what’s happening over time</h2>
+<h2 id="so-this-is-whats-happening-over-time">So this is what’s
+happening over time</h2>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a></span>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Change datetime format to datetime</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>tweets_df[<span class="st">&#39;Datetime&#39;</span>] <span class="op">=</span> pd.to_datetime(tweets_df[<span class="st">&#39;Datetime&#39;</span>])</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -2609,18 +2712,31 @@ Show code
 <p><img src="exploring-covid-19-data-from-twitter-with-word-clouds_files/figure-html5/unnamed-chunk-5-1.png" width="624" style="display: block; margin: auto;" /></p>
 </div>
 <ul>
-<li>The line plot above represents tweet counts across months after the provincial reopening date. The x-axis indicates months and the y-axis indicates the number of twitter post of Dr. Hinshaw. The number of tweet dropped slightly from July to August as cases decreased, but wave 4 of the pandemic started in August as cases were on the rise again. We can see that the number of cases aligns with the number of tweets posted on Dr. Hinshaw’s account.</li>
+<li>The line plot above represents tweet counts across months after the
+provincial reopening date. The x-axis indicates months and the y-axis
+indicates the number of twitter post of Dr. Hinshaw. The number of tweet
+dropped slightly from July to August as cases decreased, but wave 4 of
+the pandemic started in August as cases were on the rise again. We can
+see that the number of cases aligns with the number of tweets posted on
+Dr. Hinshaw’s account.</li>
 </ul>
-<h2 id="lets-see-the-big-picture-with-word-cloud">Let’s see the big picture with word cloud</h2>
+<h2 id="lets-see-the-big-picture-with-word-cloud">Let’s see the big
+picture with word cloud</h2>
 <ul>
-<li>Now that we know the frequency of tweets over months, we can plot a word cloud from our processed text to see the big picture of twitter data. There are 114,362 words in total after combining all 538 tweets together. The word cloud below suggests that “covid” was mentioned the most during the past four months, following by “vaccine”, “new cases”, and “unvaccinated”.</li>
+<li>Now that we know the frequency of tweets over months, we can plot a
+word cloud from our processed text to see the big picture of twitter
+data. There are 114,362 words in total after combining all 538 tweets
+together. The word cloud below suggests that “covid” was mentioned the
+most during the past four months, following by “vaccine”, “new cases”,
+and “unvaccinated”.</li>
 </ul>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a></span>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>text_all <span class="op">=</span> <span class="st">&quot; &quot;</span>.join(tweet <span class="cf">for</span> tweet <span class="kw">in</span> tweets_df.Text_processed)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span> (<span class="st">&quot;There are </span><span class="sc">{}</span><span class="st"> words in the combination of all tweets&quot;</span>.<span class="bu">format</span>(<span class="bu">len</span>(text_all)))</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -2631,7 +2747,8 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>lemmatizer <span class="op">=</span> WordNetLemmatizer()</span>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>lemmatizer <span class="op">=</span> WordNetLemmatizer()</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>text_all <span class="op">=</span> <span class="st">&quot;&quot;</span>.join([lemmatizer.lemmatize(i) <span class="cf">for</span> i <span class="kw">in</span> text_all])</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create Stopword list:</span></span>
@@ -2654,25 +2771,32 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
 </details>
 <p><img src="exploring-covid-19-data-from-twitter-with-word-clouds_files/figure-html5/unnamed-chunk-6-3.png" width="960" style="display: block; margin: auto;" /></p>
 </div>
 <ul>
-<li>The thing is, word cloud can only provide a rough visual presentation for the characteristics of our textual data. We would need to dive a little bit deeper to graphs and numbers to examine what is truly going on. Let us visualize them all on a bar plot.</li>
+<li>The thing is, word cloud can only provide a rough visual
+presentation for the characteristics of our textual data. We would need
+to dive a little bit deeper to graphs and numbers to examine what is
+truly going on. Let us visualize them all on a bar plot.</li>
 </ul>
-<h2 id="common-word-bar-plot-and-text-preprocessing-for-topic-modeling">Common word bar plot and text preprocessing for topic modeling</h2>
+<h2
+id="common-word-bar-plot-and-text-preprocessing-for-topic-modeling">Common
+word bar plot and text preprocessing for topic modeling</h2>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a></span>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper function to count common words</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_10_most_common_words(count_data, count_vectorizer):</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_10_most_common_words(count_data, tfidf_vectorizer):</span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    words <span class="op">=</span> count_vectorizer.get_feature_names()</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    words <span class="op">=</span> tfidf_vectorizer.get_feature_names()</span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    total_counts <span class="op">=</span> np.zeros(<span class="bu">len</span>(words))</span>
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> t <span class="kw">in</span> count_data:</span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>        total_counts<span class="op">+=</span>t.toarray()[<span class="dv">0</span>]</span>
@@ -2693,40 +2817,69 @@ Show code
 <span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="co">#Make your own list of stop words</span></span>
 <span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>my_additional_stop_words <span class="op">=</span> (<span class="st">&quot;https://&quot;</span>, <span class="st">&quot;(/)&quot;</span>, <span class="st">&quot;➡Online:&quot;</span>, </span>
 <span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;➡Twitter:&quot;</span>, <span class="st">&quot;Join&quot;</span>, <span class="st">&quot;us&quot;</span>, <span class="st">&quot;virtually&quot;</span>,</span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;pm&quot;</span>, <span class="st">&quot;:&quot;</span>, <span class="st">&quot;https&quot;</span>, <span class="st">&quot;t&quot;</span>, <span class="st">&quot;d&quot;</span>, <span class="st">&quot;co&quot;</span>, <span class="st">&quot;amp&quot;</span>, <span class="st">&quot;today&quot;</span>, <span class="st">&quot;new&quot;</span>)</span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>                        </span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>stop_words_lda <span class="op">=</span> text.ENGLISH_STOP_WORDS.union(my_additional_stop_words)    </span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the count vectorizer with the English stop words</span></span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>count_vectorizer <span class="op">=</span> CountVectorizer(stop_words<span class="op">=</span>stop_words_lda)</span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit and transform the processed titles</span></span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>count_data <span class="op">=</span> count_vectorizer.fit_transform(tweets_df[<span class="st">&#39;Text_processed&#39;</span>])</span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualise the 10 most common words</span></span>
-<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>plot_10_most_common_words(count_data, count_vectorizer)</span></code></pre></div>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;pm&quot;</span>, <span class="st">&quot;:&quot;</span>, <span class="st">&quot;https&quot;</span>, <span class="st">&quot;t&quot;</span>, <span class="st">&quot;d&quot;</span>, <span class="st">&quot;co&quot;</span>, <span class="st">&quot;amp&quot;</span>, <span class="st">&quot;today&quot;</span>, <span class="st">&quot;new&quot;</span>, <span class="st">&quot;covid&quot;</span>,</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;covidab&quot;</span>, <span class="st">&quot;hours&quot;</span>, <span class="st">&quot;completed&quot;</span>)</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>                        </span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>stop_words_lda <span class="op">=</span> text.ENGLISH_STOP_WORDS.union(my_additional_stop_words)    </span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the count vectorizer with the English stop words</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>tfidf_vectorizer <span class="op">=</span> TfidfVectorizer(stop_words<span class="op">=</span>stop_words_lda)</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit and transform the processed titles</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>count_data <span class="op">=</span> tfidf_vectorizer.fit_transform(tweets_df[<span class="st">&#39;Text_processed&#39;</span>])</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualise the 10 most common words</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>plot_10_most_common_words(count_data, tfidf_vectorizer)</span></code></pre></div>
 </details>
 <p><img src="exploring-covid-19-data-from-twitter-with-word-clouds_files/figure-html5/unnamed-chunk-7-5.png" width="960" /></p>
 </div>
 <ul>
-<li><p>The bar plot above gave us a more detailed information of which word occurs more frequently than the others. We are taking about the COVID-19 pandemic here, so it is obvious that “covid” is going to be mentioned the most in Dr. Hinshaw’s tweet. “Vaccinated” and “cases” seem to be reasonable to be mentioned as the second- and third-most frequent words as the government of Alberta has been putting more effort in increasing the vaccination rate and identifying more cases in the province.</p></li>
-<li><p>We will also create a <code>count_vectorizer</code> model with our own list of stopwords (or words that have little meaning such as “is, am, are”) to prepare our data for Latent Dirichlet Allocation (LDA) topic modeling.</p></li>
+<li><p>The bar plot above gave us a more detailed information of which
+word occurs more frequently than the others based on the term
+frequency–inverse document frequency (TFIDF) statistics. TFIDF gives
+each word a weight that reflects its importance to a document. For
+TFIDF, words that occur too frequent like “the” provides little meaning
+while words rarely occur doesn’t tell us much as well. We are taking
+about the COVID-19 pandemic here, so it is obvious that “vaccinated” is
+going to be mentioned the most in Dr. Hinshaw’s tweet. “Cases” and
+“unvaccinated” seem to be reasonable to be mentioned as the second- and
+third most important words as the government of Alberta has been putting
+more effort in identifying more cases in the province and encourage
+unvaccinated individuals to get their vaccine.</p></li>
+<li><p>We will also create a <code>tfidf_vectorizer</code> model with
+our own list of stopwords (or words that have little meaning such as
+“is, am, are”) to prepare our data for Latent Dirichlet Allocation (LDA)
+topic modeling.</p></li>
 </ul>
-<h2 id="finally-lets-see-potential-topics-from-dr.-hinshaws-tweet">Finally, let’s see potential topics from Dr. Hinshaw’s tweet</h2>
+<h2
+id="finally-lets-see-potential-topics-from-dr.-hinshaws-tweet">Finally,
+let’s see potential topics from Dr. Hinshaw’s tweet</h2>
 <ul>
-<li><p>Latent Dirichlet Allocation is a powerful natural language processing technique that discovers hidden patterns in topic from unstructured textual data with statistical models <a href="https://link.springer.com/content/pdf/10.1007/s11042-018-6894-4.pdf">(Jelodar et al., 2019)</a>.</p></li>
-<li><p>Here, we can use LDA to discover potential topics among the sea of tweets posted by Dr. Hinshaw to find out what she talked about since the provincial reopening and wave 4 of the pandemic. I have specified the model to extract 8 topics from the data, with 5 words per topics. Note that these numbers are arbitrary chosen.</p></li>
-<li><p>If we extracted too few topics, we might not be able to capture the whole picture of the data. On the other hand, extracting too much topics could just give us more of the same overlapping themes. We need to find the middle ground.</p></li>
+<li><p>Latent Dirichlet Allocation is a powerful natural language
+processing technique that discovers hidden patterns in topic from
+unstructured textual data with statistical models <a
+href="https://link.springer.com/content/pdf/10.1007/s11042-018-6894-4.pdf">(Jelodar
+et al., 2019)</a>.</p></li>
+<li><p>Here, we can use LDA to discover potential topics among the sea
+of tweets posted by Dr. Hinshaw to find out what she talked about since
+the provincial reopening and wave 4 of the pandemic. I have specified
+the model to extract 8 topics from the data, with 5 words per topics.
+Note that these numbers are arbitrary chosen.</p></li>
+<li><p>If we extracted too few topics, we might not be able to capture
+the whole picture of the data. On the other hand, extracting too much
+topics could just give us more of the same overlapping themes. We need
+to find the middle ground.</p></li>
 </ul>
 <div class="layout-chunk" data-layout="l-body">
 <details>
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a></span>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Helper function to print out the topics</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> print_topics(model, count_vectorizer, n_top_words):</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    words <span class="op">=</span> count_vectorizer.get_feature_names()</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> print_topics(model, tfidf_vectorizer, n_top_words):</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    words <span class="op">=</span> tfidf_vectorizer.get_feature_names()</span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> topic_idx, topic <span class="kw">in</span> <span class="bu">enumerate</span>(model.components_):</span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Topic #</span><span class="sc">%d</span><span class="st">:&quot;</span> <span class="op">%</span> topic_idx)</span>
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">&quot; &quot;</span>.join([words[i]</span>
@@ -2747,57 +2900,68 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>print_topics(lda, count_vectorizer, number_words)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>print_topics(lda, tfidf_vectorizer, number_words)</span></code></pre></div>
 </details>
 <pre><code>
 Topic #0:
-cases tests idd data uptodate
+twitter online join video transcript
 
 Topic #1:
-cases tests completed idd covidab
+possible information protection protect soon
 
 Topic #2:
-vaccinated covid health fully care
+vaccines protect vaccine dose book
 
 Topic #3:
-vaccinated unvaccinated covid partially icu
+cases tests partially unvaccinated idd
 
 Topic #4:
-vaccines health offer care need
+reported deaths sadly condolences alberta
 
 Topic #5:
-online covidab follow update twitter
+oct age steps important dr
 
 Topic #6:
-deaths reported sadly covid health
+matter pandemic report continue health
 
 Topic #7:
-covid measures health continue work</code></pre>
+ahs participating prevent book available</code></pre>
 </div>
-<h2 id="wrapping-up-here.-what-can-we-conclude">Wrapping up here. What can we conclude?</h2>
+<h2 id="wrapping-up-here.-what-can-we-conclude">Wrapping up here. What
+can we conclude?</h2>
 <ul>
 <li><p>The topics we discovered above can be inferred as follows:</p>
 <ul>
-<li>Topic 0: Data of identified cases must be up to date.<br />
+<li>Topic 0: An invitation for the general population to join a live
+update video on Twitter.<br />
 </li>
-<li>Topic 1: Case identification (ID’d) via testing<br />
+<li>Topic 1: The availability of possible information on COVID-19
+protection<br />
 </li>
-<li>Topic 2: How fully vaccinated people could take care of themselves.<br />
+<li>Topic 2: Encouragement to book for a vaccination for more
+protection.<br />
 </li>
-<li>Topic 3: The proportion of unvaxxed vs vaxxed patients in ICU.<br />
+<li>Topic 3: The proportion of unvaxxed vs vaxxed vs partiallyvaxxed
+patients.<br />
 </li>
-<li>Topic 4: The availability of vaccine as offerred by the province.<br />
-</li>
-<li>Topic 5: Dr.Hinshaw urged people to follow covid news online via twitter.<br />
-</li>
-<li>Topic 6: Covid-related death.<br />
-</li>
-<li>Topic 7: The province continues to work on health measure against covid.</li>
+<li>Topic 4: Covid-related death.</li>
 </ul></li>
-<li><p>The insights that we gained could also be further supported by opinion from public health experts as they could provide information at a greater depth into their field.</p></li>
-<li><p>From what we have discussed so far, we can see that with the right tool, LDA for our case, we could take advantage of the vast availability of textual data that revolves around us in our everyday lives and use that information to deepen our understanding of social phenomena. We could explore how students opinion changed from pre- to post-covid era, or we could use this technique to media transcription of social events such as political protests, election speech, or even product review in the marketing field. Thank you for your reading!</p></li>
+<li><p>The insights that we gained could also be further supported by
+opinion from public health experts as they could provide information at
+a greater depth into their field.</p></li>
+<li><p>From what we have discussed so far, we can see that with the
+right tool, LDA for our case, we could take advantage of the vast
+availability of textual data that revolves around us in our everyday
+lives and use that information to deepen our understanding of social
+phenomena. We could explore how students opinion changed from pre- to
+post-COVID era, or we could use this technique to media transcription of
+social events such as political protests, election speech, or even
+product review in the marketing field. Thank you for your
+reading!</p></li>
 </ul>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <div class="article-footer">
   <p class="social_footer">
@@ -2808,17 +2972,17 @@ covid measures health continue work</code></pre>
     </span>
     <span class="article-sharing">
       Share: &nbsp;
-      <a href="https://twitter.com/share?text=Exploring%20COVID-19%20data%20from%20twitter%20with%20topic%20modeling&amp;url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2021-11-18-exploring-covid-19-data-from-twitter-with-word-clouds%2F">
-        <i class="fab fa-twitter"></i>
+      <a href="https://twitter.com/share?text=Exploring%20COVID-19%20data%20from%20twitter%20with%20topic%20modeling&amp;url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2021-11-18-exploring-covid-19-data-from-twitter-with-word-clouds%2F" aria-label="share on twitter">
+        <i class="fab fa-twitter" aria-hidden="true"></i>
       </a>
-      <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2021-11-18-exploring-covid-19-data-from-twitter-with-word-clouds%2F&amp;title=Exploring%20COVID-19%20data%20from%20twitter%20with%20topic%20modeling">
-        <i class="fab fa-linkedin"></i>
+      <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2021-11-18-exploring-covid-19-data-from-twitter-with-word-clouds%2F&amp;title=Exploring%20COVID-19%20data%20from%20twitter%20with%20topic%20modeling" aria-label="share on linkedin">
+        <i class="fab fa-linkedin" aria-hidden="true"></i>
       </a>
-      <a href="https://pinterest.com/pin/create/link/?url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2021-11-18-exploring-covid-19-data-from-twitter-with-word-clouds%2F&amp;description=Exploring%20COVID-19%20data%20from%20twitter%20with%20topic%20modeling">
-        <i class="fab fa-pinterest"></i>
+      <a href="https://pinterest.com/pin/create/link/?url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2021-11-18-exploring-covid-19-data-from-twitter-with-word-clouds%2F&amp;description=Exploring%20COVID-19%20data%20from%20twitter%20with%20topic%20modeling" aria-label="share on pinterest">
+        <i class="fab fa-pinterest" aria-hidden="true"></i>
       </a>
-      <a href="https://www.facebook.com/sharer/sharer.php?s=100&amp;p[url]=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2021-11-18-exploring-covid-19-data-from-twitter-with-word-clouds%2F">
-        <i class="fab fa-facebook"></i>
+      <a href="https://www.facebook.com/sharer/sharer.php?s=100&amp;p[url]=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2021-11-18-exploring-covid-19-data-from-twitter-with-word-clouds%2F" aria-label="share on facebook">
+        <i class="fab fa-facebook" aria-hidden="true"></i>
       </a>
     </span>
   </p>
@@ -2875,7 +3039,7 @@ var disqus_config = function () {
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
 <!--radix_placeholder_navigation_after_body--><html><body>
 <div class="distill-site-nav distill-site-footer">
-<p>Â© Copyright Tarid Wongvorachan 2021. Made with the R <a href="https://rstudio.github.io/distill/">distill</a> package.</p>
+<p>© Copyright Tarid Wongvorachan 2021. Made with the R <a href="https://rstudio.github.io/distill/">distill</a> package.</p>
 </div>
 <!--/radix_placeholder_navigation_after_body-->
 </body></html>
