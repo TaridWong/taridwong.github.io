@@ -7,7 +7,1481 @@
     <description>Welcome to my data science blog!
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Thu, 05 May 2022 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 15 May 2022 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Item Response Theory</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2022-05-15-irt</link>
+      <description>
+
+
+&lt;h2 id="introduction-to-item-response-theory"&gt;Introduction to Item
+Response Theory&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href="https://taridwong.github.io/posts/2022-01-15-ctt/"&gt;My
+previous post on Classical Test Theory (CTT)&lt;/a&gt; discussed how it has
+several disadvantages that limit its interpretation to a certain group
+of population and therefore reduces its utility to test development.
+Specifically, generalizability of the test scores from CTT is quite
+limited due to item/test dependency; item parameters such as item
+difficulty, item discrimination, and reliability estimates are dependent
+upon test scores, which are derived from a group of sample (&lt;a
+href="https://www.jstor.org/stable/41219505?casa_token=PZl4ti6FHboAAAAA%3AEsuXjTVftCbh7pnyqQVhGv5cCEG9nAWMNV36MC7nXp5svyUaJhXBQG6jYtcmYNNf3S3b7HkhG48gjFTDo_ftMvXvm6vwRAuQwiEretfpuoKpwFiUQw&amp;amp;seq=1"&gt;DeVellis,
+2006&lt;/a&gt;). If we change our sample, those parameters might change. Also,
+If we administer two forms of the same test (i.e., form A and form B) to
+the same examinee, we still cannot guarantee that they will obtain the
+same score on both tests. Raw scores of a CTT-based test do not reflect
+learning progress of an examinee as CTT-based scores are not comparable
+across time (&lt;a
+href="https://www.jstor.org/stable/41219505?casa_token=PZl4ti6FHboAAAAA%3AEsuXjTVftCbh7pnyqQVhGv5cCEG9nAWMNV36MC7nXp5svyUaJhXBQG6jYtcmYNNf3S3b7HkhG48gjFTDo_ftMvXvm6vwRAuQwiEretfpuoKpwFiUQw&amp;amp;seq=1"&gt;DeVellis,
+2006&lt;/a&gt;).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Such limitations can be addressed by Item Response Theory (IRT).
+IRT is able to link information from test items to examinee performance
+on the same scale to provide information on the specific domain of
+interest and ability of the examinee (θ) (&lt;a
+href="https://www.routledge.com/Handbook-of-Item-Response-Theory-Volume-3-Applications/Linden/p/book/9780367221188"&gt;Hambleton
+&amp;amp; Zenisky, 2018&lt;/a&gt;). The relationship between observable items and
+examinee performance is explained through &lt;em&gt;Item Characteristic Curve
+(ICC)&lt;/em&gt;, which explains the probability of getting an item(s)
+correctly given the current ability level and parameter (&lt;a
+href="https://doi.org/10.1111/j.1745-3992.1993.tb00543.x"&gt;Hambleton
+&amp;amp; Jones, 1993&lt;/a&gt;). Therefore, IRT allows researchers to predict
+examinees’ expected test score given their ability level. In this post,
+I will be examining characteristics of test items based on the IRT
+framework. The R packages I will be using are &lt;a
+href="https://cran.r-project.org/web/packages/ltm/ltm.pdf"&gt;&lt;code&gt;ltm&lt;/code&gt;&lt;/a&gt;
+and &lt;a
+href="https://cran.r-project.org/web/packages/mirt/mirt.pdf"&gt;&lt;code&gt;mirt&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;library(ltm)
+library(mirt)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;First, let’s load in a data set. I will be using the data from Law
+School Admission Test (LSAT), N = 1000, 5 items. The data can be called
+with &lt;code&gt;data(LSAT).&lt;/code&gt;As an initial step, we can use
+&lt;code&gt;ltm::descript&lt;/code&gt; for descriptive statistics.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;data(LSAT)
+ltm::descript(LSAT)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Descriptive statistics for the &amp;#39;LSAT&amp;#39; data-set
+
+Sample:
+ 5 items and 1000 sample units; 0 missing values
+
+Proportions for each level of response:
+           0     1  logit
+Item 1 0.076 0.924 2.4980
+Item 2 0.291 0.709 0.8905
+Item 3 0.447 0.553 0.2128
+Item 4 0.237 0.763 1.1692
+Item 5 0.130 0.870 1.9010
+
+
+Frequencies of total scores:
+     0  1  2   3   4   5
+Freq 3 20 85 237 357 298
+
+
+Point Biserial correlation with Total Score:
+       Included Excluded
+Item 1   0.3620   0.1128
+Item 2   0.5668   0.1532
+Item 3   0.6184   0.1728
+Item 4   0.5344   0.1444
+Item 5   0.4354   0.1216
+
+
+Cronbach&amp;#39;s alpha:
+                  value
+All Items        0.2950
+Excluding Item 1 0.2754
+Excluding Item 2 0.2376
+Excluding Item 3 0.2168
+Excluding Item 4 0.2459
+Excluding Item 5 0.2663
+
+
+Pairwise Associations:
+   Item i Item j p.value
+1       1      5   0.565
+2       1      4   0.208
+3       3      5   0.113
+4       2      4   0.059
+5       1      2   0.028
+6       2      5   0.009
+7       1      3   0.003
+8       4      5   0.002
+9       3      4   7e-04
+10      2      3   4e-04&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;From the output above, inspection of non significant results can be
+used to reveal ‘problematic’ items in pairwise association. Latent
+variable models assume that the high associations between items can be
+explained by a set of latent variables, so any pair of items that is not
+related to each other violates this assumption. Additionally, Item 1
+seems to be the easiest item as seen from its highest proportion of
+correct response.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="dichotomous-item"&gt;Dichotomous Item&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;We will be performing IRT analyses on dichotomous items, which are
+items that only have two possible scores of incorrect (0) and correct
+(1). The three most common dichotomous IRT models are Rasch/1-parameter
+logistics model (1PL), 2-parameter logistics model (2PL), and
+3-parameter logistics model(3PL).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="rasch-model-1pl"&gt;Rasch Model (1PL)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;We will fit the original Rasch model, which fixes the item
+discrimination (aka &lt;em&gt;a&lt;/em&gt; parameter) of all items to 1 to the data.
+The 1PL (also called &lt;em&gt;Rasch model&lt;/em&gt;) model describes test items in
+terms of only one parameter, &lt;em&gt;item difficulty&lt;/em&gt; (aka &lt;em&gt;b&lt;/em&gt;
+parameter). Item difficulty is simply how hard an item is (how high does
+one’s latent ability level need to be in order to have a 50% chance of
+getting the item right?). &lt;em&gt;b-parameter&lt;/em&gt; is estimated for each
+item of the test.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The &lt;code&gt;ltm::rasch()&lt;/code&gt; assumes equal a-parameter across
+items with an estimated value. In order to impose the constraint = 1,
+the &lt;code&gt;constraint&lt;/code&gt; argument is used. This argument accepts a
+two-column matrix where the first column denotes the parameter and the
+second column indicates the value at which the corresponding parameter
+should be fixed.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;mod_rasch &amp;lt;- rasch(LSAT, constraint = cbind(length(LSAT) + 1, 1))
+
+summary(mod_rasch)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+rasch(data = LSAT, constraint = cbind(length(LSAT) + 1, 1))
+
+Model Summary:
+   log.Lik      AIC      BIC
+ -2473.054 4956.108 4980.646
+
+Coefficients:
+                value std.err   z.vals
+Dffclt.Item 1 -2.8720  0.1287 -22.3066
+Dffclt.Item 2 -1.0630  0.0821 -12.9458
+Dffclt.Item 3 -0.2576  0.0766  -3.3635
+Dffclt.Item 4 -1.3881  0.0865 -16.0478
+Dffclt.Item 5 -2.2188  0.1048 -21.1660
+Dscrmn         1.0000      NA       NA
+
+Integration:
+method: Gauss-Hermite
+quadrature points: 21 
+
+Optimization:
+Convergence: 0 
+max(|grad|): 6.3e-05 
+quasi-Newton: BFGS &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The results of the descriptive analysis are also validated by the
+model fit, where items 3 and 1 are the most difficult and the easiest
+respectively (the lower the &lt;em&gt;b&lt;/em&gt;-parameter value, the easier). The
+parameter estimates can be transformed to probability estimates using
+the &lt;code&gt;coef()&lt;/code&gt; method&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;coef(mod_rasch, prob = TRUE, order = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;           Dffclt Dscrmn P(x=1|z=0)
+Item 1 -2.8719712      1  0.9464434
+Item 5 -2.2187785      1  0.9019232
+Item 4 -1.3880588      1  0.8002822
+Item 2 -1.0630294      1  0.7432690
+Item 3 -0.2576109      1  0.5640489&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The last column denotes the probability of a positive response
+(getting the item correctly) to the &lt;em&gt;i&lt;/em&gt;th item for the average
+individual. The argument &lt;code&gt;order = TRUE&lt;/code&gt; indicates the output
+to sort the items according to the difficulty estimates. In order to
+check the fit of the model to the data, the argument
+&lt;code&gt;GoF.rasch()&lt;/code&gt; and &lt;code&gt;margins()&lt;/code&gt; can be used. The
+former argument performs a parametric Bootstrap goodness-of-fit test
+using Pearson’s Chi-square statistics, while the latter examines the
+two- and three-way chi-square residual analysis.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;GoF.rasch(mod_rasch, B = 199) # B = Bootstrap sample&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Bootstrap Goodness-of-Fit using Pearson chi-squared
+
+Call:
+rasch(data = LSAT, constraint = cbind(length(LSAT) + 1, 1))
+
+Tobs: 30.6 
+# data-sets: 200 
+p-value: 0.25 &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Based on 200 data-points, the non significant p-value suggests an
+acceptable fit of the model. The null hypothesis states that the
+observed data and the model fit with each other (no differences). Now,
+for two-way margin analysis.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;margins(mod_rasch)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+rasch(data = LSAT, constraint = cbind(length(LSAT) + 1, 1))
+
+Fit on the Two-Way Margins
+
+Response: (0,0)
+  Item i Item j Obs   Exp (O-E)^2/E  
+1      2      4  81 98.69      3.17  
+2      1      5  12 18.45      2.25  
+3      3      5  67 80.04      2.12  
+
+Response: (1,0)
+  Item i Item j Obs    Exp (O-E)^2/E  
+1      3      5  63  51.62      2.51  
+2      2      4 156 139.78      1.88  
+3      3      4 108  99.42      0.74  
+
+Response: (0,1)
+  Item i Item j Obs    Exp (O-E)^2/E  
+1      2      4 210 193.47      1.41  
+2      2      3 135 125.07      0.79  
+3      1      4  53  47.24      0.70  
+
+Response: (1,1)
+  Item i Item j Obs    Exp (O-E)^2/E  
+1      2      4 553 568.06      0.40  
+2      3      5 490 501.43      0.26  
+3      2      3 418 427.98      0.23  &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;From the above output, using the 3.5 rule of thumb, the value of all
+two-way combinations are below the cut-off (same way of how statistical
+hypothesis works) and therefore indicate a good fit to the two-way
+margins. Next, we will examine the fit to the three-way margins.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;margins(mod_rasch, type = &amp;quot;three-way&amp;quot;, nprint = 2) #nprint returns 2 highest residual values for each combinations&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+rasch(data = LSAT, constraint = cbind(length(LSAT) + 1, 1))
+
+Fit on the Three-Way Margins
+
+Response: (0,0,0)
+  Item i Item j Item k Obs   Exp (O-E)^2/E    
+1      2      3      4  48 66.07      4.94 ***
+2      1      3      5   6 13.58      4.23 ***
+
+Response: (1,0,0)
+  Item i Item j Item k Obs   Exp (O-E)^2/E  
+1      1      2      4  70 82.01      1.76  
+2      2      4      5  28 22.75      1.21  
+
+Response: (0,1,0)
+  Item i Item j Item k Obs   Exp (O-E)^2/E  
+1      1      2      5   3  7.73      2.90  
+2      3      4      5  37 45.58      1.61  
+
+Response: (1,1,0)
+  Item i Item j Item k Obs    Exp (O-E)^2/E  
+1      3      4      5  48  36.91      3.33  
+2      1      2      4 144 126.35      2.47  
+
+Response: (0,0,1)
+  Item i Item j Item k Obs   Exp (O-E)^2/E  
+1      1      3      5  41 34.58      1.19  
+2      2      4      5  64 72.26      0.94  
+
+Response: (1,0,1)
+  Item i Item j Item k Obs    Exp (O-E)^2/E  
+1      1      2      4 190 174.87      1.31  
+2      1      2      3 126 114.66      1.12  
+
+Response: (0,1,1)
+  Item i Item j Item k Obs   Exp (O-E)^2/E  
+1      1      2      5  42 34.35      1.70  
+2      1      4      5  46 38.23      1.58  
+
+Response: (1,1,1)
+  Item i Item j Item k Obs    Exp (O-E)^2/E  
+1      3      4      5 397 416.73      0.93  
+2      2      3      4 343 361.18      0.91  
+
+&amp;#39;***&amp;#39; denotes a chi-squared residual greater than 3.5 &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The three-way margins suggest a problematic fit for two triplets of
+items, both containing item 3. We can try fitting the unconstrained
+version of Rasch model (not fixing the &lt;em&gt;a&lt;/em&gt;-parameter to 1) to see
+the difference. This time, no need for the &lt;code&gt;constraint&lt;/code&gt;
+argument.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;mod_1pl &amp;lt;- rasch(LSAT, constraint = NULL)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;After fitting the 1PL model, we will request for Item
+Characteristics Curve (ICC), Item Information Curve (IIC), Test
+Information Function (TIF), Latent Ability Curve of the examinees, and
+Uni-dimensionality Plot of the model.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;par(mfrow = c(2, 3))
+
+plot(mod_1pl, type=c(&amp;quot;ICC&amp;quot;), 
+     legend = TRUE, cx = &amp;quot;bottomright&amp;quot;, lwd = 2, 
+     cex.main = 1.5, cex.lab = 1.3, cex = 0.6, main = &amp;quot;1PL Item Characteristics Curve&amp;quot;)
+
+plot(mod_1pl,type=c(&amp;quot;IIC&amp;quot;),
+     legend = TRUE, cx = &amp;quot;topright&amp;quot;, lwd = 2,
+     cex.main = 1.5, cex.lab = 1.3, cex = 0.6, main = &amp;quot;1PL Item Information Curve&amp;quot;)
+
+plot(mod_1pl,type=c(&amp;quot;IIC&amp;quot;),items=c(0), lwd = 2,
+     cex.main = 1.5, cex.lab = 1.3, cex = 0.6, main = &amp;quot;Test Information Function&amp;quot;)
+
+plot(0:1, 0:1, type = &amp;quot;n&amp;quot;, ann = FALSE, axes = FALSE)
+info1 &amp;lt;- information(mod_1pl, c(-4, 0)) #Item information on the negative area of theta (-4 to 0)
+info2 &amp;lt;- information(mod_1pl, c(0, 4)) #Item information on the positive area of theta (0 to 4)
+text(0.5, 0.5, labels = paste(&amp;quot;Total Information:&amp;quot;, round(info1$InfoTotal, 3),
+                               &amp;quot;\n\nInformation in (-4, 0):&amp;quot;, round(info1$InfoRange, 3),
+                               paste(&amp;quot;(&amp;quot;, round(100 * info1$PropRange, 2), &amp;quot;%)&amp;quot;, sep = &amp;quot;&amp;quot;),
+                               &amp;quot;\n\nInformation in (0, 4):&amp;quot;, round(info2$InfoRange, 3),
+                               paste(&amp;quot;(&amp;quot;, round(100 * info2$PropRange, 2), &amp;quot;%)&amp;quot;, sep = &amp;quot;&amp;quot;)))
+
+theta.rasch&amp;lt;-ltm::factor.scores(mod_1pl)
+summary(theta.rasch$score.dat$z1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-1.9104 -0.9594 -0.4660 -0.6867 -0.4660  0.5930 &lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot(theta.rasch, main = &amp;quot;Latent Ability of the Examinee&amp;quot;)
+
+unitest_1pl &amp;lt;- unidimTest(mod_1pl,LSAT)
+plot(unitest_1pl, type = &amp;quot;b&amp;quot;, pch = 1:2, main = &amp;quot;Modified Parallel Analysis Plot&amp;quot;)
+legend(&amp;quot;topright&amp;quot;, c(&amp;quot;Real Data&amp;quot;, &amp;quot;Average Simulated Data&amp;quot;), lty = 1, 
+    pch = 1:2, col = 1:2, bty = &amp;quot;n&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file38c4da22ad3_files/figure-html/unnamed-chunk-11-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The first plot is ICC of out 1PL model. ICC shows the
+relationship between examinee ability (θ) and the probability of
+examinees answering an item correctly based on their ability. On ICC,
+item discrimination is represented by the steepness of the curve, and
+item difficulty is represented by the position where the probability of
+getting the item correct is 0.5.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Try comparing item 1 and item 3. For item 1, the point where the
+probability of getting the item correctly is 0.5 matches with the
+ability point -4 on the X-axis. However, for item 3, the point where the
+probability of getting the item correctly is 0.5 matches with the
+ability point 0 on the X-axis. In other words, you need more ability to
+get item 3 correct than item 1.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The second plot is IIC. IIC shows how much “information” about
+the latent trait ability an item can provide. Item information curves
+peak at the point of difficulty value, where the item has the highest
+discrimination and the probability of answering the item correctly is
+0.5. To put it in plain language, a very difficult item will provide
+very little information about persons with low ability (because the item
+is already too hard), and very easy items will provide little
+information about persons with high ability levels (because it is too
+easy).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The third plot is TIF of the whole test. This is simply the sum
+of the individual IICs above. The curves shows how much information this
+test offers in terms of ability level of examinees. Ideally, we want a
+test which provides fairly good coverage of a wide range of latent
+ability levels. Otherwise, the test is only good at identifying a
+limited range of examinees. The current TIF shows that more information
+is yielded around examinees with -2 ability level. The test could use
+more items for people with high ability (more difficult item is needed).
+In particular, the amount of Test Information for ability levels in the
+interval (-4 - 0) is almost 60%, and the item that seems to distinguish
+between respondents with higher ability levels is item 3 as it is the
+most difficult item.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The Latent Ability Curve shows the distribution of examinee’s
+latent ability level. The plot shows that most examinees are located
+around 0 to 1 ability level.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;unitest_1pl&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Unidimensionality Check using Modified Parallel Analysis
+
+Call:
+rasch(data = LSAT, constraint = NULL)
+
+Matrix of tertachoric correlations
+       Item 1 Item 2 Item 3 Item 4 Item 5
+Item 1 1.0000 0.1703 0.2275 0.1072 0.0665
+Item 2 0.1703 1.0000 0.1891 0.1111 0.1724
+Item 3 0.2275 0.1891 1.0000 0.1867 0.1055
+Item 4 0.1072 0.1111 0.1867 1.0000 0.2009
+Item 5 0.0665 0.1724 0.1055 0.2009 1.0000
+
+Alternative hypothesis: the second eigenvalue of the observed data is substantially larger 
+            than the second eigenvalue of data under the assumed IRT model
+
+Second eigenvalue in the observed data: 0.2254
+Average of second eigenvalues in Monte Carlo samples: 0.2474
+Monte Carlo samples: 100
+p-value: 0.6535&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The last plot is a test for unidimensionality of the test with
+modified parallel analysis &lt;a
+href="https://psycnet.apa.org/record/1983-31736-001"&gt;(Drasgpw &amp;amp;
+Lissak, 1983&lt;/a&gt;). The output above shows that the result is
+non-significant, meaning that the 1PL model fits the data well and we
+are actually measuring a single trait here. The data is a law school
+test, so it should be measuring contents about law, not maths or
+English. The unidimensionality analysis shows that the test is measuring
+what it is intended to measure.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;summary(mod_1pl)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+rasch(data = LSAT, constraint = NULL)
+
+Model Summary:
+   log.Lik      AIC      BIC
+ -2466.938 4945.875 4975.322
+
+Coefficients:
+                value std.err   z.vals
+Dffclt.Item 1 -3.6153  0.3266 -11.0680
+Dffclt.Item 2 -1.3224  0.1422  -9.3009
+Dffclt.Item 3 -0.3176  0.0977  -3.2518
+Dffclt.Item 4 -1.7301  0.1691 -10.2290
+Dffclt.Item 5 -2.7802  0.2510 -11.0743
+Dscrmn         0.7551  0.0694  10.8757
+
+Integration:
+method: Gauss-Hermite
+quadrature points: 21 
+
+Optimization:
+Convergence: 0 
+max(|grad|): 2.9e-05 
+quasi-Newton: BFGS &lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;coef(mod_1pl, prob = TRUE, order = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;           Dffclt    Dscrmn P(x=1|z=0)
+Item 1 -3.6152665 0.7551347  0.9387746
+Item 5 -2.7801716 0.7551347  0.8908453
+Item 4 -1.7300903 0.7551347  0.7869187
+Item 2 -1.3224208 0.7551347  0.7307844
+Item 3 -0.3176306 0.7551347  0.5596777&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The output above suggests that the discrimination parameter of our
+unconstrained model is different from 1, meaning that our constrained
+and unconstrained Rasch models are different. The difference can be
+tested with a likelihood ratio test using &lt;code&gt;anova().&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;anova(mod_rasch, mod_1pl)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+ Likelihood Ratio Table
+              AIC     BIC  log.Lik   LRT df p.value
+mod_rasch 4956.11 4980.65 -2473.05                 
+mod_1pl   4945.88 4975.32 -2466.94 12.23  1  &amp;lt;0.001&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;By comparing model summary of the constrained and unconstrained
+version, the latter is more suitable for the LSAT data due to its
+smaller Akaike’s Information Criterion (AIC) and Bayesian Information
+Criterion (BIC) values. AIC and BIC are measures of model performance
+that account for model complexity. AIC is a measure that determines
+which model fits the data better. The lower the score, the better fit
+the model is. Similarly for BIC, the score measures complexity of the
+model. BIC penalizes the model more for its complexity, meaning that
+more complex models will have a worse (larger) score and will, in turn,
+be less likely to be selected.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We can double check the result by testing the unconstrained model
+with the three-way margins, which yields a problematic fit with the
+constrained model.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;margins(mod_1pl, type = &amp;quot;three-way&amp;quot;, nprint = 2)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+rasch(data = LSAT, constraint = NULL)
+
+Fit on the Three-Way Margins
+
+Response: (0,0,0)
+  Item i Item j Item k Obs   Exp (O-E)^2/E  
+1      1      3      5   6  9.40      1.23  
+2      3      4      5  30 25.85      0.67  
+
+Response: (1,0,0)
+  Item i Item j Item k Obs   Exp (O-E)^2/E  
+1      2      4      5  28 22.75      1.21  
+2      2      3      4  81 74.44      0.58  
+
+Response: (0,1,0)
+  Item i Item j Item k Obs  Exp (O-E)^2/E  
+1      1      2      5   3 7.58      2.76  
+2      1      3      4   5 9.21      1.92  
+
+Response: (1,1,0)
+  Item i Item j Item k Obs   Exp (O-E)^2/E  
+1      2      4      5  51 57.49      0.73  
+2      3      4      5  48 42.75      0.64  
+
+Response: (0,0,1)
+  Item i Item j Item k Obs    Exp (O-E)^2/E  
+1      1      3      5  41  33.07      1.90  
+2      2      3      4 108 101.28      0.45  
+
+Response: (1,0,1)
+  Item i Item j Item k Obs    Exp (O-E)^2/E  
+1      2      3      4 210 218.91      0.36  
+2      1      2      4 190 185.56      0.11  
+
+Response: (0,1,1)
+  Item i Item j Item k Obs   Exp (O-E)^2/E  
+1      1      3      5  23 28.38      1.02  
+2      1      4      5  46 42.51      0.29  
+
+Response: (1,1,1)
+  Item i Item j Item k Obs    Exp (O-E)^2/E  
+1      1      2      4 520 526.36      0.08  
+2      1      2      3 398 393.30      0.06  &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The new three-way margins suggests a good fit with the unconstrained
+Rasch model. Finally, we investigate two more possible extensions of the
+unconstrained Rasch model, the two-parameter logistic (2PL) model that
+assumes a different discrimination parameter per item, and Rasch model
+that incorporates a guessing parameter (3PL).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="parameter-logistics-model-2pl"&gt;2 Parameter Logistics Model
+(2PL)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The 2PL model has the same equation as the 1PL model, but unlike
+1PL, 2PL allows item discrimination and item difficulty to vary across
+items instead of fixing it to a constant value.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The 2PL model can also be fitted with &lt;code&gt;ltm()&lt;/code&gt;.The
+formula of &lt;code&gt;ltm()&lt;/code&gt; is two-sided, where its left is either a
+data frame or a matrix, and its right allows only &lt;code&gt;z1&lt;/code&gt; and/or
+&lt;code&gt;z2&lt;/code&gt;. Latent variables with &lt;code&gt;z2&lt;/code&gt; serves in the
+case of interaction.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;mod_2pl &amp;lt;- ltm(LSAT ~ z1)
+summary(mod_2pl)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+ltm(formula = LSAT ~ z1)
+
+Model Summary:
+   log.Lik      AIC      BIC
+ -2466.653 4953.307 5002.384
+
+Coefficients:
+                value std.err  z.vals
+Dffclt.Item 1 -3.3597  0.8669 -3.8754
+Dffclt.Item 2 -1.3696  0.3073 -4.4565
+Dffclt.Item 3 -0.2799  0.0997 -2.8083
+Dffclt.Item 4 -1.8659  0.4341 -4.2982
+Dffclt.Item 5 -3.1236  0.8700 -3.5904
+Dscrmn.Item 1  0.8254  0.2581  3.1983
+Dscrmn.Item 2  0.7229  0.1867  3.8721
+Dscrmn.Item 3  0.8905  0.2326  3.8281
+Dscrmn.Item 4  0.6886  0.1852  3.7186
+Dscrmn.Item 5  0.6575  0.2100  3.1306
+
+Integration:
+method: Gauss-Hermite
+quadrature points: 21 
+
+Optimization:
+Convergence: 0 
+max(|grad|): 0.024 
+quasi-Newton: BFGS &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The output above shows that the model estimated both item difficulty
+and item discrimination. Next, we can try comparing our 1PL model with
+the newly fitted 2PL model.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#compare
+anova(mod_1pl, mod_2pl)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+ Likelihood Ratio Table
+            AIC     BIC  log.Lik  LRT df p.value
+mod_1pl 4945.88 4975.32 -2466.94                
+mod_2pl 4953.31 5002.38 -2466.65 0.57  4   0.967&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The comparison suggested no significant difference between both
+models. Next, we ca nrequest for ICC, IIC, TIF, Latent Ability
+Distribution, and Unidimensionality Plot like we did with the 1PL
+model.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;par(mfrow = c(2, 3))
+
+plot(mod_2pl, type=c(&amp;quot;ICC&amp;quot;), 
+     legend = TRUE, cx = &amp;quot;bottomright&amp;quot;, lwd = 2, 
+     cex.main = 1.5, cex.lab = 1.3, cex = 0.6, main = &amp;quot;2PL Item Characteristics Curve&amp;quot;)
+
+plot(mod_2pl,type=c(&amp;quot;IIC&amp;quot;),
+     legend = TRUE, cx = &amp;quot;topright&amp;quot;, lwd = 2,
+     cex.main = 1.5, cex.lab = 1.3, cex = 0.6, main = &amp;quot;2PL Item Information Curve&amp;quot;)
+
+plot(mod_2pl,type=c(&amp;quot;IIC&amp;quot;),items=c(0), lwd = 2,
+     cex.main = 1.5, cex.lab = 1.3, cex = 0.6, main = &amp;quot;Test Information Function&amp;quot;)
+
+plot(0:1, 0:1, type = &amp;quot;n&amp;quot;, ann = FALSE, axes = FALSE)
+info1_2pl &amp;lt;- information(mod_2pl, c(-4, 0)) #Item information on the negative area of theta (-4 to 0)
+info2_2pl &amp;lt;- information(mod_2pl, c(0, 4)) #Item information on the positive area of theta (0 to 4)
+text(0.5, 0.5, labels = paste(&amp;quot;Total Information:&amp;quot;, round(info1_2pl$InfoTotal, 3),
+                               &amp;quot;\n\nInformation in (-4, 0):&amp;quot;, round(info1_2pl$InfoRange, 3),
+                               paste(&amp;quot;(&amp;quot;, round(100 * info1_2pl$PropRange, 2), &amp;quot;%)&amp;quot;, sep = &amp;quot;&amp;quot;),
+                               &amp;quot;\n\nInformation in (0, 4):&amp;quot;, round(info2_2pl$InfoRange, 3),
+                               paste(&amp;quot;(&amp;quot;, round(100 * info2_2pl$PropRange, 2), &amp;quot;%)&amp;quot;, sep = &amp;quot;&amp;quot;)))
+
+theta.2pl&amp;lt;-ltm::factor.scores(mod_2pl)
+summary(theta.2pl$score.dat$z1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-1.8953 -1.0026 -0.5397 -0.6629 -0.3572  0.6064 &lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot(theta.2pl, main = &amp;quot;Latent ability scores of the participants 2PL&amp;quot;)
+
+unitest_2pl &amp;lt;- unidimTest(mod_2pl,LSAT)
+plot(unitest_2pl, type = &amp;quot;b&amp;quot;, pch = 1:2)
+legend(&amp;quot;topright&amp;quot;, c(&amp;quot;Real Data&amp;quot;, &amp;quot;Average Simulated Data&amp;quot;), lty = 1, 
+    pch = 1:2, col = 1:2, bty = &amp;quot;n&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file38c4da22ad3_files/figure-html/unnamed-chunk-18-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ICC and IIC of the two models are different, meaning that when we
+allow item discrimination to vary, characteristics and yielded
+information of each item also changed accordingly.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;unitest_2pl&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Unidimensionality Check using Modified Parallel Analysis
+
+Call:
+ltm(formula = LSAT ~ z1)
+
+Matrix of tertachoric correlations
+       Item 1 Item 2 Item 3 Item 4 Item 5
+Item 1 1.0000 0.1703 0.2275 0.1072 0.0665
+Item 2 0.1703 1.0000 0.1891 0.1111 0.1724
+Item 3 0.2275 0.1891 1.0000 0.1867 0.1055
+Item 4 0.1072 0.1111 0.1867 1.0000 0.2009
+Item 5 0.0665 0.1724 0.1055 0.2009 1.0000
+
+Alternative hypothesis: the second eigenvalue of the observed data is substantially larger 
+            than the second eigenvalue of data under the assumed IRT model
+
+Second eigenvalue in the observed data: 0.2254
+Average of second eigenvalues in Monte Carlo samples: 0.2642
+Monte Carlo samples: 100
+p-value: 0.7327&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The above results of unidimensionality testing also suggests that
+the test measures only one construct. When considering two models
+together, it might be more preferable for us to choose the 1PL model as
+there is no difference between both 1PL and 2PL; however, by nature, 1PL
+model is more simple and easier to explain comparing to 2PL. Let us try
+fitting the data to a 3PL model just in case.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="parameter-logistics-model-3pl"&gt;3 Parameter Logistics Model
+(3PL)&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;The 3PL model is very similar to the 2PL model; however, the model
+includes an additional parameter: lower asymptote (also known as the
+guessing parameter). Under this model, individuals with zero ability
+have a nonzero chance of correctly answering any item just by guessing
+randomly. A 3PL model can be fitted with &lt;code&gt;tpm()&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;mod_3pl &amp;lt;- tpm(LSAT, type = &amp;quot;latent.trait&amp;quot;, max.guessing = 1)
+
+summary(mod_3pl)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+tpm(data = LSAT, type = &amp;quot;latent.trait&amp;quot;, max.guessing = 1)
+
+Model Summary:
+  log.Lik      AIC      BIC
+ -2466.66 4963.319 5036.935
+
+Coefficients:
+                value std.err  z.vals
+Gussng.Item 1  0.0374  0.8650  0.0432
+Gussng.Item 2  0.0777  2.5282  0.0307
+Gussng.Item 3  0.0118  0.2815  0.0419
+Gussng.Item 4  0.0353  0.5769  0.0612
+Gussng.Item 5  0.0532  1.5596  0.0341
+Dffclt.Item 1 -3.2965  1.7788 -1.8532
+Dffclt.Item 2 -1.1451  7.5166 -0.1523
+Dffclt.Item 3 -0.2490  0.7527 -0.3308
+Dffclt.Item 4 -1.7658  1.6162 -1.0925
+Dffclt.Item 5 -2.9902  4.0606 -0.7364
+Dscrmn.Item 1  0.8286  0.2877  2.8797
+Dscrmn.Item 2  0.7604  1.3774  0.5520
+Dscrmn.Item 3  0.9016  0.4190  2.1516
+Dscrmn.Item 4  0.7007  0.2574  2.7219
+Dscrmn.Item 5  0.6658  0.3282  2.0284
+
+Integration:
+method: Gauss-Hermite
+quadrature points: 21 
+
+Optimization:
+Optimizer: optim (BFGS)
+Convergence: 0 
+max(|grad|): 0.028 &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The model summary above suggested that all three item parameters of
+item discrimination (&lt;em&gt;a&lt;/em&gt;), item difficulty (&lt;em&gt;b&lt;/em&gt;), and item
+guessing (&lt;em&gt;c&lt;/em&gt;) are allowed to vary. Like what we did, we can try
+requesting for ICC, IIC, TIF, latent ability distribution, and
+unidimensionality plot.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;par(mfrow = c(2, 3))
+
+plot(mod_3pl, type=c(&amp;quot;ICC&amp;quot;), 
+     legend = TRUE, cx = &amp;quot;bottomright&amp;quot;, lwd = 2, 
+     cex.main = 1.5, cex.lab = 1.3, cex = 0.6, main = &amp;quot;3PL Item Characteristics Curve&amp;quot;)
+
+plot(mod_3pl,type=c(&amp;quot;IIC&amp;quot;),
+     legend = TRUE, cx = &amp;quot;topright&amp;quot;, lwd = 2,
+     cex.main = 1.5, cex.lab = 1.3, cex = 0.6, main = &amp;quot;3PL Item Information Curve&amp;quot;)
+
+plot(mod_3pl,type=c(&amp;quot;IIC&amp;quot;),items=c(0))
+
+plot(0:1, 0:1, type = &amp;quot;n&amp;quot;, ann = FALSE, axes = FALSE)
+info1_3pl &amp;lt;- information(mod_3pl, c(-4, 0)) #Item information on the negative area of theta (-4 to 0)
+info2_3pl &amp;lt;- information(mod_3pl, c(0, 4)) #Item information on the positive area of theta (0 to 4)
+text(0.5, 0.5, labels = paste(&amp;quot;Total Information:&amp;quot;, round(info1_3pl$InfoTotal, 3),
+                               &amp;quot;\n\nInformation in (-4, 0):&amp;quot;, round(info1_3pl$InfoRange, 3),
+                               paste(&amp;quot;(&amp;quot;, round(100 * info1_3pl$PropRange, 2), &amp;quot;%)&amp;quot;, sep = &amp;quot;&amp;quot;),
+                               &amp;quot;\n\nInformation in (0, 4):&amp;quot;, round(info2_3pl$InfoRange, 3),
+                               paste(&amp;quot;(&amp;quot;, round(100 * info2_3pl$PropRange, 2), &amp;quot;%)&amp;quot;, sep = &amp;quot;&amp;quot;)))
+
+theta.3pl&amp;lt;-ltm::factor.scores(mod_3pl)
+summary(theta.3pl$score.dat$z1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-1.8706 -0.9992 -0.5368 -0.6584 -0.3590  0.6116 &lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot(theta.3pl, main = &amp;quot;Latent ability scores of the participants 3PL&amp;quot;)
+
+unitest_3pl &amp;lt;- unidimTest(mod_3pl,LSAT)
+plot(unitest_3pl, type = &amp;quot;b&amp;quot;, pch = 1:2)
+legend(&amp;quot;topright&amp;quot;, c(&amp;quot;Real Data&amp;quot;, &amp;quot;Average Simulated Data&amp;quot;), lty = 1, 
+    pch = 1:2, col = 1:2, bty = &amp;quot;n&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file38c4da22ad3_files/figure-html/unnamed-chunk-21-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;pre class="r"&gt;&lt;code&gt;unitest_3pl&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Unidimensionality Check using Modified Parallel Analysis
+
+Call:
+tpm(data = LSAT, type = &amp;quot;latent.trait&amp;quot;, max.guessing = 1)
+
+Matrix of tertachoric correlations
+       Item 1 Item 2 Item 3 Item 4 Item 5
+Item 1 1.0000 0.1703 0.2275 0.1072 0.0665
+Item 2 0.1703 1.0000 0.1891 0.1111 0.1724
+Item 3 0.2275 0.1891 1.0000 0.1867 0.1055
+Item 4 0.1072 0.1111 0.1867 1.0000 0.2009
+Item 5 0.0665 0.1724 0.1055 0.2009 1.0000
+
+Alternative hypothesis: the second eigenvalue of the observed data is substantially larger 
+            than the second eigenvalue of data under the assumed IRT model
+
+Second eigenvalue in the observed data: 0.2254
+Average of second eigenvalues in Monte Carlo samples: 0.2459
+Monte Carlo samples: 100
+p-value: 0.5545&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The unidimensionality testing above suggested non-significant
+result, meaning that the test measures one construct as intended.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;anova(mod_1pl, mod_3pl)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+ Likelihood Ratio Table
+            AIC     BIC  log.Lik  LRT df p.value
+mod_1pl 4945.88 4975.32 -2466.94                
+mod_3pl 4963.32 5036.94 -2466.66 0.56  9       1&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The comparison between the 1PL and the 3PL model also suggests no
+statistical differences. The 3PL model also has larger AIC and BIC;
+therefore, it is more preferable for us to use 1PL model with this data.
+Finally, we can request for ability estimates for all response pattern
+with the &lt;code&gt;factor.scores()&lt;/code&gt; function.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;factor.scores(mod_1pl)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+rasch(data = LSAT, constraint = NULL)
+
+Scoring Method: Empirical Bayes
+
+Factor-Scores for observed response patterns:
+   Item 1 Item 2 Item 3 Item 4 Item 5 Obs     Exp     z1 se.z1
+1       0      0      0      0      0   3   2.364 -1.910 0.790
+2       0      0      0      0      1   6   5.468 -1.439 0.793
+3       0      0      0      1      0   2   2.474 -1.439 0.793
+4       0      0      0      1      1  11   8.249 -0.959 0.801
+5       0      0      1      0      0   1   0.852 -1.439 0.793
+6       0      0      1      0      1   1   2.839 -0.959 0.801
+7       0      0      1      1      0   3   1.285 -0.959 0.801
+8       0      0      1      1      1   4   6.222 -0.466 0.816
+9       0      1      0      0      0   1   1.819 -1.439 0.793
+10      0      1      0      0      1   8   6.063 -0.959 0.801
+11      0      1      0      1      1  16  13.288 -0.466 0.816
+12      0      1      1      0      1   3   4.574 -0.466 0.816
+13      0      1      1      1      0   2   2.070 -0.466 0.816
+14      0      1      1      1      1  15  14.749  0.049 0.836
+15      1      0      0      0      0  10  10.273 -1.439 0.793
+16      1      0      0      0      1  29  34.249 -0.959 0.801
+17      1      0      0      1      0  14  15.498 -0.959 0.801
+18      1      0      0      1      1  81  75.060 -0.466 0.816
+19      1      0      1      0      0   3   5.334 -0.959 0.801
+20      1      0      1      0      1  28  25.834 -0.466 0.816
+21      1      0      1      1      0  15  11.690 -0.466 0.816
+22      1      0      1      1      1  80  83.310  0.049 0.836
+23      1      1      0      0      0  16  11.391 -0.959 0.801
+24      1      1      0      0      1  56  55.171 -0.466 0.816
+25      1      1      0      1      0  21  24.965 -0.466 0.816
+26      1      1      0      1      1 173 177.918  0.049 0.836
+27      1      1      1      0      0  11   8.592 -0.466 0.816
+28      1      1      1      0      1  61  61.235  0.049 0.836
+29      1      1      1      1      0  28  27.709  0.049 0.836
+30      1      1      1      1      1 298 295.767  0.593 0.862&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;By default, &lt;code&gt;factor.scores()&lt;/code&gt; produces ability estimates
+for the observed response patterns (every combination available); if
+ability estimates are required for non observed or specific response
+patterns, these could be specified using the &lt;code&gt;resp.patterns&lt;/code&gt;
+argument.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;factor.scores(mod_1pl, resp.patterns = rbind(c(1,1,1,1,1), c(0,0,0,0,0)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+rasch(data = LSAT, constraint = NULL)
+
+Scoring Method: Empirical Bayes
+
+Factor-Scores for specified response patterns:
+  Item 1 Item 2 Item 3 Item 4 Item 5 Obs     Exp     z1 se.z1
+1      1      1      1      1      1 298 295.767  0.593 0.862
+2      0      0      0      0      0   3   2.364 -1.910 0.790&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The specified response patterns above are for examinees who got
+all items correctly and incorrectly respectively. The results suggested
+that the examinee who got all item correctly has ability level of 0.50
+and the examinee who got all item incorrectly has ability level of
+-1.91.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The model we discussed so far, Rasch, 1PL,2PL, 3PL are all
+suitable for dichotomous test items (True/False), but what if item
+responses have more than 2 categories like in a survey (i.e., 1 =
+Strongly disagree 2 = Disagree 3 = Agree 4 = Strongly Agree)? This is
+when we use polytomous IRT models.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="polytomous-item"&gt;Polytomous Item&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;The data we consider here comes from the Environment section of the
+1990 British Social Attitudes Survey, N = 291, 6 items, 3 ordinal
+response options. The data can be loaded with
+&lt;code&gt;data(Environment)&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;data(Environment)
+descript(Environment)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Descriptive statistics for the &amp;#39;Environment&amp;#39; data-set
+
+Sample:
+ 6 items and 291 sample units; 0 missing values
+
+Proportions for each level of response:
+             very concerned slightly concerned not very concerned
+LeadPetrol           0.6151             0.3265             0.0584
+RiverSea             0.8007             0.1753             0.0241
+RadioWaste           0.7457             0.1924             0.0619
+AirPollution         0.6495             0.3196             0.0309
+Chemicals            0.7491             0.1924             0.0584
+Nuclear              0.5155             0.3265             0.1581
+
+
+Frequencies of total scores:
+      6  7  8  9 10 11 12 13 14 15 16 17 18
+Freq 96 51 37 27 26 18 13  7  6  6  1  1  2
+
+
+Cronbach&amp;#39;s alpha:
+                        value
+All Items              0.8215
+Excluding LeadPetrol   0.8218
+Excluding RiverSea     0.7990
+Excluding RadioWaste   0.7767
+Excluding AirPollution 0.7751
+Excluding Chemicals    0.7790
+Excluding Nuclear      0.8058
+
+
+Pairwise Associations:
+   Item i Item j p.value
+1       1      2   0.001
+2       1      3   0.001
+3       1      4   0.001
+4       1      5   0.001
+5       1      6   0.001
+6       2      3   0.001
+7       2      4   0.001
+8       2      5   0.001
+9       2      6   0.001
+10      3      4   0.001&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;From the descriptive output, the first response, “&lt;em&gt;very
+concerned&lt;/em&gt;”, has the highest frequency. The p-values for the
+pairwise associations indicate significant associations between all
+items. An alternative method to explore the degree of association
+between pairs of items can be done with &lt;code&gt;rcor.test()&lt;/code&gt; for
+non-parametric correlation coefficients.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;rcor.test(Environment, method = &amp;quot;kendall&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+             LeadPetrol RiverSea RadioWaste AirPollution Chemicals
+LeadPetrol    *****      0.385    0.260      0.457        0.305   
+RiverSea     &amp;lt;0.001      *****    0.399      0.548        0.403   
+RadioWaste   &amp;lt;0.001     &amp;lt;0.001    *****      0.506        0.623   
+AirPollution &amp;lt;0.001     &amp;lt;0.001   &amp;lt;0.001      *****        0.504   
+Chemicals    &amp;lt;0.001     &amp;lt;0.001   &amp;lt;0.001     &amp;lt;0.001        *****   
+Nuclear      &amp;lt;0.001     &amp;lt;0.001   &amp;lt;0.001     &amp;lt;0.001       &amp;lt;0.001   
+             Nuclear
+LeadPetrol    0.279 
+RiverSea      0.320 
+RadioWaste    0.484 
+AirPollution  0.382 
+Chemicals     0.463 
+Nuclear       ***** 
+
+upper diagonal part contains correlation coefficient estimates 
+lower diagonal part contains corresponding p-values&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The &lt;code&gt;rcor.test()&lt;/code&gt; provides two options for nonparametric
+calculation, Kendall’s &lt;em&gt;Tau&lt;/em&gt; and Spearman’s &lt;em&gt;rho&lt;/em&gt; in
+&lt;code&gt;method&lt;/code&gt; argument. Initially, we will fit the partial credit
+model (PCM), which is a Polytomous version of the Rasch model.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="partial-credit-model"&gt;Partial Credit Model&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;PCM fixes the discrimination parameter of all item as 1 in the
+same way as what Rasch’s model does. The threshold (or the parameter
+that represents the trait level necessary for an examinee to have 50% to
+pick a response category) of PCM is allowed to vary.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;For the &lt;code&gt;gpcm()&lt;/code&gt; function, If
+&lt;code&gt;constraint = "rasch"&lt;/code&gt;, then the discrimination parameter is
+assumed equal for all items and fixed at one. If
+&lt;code&gt;constraint = "1PL"&lt;/code&gt;, then the discrimination parameter βi is
+assumed equal for all items but is estimated. Here, we are fixing all
+discrimination parameter to 1.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;mod_pcm_rasch &amp;lt;- gpcm(Environment, constraint = &amp;quot;rasch&amp;quot;)
+summary(mod_pcm_rasch)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+gpcm(data = Environment, constraint = &amp;quot;rasch&amp;quot;)
+
+Model Summary:
+   log.Lik      AIC      BIC
+ -1147.176 2318.351 2362.431
+
+Coefficients:
+$LeadPetrol
+        value std.err z.value
+Catgr.1 0.680   0.153   4.450
+Catgr.2 2.785   0.292   9.541
+Dscrmn  1.000      NA      NA
+
+$RiverSea
+        value std.err z.value
+Catgr.1 1.822   0.180  10.149
+Catgr.2 3.385   0.435   7.781
+Dscrmn  1.000      NA      NA
+
+$RadioWaste
+        value std.err z.value
+Catgr.1 1.542   0.174   8.879
+Catgr.2 2.328   0.302   7.709
+Dscrmn  1.000      NA      NA
+
+$AirPollution
+        value std.err z.value
+Catgr.1 0.822   0.153   5.363
+Catgr.2 3.517   0.376   9.343
+Dscrmn  1.000      NA      NA
+
+$Chemicals
+        value std.err z.value
+Catgr.1 1.555   0.174   8.949
+Catgr.2 2.399   0.308   7.788
+Dscrmn  1.000      NA      NA
+
+$Nuclear
+        value std.err z.value
+Catgr.1 0.316   0.156   2.029
+Catgr.2 1.498   0.208   7.218
+Dscrmn  1.000      NA      NA
+
+
+Integration:
+method: Gauss-Hermite
+quadrature points: 21 
+
+Optimization:
+Convergence: 0 
+max(|grad|): 0.0079 
+optimizer: nlminb &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The model summary provides AIC and BIC of the model. Same as what we
+did with our dichotomous data, we can request for parameter estimates of
+each item.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;coef(mod_pcm_rasch, prob = TRUE, order = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;             Catgr.1 Catgr.2 Dscrmn
+LeadPetrol     0.680   2.785      1
+RiverSea       1.822   3.385      1
+RadioWaste     1.542   2.328      1
+AirPollution   0.822   3.517      1
+Chemicals      1.555   2.399      1
+Nuclear        0.316   1.498      1&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;In order to check the fit of the model to the data, the argument
+&lt;code&gt;GoF.gpcm&lt;/code&gt; and &lt;code&gt;margins()&lt;/code&gt; can be used.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;GoF.gpcm(mod_pcm_rasch, B = 199) # B = Bootstrap sample&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Parametric Bootstrap Approximation to Pearson chi-squared Goodness-of-Fit Measure
+
+Call:
+gpcm(data = Environment, constraint = &amp;quot;rasch&amp;quot;)
+
+Tobs: 1001.41 
+# data-sets: 200 
+p-value: 0.085 &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Based on 200 data-points, the non significant p-value suggests an
+acceptable fit of the model. The null hypothesis states that the
+observed data and the model fit with each other (no differences). We can
+move on to the two-way margin analysis.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;margins(mod_pcm_rasch)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+gpcm(data = Environment, constraint = &amp;quot;rasch&amp;quot;)
+
+Fit on the Two-Way Margins
+
+             LeadPetrol RiverSea RadioWaste AirPollution Chemicals
+LeadPetrol   &amp;lt;NA&amp;gt;       35.47     3.04      34.43         7.41    
+RiverSea     ***        &amp;lt;NA&amp;gt;     20.07      77.50        18.75    
+RadioWaste                       &amp;lt;NA&amp;gt;       44.64        68.12    
+AirPollution ***        ***      ***        &amp;lt;NA&amp;gt;         33.29    
+Chemicals                        ***        ***          &amp;lt;NA&amp;gt;     
+Nuclear                          ***                              
+             Nuclear
+LeadPetrol    4.71  
+RiverSea     10.36  
+RadioWaste   43.35  
+AirPollution 16.56  
+Chemicals    27.68  
+Nuclear      &amp;lt;NA&amp;gt;   
+
+&amp;#39;***&amp;#39; denotes pairs of items with lack-of-fit&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The upper diagonal part of the output contains the residuals, and
+the lower diagonal part indicates the pairs for which the residuals
+exceed the threshold value. The two-way margin analysis above suggests
+problematic fit of the data with the PCM model, meaning that PCM might
+not be suitable for this data. We can try using the next model, the
+Graded Response Model (GRM).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="graded-response-model"&gt;Graded Response Model&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;GRM is the polytomous version of the 2PL model (&lt;a
+href="https://www.frontiersin.org/articles/10.3389/feduc.2021.721963/full"&gt;Dai
+et al., 2021&lt;/a&gt;). Despite able to constrain the discrimination
+parameter, GRM works differently than PCM. PCM estimates separate
+category response parameters for each item, while the GRM model further
+assumes that the thresholds for category response are also equal across
+items (&lt;a
+href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4520411/#:~:text=The%20difference%20between%20the%20two,are%20also%20equal%20across%20items."&gt;Nguyen
+et al., 2014&lt;/a&gt;). Initially, we can try fitting the constrained version
+of Graded Response Model (GRM) that assumes equal &lt;em&gt;a&lt;/em&gt; parameter
+across items (similar to Rasch model). The model is fitted by
+&lt;code&gt;grm()&lt;/code&gt; as follows&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;mod_grm &amp;lt;- grm(Environment, constrained = TRUE)
+summary(mod_grm)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+grm(data = Environment, constrained = TRUE)
+
+Model Summary:
+   log.Lik      AIC      BIC
+ -1106.193 2238.386 2286.139
+
+Coefficients:
+$LeadPetrol
+        value
+Extrmt1 0.395
+Extrmt2 1.988
+Dscrmn  2.218
+
+$RiverSea
+        value
+Extrmt1 1.060
+Extrmt2 2.560
+Dscrmn  2.218
+
+$RadioWaste
+        value
+Extrmt1 0.832
+Extrmt2 1.997
+Dscrmn  2.218
+
+$AirPollution
+        value
+Extrmt1 0.483
+Extrmt2 2.448
+Dscrmn  2.218
+
+$Chemicals
+        value
+Extrmt1 0.855
+Extrmt2 2.048
+Dscrmn  2.218
+
+$Nuclear
+        value
+Extrmt1 0.062
+Extrmt2 1.266
+Dscrmn  2.218
+
+
+Integration:
+method: Gauss-Hermite
+quadrature points: 21 
+
+Optimization:
+Convergence: 0 
+max(|grad|): 0.0049 
+quasi-Newton: BFGS &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;If standard errors for the parameter estimates are required, you can
+add the argument &lt;code&gt;Hessian = T&lt;/code&gt; to the function
+&lt;code&gt;grm()&lt;/code&gt;. Similarly to our dichotomous case, the fit of the
+model can be checked using &lt;code&gt;margins()&lt;/code&gt; for two-way
+margins.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;margins(mod_grm)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+grm(data = Environment, constrained = TRUE)
+
+Fit on the Two-Way Margins
+
+             LeadPetrol RiverSea RadioWaste AirPollution Chemicals
+LeadPetrol   -          10.03     9.98       5.19         7.85    
+RiverSea                -         5.06      17.12         2.56    
+RadioWaste                       -           6.78        20.60    
+AirPollution                                -             4.49    
+Chemicals                                                -        
+Nuclear                                                           
+             Nuclear
+LeadPetrol   16.93  
+RiverSea      7.14  
+RadioWaste   12.09  
+AirPollution  4.57  
+Chemicals     3.85  
+Nuclear      -      &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The output above looks good as there is no indication of poor fit.
+Next, we will try with the three-way margins.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;margins(mod_grm, type = &amp;quot;three&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+grm(data = Environment, constrained = TRUE)
+
+Fit on the Three-Way Margins
+
+   Item i Item j Item k (O-E)^2/E  
+1       1      2      3     28.52  
+2       1      2      4     34.26  
+3       1      2      5     29.91  
+4       1      2      6     42.74  
+5       1      3      4     33.03  
+6       1      3      5     66.72  
+7       1      3      6     65.31  
+8       1      4      5     25.48  
+9       1      4      6     34.46  
+10      1      5      6     39.49  
+11      2      3      4     29.63  
+12      2      3      5     37.74  
+13      2      3      6     32.50  
+14      2      4      5     27.08  
+15      2      4      6     36.77  
+16      2      5      6     19.49  
+17      3      4      5     38.99  
+18      3      4      6     26.91  
+19      3      5      6     39.62  
+20      4      5      6     22.25  &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Both the two- and three-way residuals show a good fit of the
+constrained model to the data, but checking the fit of the model in the
+margins does not correspond to an overall goodness-of-fit test. As a
+result, we will fit the unconstrained version of the GRM as well.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;mod_grm_unconstrained &amp;lt;- grm(Environment) #unconstrained GRM
+
+summary(mod_grm_unconstrained)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+grm(data = Environment)
+
+Model Summary:
+   log.Lik      AIC      BIC
+ -1090.404 2216.807 2282.927
+
+Coefficients:
+$LeadPetrol
+        value
+Extrmt1 0.487
+Extrmt2 2.584
+Dscrmn  1.378
+
+$RiverSea
+        value
+Extrmt1 1.058
+Extrmt2 2.499
+Dscrmn  2.341
+
+$RadioWaste
+        value
+Extrmt1 0.779
+Extrmt2 1.793
+Dscrmn  3.123
+
+$AirPollution
+        value
+Extrmt1 0.457
+Extrmt2 2.157
+Dscrmn  3.283
+
+$Chemicals
+        value
+Extrmt1 0.809
+Extrmt2 1.868
+Dscrmn  2.947
+
+$Nuclear
+        value
+Extrmt1 0.073
+Extrmt2 1.427
+Dscrmn  1.761
+
+
+Integration:
+method: Gauss-Hermite
+quadrature points: 21 
+
+Optimization:
+Convergence: 0 
+max(|grad|): 0.003 
+quasi-Newton: BFGS &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We can use a likelihood ratio test to check if the unconstrained
+version GRM is better than its constrained one.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;anova(mod_grm, mod_grm_unconstrained)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+ Likelihood Ratio Table
+                          AIC     BIC  log.Lik   LRT df p.value
+mod_grm               2238.39 2286.14 -1106.19                 
+mod_grm_unconstrained 2216.81 2282.93 -1090.40 31.58  5  &amp;lt;0.001&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The likelihood ratio test indicates that the unconstrained GRM is
+preferable for the Environment data. We can plot the Item Characteristic
+Curve (ICC) of all 6 items, Item Information Curve (IIC), and Test
+Information Curve (TIC) below.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;par(mar=c(2,6,2,2), mfrow = c(3, 3))
+
+plot(mod_grm_unconstrained, lwd = 2, cex = 0.6, legend = TRUE, cx = &amp;quot;left&amp;quot;, 
+     xlab = &amp;quot;Latent Trait&amp;quot;, cex.main = 0.7, cex.lab = 0.7, cex.axis = 1)
+
+##############################################################
+
+plot(mod_grm_unconstrained, type = &amp;quot;IIC&amp;quot;, lwd = 2, cex = 0.6, legend = TRUE, cx = &amp;quot;topleft&amp;quot;,
+     xlab = &amp;quot;Latent Trait&amp;quot;, cex.main = 0.7, cex.lab = 0.7, cex.axis = 1)
+
+plot(mod_grm_unconstrained, type = &amp;quot;IIC&amp;quot;, items = 0, lwd = 2, xlab = &amp;quot;Latent Trait&amp;quot;,cex.main = 0.7, cex.lab = 0.7, cex.axis = 1)
+
+info3 &amp;lt;- information(mod_grm_unconstrained, c(-4, 0))
+info4 &amp;lt;- information(mod_grm_unconstrained, c(0, 4))
+
+text(-1.9, 8, labels = paste(&amp;quot;Information in (-4, 0):&amp;quot;,
+                             paste(round(100 * info3$PropRange, 1), &amp;quot;%&amp;quot;, sep = &amp;quot;&amp;quot;),
+                             &amp;quot;\n\nInformation in (0, 4):&amp;quot;,
+                             paste(round(100 * info4$PropRange, 1), &amp;quot;%&amp;quot;, sep = &amp;quot;&amp;quot;)), cex = 0.5)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file38c4da22ad3_files/figure-html/unnamed-chunk-37-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;From the Item Characteristic Curve, we observe that there is low
+probability of endorsing the the first option, “very concerned”, for
+relatively high latent trait levels, which means that the questions
+asked are not considered as major environmental issues by the
+respondent.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The Test Information Curve also tells us that the test provides
+89% of the total information for high latent trait levels.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Finally, the Item Information Curve indicates that items in
+LeadPetrol and Nuclear provide little information in the whole latent
+trait continuum. We can check this in detail using
+&lt;code&gt;information()&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;information(mod_grm_unconstrained, c(-4, 4))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+grm(data = Environment)
+
+Total Information = 26.97
+Information in (-4, 4) = 26.7 (98.97%)
+Based on all the items&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;For item 1 and item 6&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;information(mod_grm_unconstrained, c(-4, 4), items = c(1, 6)) #for item 1 and 6&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+grm(data = Environment)
+
+Total Information = 5.36
+Information in (-4, 4) = 5.17 (96.38%)
+Based on items 1, 6&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We observe that item 1 and 6 provide only the 5.36% of the total
+information (from the total of 26.97); Thus, they could probably be
+excluded from a similar future study. Finally, a useful comparison is to
+plot the ICC of each response option separately.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;par(mar=c(2,6,2,2), mfrow = c(2, 2))
+
+plot(mod_grm_unconstrained, category = 1, lwd = 2, cex = 0.7, legend = TRUE, cx = -4.5,
+     cy = 0.85, xlab = &amp;quot;Latent Trait&amp;quot;, cex.main = 0.7, cex.lab = 0.7,
+     cex.axis = 1)
+
+for (ctg in 2:3) 
+  {
+  plot(mod_grm_unconstrained, category = ctg, lwd = 2, cex = 0.5, annot = FALSE,
+      xlab = &amp;quot;Latent Trait&amp;quot;, cex.main = 0.7, cex.lab = 0.7,
+      cex.axis = 1)
+  }&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file38c4da22ad3_files/figure-html/unnamed-chunk-40-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;From the plot, the response option for RadioWaste and Chemicals have
+nearly identical characteristic curves for all categories, indicating
+that these two items are probably regarded to have the same effect on
+the environment.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;So far, we have discussed what IRT is, including its model for
+dichotomous and polytomous test items. There are several models for us
+to choose from, and each model has its parameter we can adjust to suit
+our needs as well depending on how complex we want our model to be.
+There is no right or wrong answer model selection. For example, if we
+want the model to be as simple as possible with a dichotomous test (say,
+a math test), we could go for Rasch model. If we want our model to be
+more realistic, we may want to use 2PL or 3PL, which comes with expenses
+such as the need for more sample size or more difficulty to fit the
+model.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;However, given how useful IRT is in analyzing test items with
+several unique parameters, it doesn’t mean that we need to disregard the
+concept of CTT in our practice. Both theories have its own contribution
+and usefulness. For example, CTT is more practical to implement in the
+classroom setting where there is small amount of students and there is
+no need to investigate items at a deeper level. For example, if we want
+to use a classroom assessment for formative purposes (i.e., a practice
+quiz to help students prepare for the final exam), using CTT might be
+sufficient. If we want to develop a large-scale test to measure students
+at a national level, maybe IRT might be more appropriate to improve the
+test with a more realistic model.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a
+href="https://d1wqtxts1xzle7.cloudfront.net/47596077/ITEMS_Module_16-with-cover-page-v2.pdf?Expires=1652597267&amp;amp;Signature=dRiumBzQzxIiFeQvRCtF3cuBjpeaui-mWZXaskGDaQYlwenB7ZZVx0dBUxSnl47nyQnveBh0ZBHdY3IbzNnPHZqAhAOdIN~QIQVCfSQ11d0ZV3mef~kmo8nEzXj459sakTPeZCeTwZSVxklbbtIE52mzRfFItBw4ZF70kJMT9S3FC9YaI~lDDXN5YUbb4VL7ZgCH-lsBIthNbTSDUXxqGuwgeHgxKfotwPdlQRr5iLEEwlLkea2Fr1zow4uLrNg38yK31MdNg55m73x9iwJZA2s~6wlj9IfsWINVJlwPoIOjT5Zm0bIuyIfzGbUKRk~3AiXLjThGUjIi0wlc1Y6flQ__&amp;amp;Key-Pair-Id=APKAJLOHF5GGSLRBV4ZA"&gt;Hambleton
+and Jones (1993&lt;/a&gt;) did a really great job in comparing the difference
+between CTT and IRT in their work. I have presented the table below for
+your information.&lt;/p&gt;
+&lt;table&gt;
+&lt;caption&gt;The Comparison between CTT and IRT Models (&lt;a
+href="https://d1wqtxts1xzle7.cloudfront.net/47596077/ITEMS_Module_16-with-cover-page-v2.pdf?Expires=1652597267&amp;amp;Signature=dRiumBzQzxIiFeQvRCtF3cuBjpeaui-mWZXaskGDaQYlwenB7ZZVx0dBUxSnl47nyQnveBh0ZBHdY3IbzNnPHZqAhAOdIN~QIQVCfSQ11d0ZV3mef~kmo8nEzXj459sakTPeZCeTwZSVxklbbtIE52mzRfFItBw4ZF70kJMT9S3FC9YaI~lDDXN5YUbb4VL7ZgCH-lsBIthNbTSDUXxqGuwgeHgxKfotwPdlQRr5iLEEwlLkea2Fr1zow4uLrNg38yK31MdNg55m73x9iwJZA2s~6wlj9IfsWINVJlwPoIOjT5Zm0bIuyIfzGbUKRk~3AiXLjThGUjIi0wlc1Y6flQ__&amp;amp;Key-Pair-Id=APKAJLOHF5GGSLRBV4ZA"&gt;Hambleton
+&amp;amp; Jones, 1993&lt;/a&gt;, p.43)&lt;/caption&gt;
+&lt;colgroup&gt;
+&lt;col width="24%" /&gt;
+&lt;col width="34%" /&gt;
+&lt;col width="41%" /&gt;
+&lt;/colgroup&gt;
+&lt;thead&gt;
+&lt;tr class="header"&gt;
+&lt;th&gt;Area&lt;/th&gt;
+&lt;th&gt;Classical Test Theory&lt;/th&gt;
+&lt;th&gt;Item Response Theory&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;Model&lt;/td&gt;
+&lt;td&gt;Linear&lt;/td&gt;
+&lt;td&gt;Non-linear&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;Level&lt;/td&gt;
+&lt;td&gt;Test&lt;/td&gt;
+&lt;td&gt;Item&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;Assumptions&lt;/td&gt;
+&lt;td&gt;Weak (i.e., easy to fit with test data)&lt;/td&gt;
+&lt;td&gt;Strong (i.e., more difficult to meet with test data)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;Item-Ability Relationship&lt;/td&gt;
+&lt;td&gt;Not Specified&lt;/td&gt;
+&lt;td&gt;Item Characteristics Function&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;Examinee Ability&lt;/td&gt;
+&lt;td&gt;Represented by test scores or estimated true scores&lt;/td&gt;
+&lt;td&gt;Represented by latent ability (Theta/θ)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;Invariance of item and person statistics&lt;/td&gt;
+&lt;td&gt;Unavailable / item and person parameters are sample dependent&lt;/td&gt;
+&lt;td&gt;Item and person parameters are sample dependent if the model fits
+the data&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="odd"&gt;
+&lt;td&gt;Item Statistics&lt;/td&gt;
+&lt;td&gt;&lt;p&gt;&lt;em&gt;p&lt;/em&gt; = item difficulty&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;r&lt;/em&gt; = item discrimination&lt;/p&gt;&lt;/td&gt;
+&lt;td&gt;Item discrimination (&lt;em&gt;a&lt;/em&gt;), Item difficulty (&lt;em&gt;b&lt;/em&gt;),
+guessing parameter (&lt;em&gt;c&lt;/em&gt;)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="even"&gt;
+&lt;td&gt;Sample Size (for item parameter estimation)&lt;/td&gt;
+&lt;td&gt;200-500&lt;/td&gt;
+&lt;td&gt;More than 500&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Similar to CTT, IRT can be used to develop tests, scales,
+surveys, or other measurement tools. The model can analyze item-level
+data of both dichotomous (i.e., exams with true/false) and polytomous
+(i.e., surveys with no right/wrong answers) tests to provide information
+on sensitivity of measurement across a range of latent trait. Knowing
+information like item difficulty, item discrimination, and item guessing
+is useful when building tests as we can examine which item is a good
+item and which item is a not-so-useful one. For example, a test item
+that is easy to guess might not be appropriate because everyone can do
+it, so it doesn’t really measure anything.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;IRT also allows us to put ability levels and difficulties of
+items into the same scale to match the trait levels of a target
+population. If we want a test to measure someone with “just enough”
+knowledge to pass (say, a driver license exam), we can build a test to
+measure people with low to medium knowledge. I mean, a taxi driver or a
+racing driver know how to drive a car, and that is enough. However, if
+we want to develop a test to select the best-of-the-best candidates for
+scholarship selection, we might want to build a difficult test to
+separate low-to-mid tier students to high performance students. Anyway,
+that is all for this post. Thank you so much for reading this! Have a
+good day!&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>2530d599a3222722a8076a89ee971d4a</distill:md5>
+      <category>R</category>
+      <category>Psychometric</category>
+      <guid>https://taridwong.github.io/posts/2022-05-15-irt</guid>
+      <pubDate>Sun, 15 May 2022 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2022-05-15-irt/IIC.png" medium="image" type="image/png" width="656" height="551"/>
+    </item>
     <item>
       <title>Making Sense of Machine Learning with Explanable Artificial Intelligence</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -147,10 +1621,9 @@ al;., 2016&lt;/a&gt;).&lt;/p&gt;&lt;/li&gt;
 
 TSNE_result = tsne.fit_transform(X)
 
-plt.figure(figsize=(12,8))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1200x800 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="python"&gt;&lt;code&gt;sns.scatterplot(TSNE_result[:,0], TSNE_result[:,1], hue=y, legend=&amp;#39;full&amp;#39;, palette=&amp;quot;hls&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+plt.figure(figsize=(12,8))
+sns.scatterplot(TSNE_result[:,0], TSNE_result[:,1], hue=y, legend=&amp;#39;full&amp;#39;, palette=&amp;quot;hls&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="../file38c45259d0d_files/figure-html/unnamed-chunk-5-1.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;To balance the data, I will use both oversampling and
 undersampling. Normal oversampling methods duplicates minority samples
@@ -191,10 +1664,9 @@ Counter(y_resampled)&lt;/code&gt;&lt;/pre&gt;
 
 TSNE_result = tsne.fit_transform(X_resampled)
 
-plt.figure(figsize=(12,8))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1200x800 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="python"&gt;&lt;code&gt;sns.scatterplot(TSNE_result[:,0], TSNE_result[:,1], hue=y_resampled, legend=&amp;#39;full&amp;#39;, palette=&amp;quot;hls&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+plt.figure(figsize=(12,8))
+sns.scatterplot(TSNE_result[:,0], TSNE_result[:,1], hue=y_resampled, legend=&amp;#39;full&amp;#39;, palette=&amp;quot;hls&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="../file38c45259d0d_files/figure-html/unnamed-chunk-7-3.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The second tSNE plot shows a more noticable pattern between student
 repeaters and non-repeaters. The number of repeaters is increased while
@@ -249,9 +1721,9 @@ fpr_rf, tpr_rf, _ = metrics.roc_curve(y_test,  y_pred_proba_rf)
 
 auc_rf = metrics.roc_auc_score(y_test, y_pred_proba_rf)
 plt.plot(fpr_rf,tpr_rf, label=&amp;quot;AUC for Random Forest Classifier = &amp;quot;+str(auc_rf.round(3)))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x000001EA9BF1F7C0&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x0000013A712CD6A0&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.legend(loc=&amp;quot;lower right&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x000001EA9BEC4220&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x0000013A712CD640&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;#39;True Positive Rate&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0, 0.5, &amp;#39;True Positive Rate&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.xlabel(&amp;#39;False Positive Rate&amp;#39;)
@@ -260,7 +1732,7 @@ plt.plot(fpr_rf,tpr_rf, label=&amp;quot;AUC for Random Forest Classifier = &amp;
 &lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Receiver-Operator Curve (ROC)&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Receiver-Operator Curve (ROC)&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file1dc050b65c45_files/figure-html/unnamed-chunk-10-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file38c45259d0d_files/figure-html/unnamed-chunk-10-5.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The results will be evaluated with the Receiver Operator
 Characteristic (ROC) curve, which shows the diagnostic ability of binary
@@ -311,7 +1783,7 @@ plt.xlabel(&amp;#39;Feature Importance Score&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Visualizing Important Features&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Visualizing Important Features&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file1dc050b65c45_files/figure-html/unnamed-chunk-11-3.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file38c45259d0d_files/figure-html/unnamed-chunk-11-7.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Another way, which we will focus on in this post, is to use the
 permutation importance score from the area of XAI. Permutation
@@ -400,7 +1872,7 @@ pdp_bullied = pdp.pdp_isolate(model=clf_rfc, dataset=X_test, model_features=FEAT
 pdp.pdp_plot(pdp_bullied, &amp;#39;BEINGBULLIED&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;(&amp;lt;Figure size 1500x950 with 2 Axes&amp;gt;, {&amp;#39;title_ax&amp;#39;: &amp;lt;AxesSubplot:&amp;gt;, &amp;#39;pdp_ax&amp;#39;: &amp;lt;AxesSubplot:xlabel=&amp;#39;BEINGBULLIED&amp;#39;&amp;gt;})&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file1dc050b65c45_files/figure-html/unnamed-chunk-13-5.png" width="1440" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file38c45259d0d_files/figure-html/unnamed-chunk-13-9.png" width="1440" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Partial Dependence Plots can also be used to examine interactions
 between variables as well. The graph below shows predictions for any
@@ -424,7 +1896,7 @@ inter1  =  pdp.pdp_interact(model=clf_rfc, dataset=X_test, model_features=FEATUR
 pdp.pdp_interact_plot(pdp_interact_out=inter1, feature_names=features_to_plot, plot_type=&amp;#39;contour&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;(&amp;lt;Figure size 750x950 with 3 Axes&amp;gt;, {&amp;#39;title_ax&amp;#39;: &amp;lt;AxesSubplot:&amp;gt;, &amp;#39;pdp_inter_ax&amp;#39;: &amp;lt;AxesSubplot:xlabel=&amp;#39;BEINGBULLIED&amp;#39;, ylabel=&amp;#39;Parent_emosup&amp;#39;&amp;gt;})&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file1dc050b65c45_files/figure-html/unnamed-chunk-14-7.png" width="720" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file38c45259d0d_files/figure-html/unnamed-chunk-14-11.png" width="720" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h3 id="shap-values"&gt;SHAP Values&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Finally, SHAP value allows us to interpret the prediction at a
@@ -571,7 +2043,7 @@ the knowledge we get from machine learning. Thank you very much for
 reading!&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
-      <distill:md5>715dc57fd953d9edba8dc26677b29ca7</distill:md5>
+      <distill:md5>f40f1e89b04d8b250adbd706645111a3</distill:md5>
       <category>Python</category>
       <category>Supervised Machine Learning</category>
       <guid>https://taridwong.github.io/posts/2022-04-28-xai</guid>
@@ -759,9 +2231,375 @@ reading!&lt;/li&gt;
       <title>Exploring COVID-19 data from twitter with topic modeling</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
       <link>https://taridwong.github.io/posts/2021-11-18-exploring-covid-19-data-from-twitter-with-word-clouds</link>
-      <description>This entry focuses on the exploration of twitter data from Alberta's Chief Medical Officer of Health via word cloud and topic modeling to gain insights in characteristics of public health messaging during the COVID-19 pandemic.  
+      <description>
 
-(7 min read)</description>
+
+&lt;h2 id="covid-19-situation-in-alberta-canada"&gt;COVID-19 situation in
+Alberta, Canada&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The province of Alberta, Canada, has suffered from the COVID-19
+pandemic like all other places. Alberta has gone through cycles of
+reopening and returning to provincial lock down since April 2020. The
+province, however, has lifted almost all restrictions and enacted its
+reopening plan on the recent &lt;a
+href="https://calgary.ctvnews.ca/alberta-moves-to-stage-3-of-reopening-plan-on-canada-day-1.5475913"&gt;Canada
+day&lt;/a&gt; when 70% of Alberta population has received at least one dose of
+&lt;a
+href="https://www.canada.ca/en/public-health/services/diseases/coronavirus-disease-covid-19/vaccines.html"&gt;approved
+COVID-19 vaccination&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The navigation of the province through this pandemic was led by
+the Alberta’s Chief Medical Officer of Health, &lt;a
+href="https://www.alberta.ca/office-of-the-chief-medical-officer-of-health.aspx"&gt;Dr. Deena
+Hinshaw&lt;/a&gt;. Dr.Hinshaw usually held public health briefings almost
+every day during wave 1 to wave 3 of the pandemic, but her communication
+channel has changed in wave 4 as less public health briefing was held
+and more tweets were posted on the &lt;a
+href="https://twitter.com/CMOH_Alberta"&gt;her account&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;For that, I believe we could use &lt;a
+href="https://en.wikipedia.org/wiki/Natural_language_processing"&gt;Natural
+Language Processing (NLP)&lt;/a&gt; techniques to extract themes and
+characteristics from Dr.Hinshaw’s tweet to examine the essence of public
+health messages since the provincial reopening date, specifically from
+July 1st to October 31st, 2021.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="text-mining-and-word-cloud-fundamentals"&gt;Text mining and word
+cloud fundamentals&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;For this post, we will use text mining and word clouds to
+initially explore characteristics of the data set. Text mining is an
+exploratory method for textual data under Natural Language Processing
+(NLP), a branch of Artificial Intelligence concerning the understanding
+of words and spoken texts. NLP is also a type of unsupervised machine
+learning approach to discover hidden structures in the data to inform
+decisions made by experts of the subject matter.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Word cloud is also a popular way to to communicate findings from
+textual data in a visually engaging way. The more frequent a word appear
+in the data set (or corpus) the bigger that word will be in the
+cloud.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We will use Python to perform this analysis on R platform with
+&lt;code&gt;reticulate::repl_python()&lt;/code&gt;. First of all, we will be
+importing necessary modules and twitter data set that we mined from
+Dr. Hinshaw’s account with &lt;code&gt;pd.read_csv&lt;/code&gt;. There are 538
+tweets in total, and we can print out examples of the tweets via
+&lt;code&gt;tweets_df.Text.head(5)&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;#Import necessary modules
+
+import numpy as np #for numpy array
+import pandas as pd #for data reading and processing
+import matplotlib.pyplot as plt #for plotting
+import re #for Regex text cleaning
+from wordcloud import WordCloud, STOPWORDS #for word clouds
+from nltk.stem import WordNetLemmatizer #to reduce text to base form
+from sklearn.feature_extraction import text
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import LatentDirichletAllocation as LDA #for topic modeling
+import warnings
+
+warnings.filterwarnings(&amp;quot;ignore&amp;quot;) #suppress the warning that Python kindly gave me
+
+tweets_df = pd.read_csv(&amp;quot;text-query-tweets.csv&amp;quot;)
+
+tweets_df.shape
+
+# Print out the first rows of papers&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;(538, 4)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print(tweets_df.Text.head(5))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;0    We all have the ability to take small actions ...
+1    As we head into Halloween weekend, I encourage...
+2    Sadly, 9 new deaths related to COVID-19 were a...
+3    Over the past 24 hours, we ID’d 603 new cases ...
+4    Here is a summary of the latest #COVID19AB num...
+Name: Text, dtype: object&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="lets-clean-the-text-first"&gt;Let’s clean the text first&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;After we imported our data into the system, we have to clean our
+data to get rid of textual elements that we do not need such as
+punctuation, numbers, as well as convert all words to lower case.
+Painful as it may be, this has to be done. It took me days (not that
+much, but I felt it that way) to clean all of this and make sure that no
+junk is left behind (well, there could be. Do let me know if you find
+any).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The phrase “Garbage in, garbage out” is really applicable here in
+data work context. If you let any junk (corrupted data) in, the most you
+will get is processed junk. After we cleaned the text, let us print them
+out again to see what they look like. All numbers are gone. All texts
+are in lowercase. All URLs and punctuation is gone. Good
+riddance!&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;ATTN nerds: Note that in the code below, we will pass the
+original &lt;code&gt;Text&lt;/code&gt; column in &lt;code&gt;tweets_df&lt;/code&gt; to the
+&lt;code&gt;re.sub&lt;/code&gt; function only once. For the second cleaning function
+onward, we will pass &lt;code&gt;tweets_df['Text_processed']&lt;/code&gt; instead to
+stack our text cleaning results on the same column. Yes, I wrote this to
+remind myself because I struggled on it for hours (half an hour,
+actually).&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;
+#remove all numbers from the text with list comprehension
+tweets_df[&amp;#39;Text_processed&amp;#39;] = tweets_df[&amp;#39;Text&amp;#39;].map(lambda x: re.sub(r&amp;#39;[0-9]+&amp;#39;, &amp;#39;&amp;#39;, x))
+
+# Remove punctuation
+tweets_df[&amp;#39;Text_processed&amp;#39;] = tweets_df[&amp;#39;Text_processed&amp;#39;].map(lambda x: re.sub(r&amp;#39;[^\w\s\,\.!?]&amp;#39;, &amp;#39;&amp;#39;, x))
+
+# Convert the tweets to lowercase
+tweets_df[&amp;#39;Text_processed&amp;#39;] = tweets_df[&amp;#39;Text_processed&amp;#39;].map(lambda x: x.lower())
+
+#Clean out URLs
+tweets_df[&amp;#39;Text_processed&amp;#39;] = tweets_df[&amp;#39;Text_processed&amp;#39;].map(lambda x: re.sub(r&amp;quot;http\S+&amp;quot;, &amp;quot;&amp;quot;, x))
+
+# Print the processed titles of the first rows 
+print(tweets_df[&amp;#39;Text_processed&amp;#39;].head())&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;0    we all have the ability to take small actions ...
+1    as we head into halloween weekend, i encourage...
+2    sadly,  new deaths related to covid were also ...
+3    over the past  hours, we idd  new cases amp co...
+4    here is a summary of the latest covidab number...
+Name: Text_processed, dtype: object&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="so-this-is-whats-happening-over-time"&gt;So this is what’s
+happening over time&lt;/h2&gt;
+&lt;pre class="python"&gt;&lt;code&gt;
+#Change datetime format to datetime
+tweets_df[&amp;#39;Datetime&amp;#39;] = pd.to_datetime(tweets_df[&amp;#39;Datetime&amp;#39;])
+
+#Extract month from datetime
+tweets_df[&amp;#39;Month&amp;#39;] = tweets_df[&amp;#39;Datetime&amp;#39;].dt.month
+
+# Group the papers by year
+groups = tweets_df.groupby(&amp;#39;Month&amp;#39;)
+
+# Determine the size of each group
+counts = groups.size()
+
+# Visualize the counts as a bar plot
+
+# Vertical lines
+plt.axvline(x = 7.0, color = &amp;#39;forestgreen&amp;#39;, label = &amp;#39;The reopening date&amp;#39;, linestyle=&amp;#39;--&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.lines.Line2D object at 0x0000013A868AB4C0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.axvline(x = 8.0, color = &amp;#39;firebrick&amp;#39;, label = &amp;#39;Wave 4 started&amp;#39;, linestyle=&amp;#39;--&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.lines.Line2D object at 0x0000013A868AB9D0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.legend(bbox_to_anchor = (1.0, 1), loc = &amp;#39;upper right&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x0000013A868AB490&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Tweet count across months&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Tweet count across months&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;quot;Tweet count&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0, 0.5, &amp;#39;Tweet count&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.xlabel(&amp;quot;Month&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;Text(0.5, 0, &amp;#39;Month&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;counts.plot()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:title={&amp;#39;center&amp;#39;:&amp;#39;Tweet count across months&amp;#39;}, xlabel=&amp;#39;Month&amp;#39;, ylabel=&amp;#39;Tweet count&amp;#39;&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="../file38c42d7e4cb1_files/figure-html/unnamed-chunk-5-1.png" width="720" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The line plot above represents tweet counts across months after the
+provincial reopening date. The x-axis indicates months and the y-axis
+indicates the number of twitter post of Dr. Hinshaw. The number of tweet
+dropped slightly from July to August as cases decreased, but wave 4 of
+the pandemic started in August as cases were on the rise again. We can
+see that the number of cases aligns with the number of tweets posted on
+Dr. Hinshaw’s account.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="lets-see-the-big-picture-with-word-cloud"&gt;Let’s see the big
+picture with word cloud&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Now that we know the frequency of tweets over months, we can plot a
+word cloud from our processed text to see the big picture of twitter
+data. There are 114,362 words in total after combining all 538 tweets
+together. The word cloud below suggests that “covid” was mentioned the
+most during the past four months, following by “vaccine”, “new cases”,
+and “unvaccinated”.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;
+text_all = &amp;quot; &amp;quot;.join(tweet for tweet in tweets_df.Text_processed)
+print (&amp;quot;There are {} words in the combination of all tweets&amp;quot;.format(len(text_all)))
+
+#lemmatize all words&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;There are 114362 words in the combination of all tweets&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;lemmatizer = WordNetLemmatizer()
+text_all = &amp;quot;&amp;quot;.join([lemmatizer.lemmatize(i) for i in text_all])
+
+# Create Stopword list:
+stopwords_cloud = set(STOPWORDS)
+stopwords_cloud.update([&amp;quot;https://&amp;quot;, &amp;quot;(/)&amp;quot;, &amp;quot;Online:&amp;quot;, 
+                        &amp;quot;Twitter:&amp;quot;, &amp;quot;Join&amp;quot;, &amp;quot;us&amp;quot;, &amp;quot;virtually&amp;quot;,
+                        &amp;quot;pm&amp;quot;, &amp;quot;:&amp;quot;, &amp;quot;https&amp;quot;, &amp;quot;t&amp;quot;, &amp;quot;d&amp;quot;, &amp;quot;co&amp;quot;, &amp;quot;amp&amp;quot;, &amp;quot;will&amp;quot;])
+                      
+#Generate a word cloud image
+wordcloud_tweet = WordCloud(stopwords=stopwords_cloud, background_color=&amp;quot;white&amp;quot;,random_state=7).generate(text_all)
+
+#Display the generated image:
+#the matplotlib way:
+plt.figure(figsize=[10,10])&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1000x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.imshow(wordcloud_tweet, interpolation=&amp;#39;bilinear&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.image.AxesImage object at 0x0000013A868DA5E0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.axis(&amp;quot;off&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;(-0.5, 399.5, 199.5, -0.5)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="../file38c42d7e4cb1_files/figure-html/unnamed-chunk-6-3.png" width="960" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The thing is, word cloud can only provide a rough visual
+presentation for the characteristics of our textual data. We would need
+to dive a little bit deeper to graphs and numbers to examine what is
+truly going on. Let us visualize them all on a bar plot.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2
+id="common-word-bar-plot-and-text-preprocessing-for-topic-modeling"&gt;Common
+word bar plot and text preprocessing for topic modeling&lt;/h2&gt;
+&lt;pre class="python"&gt;&lt;code&gt;
+# Helper function to count common words
+
+def plot_10_most_common_words(count_data, tfidf_vectorizer):
+    import matplotlib.pyplot as plt
+    words = tfidf_vectorizer.get_feature_names()
+    total_counts = np.zeros(len(words))
+    for t in count_data:
+        total_counts+=t.toarray()[0]
+    
+    count_dict = (zip(words, total_counts))
+    count_dict = sorted(count_dict, key=lambda x:x[1], reverse=True)[0:10]
+    words = [w[0] for w in count_dict]
+    counts = [w[1] for w in count_dict]
+    x_pos = np.arange(len(words)) 
+
+    plt.bar(x_pos, counts,align=&amp;#39;center&amp;#39;)
+    plt.xticks(x_pos, words, rotation=90) 
+    plt.xlabel(&amp;#39;words&amp;#39;)
+    plt.ylabel(&amp;#39;counts&amp;#39;)
+    plt.title(&amp;#39;10 most common words&amp;#39;)
+    plt.show()
+
+#Make your own list of stop words
+my_additional_stop_words = (&amp;quot;https://&amp;quot;, &amp;quot;(/)&amp;quot;, &amp;quot;➡Online:&amp;quot;, 
+                        &amp;quot;➡Twitter:&amp;quot;, &amp;quot;Join&amp;quot;, &amp;quot;us&amp;quot;, &amp;quot;virtually&amp;quot;,
+                        &amp;quot;pm&amp;quot;, &amp;quot;:&amp;quot;, &amp;quot;https&amp;quot;, &amp;quot;t&amp;quot;, &amp;quot;d&amp;quot;, &amp;quot;co&amp;quot;, &amp;quot;amp&amp;quot;, &amp;quot;today&amp;quot;, &amp;quot;new&amp;quot;, &amp;quot;covid&amp;quot;,
+                        &amp;quot;covidab&amp;quot;, &amp;quot;hours&amp;quot;, &amp;quot;completed&amp;quot;)
+                        
+stop_words_lda = text.ENGLISH_STOP_WORDS.union(my_additional_stop_words)    
+
+# Initialize the count vectorizer with the English stop words
+tfidf_vectorizer = TfidfVectorizer(stop_words=stop_words_lda)
+
+# Fit and transform the processed titles
+count_data = tfidf_vectorizer.fit_transform(tweets_df[&amp;#39;Text_processed&amp;#39;])
+
+# Visualise the 10 most common words
+plot_10_most_common_words(count_data, tfidf_vectorizer)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="../file38c42d7e4cb1_files/figure-html/unnamed-chunk-7-5.png" width="960" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The bar plot above gave us a more detailed information of which
+word occurs more frequently than the others based on the term
+frequency–inverse document frequency (TFIDF) statistics. TFIDF gives
+each word a weight that reflects its importance to a document. For
+TFIDF, words that occur too frequent like “the” provides little meaning
+while words rarely occur doesn’t tell us much as well. We are taking
+about the COVID-19 pandemic here, so it is obvious that “vaccinated” is
+going to be mentioned the most in Dr. Hinshaw’s tweet. “Cases” and
+“unvaccinated” seem to be reasonable to be mentioned as the second- and
+third most important words as the government of Alberta has been putting
+more effort in identifying more cases in the province and encourage
+unvaccinated individuals to get their vaccine.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We will also create a &lt;code&gt;tfidf_vectorizer&lt;/code&gt; model with
+our own list of stopwords (or words that have little meaning such as
+“is, am, are”) to prepare our data for Latent Dirichlet Allocation (LDA)
+topic modeling.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2
+id="finally-lets-see-potential-topics-from-dr.-hinshaws-tweet"&gt;Finally,
+let’s see potential topics from Dr. Hinshaw’s tweet&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Latent Dirichlet Allocation is a powerful natural language
+processing technique that discovers hidden patterns in topic from
+unstructured textual data with statistical models &lt;a
+href="https://link.springer.com/content/pdf/10.1007/s11042-018-6894-4.pdf"&gt;(Jelodar
+et al., 2019)&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Here, we can use LDA to discover potential topics among the sea
+of tweets posted by Dr. Hinshaw to find out what she talked about since
+the provincial reopening and wave 4 of the pandemic. I have specified
+the model to extract 8 topics from the data, with 5 words per topics.
+Note that these numbers are arbitrary chosen.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;If we extracted too few topics, we might not be able to capture
+the whole picture of the data. On the other hand, extracting too much
+topics could just give us more of the same overlapping themes. We need
+to find the middle ground.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;
+# Helper function to print out the topics
+def print_topics(model, tfidf_vectorizer, n_top_words):
+    words = tfidf_vectorizer.get_feature_names()
+    for topic_idx, topic in enumerate(model.components_):
+        print(&amp;quot;\nTopic #%d:&amp;quot; % topic_idx)
+        print(&amp;quot; &amp;quot;.join([words[i]
+                        for i in topic.argsort()[:-n_top_words - 1:-1]]))
+                        
+#How many topic and words per topic we want to see
+number_topics = 8
+number_words = 5 
+                      
+# Create and fit the LDA model
+lda = LDA(n_components=number_topics, random_state = 1)
+lda.fit(count_data)
+
+# Print the topics found by the LDA model&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;LatentDirichletAllocation(n_components=8, random_state=1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;print_topics(lda, tfidf_vectorizer, number_words)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Topic #0:
+twitter online join video transcript
+
+Topic #1:
+possible information protection protect soon
+
+Topic #2:
+vaccines protect vaccine dose book
+
+Topic #3:
+cases tests partially unvaccinated idd
+
+Topic #4:
+reported deaths sadly condolences alberta
+
+Topic #5:
+oct age steps important dr
+
+Topic #6:
+matter pandemic report continue health
+
+Topic #7:
+ahs participating prevent book available&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="wrapping-up-here.-what-can-we-conclude"&gt;Wrapping up here. What
+can we conclude?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The topics we discovered above can be inferred as follows:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Topic 0: An invitation for the general population to join a live
+update video on Twitter.&lt;br /&gt;
+&lt;/li&gt;
+&lt;li&gt;Topic 1: The availability of possible information on COVID-19
+protection&lt;br /&gt;
+&lt;/li&gt;
+&lt;li&gt;Topic 2: Encouragement to book for a vaccination for more
+protection.&lt;br /&gt;
+&lt;/li&gt;
+&lt;li&gt;Topic 3: The proportion of unvaxxed vs vaxxed vs partiallyvaxxed
+patients.&lt;br /&gt;
+&lt;/li&gt;
+&lt;li&gt;Topic 4: Covid-related death.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The insights that we gained could also be further supported by
+opinion from public health experts as they could provide information at
+a greater depth into their field.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;From what we have discussed so far, we can see that with the
+right tool, LDA for our case, we could take advantage of the vast
+availability of textual data that revolves around us in our everyday
+lives and use that information to deepen our understanding of social
+phenomena. We could explore how students opinion changed from pre- to
+post-COVID era, or we could use this technique to media transcription of
+social events such as political protests, election speech, or even
+product review in the marketing field. Thank you for your
+reading!&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>150e32d23689517567eba0ddc47378ec</distill:md5>
       <category>Python</category>
       <category>Natural Language Processing</category>
       <category>Unsupervised Machine Learning</category>
