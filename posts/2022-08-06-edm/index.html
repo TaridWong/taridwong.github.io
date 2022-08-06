@@ -1,0 +1,3507 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"/>
+  <meta name="generator" content="distill" />
+
+  <style type="text/css">
+  /* Hide doc at startup (prevent jankiness while JS renders/transforms) */
+  body {
+    visibility: hidden;
+  }
+  </style>
+
+ <!--radix_placeholder_import_source-->
+ <!--/radix_placeholder_import_source-->
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  { color: #00769e; background-color: #f1f3f5; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span { color: #00769e; } /* Normal */
+code span.al { color: #ad0000; } /* Alert */
+code span.an { color: #5e5e5e; } /* Annotation */
+code span.at { color: #657422; } /* Attribute */
+code span.bn { color: #ad0000; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #00769e; } /* ControlFlow */
+code span.ch { color: #20794d; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #5e5e5e; } /* Comment */
+code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+code span.dt { color: #ad0000; } /* DataType */
+code span.dv { color: #ad0000; } /* DecVal */
+code span.er { color: #ad0000; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #ad0000; } /* Float */
+code span.fu { color: #4758ab; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #5e5e5e; } /* Information */
+code span.kw { color: #00769e; } /* Keyword */
+code span.op { color: #5e5e5e; } /* Operator */
+code span.ot { color: #00769e; } /* Other */
+code span.pp { color: #ad0000; } /* Preprocessor */
+code span.sc { color: #5e5e5e; } /* SpecialChar */
+code span.ss { color: #20794d; } /* SpecialString */
+code span.st { color: #20794d; } /* String */
+code span.va { color: #111111; } /* Variable */
+code span.vs { color: #20794d; } /* VerbatimString */
+code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+</style>
+
+
+  <!--radix_placeholder_meta_tags-->
+<title>Tarid Wongvorachan: Leveraging a Large-Scale Educational Data Set with Educational Data Mining</title>
+
+<meta property="description" itemprop="description" content="In this post, I will be predicting students&#39; high school dropout rate through the usage of a large-scale educational data set.&#10;&#10; (10 min read)"/>
+
+<link rel="canonical" href="https://taridwong.github.io/posts/2022-08-06-edm/"/>
+<link rel="license" href="https://creativecommons.org/licenses/by/4.0/"/>
+
+<!--  https://schema.org/Article -->
+<meta property="article:published" itemprop="datePublished" content="2022-08-06"/>
+<meta property="article:created" itemprop="dateCreated" content="2022-08-06"/>
+<meta name="article:author" content="Tarid Wongvorachan"/>
+
+<!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
+<meta property="og:title" content="Tarid Wongvorachan: Leveraging a Large-Scale Educational Data Set with Educational Data Mining"/>
+<meta property="og:type" content="article"/>
+<meta property="og:description" content="In this post, I will be predicting students&#39; high school dropout rate through the usage of a large-scale educational data set.&#10;&#10; (10 min read)"/>
+<meta property="og:url" content="https://taridwong.github.io/posts/2022-08-06-edm/"/>
+<meta property="og:image" content="https://taridwong.github.io/posts/2022-08-06-edm/rfecv.png"/>
+<meta property="og:image:width" content="1920"/>
+<meta property="og:image:height" content="2880"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:site_name" content="Tarid Wongvorachan"/>
+
+<!--  https://dev.twitter.com/cards/types/summary -->
+<meta property="twitter:card" content="summary_large_image"/>
+<meta property="twitter:title" content="Tarid Wongvorachan: Leveraging a Large-Scale Educational Data Set with Educational Data Mining"/>
+<meta property="twitter:description" content="In this post, I will be predicting students&#39; high school dropout rate through the usage of a large-scale educational data set.&#10;&#10; (10 min read)"/>
+<meta property="twitter:url" content="https://taridwong.github.io/posts/2022-08-06-edm/"/>
+<meta property="twitter:image" content="https://taridwong.github.io/posts/2022-08-06-edm/rfecv.png"/>
+<meta property="twitter:image:width" content="1920"/>
+<meta property="twitter:image:height" content="2880"/>
+
+<!--  https://scholar.google.com/intl/en/scholar/inclusion.html#indexing -->
+<meta name="citation_title" content="Tarid Wongvorachan: Leveraging a Large-Scale Educational Data Set with Educational Data Mining"/>
+<meta name="citation_fulltext_html_url" content="https://taridwong.github.io/posts/2022-08-06-edm/"/>
+<meta name="citation_fulltext_world_readable" content=""/>
+<meta name="citation_online_date" content="2022/08/06"/>
+<meta name="citation_publication_date" content="2022/08/06"/>
+<meta name="citation_author" content="Tarid Wongvorachan"/>
+<meta name="citation_author_institution" content="University of Alberta"/>
+<!--/radix_placeholder_meta_tags-->
+  <!--radix_placeholder_rmarkdown_metadata-->
+
+<script type="text/json" id="radix-rmarkdown-metadata">
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["creative_commons","title","description","author","date","categories","preview","output","citation_url","canonical_url"]}},"value":[{"type":"character","attributes":{},"value":["CC BY"]},{"type":"character","attributes":{},"value":["Leveraging a Large-Scale Educational Data Set with Educational Data Mining"]},{"type":"character","attributes":{},"value":["In this post, I will be predicting students' high school dropout rate through the usage of a large-scale educational data set.\n\n (10 min read)"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Tarid Wongvorachan"]},{"type":"character","attributes":{},"value":["University of Alberta"]},{"type":"character","attributes":{},"value":["https://www.ualberta.ca"]}]}]},{"type":"character","attributes":{},"value":["2022-08-06"]},{"type":"character","attributes":{},"value":["R","Python","Supervised Machine Learning"]},{"type":"character","attributes":{},"value":["rfecv.png"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["code_folding","toc","toc_depth","toc_float","self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[true]},{"type":"logical","attributes":{},"value":[true]},{"type":"integer","attributes":{},"value":[2]},{"type":"logical","attributes":{},"value":[false]},{"type":"logical","attributes":{},"value":[false]}]}]},{"type":"character","attributes":{},"value":["https://taridwong.github.io/posts/2022-08-06-edm/"]},{"type":"character","attributes":{},"value":["https://taridwong.github.io/posts/2022-08-06-edm/"]}]}
+</script>
+<!--/radix_placeholder_rmarkdown_metadata-->
+  
+  <script type="text/json" id="radix-resource-manifest">
+  {"type":"character","attributes":{},"value":["catboost_info/catboost_training.json","catboost_info/learn/events.out.tfevents","catboost_info/learn_error.tsv","catboost_info/time_left.tsv","cor-clean.png","cor-unclean.png","edm_files/figure-html5/unnamed-chunk-11-1.png","edm_files/figure-html5/unnamed-chunk-14-3.png","edm_files/figure-html5/unnamed-chunk-23-5.png","edm_files/figure-html5/unnamed-chunk-24-7.png","hsls_30percent_imputed_rf.csv","Missing.png","rfecv.PNG","tsne-post.PNG","tsne-pre.PNG"]}
+  </script>
+  <!--radix_placeholder_navigation_in_header-->
+<meta name="distill:offset" content="../.."/>
+
+<script type="application/javascript">
+
+  window.headroom_prevent_pin = false;
+
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+
+    // initialize headroom for banner
+    var header = $('header').get(0);
+    var headerHeight = header.offsetHeight;
+    var headroom = new Headroom(header, {
+      tolerance: 5,
+      onPin : function() {
+        if (window.headroom_prevent_pin) {
+          window.headroom_prevent_pin = false;
+          headroom.unpin();
+        }
+      }
+    });
+    headroom.init();
+    if(window.location.hash)
+      headroom.unpin();
+    $(header).addClass('headroom--transition');
+
+    // offset scroll location for banner on hash change
+    // (see: https://github.com/WickyNilliams/headroom.js/issues/38)
+    window.addEventListener("hashchange", function(event) {
+      window.scrollTo(0, window.pageYOffset - (headerHeight + 25));
+    });
+
+    // responsive menu
+    $('.distill-site-header').each(function(i, val) {
+      var topnav = $(this);
+      var toggle = topnav.find('.nav-toggle');
+      toggle.on('click', function() {
+        topnav.toggleClass('responsive');
+      });
+    });
+
+    // nav dropdowns
+    $('.nav-dropbtn').click(function(e) {
+      $(this).next('.nav-dropdown-content').toggleClass('nav-dropdown-active');
+      $(this).parent().siblings('.nav-dropdown')
+         .children('.nav-dropdown-content').removeClass('nav-dropdown-active');
+    });
+    $("body").click(function(e){
+      $('.nav-dropdown-content').removeClass('nav-dropdown-active');
+    });
+    $(".nav-dropdown").click(function(e){
+      e.stopPropagation();
+    });
+  });
+</script>
+
+<style type="text/css">
+
+/* Theme (user-documented overrideables for nav appearance) */
+
+.distill-site-nav {
+  color: rgba(255, 255, 255, 0.8);
+  background-color: #0F2E3D;
+  font-size: 15px;
+  font-weight: 300;
+}
+
+.distill-site-nav a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.distill-site-nav a:hover {
+  color: white;
+}
+
+@media print {
+  .distill-site-nav {
+    display: none;
+  }
+}
+
+.distill-site-header {
+
+}
+
+.distill-site-footer {
+
+}
+
+
+/* Site Header */
+
+.distill-site-header {
+  width: 100%;
+  box-sizing: border-box;
+  z-index: 3;
+}
+
+.distill-site-header .nav-left {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+@media screen and (max-width: 768px) {
+  .distill-site-header .nav-left {
+    margin-left: 0;
+  }
+}
+
+
+.distill-site-header .nav-right {
+  float: right;
+  margin-right: 8px;
+}
+
+.distill-site-header a,
+.distill-site-header .title {
+  display: inline-block;
+  text-align: center;
+  padding: 14px 10px 14px 10px;
+}
+
+.distill-site-header .title {
+  font-size: 18px;
+  min-width: 150px;
+}
+
+.distill-site-header .logo {
+  padding: 0;
+}
+
+.distill-site-header .logo img {
+  display: none;
+  max-height: 20px;
+  width: auto;
+  margin-bottom: -4px;
+}
+
+.distill-site-header .nav-image img {
+  max-height: 18px;
+  width: auto;
+  display: inline-block;
+  margin-bottom: -3px;
+}
+
+
+
+@media screen and (min-width: 1000px) {
+  .distill-site-header .logo img {
+    display: inline-block;
+  }
+  .distill-site-header .nav-left {
+    margin-left: 20px;
+  }
+  .distill-site-header .nav-right {
+    margin-right: 20px;
+  }
+  .distill-site-header .title {
+    padding-left: 12px;
+  }
+}
+
+
+.distill-site-header .nav-toggle {
+  display: none;
+}
+
+.nav-dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+.nav-dropdown .nav-dropbtn {
+  border: none;
+  outline: none;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 16px 10px;
+  background-color: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  margin: 0;
+  margin-top: 1px;
+  z-index: 2;
+}
+
+.nav-dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 200px;
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 4px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
+  z-index: 1;
+  margin-top: 2px;
+  white-space: nowrap;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.nav-dropdown-content hr {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.nav-dropdown-active {
+  display: block;
+}
+
+.nav-dropdown-content a, .nav-dropdown-content .nav-dropdown-header {
+  color: black;
+  padding: 6px 24px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.nav-dropdown-content .nav-dropdown-header {
+  display: block;
+  padding: 5px 24px;
+  padding-bottom: 0;
+  text-transform: uppercase;
+  font-size: 14px;
+  color: #999999;
+  white-space: nowrap;
+}
+
+.nav-dropdown:hover .nav-dropbtn {
+  color: white;
+}
+
+.nav-dropdown-content a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.nav-right .nav-dropdown-content {
+  margin-left: -45%;
+  right: 0;
+}
+
+@media screen and (max-width: 768px) {
+  .distill-site-header a, .distill-site-header .nav-dropdown  {display: none;}
+  .distill-site-header a.nav-toggle {
+    float: right;
+    display: block;
+  }
+  .distill-site-header .title {
+    margin-left: 0;
+  }
+  .distill-site-header .nav-right {
+    margin-right: 0;
+  }
+  .distill-site-header {
+    overflow: hidden;
+  }
+  .nav-right .nav-dropdown-content {
+    margin-left: 0;
+  }
+}
+
+
+@media screen and (max-width: 768px) {
+  .distill-site-header.responsive {position: relative; min-height: 500px; }
+  .distill-site-header.responsive a.nav-toggle {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  .distill-site-header.responsive a,
+  .distill-site-header.responsive .nav-dropdown {
+    display: block;
+    text-align: left;
+  }
+  .distill-site-header.responsive .nav-left,
+  .distill-site-header.responsive .nav-right {
+    width: 100%;
+  }
+  .distill-site-header.responsive .nav-dropdown {float: none;}
+  .distill-site-header.responsive .nav-dropdown-content {position: relative;}
+  .distill-site-header.responsive .nav-dropdown .nav-dropbtn {
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+}
+
+/* Site Footer */
+
+.distill-site-footer {
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  z-index: 3;
+  margin-top: 30px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  text-align: center;
+}
+
+/* Headroom */
+
+d-title {
+  padding-top: 6rem;
+}
+
+@media print {
+  d-title {
+    padding-top: 4rem;
+  }
+}
+
+.headroom {
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.headroom--transition {
+  transition: all .4s ease-in-out;
+}
+
+.headroom--unpinned {
+  top: -100px;
+}
+
+.headroom--pinned {
+  top: 0;
+}
+
+/* adjust viewport for navbar height */
+/* helps vertically center bootstrap (non-distill) content */
+.min-vh-100 {
+  min-height: calc(100vh - 100px) !important;
+}
+
+</style>
+
+<script src="../../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="../../site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet"/>
+<link href="../../site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet"/>
+<script src="../../site_libs/headroom-0.9.4/headroom.min.js"></script>
+<script src="../../site_libs/autocomplete-0.37.1/autocomplete.min.js"></script>
+<script src="../../site_libs/fuse-6.4.1/fuse.min.js"></script>
+
+<script type="application/javascript">
+
+function getMeta(metaName) {
+  var metas = document.getElementsByTagName('meta');
+  for (let i = 0; i < metas.length; i++) {
+    if (metas[i].getAttribute('name') === metaName) {
+      return metas[i].getAttribute('content');
+    }
+  }
+  return '';
+}
+
+function offsetURL(url) {
+  var offset = getMeta('distill:offset');
+  return offset ? offset + '/' + url : url;
+}
+
+function createFuseIndex() {
+
+  // create fuse index
+  var options = {
+    keys: [
+      { name: 'title', weight: 20 },
+      { name: 'categories', weight: 15 },
+      { name: 'description', weight: 10 },
+      { name: 'contents', weight: 5 },
+    ],
+    ignoreLocation: true,
+    threshold: 0
+  };
+  var fuse = new window.Fuse([], options);
+
+  // fetch the main search.json
+  return fetch(offsetURL('search.json'))
+    .then(function(response) {
+      if (response.status == 200) {
+        return response.json().then(function(json) {
+          // index main articles
+          json.articles.forEach(function(article) {
+            fuse.add(article);
+          });
+          // download collections and index their articles
+          return Promise.all(json.collections.map(function(collection) {
+            return fetch(offsetURL(collection)).then(function(response) {
+              if (response.status === 200) {
+                return response.json().then(function(articles) {
+                  articles.forEach(function(article) {
+                    fuse.add(article);
+                  });
+                })
+              } else {
+                return Promise.reject(
+                  new Error('Unexpected status from search index request: ' +
+                            response.status)
+                );
+              }
+            });
+          })).then(function() {
+            return fuse;
+          });
+        });
+
+      } else {
+        return Promise.reject(
+          new Error('Unexpected status from search index request: ' +
+                      response.status)
+        );
+      }
+    });
+}
+
+window.document.addEventListener("DOMContentLoaded", function (event) {
+
+  // get search element (bail if we don't have one)
+  var searchEl = window.document.getElementById('distill-search');
+  if (!searchEl)
+    return;
+
+  createFuseIndex()
+    .then(function(fuse) {
+
+      // make search box visible
+      searchEl.classList.remove('hidden');
+
+      // initialize autocomplete
+      var options = {
+        autoselect: true,
+        hint: false,
+        minLength: 2,
+      };
+      window.autocomplete(searchEl, options, [{
+        source: function(query, callback) {
+          const searchOptions = {
+            isCaseSensitive: false,
+            shouldSort: true,
+            minMatchCharLength: 2,
+            limit: 10,
+          };
+          var results = fuse.search(query, searchOptions);
+          callback(results
+            .map(function(result) { return result.item; })
+          );
+        },
+        templates: {
+          suggestion: function(suggestion) {
+            var img = suggestion.preview && Object.keys(suggestion.preview).length > 0
+              ? `<img src="${offsetURL(suggestion.preview)}"</img>`
+              : '';
+            var html = `
+              <div class="search-item">
+                <h3>${suggestion.title}</h3>
+                <div class="search-item-description">
+                  ${suggestion.description || ''}
+                </div>
+                <div class="search-item-preview">
+                  ${img}
+                </div>
+              </div>
+            `;
+            return html;
+          }
+        }
+      }]).on('autocomplete:selected', function(event, suggestion) {
+        window.location.href = offsetURL(suggestion.path);
+      });
+      // remove inline display style on autocompleter (we want to
+      // manage responsive display via css)
+      $('.algolia-autocomplete').css("display", "");
+    })
+    .catch(function(error) {
+      console.log(error);
+    });
+
+});
+
+</script>
+
+<style type="text/css">
+
+.nav-search {
+  font-size: x-small;
+}
+
+/* Algolioa Autocomplete */
+
+.algolia-autocomplete {
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: sub;
+  background-color: white;
+  color: black;
+  padding: 6px;
+  padding-top: 8px;
+  padding-bottom: 0;
+  border-radius: 6px;
+  border: 1px #0F2E3D solid;
+  width: 180px;
+}
+
+
+@media screen and (max-width: 768px) {
+  .distill-site-nav .algolia-autocomplete {
+    display: none;
+    visibility: hidden;
+  }
+  .distill-site-nav.responsive .algolia-autocomplete {
+    display: inline-block;
+    visibility: visible;
+  }
+  .distill-site-nav.responsive .algolia-autocomplete .aa-dropdown-menu {
+    margin-left: 0;
+    width: 400px;
+    max-height: 400px;
+  }
+}
+
+.algolia-autocomplete .aa-input, .algolia-autocomplete .aa-hint {
+  width: 90%;
+  outline: none;
+  border: none;
+}
+
+.algolia-autocomplete .aa-hint {
+  color: #999;
+}
+.algolia-autocomplete .aa-dropdown-menu {
+  width: 550px;
+  max-height: 70vh;
+  overflow-x: visible;
+  overflow-y: scroll;
+  padding: 5px;
+  margin-top: 3px;
+  margin-left: -150px;
+  background-color: #fff;
+  border-radius: 5px;
+  border: 1px solid #999;
+  border-top: none;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion {
+  cursor: pointer;
+  padding: 5px 4px;
+  border-bottom: 1px solid #eee;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion:last-of-type {
+  border-bottom: none;
+  margin-bottom: 2px;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item {
+  overflow: hidden;
+  font-size: 0.8em;
+  line-height: 1.4em;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item h3 {
+  font-size: 1rem;
+  margin-block-start: 0;
+  margin-block-end: 5px;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item-description {
+  display: inline-block;
+  overflow: hidden;
+  height: 2.8em;
+  width: 80%;
+  margin-right: 4%;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item-preview {
+  display: inline-block;
+  width: 15%;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item-preview img {
+  height: 3em;
+  width: auto;
+  display: none;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item-preview img[src] {
+  display: initial;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion.aa-cursor {
+  background-color: #eee;
+}
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion em {
+  font-weight: bold;
+  font-style: normal;
+}
+
+</style>
+
+
+<!--/radix_placeholder_navigation_in_header-->
+  <!--radix_placeholder_distill-->
+
+<style type="text/css">
+
+body {
+  background-color: white;
+}
+
+.pandoc-table {
+  width: 100%;
+}
+
+.pandoc-table>caption {
+  margin-bottom: 10px;
+}
+
+.pandoc-table th:not([align]) {
+  text-align: left;
+}
+
+.pagedtable-footer {
+  font-size: 15px;
+}
+
+d-byline .byline {
+  grid-template-columns: 2fr 2fr;
+}
+
+d-byline .byline h3 {
+  margin-block-start: 1.5em;
+}
+
+d-byline .byline .authors-affiliations h3 {
+  margin-block-start: 0.5em;
+}
+
+.authors-affiliations .orcid-id {
+  width: 16px;
+  height:16px;
+  margin-left: 4px;
+  margin-right: 4px;
+  vertical-align: middle;
+  padding-bottom: 2px;
+}
+
+d-title .dt-tags {
+  margin-top: 1em;
+  grid-column: text;
+}
+
+.dt-tags .dt-tag {
+  text-decoration: none;
+  display: inline-block;
+  color: rgba(0,0,0,0.6);
+  padding: 0em 0.4em;
+  margin-right: 0.5em;
+  margin-bottom: 0.4em;
+  font-size: 70%;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 3px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+d-article table.gt_table td,
+d-article table.gt_table th {
+  border-bottom: none;
+}
+
+.html-widget {
+  margin-bottom: 2.0em;
+}
+
+.l-screen-inset {
+  padding-right: 16px;
+}
+
+.l-screen .caption {
+  margin-left: 10px;
+}
+
+.shaded {
+  background: rgb(247, 247, 247);
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.shaded .html-widget {
+  margin-bottom: 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.shaded .shaded-content {
+  background: white;
+}
+
+.text-output {
+  margin-top: 0;
+  line-height: 1.5em;
+}
+
+.hidden {
+  display: none !important;
+}
+
+d-article {
+  padding-top: 2.5rem;
+  padding-bottom: 30px;
+}
+
+d-appendix {
+  padding-top: 30px;
+}
+
+d-article>p>img {
+  width: 100%;
+}
+
+d-article h2 {
+  margin: 1rem 0 1.5rem 0;
+}
+
+d-article h3 {
+  margin-top: 1.5rem;
+}
+
+d-article iframe {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 2.0em;
+  width: 100%;
+}
+
+/* Tweak code blocks */
+
+d-article div.sourceCode code,
+d-article pre code {
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+}
+
+d-article pre,
+d-article div.sourceCode,
+d-article div.sourceCode pre {
+  overflow: auto;
+}
+
+d-article div.sourceCode {
+  background-color: white;
+}
+
+d-article div.sourceCode pre {
+  padding-left: 10px;
+  font-size: 12px;
+  border-left: 2px solid rgba(0,0,0,0.1);
+}
+
+d-article pre {
+  font-size: 12px;
+  color: black;
+  background: none;
+  margin-top: 0;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+d-article pre a {
+  border-bottom: none;
+}
+
+d-article pre a:hover {
+  border-bottom: none;
+  text-decoration: underline;
+}
+
+d-article details {
+  grid-column: text;
+  margin-bottom: 0.8em;
+}
+
+@media(min-width: 768px) {
+
+d-article pre,
+d-article div.sourceCode,
+d-article div.sourceCode pre {
+  overflow: visible !important;
+}
+
+d-article div.sourceCode pre {
+  padding-left: 18px;
+  font-size: 14px;
+}
+
+d-article pre {
+  font-size: 14px;
+}
+
+}
+
+figure img.external {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+/* CSS for d-contents */
+
+.d-contents {
+  grid-column: text;
+  color: rgba(0,0,0,0.8);
+  font-size: 0.9em;
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+  padding-bottom: 0.5em;
+  margin-bottom: 1em;
+  padding-left: 0.25em;
+  justify-self: start;
+}
+
+@media(min-width: 1000px) {
+  .d-contents.d-contents-float {
+    height: 0;
+    grid-column-start: 1;
+    grid-column-end: 4;
+    justify-self: center;
+    padding-right: 3em;
+    padding-left: 2em;
+  }
+}
+
+.d-contents nav h3 {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+.d-contents li {
+  list-style-type: none
+}
+
+.d-contents nav > ul {
+  padding-left: 0;
+}
+
+.d-contents ul {
+  padding-left: 1em
+}
+
+.d-contents nav ul li {
+  margin-top: 0.6em;
+  margin-bottom: 0.2em;
+}
+
+.d-contents nav a {
+  font-size: 13px;
+  border-bottom: none;
+  text-decoration: none
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.d-contents nav a:hover {
+  text-decoration: underline solid rgba(0, 0, 0, 0.6)
+}
+
+.d-contents nav > ul > li > a {
+  font-weight: 600;
+}
+
+.d-contents nav > ul > li > ul {
+  font-weight: inherit;
+}
+
+.d-contents nav > ul > li > ul > li {
+  margin-top: 0.2em;
+}
+
+
+.d-contents nav ul {
+  margin-top: 0;
+  margin-bottom: 0.25em;
+}
+
+.d-article-with-toc h2:nth-child(2) {
+  margin-top: 0;
+}
+
+
+/* Figure */
+
+.figure {
+  position: relative;
+  margin-bottom: 2.5em;
+  margin-top: 1.5em;
+}
+
+.figure .caption {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+  line-height: 1.5em;
+}
+
+.figure img.external {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+.figure .caption a {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.figure .caption b,
+.figure .caption strong, {
+  font-weight: 600;
+  color: rgba(0, 0, 0, 1.0);
+}
+
+/* Citations */
+
+d-article .citation {
+  color: inherit;
+  cursor: inherit;
+}
+
+div.hanging-indent{
+  margin-left: 1em; text-indent: -1em;
+}
+
+/* Citation hover box */
+
+.tippy-box[data-theme~=light-border] {
+  background-color: rgba(250, 250, 250, 0.95);
+}
+
+.tippy-content > p {
+  margin-bottom: 0;
+  padding: 2px;
+}
+
+
+/* Tweak 1000px media break to show more text */
+
+@media(min-width: 1000px) {
+  .base-grid,
+  distill-header,
+  d-title,
+  d-abstract,
+  d-article,
+  d-appendix,
+  distill-appendix,
+  d-byline,
+  d-footnote-list,
+  d-citation-list,
+  distill-footer {
+    grid-template-columns: [screen-start] 1fr [page-start kicker-start] 80px [middle-start] 50px [text-start kicker-end] 65px 65px 65px 65px 65px 65px 65px 65px [text-end gutter-start] 65px [middle-end] 65px [page-end gutter-end] 1fr [screen-end];
+    grid-column-gap: 16px;
+  }
+
+  .grid {
+    grid-column-gap: 16px;
+  }
+
+  d-article {
+    font-size: 1.06rem;
+    line-height: 1.7em;
+  }
+  figure .caption, .figure .caption, figure figcaption {
+    font-size: 13px;
+  }
+}
+
+@media(min-width: 1180px) {
+  .base-grid,
+  distill-header,
+  d-title,
+  d-abstract,
+  d-article,
+  d-appendix,
+  distill-appendix,
+  d-byline,
+  d-footnote-list,
+  d-citation-list,
+  distill-footer {
+    grid-template-columns: [screen-start] 1fr [page-start kicker-start] 60px [middle-start] 60px [text-start kicker-end] 60px 60px 60px 60px 60px 60px 60px 60px [text-end gutter-start] 60px [middle-end] 60px [page-end gutter-end] 1fr [screen-end];
+    grid-column-gap: 32px;
+  }
+
+  .grid {
+    grid-column-gap: 32px;
+  }
+}
+
+
+/* Get the citation styles for the appendix (not auto-injected on render since
+   we do our own rendering of the citation appendix) */
+
+d-appendix .citation-appendix,
+.d-appendix .citation-appendix {
+  font-size: 11px;
+  line-height: 15px;
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  padding-left: 18px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.02);
+  padding: 10px 18px;
+  border-radius: 3px;
+  color: rgba(150, 150, 150, 1);
+  overflow: hidden;
+  margin-top: -12px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Include appendix styles here so they can be overridden */
+
+d-appendix {
+  contain: layout style;
+  font-size: 0.8em;
+  line-height: 1.7em;
+  margin-top: 60px;
+  margin-bottom: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  color: rgba(0,0,0,0.5);
+  padding-top: 60px;
+  padding-bottom: 48px;
+}
+
+d-appendix h3 {
+  grid-column: page-start / text-start;
+  font-size: 15px;
+  font-weight: 500;
+  margin-top: 1em;
+  margin-bottom: 0;
+  color: rgba(0,0,0,0.65);
+}
+
+d-appendix h3 + * {
+  margin-top: 1em;
+}
+
+d-appendix ol {
+  padding: 0 0 0 15px;
+}
+
+@media (min-width: 768px) {
+  d-appendix ol {
+    padding: 0 0 0 30px;
+    margin-left: -30px;
+  }
+}
+
+d-appendix li {
+  margin-bottom: 1em;
+}
+
+d-appendix a {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+d-appendix > * {
+  grid-column: text;
+}
+
+d-appendix > d-footnote-list,
+d-appendix > d-citation-list,
+d-appendix > distill-appendix {
+  grid-column: screen;
+}
+
+/* Include footnote styles here so they can be overridden */
+
+d-footnote-list {
+  contain: layout style;
+}
+
+d-footnote-list > * {
+  grid-column: text;
+}
+
+d-footnote-list a.footnote-backlink {
+  color: rgba(0,0,0,0.3);
+  padding-left: 0.5em;
+}
+
+
+
+/* Anchor.js */
+
+.anchorjs-link {
+  /*transition: all .25s linear; */
+  text-decoration: none;
+  border-bottom: none;
+}
+*:hover > .anchorjs-link {
+  margin-left: -1.125em !important;
+  text-decoration: none;
+  border-bottom: none;
+}
+
+/* Social footer */
+
+.social_footer {
+  margin-top: 30px;
+  margin-bottom: 0;
+  color: rgba(0,0,0,0.67);
+}
+
+.disqus-comments {
+  margin-right: 30px;
+}
+
+.disqus-comment-count {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+#disqus_thread {
+  margin-top: 30px;
+}
+
+.article-sharing a {
+  border-bottom: none;
+  margin-right: 8px;
+}
+
+.article-sharing a:hover {
+  border-bottom: none;
+}
+
+.sidebar-section.subscribe {
+  font-size: 12px;
+  line-height: 1.6em;
+}
+
+.subscribe p {
+  margin-bottom: 0.5em;
+}
+
+
+.article-footer .subscribe {
+  font-size: 15px;
+  margin-top: 45px;
+}
+
+
+.sidebar-section.custom {
+  font-size: 12px;
+  line-height: 1.6em;
+}
+
+.custom p {
+  margin-bottom: 0.5em;
+}
+
+/* Styles for listing layout (hide title) */
+.layout-listing d-title, .layout-listing .d-title {
+  display: none;
+}
+
+/* Styles for posts lists (not auto-injected) */
+
+
+.posts-with-sidebar {
+  padding-left: 45px;
+  padding-right: 45px;
+}
+
+.posts-list .description h2,
+.posts-list .description p {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+.posts-list .description h2 {
+  font-weight: 700;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.posts-list h2.post-tag {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  padding-bottom: 12px;
+}
+.posts-list {
+  margin-top: 60px;
+  margin-bottom: 24px;
+}
+
+.posts-list .post-preview {
+  text-decoration: none;
+  overflow: hidden;
+  display: block;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 24px 0;
+}
+
+.post-preview-last {
+  border-bottom: none !important;
+}
+
+.posts-list .posts-list-caption {
+  grid-column: screen;
+  font-weight: 400;
+}
+
+.posts-list .post-preview h2 {
+  margin: 0 0 6px 0;
+  line-height: 1.2em;
+  font-style: normal;
+  font-size: 24px;
+}
+
+.posts-list .post-preview p {
+  margin: 0 0 12px 0;
+  line-height: 1.4em;
+  font-size: 16px;
+}
+
+.posts-list .post-preview .thumbnail {
+  box-sizing: border-box;
+  margin-bottom: 24px;
+  position: relative;
+  max-width: 500px;
+}
+.posts-list .post-preview img {
+  width: 100%;
+  display: block;
+}
+
+.posts-list .metadata {
+  font-size: 12px;
+  line-height: 1.4em;
+  margin-bottom: 18px;
+}
+
+.posts-list .metadata > * {
+  display: inline-block;
+}
+
+.posts-list .metadata .publishedDate {
+  margin-right: 2em;
+}
+
+.posts-list .metadata .dt-authors {
+  display: block;
+  margin-top: 0.3em;
+  margin-right: 2em;
+}
+
+.posts-list .dt-tags {
+  display: block;
+  line-height: 1em;
+}
+
+.posts-list .dt-tags .dt-tag {
+  display: inline-block;
+  color: rgba(0,0,0,0.6);
+  padding: 0.3em 0.4em;
+  margin-right: 0.2em;
+  margin-bottom: 0.4em;
+  font-size: 60%;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 3px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.posts-list img {
+  opacity: 1;
+}
+
+.posts-list img[data-src] {
+  opacity: 0;
+}
+
+.posts-more {
+  clear: both;
+}
+
+
+.posts-sidebar {
+  font-size: 16px;
+}
+
+.posts-sidebar h3 {
+  font-size: 16px;
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.sidebar-section {
+  margin-bottom: 30px;
+}
+
+.categories ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.categories li {
+  color: rgba(0, 0, 0, 0.8);
+  margin-bottom: 0;
+}
+
+.categories li>a {
+  border-bottom: none;
+}
+
+.categories li>a:hover {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+.categories .active {
+  font-weight: 600;
+}
+
+.categories .category-count {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+
+@media(min-width: 768px) {
+  .posts-list .post-preview h2 {
+    font-size: 26px;
+  }
+  .posts-list .post-preview .thumbnail {
+    float: right;
+    width: 30%;
+    margin-bottom: 0;
+  }
+  .posts-list .post-preview .description {
+    float: left;
+    width: 45%;
+  }
+  .posts-list .post-preview .metadata {
+    float: left;
+    width: 20%;
+    margin-top: 8px;
+  }
+  .posts-list .post-preview p {
+    margin: 0 0 12px 0;
+    line-height: 1.5em;
+    font-size: 16px;
+  }
+  .posts-with-sidebar .posts-list {
+    float: left;
+    width: 75%;
+  }
+  .posts-with-sidebar .posts-sidebar {
+    float: right;
+    width: 20%;
+    margin-top: 60px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+}
+
+
+/* Improve display for browsers without grid (IE/Edge <= 15) */
+
+.downlevel {
+  line-height: 1.6em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+}
+
+.downlevel .d-title {
+  padding-top: 6rem;
+  padding-bottom: 1.5rem;
+}
+
+.downlevel .d-title h1 {
+  font-size: 50px;
+  font-weight: 700;
+  line-height: 1.1em;
+  margin: 0 0 0.5rem;
+}
+
+.downlevel .d-title p {
+  font-weight: 300;
+  font-size: 1.2rem;
+  line-height: 1.55em;
+  margin-top: 0;
+}
+
+.downlevel .d-byline {
+  padding-top: 0.8em;
+  padding-bottom: 0.8em;
+  font-size: 0.8rem;
+  line-height: 1.8em;
+}
+
+.downlevel .section-separator {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.downlevel .d-article {
+  font-size: 1.06rem;
+  line-height: 1.7em;
+  padding-top: 1rem;
+  padding-bottom: 2rem;
+}
+
+
+.downlevel .d-appendix {
+  padding-left: 0;
+  padding-right: 0;
+  max-width: none;
+  font-size: 0.8em;
+  line-height: 1.7em;
+  margin-bottom: 0;
+  color: rgba(0,0,0,0.5);
+  padding-top: 40px;
+  padding-bottom: 48px;
+}
+
+.downlevel .footnotes ol {
+  padding-left: 13px;
+}
+
+.downlevel .base-grid,
+.downlevel .distill-header,
+.downlevel .d-title,
+.downlevel .d-abstract,
+.downlevel .d-article,
+.downlevel .d-appendix,
+.downlevel .distill-appendix,
+.downlevel .d-byline,
+.downlevel .d-footnote-list,
+.downlevel .d-citation-list,
+.downlevel .distill-footer,
+.downlevel .appendix-bottom,
+.downlevel .posts-container {
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+@media(min-width: 768px) {
+  .downlevel .base-grid,
+  .downlevel .distill-header,
+  .downlevel .d-title,
+  .downlevel .d-abstract,
+  .downlevel .d-article,
+  .downlevel .d-appendix,
+  .downlevel .distill-appendix,
+  .downlevel .d-byline,
+  .downlevel .d-footnote-list,
+  .downlevel .d-citation-list,
+  .downlevel .distill-footer,
+  .downlevel .appendix-bottom,
+  .downlevel .posts-container {
+  padding-left: 150px;
+  padding-right: 150px;
+  max-width: 900px;
+}
+}
+
+.downlevel pre code {
+  display: block;
+  border-left: 2px solid rgba(0, 0, 0, .1);
+  padding: 0 0 0 20px;
+  font-size: 14px;
+}
+
+.downlevel code, .downlevel pre {
+  color: black;
+  background: none;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+.downlevel .posts-list .post-preview {
+  color: inherit;
+}
+
+
+
+</style>
+
+<script type="application/javascript">
+
+function is_downlevel_browser() {
+  if (bowser.isUnsupportedBrowser({ msie: "12", msedge: "16"},
+                                 window.navigator.userAgent)) {
+    return true;
+  } else {
+    return window.load_distill_framework === undefined;
+  }
+}
+
+// show body when load is complete
+function on_load_complete() {
+
+  // add anchors
+  if (window.anchors) {
+    window.anchors.options.placement = 'left';
+    window.anchors.add('d-article > h2, d-article > h3, d-article > h4, d-article > h5');
+  }
+
+
+  // set body to visible
+  document.body.style.visibility = 'visible';
+
+  // force redraw for leaflet widgets
+  if (window.HTMLWidgets) {
+    var maps = window.HTMLWidgets.findAll(".leaflet");
+    $.each(maps, function(i, el) {
+      var map = this.getMap();
+      map.invalidateSize();
+      map.eachLayer(function(layer) {
+        if (layer instanceof L.TileLayer)
+          layer.redraw();
+      });
+    });
+  }
+
+  // trigger 'shown' so htmlwidgets resize
+  $('d-article').trigger('shown');
+}
+
+function init_distill() {
+
+  init_common();
+
+  // create front matter
+  var front_matter = $('<d-front-matter></d-front-matter>');
+  $('#distill-front-matter').wrap(front_matter);
+
+  // create d-title
+  $('.d-title').changeElementType('d-title');
+
+  // create d-byline
+  var byline = $('<d-byline></d-byline>');
+  $('.d-byline').replaceWith(byline);
+
+  // create d-article
+  var article = $('<d-article></d-article>');
+  $('.d-article').wrap(article).children().unwrap();
+
+  // move posts container into article
+  $('.posts-container').appendTo($('d-article'));
+
+  // create d-appendix
+  $('.d-appendix').changeElementType('d-appendix');
+
+  // flag indicating that we have appendix items
+  var appendix = $('.appendix-bottom').children('h3').length > 0;
+
+  // replace footnotes with <d-footnote>
+  $('.footnote-ref').each(function(i, val) {
+    appendix = true;
+    var href = $(this).attr('href');
+    var id = href.replace('#', '');
+    var fn = $('#' + id);
+    var fn_p = $('#' + id + '>p');
+    fn_p.find('.footnote-back').remove();
+    var text = fn_p.html();
+    var dtfn = $('<d-footnote></d-footnote>');
+    dtfn.html(text);
+    $(this).replaceWith(dtfn);
+  });
+  // remove footnotes
+  $('.footnotes').remove();
+
+  // move refs into #references-listing
+  $('#references-listing').replaceWith($('#refs'));
+
+  $('h1.appendix, h2.appendix').each(function(i, val) {
+    $(this).changeElementType('h3');
+  });
+  $('h3.appendix').each(function(i, val) {
+    var id = $(this).attr('id');
+    $('.d-contents a[href="#' + id + '"]').parent().remove();
+    appendix = true;
+    $(this).nextUntil($('h1, h2, h3')).addBack().appendTo($('d-appendix'));
+  });
+
+  // show d-appendix if we have appendix content
+  $("d-appendix").css('display', appendix ? 'grid' : 'none');
+
+  // localize layout chunks to just output
+  $('.layout-chunk').each(function(i, val) {
+
+    // capture layout
+    var layout = $(this).attr('data-layout');
+
+    // apply layout to markdown level block elements
+    var elements = $(this).children().not('details, div.sourceCode, pre, script');
+    elements.each(function(i, el) {
+      var layout_div = $('<div class="' + layout + '"></div>');
+      if (layout_div.hasClass('shaded')) {
+        var shaded_content = $('<div class="shaded-content"></div>');
+        $(this).wrap(shaded_content);
+        $(this).parent().wrap(layout_div);
+      } else {
+        $(this).wrap(layout_div);
+      }
+    });
+
+
+    // unwrap the layout-chunk div
+    $(this).children().unwrap();
+  });
+
+  // remove code block used to force  highlighting css
+  $('.distill-force-highlighting-css').parent().remove();
+
+  // remove empty line numbers inserted by pandoc when using a
+  // custom syntax highlighting theme
+  $('code.sourceCode a:empty').remove();
+
+  // load distill framework
+  load_distill_framework();
+
+  // wait for window.distillRunlevel == 4 to do post processing
+  function distill_post_process() {
+
+    if (!window.distillRunlevel || window.distillRunlevel < 4)
+      return;
+
+    // hide author/affiliations entirely if we have no authors
+    var front_matter = JSON.parse($("#distill-front-matter").html());
+    var have_authors = front_matter.authors && front_matter.authors.length > 0;
+    if (!have_authors)
+      $('d-byline').addClass('hidden');
+
+    // article with toc class
+    $('.d-contents').parent().addClass('d-article-with-toc');
+
+    // strip links that point to #
+    $('.authors-affiliations').find('a[href="#"]').removeAttr('href');
+
+    // add orcid ids
+    $('.authors-affiliations').find('.author').each(function(i, el) {
+      var orcid_id = front_matter.authors[i].orcidID;
+      if (orcid_id) {
+        var a = $('<a></a>');
+        a.attr('href', 'https://orcid.org/' + orcid_id);
+        var img = $('<img></img>');
+        img.addClass('orcid-id');
+        img.attr('alt', 'ORCID ID');
+        img.attr('src','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg==');
+        a.append(img);
+        $(this).append(a);
+      }
+    });
+
+    // hide elements of author/affiliations grid that have no value
+    function hide_byline_column(caption) {
+      $('d-byline').find('h3:contains("' + caption + '")').parent().css('visibility', 'hidden');
+    }
+
+    // affiliations
+    var have_affiliations = false;
+    for (var i = 0; i<front_matter.authors.length; ++i) {
+      var author = front_matter.authors[i];
+      if (author.affiliation !== "&nbsp;") {
+        have_affiliations = true;
+        break;
+      }
+    }
+    if (!have_affiliations)
+      $('d-byline').find('h3:contains("Affiliations")').css('visibility', 'hidden');
+
+    // published date
+    if (!front_matter.publishedDate)
+      hide_byline_column("Published");
+
+    // document object identifier
+    var doi = $('d-byline').find('h3:contains("DOI")');
+    var doi_p = doi.next().empty();
+    if (!front_matter.doi) {
+      // if we have a citation and valid citationText then link to that
+      if ($('#citation').length > 0 && front_matter.citationText) {
+        doi.html('Citation');
+        $('<a href="#citation"></a>')
+          .text(front_matter.citationText)
+          .appendTo(doi_p);
+      } else {
+        hide_byline_column("DOI");
+      }
+    } else {
+      $('<a></a>')
+         .attr('href', "https://doi.org/" + front_matter.doi)
+         .html(front_matter.doi)
+         .appendTo(doi_p);
+    }
+
+     // change plural form of authors/affiliations
+    if (front_matter.authors.length === 1) {
+      var grid = $('.authors-affiliations');
+      grid.children('h3:contains("Authors")').text('Author');
+      grid.children('h3:contains("Affiliations")').text('Affiliation');
+    }
+
+    // remove d-appendix and d-footnote-list local styles
+    $('d-appendix > style:first-child').remove();
+    $('d-footnote-list > style:first-child').remove();
+
+    // move appendix-bottom entries to the bottom
+    $('.appendix-bottom').appendTo('d-appendix').children().unwrap();
+    $('.appendix-bottom').remove();
+
+    // hoverable references
+    $('span.citation[data-cites]').each(function() {
+      if ($(this).children()[0].nodeName == "D-FOOTNOTE") {
+        var fn = $(this).children()[0]
+        $(this).html(fn.shadowRoot.querySelector("sup"))
+        $(this).id = fn.id
+        fn.remove()
+      }
+      var refs = $(this).attr('data-cites').split(" ");
+      var refHtml = refs.map(function(ref) {
+        return "<p>" + $('#ref-' + ref).html() + "</p>";
+      }).join("\n");
+      window.tippy(this, {
+        allowHTML: true,
+        content: refHtml,
+        maxWidth: 500,
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'light-border',
+        placement: 'bottom-start'
+      });
+    });
+
+    // fix footnotes in tables (#411)
+    // replacing broken distill.pub feature
+    $('table d-footnote').each(function() {
+      // we replace internal showAtNode methode which is triggered when hovering a footnote
+      this.hoverBox.showAtNode = function(node) {
+        // ported from https://github.com/distillpub/template/pull/105/files
+        calcOffset = function(elem) {
+            let x = elem.offsetLeft;
+            let y = elem.offsetTop;
+            // Traverse upwards until an `absolute` element is found or `elem`
+            // becomes null.
+            while (elem = elem.offsetParent && elem.style.position != 'absolute') {
+                x += elem.offsetLeft;
+                y += elem.offsetTop;
+            }
+
+            return { left: x, top: y };
+        }
+        // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetTop
+        const bbox = node.getBoundingClientRect();
+        const offset = calcOffset(node);
+        this.show([offset.left + bbox.width, offset.top + bbox.height]);
+      }
+    })
+
+    // clear polling timer
+    clearInterval(tid);
+
+    // show body now that everything is ready
+    on_load_complete();
+  }
+
+  var tid = setInterval(distill_post_process, 50);
+  distill_post_process();
+
+}
+
+function init_downlevel() {
+
+  init_common();
+
+   // insert hr after d-title
+  $('.d-title').after($('<hr class="section-separator"/>'));
+
+  // check if we have authors
+  var front_matter = JSON.parse($("#distill-front-matter").html());
+  var have_authors = front_matter.authors && front_matter.authors.length > 0;
+
+  // manage byline/border
+  if (!have_authors)
+    $('.d-byline').remove();
+  $('.d-byline').after($('<hr class="section-separator"/>'));
+  $('.d-byline a').remove();
+
+  // remove toc
+  $('.d-contents').remove();
+
+  // move appendix elements
+  $('h1.appendix, h2.appendix').each(function(i, val) {
+    $(this).changeElementType('h3');
+  });
+  $('h3.appendix').each(function(i, val) {
+    $(this).nextUntil($('h1, h2, h3')).addBack().appendTo($('.d-appendix'));
+  });
+
+
+  // inject headers into references and footnotes
+  var refs_header = $('<h3></h3>');
+  refs_header.text('References');
+  $('#refs').prepend(refs_header);
+
+  var footnotes_header = $('<h3></h3');
+  footnotes_header.text('Footnotes');
+  $('.footnotes').children('hr').first().replaceWith(footnotes_header);
+
+  // move appendix-bottom entries to the bottom
+  $('.appendix-bottom').appendTo('.d-appendix').children().unwrap();
+  $('.appendix-bottom').remove();
+
+  // remove appendix if it's empty
+  if ($('.d-appendix').children().length === 0)
+    $('.d-appendix').remove();
+
+  // prepend separator above appendix
+  $('.d-appendix').before($('<hr class="section-separator" style="clear: both"/>'));
+
+  // trim code
+  $('pre>code').each(function(i, val) {
+    $(this).html($.trim($(this).html()));
+  });
+
+  // move posts-container right before article
+  $('.posts-container').insertBefore($('.d-article'));
+
+  $('body').addClass('downlevel');
+
+  on_load_complete();
+}
+
+
+function init_common() {
+
+  // jquery plugin to change element types
+  (function($) {
+    $.fn.changeElementType = function(newType) {
+      var attrs = {};
+
+      $.each(this[0].attributes, function(idx, attr) {
+        attrs[attr.nodeName] = attr.nodeValue;
+      });
+
+      this.replaceWith(function() {
+        return $("<" + newType + "/>", attrs).append($(this).contents());
+      });
+    };
+  })(jQuery);
+
+  // prevent underline for linked images
+  $('a > img').parent().css({'border-bottom' : 'none'});
+
+  // mark non-body figures created by knitr chunks as 100% width
+  $('.layout-chunk').each(function(i, val) {
+    var figures = $(this).find('img, .html-widget');
+    // ignore leaflet img layers (#106)
+    figures = figures.filter(':not(img[class*="leaflet"])')
+    if ($(this).attr('data-layout') !== "l-body") {
+      figures.css('width', '100%');
+    } else {
+      figures.css('max-width', '100%');
+      figures.filter("[width]").each(function(i, val) {
+        var fig = $(this);
+        fig.css('width', fig.attr('width') + 'px');
+      });
+
+    }
+  });
+
+  // auto-append index.html to post-preview links in file: protocol
+  // and in rstudio ide preview
+  $('.post-preview').each(function(i, val) {
+    if (window.location.protocol === "file:")
+      $(this).attr('href', $(this).attr('href') + "index.html");
+  });
+
+  // get rid of index.html references in header
+  if (window.location.protocol !== "file:") {
+    $('.distill-site-header a[href]').each(function(i,val) {
+      $(this).attr('href', $(this).attr('href').replace(/^index[.]html/, "./"));
+    });
+  }
+
+  // add class to pandoc style tables
+  $('tr.header').parent('thead').parent('table').addClass('pandoc-table');
+  $('.kable-table').children('table').addClass('pandoc-table');
+
+  // add figcaption style to table captions
+  $('caption').parent('table').addClass("figcaption");
+
+  // initialize posts list
+  if (window.init_posts_list)
+    window.init_posts_list();
+
+  // implmement disqus comment link
+  $('.disqus-comment-count').click(function() {
+    window.headroom_prevent_pin = true;
+    $('#disqus_thread').toggleClass('hidden');
+    if (!$('#disqus_thread').hasClass('hidden')) {
+      var offset = $(this).offset();
+      $(window).resize();
+      $('html, body').animate({
+        scrollTop: offset.top - 35
+      });
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (is_downlevel_browser())
+    init_downlevel();
+  else
+    window.addEventListener('WebComponentsReady', init_distill);
+});
+
+</script>
+
+<style type="text/css">
+/* base variables */
+
+/* Edit the CSS properties in this file to create a custom
+   Distill theme. Only edit values in the right column
+   for each row; values shown are the CSS defaults.
+   To return any property to the default,
+   you may set its value to: unset
+   All rows must end with a semi-colon.                      */
+
+/* Optional: embed custom fonts here with `@import`          */
+/* This must remain at the top of this file.                 */
+
+
+
+html {
+  /*-- Main font sizes --*/
+  --title-size:      50px;
+  --body-size:       1.06rem;
+  --code-size:       14px;
+  --aside-size:      12px;
+  --fig-cap-size:    13px;
+  /*-- Main font colors --*/
+  --title-color:     #000000;
+  --header-color:    rgba(0, 0, 0, 0.8);
+  --body-color:      rgba(0, 0, 0, 0.8);
+  --aside-color:     rgba(0, 0, 0, 0.6);
+  --fig-cap-color:   rgba(0, 0, 0, 0.6);
+  /*-- Specify custom fonts ~~~ must be imported above   --*/
+  --heading-font:    sans-serif;
+  --mono-font:       monospace;
+  --body-font:       sans-serif;
+  --navbar-font:     sans-serif;  /* websites + blogs only */
+}
+
+/*-- ARTICLE METADATA --*/
+d-byline {
+  --heading-size:    0.6rem;
+  --heading-color:   rgba(0, 0, 0, 0.5);
+  --body-size:       0.8rem;
+  --body-color:      rgba(0, 0, 0, 0.8);
+}
+
+/*-- ARTICLE TABLE OF CONTENTS --*/
+.d-contents {
+  --heading-size:    18px;
+  --contents-size:   13px;
+}
+
+/*-- ARTICLE APPENDIX --*/
+d-appendix {
+  --heading-size:    15px;
+  --heading-color:   rgba(0, 0, 0, 0.65);
+  --text-size:       0.8em;
+  --text-color:      rgba(0, 0, 0, 0.5);
+}
+
+/*-- WEBSITE HEADER + FOOTER --*/
+/* These properties only apply to Distill sites and blogs  */
+
+.distill-site-header {
+  --title-size:       18px;
+  --text-color:       rgba(255, 255, 255, 0.8);
+  --text-size:        15px;
+  --hover-color:      white;
+  --bkgd-color:       #0F2E3D;
+}
+
+.distill-site-footer {
+  --text-color:       rgba(255, 255, 255, 0.8);
+  --text-size:        15px;
+  --hover-color:      white;
+  --bkgd-color:       #0F2E3D;
+}
+
+/*-- Additional custom styles --*/
+/* Add any additional CSS rules below                      */
+</style>
+<style type="text/css">/* base variables */
+
+/* Edit the CSS properties in this file to create a custom
+   Distill theme. Only edit values in the right column
+   for each row; values shown are the CSS defaults.
+   To return any property to the default,
+   you may set its value to: unset
+   All rows must end with a semi-colon.                      */
+
+/* Optional: embed custom fonts here with `@import`          */
+/* This must remain at the top of this file.                 */
+@import url('https://fonts.googleapis.com/css2?family=Lato');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Mono');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat');
+
+html {
+  /*-- Main font sizes --*/
+  --title-size:      50px;
+  --body-size:       1.0rem;                     /* edited */
+  --code-size:       0.9rem;                     /* edited */
+  --aside-size:      12px;
+  --fig-cap-size:    13px;
+  /*-- Main font colors --*/
+  --title-color:     #000000;
+  --heading-color:   rgba(0, 0, 0, 0.8);
+  --body-color:      #383838;                    /* edited */
+  --aside-color:     rgba(0, 0, 0, 0.6);
+  --fig-cap-color:   rgba(0, 0, 0, 0.6);
+  /*-- Specify custom fonts ~~~ must be imported above   --*/
+  --heading-font:    'Lato', sans-serif;         /* edited */
+  --mono-font:       'Fira Mono', monospace;     /* edited */
+  --body-font:       'Lato', sans-serif;         /* edited */
+  --navbar-font:     'Montserrat', sans-serif;   /* edited */
+}
+
+/*-- ARTICLE METADATA --*/
+d-byline {
+  --heading-size:    0.6rem;
+  --heading-color:   rgba(0, 0, 0, 0.5);
+  --body-size:       0.8rem;
+  --body-color:      rgba(0, 0, 0, 0.8);
+}
+
+/*-- ARTICLE TABLE OF CONTENTS --*/
+.d-contents {
+  --heading-size:    18px;
+  --contents-size:   13px;
+}
+
+/*-- ARTICLE APPENDIX --*/
+d-appendix {
+  --heading-size:    15px;
+  --heading-color:   rgba(0, 0, 0, 0.65);
+  --text-size:       0.8em;
+  --text-color:      rgba(0, 0, 0, 0.5);
+}
+
+/*-- WEBSITE HEADER + FOOTER --*/
+/* These properties only apply to Distill sites and blogs  */
+
+.distill-site-header {
+  --title-size:       20px;                      /* edited */
+  --text-color:       #FFFFFF;                   /* edited */
+  --text-size:        20px;                      /* edited */
+  --hover-color:      #383838;                   /* edited */
+  --bkgd-color:       rgb(249, 83, 85);          /* edited */
+}
+
+.distill-site-footer {
+  --text-color:       rgba(255, 255, 255, 0.8);
+  --text-size:        15px;
+  --hover-color:      white;
+  --bkgd-color:       #0F2E3D;
+}
+
+
+/*-- Additional custom styles --*/
+
+.posts-list .metadata .publishedDate {
+    color: rgb(249, 83, 85);
+}
+
+d-article p code {
+  color: #383838;
+  background: rgba(249, 83, 85, 0.1);
+  font-weight: 400;
+  font-size: 0.9em;
+}
+
+d-article a {
+    border-bottom: 2px solid rgba(249, 83, 85, 0.4);
+    text-decoration: none;
+}
+
+.distill-site-header .title {
+    font-weight: 600; 
+}
+
+ul > li::marker {
+  color: rgb(249, 83, 85);
+}</style>
+<style type="text/css">
+/* base style */
+
+/* FONT FAMILIES */
+
+:root {
+  --heading-default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono-default: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  --body-default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+body,
+.posts-list .post-preview p,
+.posts-list .description p {
+  font-family: var(--body-font), var(--body-default);
+}
+
+h1, h2, h3, h4, h5, h6,
+.posts-list .post-preview h2,
+.posts-list .description h2 {
+  font-family: var(--heading-font), var(--heading-default);
+}
+
+d-article div.sourceCode code,
+d-article pre code {
+  font-family: var(--mono-font), var(--mono-default);
+}
+
+
+/*-- TITLE --*/
+d-title h1,
+.posts-list > h1 {
+  color: var(--title-color, black);
+}
+
+d-title h1 {
+  font-size: var(--title-size, 50px);
+}
+
+/*-- HEADERS --*/
+d-article h1,
+d-article h2,
+d-article h3,
+d-article h4,
+d-article h5,
+d-article h6 {
+  color: var(--header-color, rgba(0, 0, 0, 0.8));
+}
+
+/*-- BODY --*/
+d-article > p,  /* only text inside of <p> tags */
+d-article > ul, /* lists */
+d-article > ol {
+  color: var(--body-color, rgba(0, 0, 0, 0.8));
+  font-size: var(--body-size, 1.06rem);
+}
+
+
+/*-- CODE --*/
+d-article div.sourceCode code,
+d-article pre code {
+  font-size: var(--code-size, 14px);
+}
+
+/*-- ASIDE --*/
+d-article aside {
+  font-size: var(--aside-size, 12px);
+  color: var(--aside-color, rgba(0, 0, 0, 0.6));
+}
+
+/*-- FIGURE CAPTIONS --*/
+figure .caption,
+figure figcaption,
+.figure .caption {
+  font-size: var(--fig-cap-size, 13px);
+  color: var(--fig-cap-color, rgba(0, 0, 0, 0.6));
+}
+
+/*-- METADATA --*/
+d-byline h3 {
+  font-size: var(--heading-size, 0.6rem);
+  color: var(--heading-color, rgba(0, 0, 0, 0.5));
+}
+
+d-byline {
+  font-size: var(--body-size, 0.8rem);
+  color: var(--body-color, rgba(0, 0, 0, 0.8));
+}
+
+d-byline a,
+d-article d-byline a {
+  color: var(--body-color, rgba(0, 0, 0, 0.8));
+}
+
+/*-- TABLE OF CONTENTS --*/
+.d-contents nav h3 {
+  font-size: var(--heading-size, 18px);
+}
+
+.d-contents nav a {
+  font-size: var(--contents-size, 13px);
+}
+
+/*-- APPENDIX --*/
+d-appendix h3 {
+  font-size: var(--heading-size, 15px);
+  color: var(--heading-color, rgba(0, 0, 0, 0.65));
+}
+
+d-appendix {
+  font-size: var(--text-size, 0.8em);
+  color: var(--text-color, rgba(0, 0, 0, 0.5));
+}
+
+d-appendix d-footnote-list a.footnote-backlink {
+  color: var(--text-color, rgba(0, 0, 0, 0.5));
+}
+
+/*-- WEBSITE HEADER + FOOTER --*/
+.distill-site-header .title {
+  font-size: var(--title-size, 18px);
+  font-family: var(--navbar-font), var(--heading-default);
+}
+
+.distill-site-header a,
+.nav-dropdown .nav-dropbtn {
+  font-family: var(--navbar-font), var(--heading-default);
+}
+
+.nav-dropdown .nav-dropbtn {
+  color: var(--text-color, rgba(255, 255, 255, 0.8));
+  font-size: var(--text-size, 15px);
+}
+
+.distill-site-header a:hover,
+.nav-dropdown:hover .nav-dropbtn {
+  color: var(--hover-color, white);
+}
+
+.distill-site-header {
+  font-size: var(--text-size, 15px);
+  color: var(--text-color, rgba(255, 255, 255, 0.8));
+  background-color: var(--bkgd-color, #0F2E3D);
+}
+
+.distill-site-footer {
+  font-size: var(--text-size, 15px);
+  color: var(--text-color, rgba(255, 255, 255, 0.8));
+  background-color: var(--bkgd-color, #0F2E3D);
+}
+
+.distill-site-footer a:hover {
+  color: var(--hover-color, white);
+}</style>
+<!--/radix_placeholder_distill-->
+  <script src="../../site_libs/header-attrs-2.14/header-attrs.js"></script>
+  <script src="../../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+  <script src="../../site_libs/popper-2.6.0/popper.min.js"></script>
+  <link href="../../site_libs/tippy-6.2.7/tippy.css" rel="stylesheet" />
+  <link href="../../site_libs/tippy-6.2.7/tippy-light-border.css" rel="stylesheet" />
+  <script src="../../site_libs/tippy-6.2.7/tippy.umd.min.js"></script>
+  <script src="../../site_libs/anchor-4.2.2/anchor.min.js"></script>
+  <script src="../../site_libs/bowser-1.9.3/bowser.min.js"></script>
+  <script src="../../site_libs/webcomponents-2.0.0/webcomponents.js"></script>
+  <script src="../../site_libs/distill-2.2.21/template.v2.js"></script>
+  <!--radix_placeholder_site_in_header-->
+<script type="text/javascript" cookie-consent="tracking" async src="https://www.googletagmanager.com/gtag/js?id=G-N6RYE4NFCW"></script>
+<script type="text/javascript" cookie-consent="tracking">
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-N6RYE4NFCW');
+</script>
+<!--/radix_placeholder_site_in_header-->
+
+
+</head>
+
+<body>
+
+<!--radix_placeholder_front_matter-->
+
+<script id="distill-front-matter" type="text/json">
+{"title":"Leveraging a Large-Scale Educational Data Set with Educational Data Mining","description":"In this post, I will be predicting students' high school dropout rate through the usage of a large-scale educational data set.\n\n (10 min read)","authors":[{"author":"Tarid Wongvorachan","authorURL":"#","affiliation":"University of Alberta","affiliationURL":"https://www.ualberta.ca","orcidID":""}],"publishedDate":"2022-08-06T00:00:00.000-06:00","citationText":"Wongvorachan, 2022"}
+</script>
+
+<!--/radix_placeholder_front_matter-->
+<!--radix_placeholder_navigation_before_body-->
+<header class="header header--fixed" role="banner">
+<nav class="distill-site-nav distill-site-header">
+<div class="nav-left">
+<a href="../../index.html" class="title">Tarid Wongvorachan</a>
+<input id="distill-search" class="nav-search hidden" type="text" placeholder="Search..."/>
+</div>
+<div class="nav-right">
+<a href="../../index.html">Blog</a>
+<a href="../../about.html">About</a>
+<a href="https://github.com/TaridWong">
+<i class="fa fa-github" aria-hidden="true"></i>
+</a>
+<a href="../../index.xml">
+<i class="fa fa-rss" aria-hidden="true"></i>
+</a>
+<a href="javascript:void(0);" class="nav-toggle">&#9776;</a>
+</div>
+</nav>
+</header>
+<!--/radix_placeholder_navigation_before_body-->
+<!--radix_placeholder_site_before_body-->
+<!--/radix_placeholder_site_before_body-->
+
+<div class="d-title">
+<h1>Leveraging a Large-Scale Educational Data Set with Educational Data Mining</h1>
+<!--radix_placeholder_categories-->
+<div class="dt-tags">
+  <a href="../../index.html#category:R" class="dt-tag">R</a>
+  <a href="../../index.html#category:Python" class="dt-tag">Python</a>
+  <a href="../../index.html#category:Supervised_Machine_Learning" class="dt-tag">Supervised Machine Learning</a>
+</div>
+<!--/radix_placeholder_categories-->
+<p><p>In this post, I will be predicting students’ high school dropout
+rate through the usage of a large-scale educational data set.</p>
+<p>(10 min read)</p></p>
+</div>
+
+<div class="d-byline">
+  Tarid Wongvorachan  (University of Alberta)<a
+href="https://www.ualberta.ca" class="uri">https://www.ualberta.ca</a>
+  
+<br/>2022-08-06
+</div>
+
+<div class="d-article">
+<div class="d-contents">
+<nav class="l-text toc figcaption" id="TOC">
+<h3>Contents</h3>
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#data-preprocessing" id="toc-data-preprocessing">Data
+Preprocessing</a></li>
+<li><a href="#data-augmentation" id="toc-data-augmentation">Data
+Augmentation</a></li>
+<li><a href="#classification"
+id="toc-classification">Classification</a></li>
+<li><a href="#conclusion" id="toc-conclusion">Conclusion</a></li>
+</ul>
+</nav>
+</div>
+<h2 id="introduction">Introduction</h2>
+<ul>
+<li><p>Hi Everyone. It’s been awhile since my last blog post. I have
+been occupied with writing and research meeting, among other things. I
+have had the opportunity to work with several large-scale data sets from
+start to finish (i.e., planning research ideas, data cleaning,
+interpreting patterns, and translating insights for the audience. That
+is why I want to post some of my ideas to this blog to share with you
+with it is like to work with data from one end to another. In this post,
+I will be predicting students’ high school dropout rate through the
+usage of a large-scale educational data set.</p></li>
+<li><p>My work is largely in the field of educational data mining (EDM),
+which is the method of knowledge discovery from educational databases
+(<a
+href="https://www.wiley.com/en-gb/Data+Mining+and+Learning+Analytics%3A+Applications+in+Educational+Research-p-9781118998236">Elatia
+et al., 2016</a>). Such data is usually extracted from sources such as
+students’ interactive learning environment, computerized testing, and
+large-scale assessment data repository (<a
+href="https://educationaldatamining.org/">International Educational Data
+Mining Society, 2022</a>). The data set I use in this posting is the
+High School Longitudinal Study of 2009, which is a longitudinal data set
+that tracks the transition of American youth from secondary schooling to
+subsequent education and work roles.</p></li>
+<li><p>The original data set has 4014 variables and 23,503 cases that
+were collected from students’ base year (2009), first follow-up (2012),
+2013 update collection (2013), high school transcripts (2013–2014), and
+second follow-up (2016). First, I chose a handful of variables based on
+theories that are relevant to the prediction of students’ school
+dropout.</p></li>
+<li><p>After the initial screening, we have 67 variables left. Then, I
+further removed responses that were not answered by students or their
+parents to preserve data representation. I use <a
+href="https://boxuancui.github.io/DataExplorer/"><code>dataexplorer</code></a>
+package to examine types and missingness of the variables. Figure 1
+below shows that the data set largely consists of categorical variables
+then continuous variables. The data also has a bit of missing
+data.</p></li>
+</ul>
+<figure>
+<img src="Missing.png" style="width:50.0%"
+alt="Figure 1. Variable Type and Missing Data" />
+<figcaption aria-hidden="true">Figure 1. Variable Type and Missing
+Data</figcaption>
+</figure>
+<h2 id="data-preprocessing">Data Preprocessing</h2>
+<ul>
+<li>To further clean up the data, variables with more than 30%
+missingness were removed, and the rest missing data was imputed with
+Random Forest algorithm based on the <a
+href="https://cran.r-project.org/web/packages/mice/mice.pdf">multivariate
+imputation by chained equation</a> method. I have done everything in
+advance to save time. Here is the cleaned data. I will also load the
+following packages for data preprocessing.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://readxl.tidyverse.org'>readxl</a></span><span class='op'>)</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://hbiostat.org/R/Hmisc/'>Hmisc</a></span><span class='op'>)</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/taiyun/corrplot'>corrplot</a></span><span class='op'>)</span>
+
+<span class='va'>hsls_30_rf</span> <span class='op'>&lt;-</span><span class='fu'><a href='https://readr.tidyverse.org/reference/read_delim.html'>read_csv</a></span><span class='op'>(</span><span class='st'>"hsls_30percent_imputed_rf.csv"</span>, col_names <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<ul>
+<li>At this point, the data set has 51 variables and 16137 cases. I
+converted some variables into factors to reflect their nature with
+<code>as.factor</code> function. I also mapped correlation matrix of the
+data set to examine variables that are not related to one another.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>hsls_30_rf</span> <span class='op'>&lt;-</span> <span class='va'>hsls_30_rf</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> 
+  <span class='fu'><a href='https://rdrr.io/r/base/as.data.frame.html'>as.data.frame</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span>
+  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>X1SEX</span>, <span class='va'>X1RACE</span>, <span class='va'>X1MOMRESP</span>, 
+                  <span class='va'>X1MOMEDU</span>, <span class='va'>X1MOMRACE</span>, <span class='va'>X1DADRESP</span>, 
+                  <span class='va'>X1DADEDU</span>, <span class='va'>X1DADRACE</span>, <span class='va'>X1HHNUMBER</span>, 
+                  <span class='va'>X1STUEDEXPCT</span>, <span class='va'>X1PAREDEXPCT</span>, <span class='va'>X1TMRACE</span>, 
+                  <span class='va'>X1TMCERT</span>, 
+                  <span class='va'>X1LOCALE</span>, <span class='va'>X1REGION</span>, <span class='va'>S1NOHWDN</span>, 
+                  <span class='va'>S1NOPAPER</span>, <span class='va'>S1NOBOOKS</span>, <span class='va'>S1LATE</span>, 
+                  <span class='va'>S1PAYOFF</span>, <span class='va'>S1GETINTOCLG</span>, <span class='va'>S1AFFORD</span>, 
+                  <span class='va'>S1WORKING</span>, <span class='va'>S1FRNDGRADES</span>, <span class='va'>S1FRNDSCHOOL</span>, 
+                  <span class='va'>S1FRNDCLASS</span>, <span class='va'>S1FRNDCLG</span>, <span class='va'>S1HRMHOMEWK</span>, 
+                  <span class='va'>S1HRSHOMEWK</span>, <span class='va'>S1SUREHSGRAD</span>, <span class='va'>P1BEHAVE</span>, 
+                  <span class='va'>P1ATTEND</span>, <span class='va'>P1PERFORM</span>, <span class='va'>P1HWOFTEN</span>, 
+                  <span class='va'>X4EVERDROP</span>, <span class='va'>X4PSENRSTLV</span><span class='op'>)</span>, <span class='va'>as.factor</span><span class='op'>)</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>correlation_30_rf</span> <span class='op'>&lt;-</span><span class='fu'><a href='https://rdrr.io/pkg/Hmisc/man/rcorr.html'>rcorr</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='va'>hsls_30_rf</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/pkg/corrplot/man/corrplot.html'>corrplot</a></span><span class='op'>(</span><span class='va'>correlation_30_rf</span><span class='op'>$</span><span class='va'>r</span>, type <span class='op'>=</span> <span class='st'>"upper"</span>, order <span class='op'>=</span> <span class='st'>"hclust"</span>, 
+         p.mat <span class='op'>=</span> <span class='va'>correlation_30_rf</span><span class='op'>$</span><span class='va'>P</span>, insig <span class='op'>=</span> <span class='st'>"pch"</span>, pch <span class='op'>=</span> <span class='fl'>4</span>, pch.cex <span class='op'>=</span> <span class='fl'>1</span>,
+         tl.col <span class='op'>=</span> <span class='st'>"black"</span>, tl.cex <span class='op'>=</span> <span class='fl'>0.5</span>, tl.srt <span class='op'>=</span> <span class='fl'>90</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<p><img src="cor-unclean.png" style="width:75.0%" /></p>
+<ul>
+<li>Based on the above correlation matrix and theoretical relevance,
+variables that are recommended for removal are: <code>X1RACE</code>,
+<code>X1MOMRACE</code>, <code>X1DADRACE</code>, <code>X1LOCALE</code>,
+<code>P1HWOFTEN</code>, <code>X1HHNUMBER</code>, <code>X1TMCERT</code>,
+<code>X1REGION</code>, <code>X1MOMRESP</code>, <code>X1DADRESP</code>,
+<code>X1SEX</code>, <code>X1TMRACE</code>, <code>X1TSRACE</code>,
+<code>X1MTHUTI.</code> They are removed because 1) they are not
+theoretically related to the prediction of high school dropout and 2)
+they have insignificant correlation that might negatively impact the
+prediction result.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>hsls_30_rf_final</span> <span class='op'>&lt;-</span> <span class='va'>hsls_30_rf</span> <span class='op'><a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&gt;%</a></span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span><span class='op'>(</span><span class='op'>!</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='va'>X1RACE</span>, <span class='va'>X1MOMRACE</span>, <span class='va'>X1DADRACE</span>, <span class='va'>X1LOCALE</span>, <span class='va'>P1HWOFTEN</span>, <span class='va'>X1HHNUMBER</span>, <span class='va'>X1TMCERT</span>, <span class='va'>X1REGION</span>, <span class='va'>X1MOMRESP</span>, <span class='va'>X1DADRESP</span>, <span class='va'>X1SEX</span>, <span class='va'>X1TMRACE</span>, <span class='va'>X1MTHUTI</span><span class='op'>)</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<ul>
+<li>After uncorrelated variables were removed, we have 38 variables
+left. The new correlation matrix is as follows:</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>correlation_30_rf_final</span> <span class='op'>&lt;-</span><span class='fu'><a href='https://rdrr.io/pkg/Hmisc/man/rcorr.html'>rcorr</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>as.matrix</a></span><span class='op'>(</span><span class='va'>hsls_30_rf_final</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/pkg/corrplot/man/corrplot.html'>corrplot</a></span><span class='op'>(</span><span class='va'>correlation_30_rf_final</span><span class='op'>$</span><span class='va'>r</span>, type <span class='op'>=</span> <span class='st'>"upper"</span>, order <span class='op'>=</span> <span class='st'>"hclust"</span>, 
+         p.mat <span class='op'>=</span> <span class='va'>correlation_30_rf_final</span><span class='op'>$</span><span class='va'>P</span>, insig <span class='op'>=</span> <span class='st'>"pch"</span>, pch <span class='op'>=</span> <span class='fl'>4</span>, pch.cex <span class='op'>=</span> <span class='fl'>1</span>,
+         tl.col <span class='op'>=</span> <span class='st'>"black"</span>, tl.cex <span class='op'>=</span> <span class='fl'>0.5</span>, tl.srt <span class='op'>=</span> <span class='fl'>90</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<p><img src="cor-clean.png" style="width:75.0%" /></p>
+<h2 id="data-augmentation">Data Augmentation</h2>
+<ul>
+<li>After the initial data preprocessing in R, I will use Python to
+perform machine learning. I personally use R for data
+exploration/statistical analysis and Python for machine learning. First,
+I will initiate Python environment and import necessary modules.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> Counter</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.manifold <span class="im">import</span> TSNE</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">&quot;ignore&quot;</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>RANDOM_STATE <span class="op">=</span> <span class="dv">123</span></span></code></pre></div>
+</details>
+</div>
+<ul>
+<li>Then, I will transfer the data set to Python environment because the
+two languages run in parallel instead of on the same ground.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> r.hsls_30_rf_final</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>df[<span class="st">&#39;X4EVERDROP&#39;</span>] <span class="op">=</span> np.where(df[<span class="st">&#39;X4EVERDROP&#39;</span>] <span class="op">==</span> <span class="st">&quot;0&quot;</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>df.head()</span></code></pre></div>
+</details>
+<pre><code>  X1MOMEDU X1DADEDU   X1SES  ...  P1PERFORM  X4EVERDROP  X4PSENRSTLV
+0        5        5  1.5644  ...          1           0            1
+1        3        2 -0.3699  ...          1           0            0
+2        7        0  1.2741  ...          1           0            1
+3        4        0  0.1495  ...          1           1            2
+4        3        3  1.0639  ...          1           0            1
+
+[5 rows x 38 columns]</code></pre>
+</div>
+<ul>
+<li>From the data set, I will extract the predictors (X) and the
+targeted variable (y). I will also check class proportion of the
+targeted variable to see if they are balanced.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>X_extreme <span class="op">=</span> df.drop(<span class="st">&#39;X4EVERDROP&#39;</span>, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>y_extreme <span class="op">=</span> df[<span class="st">&#39;X4EVERDROP&#39;</span>]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;The proportion of target variable&#39;s class :&quot;</span>, Counter(y_extreme))</span></code></pre></div>
+</details>
+<pre><code>The proportion of target variable&#39;s class : Counter({0: 14133, 1: 2004})</code></pre>
+</div>
+<ul>
+<li>We can see that the data is imbalanced. We have 14133 cases of
+student who did not and 2004 student who dropped out of their high
+school. Class imbalance problem in educational data sets could hamper
+the accuracy of predictive models as many of them are designed on the
+assumption that the predicted class is balanced (<a
+href="https://www.wiley.com/en-us/Imbalanced+Learning%3A+Foundations%2C+Algorithms%2C+and+Applications-p-9781118074626">He
+&amp; Ma, 2013</a>). This problem is especially prevalent in the
+prediction of high-stakes educational issues such as such as school
+dropout or grade repetition, where discrepancy between two classes is
+high due to its rare occurrence (<a
+href="https://www.mdpi.com/2227-7102/9/4/275">Barros et al.,
+2019</a>).</li>
+<li>I will visualize the imbalance with a t-Distributed Stochastic
+Neighbor Embedding (tSNE) plot and a count plot.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>tsne <span class="op">=</span> TSNE(n_components<span class="op">=</span><span class="dv">2</span>, random_state<span class="op">=</span>RANDOM_STATE)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>TSNE_result <span class="op">=</span> tsne.fit_transform(X_extreme)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="dv">8</span>))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(TSNE_result[:,<span class="dv">0</span>], TSNE_result[:,<span class="dv">1</span>], hue<span class="op">=</span>y_extreme, legend<span class="op">=</span><span class="st">&#39;full&#39;</span>, palette<span class="op">=</span><span class="st">&quot;hls&quot;</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+</details>
+</div>
+<p><img src="tsne-pre.PNG" style="width:75.0%" /></p>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>sns.set_theme(style<span class="op">=</span><span class="st">&quot;darkgrid&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>sns.countplot(x<span class="op">=</span><span class="st">&quot;X4EVERDROP&quot;</span>, data <span class="op">=</span> df)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+</details>
+<p><img src="edm_files/figure-html5/unnamed-chunk-11-1.png" width="960" /></p>
+</div>
+<ul>
+<li>In <a href="https://taridwong.github.io/posts/2022-04-28-xai/">my
+previous post</a>, I used the combination of Synthetic Minority
+Oversampling TEchnique (SMOTE) and Edited Nearest Neighbor (ENN). The
+thing is, SMOTE+ENN only works with numerical variables. We have a lot
+of categorical variables in this data set, so we need to find a
+workaround for that. I will use SMOTE for nominal and continuous
+variable (SMOTE-NC) and random undersampling instead instead.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> imblearn.over_sampling <span class="im">import</span> SMOTENC</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> imblearn.under_sampling <span class="im">import</span> RandomUnderSampler </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>smote_nc <span class="op">=</span> SMOTENC(random_state<span class="op">=</span>RANDOM_STATE, sampling_strategy<span class="op">=</span><span class="fl">0.8</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                    categorical_features<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">11</span>, <span class="dv">17</span>, <span class="dv">18</span>, <span class="dv">19</span>, <span class="dv">20</span>, <span class="dv">21</span>, <span class="dv">22</span>, <span class="dv">23</span>, <span class="dv">24</span>, <span class="dv">25</span>, <span class="dv">26</span>, <span class="dv">27</span>, <span class="dv">28</span>, <span class="dv">29</span>, <span class="dv">30</span>, <span class="dv">32</span>, <span class="dv">33</span>, <span class="dv">34</span>, <span class="dv">35</span>, <span class="dv">36</span>])</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>rus_hybrid <span class="op">=</span> RandomUnderSampler(random_state<span class="op">=</span>RANDOM_STATE, sampling_strategy<span class="op">=</span><span class="st">&#39;not minority&#39;</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>X_smote_extreme, y_smote_extreme <span class="op">=</span> smote_nc.fit_resample(X_extreme, y_extreme)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>X_hybrid_extreme, y_hybrid_extreme <span class="op">=</span> rus_hybrid.fit_resample(X_smote_extreme, y_smote_extreme)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;For Y extreme :&quot;</span>, Counter(y_extreme))</span></code></pre></div>
+</details>
+<pre><code>For Y extreme : Counter({0: 14133, 1: 2004})</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;For Y smote extreme :&quot;</span>, Counter(y_smote_extreme))</span></code></pre></div>
+</details>
+<pre><code>For Y smote extreme : Counter({0: 14133, 1: 11306})</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;For Y hybrid extreme :&quot;</span>, Counter(y_hybrid_extreme))</span></code></pre></div>
+</details>
+<pre><code>For Y hybrid extreme : Counter({0: 11306, 1: 11306})</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>X_train_hybrid_ext, X_test_hybrid_ext, y_train_hybrid_ext, y_test_hybrid_ext <span class="op">=</span> train_test_split(X_hybrid_extreme, y_hybrid_extreme, test_size <span class="op">=</span> <span class="fl">0.30</span>, random_state <span class="op">=</span> RANDOM_STATE)</span></code></pre></div>
+</details>
+</div>
+<ul>
+<li>After we finished augmenting the data, below is the result. We have
+much more instances of student who dropped out of their high school as
+seen from the tSNE plot and the count plot below.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>TSNE_result <span class="op">=</span> tsne.fit_transform(X_hybrid_extreme)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="dv">8</span>))</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(TSNE_result[:,<span class="dv">0</span>], TSNE_result[:,<span class="dv">1</span>], hue<span class="op">=</span>y_hybrid_extreme, legend<span class="op">=</span><span class="st">&#39;full&#39;</span>, palette<span class="op">=</span><span class="st">&quot;hls&quot;</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+</details>
+</div>
+<p><img src="tsne-post.png" style="width:75.0%" /></p>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>sns.set_theme(style<span class="op">=</span><span class="st">&quot;darkgrid&quot;</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>sns.countplot(y_hybrid_extreme)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+</details>
+<p><img src="edm_files/figure-html5/unnamed-chunk-14-3.png" width="960" /></p>
+</div>
+<ul>
+<li>Next, we will proceed to the classification stage. For many
+classification algorithms such as XGBoost or Random Forest, you need to
+transform categorical variables into numerical variables with label
+encoding or one-hot encoding first. However, we have a lot of
+categorical variables that may hamper the process. To circumvent this,
+we will use <a href="https://catboost.ai/">CatBoost</a>, which is a
+gradient boosting decision tree that supports categorical variables
+without the need for data transformation.</li>
+</ul>
+<h2 id="classification">Classification</h2>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_selection <span class="im">import</span> RFECV</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> catboost <span class="im">import</span> CatBoostClassifier</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> RandomizedSearchCV</span></code></pre></div>
+</details>
+</div>
+<ul>
+<li>First, we will create a CatBoost object as well as a list of
+hyperparameters to tune. We can use the default mode of CatBoost, but
+tuning the algorithm makes the algorithm perform better. I will tune
+tree depth, learning rate, and the number of iteration that the machine
+learns. I use randomized grid search to tune the algorithm to save
+time.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>CBC <span class="op">=</span> CatBoostClassifier(random_state<span class="op">=</span>RANDOM_STATE)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>parameters <span class="op">=</span> {<span class="st">&#39;depth&#39;</span>         : [<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">10</span>],</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>              <span class="st">&#39;learning_rate&#39;</span> : [<span class="fl">0.01</span>,<span class="fl">0.02</span>,<span class="fl">0.03</span>,<span class="fl">0.04</span>,<span class="fl">0.05</span>],</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>              <span class="st">&#39;iterations&#39;</span>    : [<span class="dv">10</span>,<span class="dv">20</span>,<span class="dv">30</span>,<span class="dv">40</span>,<span class="dv">50</span>,<span class="dv">60</span>,<span class="dv">70</span>,<span class="dv">80</span>,<span class="dv">90</span>,<span class="dv">100</span>]</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>             }</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>cat_features <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">11</span>, <span class="dv">17</span>, <span class="dv">18</span>, <span class="dv">19</span>, <span class="dv">20</span>, <span class="dv">21</span>, <span class="dv">22</span>, <span class="dv">23</span>, <span class="dv">24</span>, <span class="dv">25</span>, <span class="dv">26</span>, <span class="dv">27</span>, <span class="dv">28</span>, <span class="dv">29</span>, <span class="dv">30</span>, <span class="dv">32</span>, <span class="dv">33</span>, <span class="dv">34</span>, <span class="dv">35</span>, <span class="dv">36</span>]</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>Cat_random <span class="op">=</span> RandomizedSearchCV(estimator <span class="op">=</span> CBC, </span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>                                param_distributions <span class="op">=</span> parameters, </span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>                                n_iter <span class="op">=</span> <span class="dv">10</span>, cv <span class="op">=</span> <span class="dv">3</span>, verbose<span class="op">=</span><span class="dv">0</span>, </span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>                                random_state <span class="op">=</span> RANDOM_STATE, error_score<span class="op">=</span><span class="st">&#39;raise&#39;</span>)</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>Cat_random.fit(X_train_hybrid_ext, y_train_hybrid_ext, cat_features <span class="op">=</span> cat_features)</span></code></pre></div>
+</details>
+<style>#sk-container-id-1 {color: black;background-color: white;}#sk-container-id-1 pre{padding: 0;}#sk-container-id-1 div.sk-toggleable {background-color: white;}#sk-container-id-1 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-1 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-1 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-1 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-1 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-1 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-1 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-1 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-1 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-1 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-1 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-1 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-1 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-1 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-1 div.sk-item {position: relative;z-index: 1;}#sk-container-id-1 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-1 div.sk-item::before, #sk-container-id-1 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-1 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-1 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-1 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-1 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-1 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-1 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-1 div.sk-label-container {text-align: center;}#sk-container-id-1 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-1 div.sk-text-repr-fallback {display: none;}</style><div id="sk-container-id-1" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>RandomizedSearchCV(cv=3, error_score=&#x27;raise&#x27;,
+                   estimator=&lt;catboost.core.CatBoostClassifier object at 0x000002EB0C40ECD0&gt;,
+                   param_distributions={&#x27;depth&#x27;: [4, 5, 6, 7, 8, 9, 10],
+                                        &#x27;iterations&#x27;: [10, 20, 30, 40, 50, 60,
+                                                       70, 80, 90, 100],
+                                        &#x27;learning_rate&#x27;: [0.01, 0.02, 0.03,
+                                                          0.04, 0.05]},
+                   random_state=123)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-1" type="checkbox" ><label for="sk-estimator-id-1" class="sk-toggleable__label sk-toggleable__label-arrow">RandomizedSearchCV</label><div class="sk-toggleable__content"><pre>RandomizedSearchCV(cv=3, error_score=&#x27;raise&#x27;,
+                   estimator=&lt;catboost.core.CatBoostClassifier object at 0x000002EB0C40ECD0&gt;,
+                   param_distributions={&#x27;depth&#x27;: [4, 5, 6, 7, 8, 9, 10],
+                                        &#x27;iterations&#x27;: [10, 20, 30, 40, 50, 60,
+                                                       70, 80, 90, 100],
+                                        &#x27;learning_rate&#x27;: [0.01, 0.02, 0.03,
+                                                          0.04, 0.05]},
+                   random_state=123)</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-2" type="checkbox" ><label for="sk-estimator-id-2" class="sk-toggleable__label sk-toggleable__label-arrow">estimator: CatBoostClassifier</label><div class="sk-toggleable__content"><pre>&lt;catboost.core.CatBoostClassifier object at 0x000002EB0C40ECD0&gt;</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-3" type="checkbox" ><label for="sk-estimator-id-3" class="sk-toggleable__label sk-toggleable__label-arrow">CatBoostClassifier</label><div class="sk-toggleable__content"><pre>&lt;catboost.core.CatBoostClassifier object at 0x000002EB0C40ECD0&gt;</pre></div></div></div></div></div></div></div></div></div></div>
+</div>
+<ul>
+<li>After the tuning, I will print out the grid search result. The best
+hyperparameter values we have are learning_rate = 0.05, iterations = 80,
+and depth = 8. I will then let the machine learn from the data by
+fitting the model.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot; Results from Grid Search &quot;</span> )</span></code></pre></div>
+</details>
+<pre><code> Results from Grid Search </code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st"> The best estimator across ALL searched params:</span><span class="ch">\n</span><span class="st">&quot;</span>,Cat_random.best_estimator_)</span></code></pre></div>
+</details>
+<pre><code>
+ The best estimator across ALL searched params:
+ &lt;catboost.core.CatBoostClassifier object at 0x000002EB0C3DD9D0&gt;</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st"> The best score across ALL searched params:</span><span class="ch">\n</span><span class="st">&quot;</span>,Cat_random.best_score_)</span></code></pre></div>
+</details>
+<pre><code>
+ The best score across ALL searched params:
+ 0.8718094516047511</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st"> The best parameters across ALL searched params:</span><span class="ch">\n</span><span class="st">&quot;</span>,Cat_random.best_params_)</span></code></pre></div>
+</details>
+<pre><code>
+ The best parameters across ALL searched params:
+ {&#39;learning_rate&#39;: 0.05, &#39;iterations&#39;: 80, &#39;depth&#39;: 8}</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>CBC_tuned <span class="op">=</span> CatBoostClassifier(learning_rate <span class="op">=</span> <span class="fl">0.05</span>, iterations <span class="op">=</span> <span class="dv">80</span>, depth <span class="op">=</span> <span class="dv">8</span>, random_state<span class="op">=</span>RANDOM_STATE)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>CBC_tuned.fit(X_train_hybrid_ext, y_train_hybrid_ext, cat_features <span class="op">=</span> cat_features)</span></code></pre></div>
+</details>
+<pre><code>0:  learn: 0.6665327    total: 119ms    remaining: 9.42s
+1:  learn: 0.6464428    total: 257ms    remaining: 10s
+2:  learn: 0.6274255    total: 398ms    remaining: 10.2s
+3:  learn: 0.6038900    total: 536ms    remaining: 10.2s
+4:  learn: 0.5853056    total: 675ms    remaining: 10.1s
+5:  learn: 0.5711453    total: 825ms    remaining: 10.2s
+6:  learn: 0.5518932    total: 968ms    remaining: 10.1s
+7:  learn: 0.5371312    total: 1.12s    remaining: 10.1s
+8:  learn: 0.5246082    total: 1.3s remaining: 10.2s
+9:  learn: 0.5108871    total: 1.47s    remaining: 10.3s
+10: learn: 0.5017540    total: 1.64s    remaining: 10.3s
+11: learn: 0.4914030    total: 1.82s    remaining: 10.3s
+12: learn: 0.4829017    total: 1.99s    remaining: 10.3s
+13: learn: 0.4753740    total: 2.16s    remaining: 10.2s
+14: learn: 0.4684517    total: 2.37s    remaining: 10.3s
+15: learn: 0.4595894    total: 2.56s    remaining: 10.2s
+16: learn: 0.4516042    total: 2.73s    remaining: 10.1s
+17: learn: 0.4452736    total: 2.92s    remaining: 10s
+18: learn: 0.4382162    total: 3.1s remaining: 9.95s
+19: learn: 0.4326054    total: 3.3s remaining: 9.91s
+20: learn: 0.4268372    total: 3.61s    remaining: 10.1s
+21: learn: 0.4202041    total: 4.18s    remaining: 11s
+22: learn: 0.4167642    total: 4.44s    remaining: 11s
+23: learn: 0.4122437    total: 4.65s    remaining: 10.8s
+24: learn: 0.4093793    total: 4.89s    remaining: 10.8s
+25: learn: 0.4039919    total: 5.1s remaining: 10.6s
+26: learn: 0.4004563    total: 5.47s    remaining: 10.7s
+27: learn: 0.3975197    total: 5.67s    remaining: 10.5s
+28: learn: 0.3932144    total: 5.93s    remaining: 10.4s
+29: learn: 0.3904852    total: 6.15s    remaining: 10.3s
+30: learn: 0.3880708    total: 6.4s remaining: 10.1s
+31: learn: 0.3859222    total: 6.59s    remaining: 9.89s
+32: learn: 0.3831005    total: 6.79s    remaining: 9.67s
+33: learn: 0.3810144    total: 6.99s    remaining: 9.46s
+34: learn: 0.3785504    total: 7.18s    remaining: 9.23s
+35: learn: 0.3761624    total: 7.38s    remaining: 9.02s
+36: learn: 0.3737088    total: 7.57s    remaining: 8.79s
+37: learn: 0.3712488    total: 7.77s    remaining: 8.59s
+38: learn: 0.3685311    total: 7.96s    remaining: 8.37s
+39: learn: 0.3662991    total: 8.15s    remaining: 8.15s
+40: learn: 0.3634880    total: 8.34s    remaining: 7.93s
+41: learn: 0.3606838    total: 8.53s    remaining: 7.72s
+42: learn: 0.3587348    total: 8.72s    remaining: 7.51s
+43: learn: 0.3567398    total: 8.92s    remaining: 7.3s
+44: learn: 0.3548707    total: 9.11s    remaining: 7.08s
+45: learn: 0.3520839    total: 9.3s remaining: 6.87s
+46: learn: 0.3492787    total: 9.49s    remaining: 6.66s
+47: learn: 0.3467724    total: 9.69s    remaining: 6.46s
+48: learn: 0.3430803    total: 9.87s    remaining: 6.25s
+49: learn: 0.3411632    total: 10.1s    remaining: 6.04s
+50: learn: 0.3396453    total: 10.3s    remaining: 5.83s
+51: learn: 0.3377685    total: 10.4s    remaining: 5.62s
+52: learn: 0.3362602    total: 10.6s    remaining: 5.4s
+53: learn: 0.3349568    total: 10.8s    remaining: 5.19s
+54: learn: 0.3336092    total: 10.9s    remaining: 4.97s
+55: learn: 0.3318186    total: 11.1s    remaining: 4.76s
+56: learn: 0.3287766    total: 11.3s    remaining: 4.55s
+57: learn: 0.3268753    total: 11.5s    remaining: 4.34s
+58: learn: 0.3251920    total: 11.6s    remaining: 4.14s
+59: learn: 0.3227292    total: 11.8s    remaining: 3.94s
+60: learn: 0.3213152    total: 12s  remaining: 3.74s
+61: learn: 0.3192716    total: 12.2s    remaining: 3.54s
+62: learn: 0.3183261    total: 12.3s    remaining: 3.33s
+63: learn: 0.3171622    total: 12.5s    remaining: 3.13s
+64: learn: 0.3159563    total: 12.8s    remaining: 2.94s
+65: learn: 0.3143367    total: 13s  remaining: 2.75s
+66: learn: 0.3133019    total: 13.1s    remaining: 2.55s
+67: learn: 0.3122973    total: 13.3s    remaining: 2.35s
+68: learn: 0.3103480    total: 13.5s    remaining: 2.15s
+69: learn: 0.3093429    total: 13.7s    remaining: 1.96s
+70: learn: 0.3081943    total: 14.2s    remaining: 1.8s
+71: learn: 0.3067472    total: 14.7s    remaining: 1.63s
+72: learn: 0.3058445    total: 14.9s    remaining: 1.43s
+73: learn: 0.3047133    total: 15.2s    remaining: 1.23s
+74: learn: 0.3035925    total: 15.4s    remaining: 1.03s
+75: learn: 0.3022633    total: 15.6s    remaining: 821ms
+76: learn: 0.3011552    total: 15.8s    remaining: 617ms
+77: learn: 0.2998250    total: 16.1s    remaining: 412ms
+78: learn: 0.2985347    total: 16.3s    remaining: 206ms
+79: learn: 0.2977599    total: 16.5s    remaining: 0us
+&lt;catboost.core.CatBoostClassifier object at 0x000002EB0C40E040&gt;</code></pre>
+</div>
+<ul>
+<li><p>We have 38 variables. We can use all of them, but we can also
+further reduce them for to look for the most relevant variables to the
+model. We can trim the variable with recursive feature elimination
+(RFE), which is a feature selection method that fits the model and
+remove the weakest feature (or predictor) iteratively until the optimal
+number of features is found (<a
+href="https://link.springer.com/content/pdf/10.1023/A:1012487302797.pdf">Guyon
+et al., 2022</a>). Note that this process is entirely data-driven,
+meaning that the machine decides which variable solely based on the
+data, not the theory. In this post, I use a variant of RFE called RFE
+with cross validation (RFECV) that selects the best subset of features
+based on the cross-validation score of the model. RFECV is a
+bit</p></li>
+<li><p>I have computed RFECV in advance to save time. Below is the
+result. Performance of the model jumped at 20 features and fluctuated
+after that, meaning that the optimal number of features is 20.</p></li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>rfecv_model <span class="op">=</span> RFECV(estimator<span class="op">=</span>CBC_tuned, step<span class="op">=</span><span class="dv">1</span>, cv<span class="op">=</span><span class="dv">5</span> ,scoring<span class="op">=</span><span class="st">&#39;accuracy&#39;</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>rfecv <span class="op">=</span> rfecv_model.fit(X_train_hybrid_ext, y_train_hybrid_ext)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&#39;Optimal number of features :&#39;</span>, rfecv.n_features_)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&#39;Best features :&#39;</span>, X_train_hybrid_ext.columns[rfecv.support_])</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&#39;Original features :&#39;</span>, X_train_hybrid_ext.columns)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">15</span>), dpi<span class="op">=</span><span class="dv">800</span>)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">&quot;Number of features selected&quot;</span>)</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">&quot;Cross validation score </span><span class="ch">\n</span><span class="st"> of number of selected features&quot;</span>)</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(rfecv.grid_scores_) <span class="op">+</span> <span class="dv">1</span>), rfecv.grid_scores_)</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+</details>
+</div>
+<p><img src="rfecv.PNG" style="width:50.0%" /></p>
+<ul>
+<li>The optimal set of features are <code>X1MOMEDU</code>,
+<code>X1DADEDU</code>, <code>X1MTHEFF</code>, <code>X1SCIUTI</code>,
+<code>X1SCIEFF</code>, <code>X1SCHOOLBEL</code>,
+<code>X1SCHOOLENG</code>, <code>X1STUEDEXPCT</code>,
+<code>X1SCHOOLCLI</code>, <code>X1COUPERCOU</code>,
+<code>X1COUPERPRI</code>, <code>X3TGPA9TH</code>, <code>S1NOHWDN</code>,
+<code>S1NOPAPER</code>, <code>S1GETINTOCLG</code>,
+<code>S1WORKING</code>, <code>S1HRMHOMEWK</code>,
+<code>S1HRSHOMEWK</code>, <code>S1HROTHHOMWK</code>,
+<code>X4PSENRSTLV</code>. I will reduce the number of variable based on
+the RFECV result and create a training and a testing data set.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>X_hybrid_extreme_trim <span class="op">=</span> X_hybrid_extreme[[<span class="st">&#39;X1MOMEDU&#39;</span>, <span class="st">&#39;X1DADEDU&#39;</span>, <span class="st">&#39;X1MTHEFF&#39;</span>, <span class="st">&#39;X1SCIUTI&#39;</span>, <span class="st">&#39;X1SCIEFF&#39;</span>,<span class="st">&#39;X1SCHOOLBEL&#39;</span>, <span class="st">&#39;X1SCHOOLENG&#39;</span>, <span class="st">&#39;X1STUEDEXPCT&#39;</span>, <span class="st">&#39;X1SCHOOLCLI&#39;</span>,</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="st">&#39;X1COUPERCOU&#39;</span>, <span class="st">&#39;X1COUPERPRI&#39;</span>, <span class="st">&#39;X3TGPA9TH&#39;</span>, <span class="st">&#39;S1NOHWDN&#39;</span>, <span class="st">&#39;S1NOPAPER&#39;</span>,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="st">&#39;S1GETINTOCLG&#39;</span>, <span class="st">&#39;S1WORKING&#39;</span>, <span class="st">&#39;S1HRMHOMEWK&#39;</span>, <span class="st">&#39;S1HRSHOMEWK&#39;</span>, <span class="st">&#39;S1HROTHHOMWK&#39;</span>, <span class="st">&#39;X4PSENRSTLV&#39;</span>]]</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>X_train_hybrid_ext, X_test_hybrid_ext, y_train_hybrid_ext, y_test_hybrid_ext <span class="op">=</span> train_test_split(X_hybrid_extreme_trim, y_hybrid_extreme, test_size <span class="op">=</span> <span class="fl">0.30</span>, random_state <span class="op">=</span> RANDOM_STATE)</span></code></pre></div>
+</details>
+</div>
+<ul>
+<li>Then, I will fit the CatBoost model I created earlier with this new
+data set and use it to predict the testing data set.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>cat_features_post_trim <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">7</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">14</span>, <span class="dv">15</span>,<span class="dv">16</span>, <span class="dv">17</span>, <span class="dv">19</span>]</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>CBC_tuned.fit(X_train_hybrid_ext, y_train_hybrid_ext, cat_features <span class="op">=</span> cat_features_post_trim)</span></code></pre></div>
+</details>
+<pre><code>0:  learn: 0.6630968    total: 110ms    remaining: 8.7s
+1:  learn: 0.6347421    total: 202ms    remaining: 7.89s
+2:  learn: 0.6135360    total: 298ms    remaining: 7.65s
+3:  learn: 0.5958557    total: 390ms    remaining: 7.41s
+4:  learn: 0.5789939    total: 489ms    remaining: 7.34s
+5:  learn: 0.5568907    total: 581ms    remaining: 7.17s
+6:  learn: 0.5378680    total: 686ms    remaining: 7.16s
+7:  learn: 0.5226018    total: 800ms    remaining: 7.2s
+8:  learn: 0.5087498    total: 905ms    remaining: 7.14s
+9:  learn: 0.5009270    total: 1.03s    remaining: 7.2s
+10: learn: 0.4841922    total: 1.18s    remaining: 7.38s
+11: learn: 0.4746953    total: 1.3s remaining: 7.35s
+12: learn: 0.4681778    total: 1.42s    remaining: 7.31s
+13: learn: 0.4612541    total: 1.56s    remaining: 7.34s
+14: learn: 0.4532992    total: 1.71s    remaining: 7.4s
+15: learn: 0.4450863    total: 1.85s    remaining: 7.39s
+16: learn: 0.4375271    total: 1.98s    remaining: 7.35s
+17: learn: 0.4308885    total: 2.13s    remaining: 7.33s
+18: learn: 0.4254128    total: 2.25s    remaining: 7.23s
+19: learn: 0.4213425    total: 2.37s    remaining: 7.12s
+20: learn: 0.4177958    total: 2.51s    remaining: 7.05s
+21: learn: 0.4131347    total: 2.64s    remaining: 6.95s
+22: learn: 0.4089653    total: 2.81s    remaining: 6.95s
+23: learn: 0.4055672    total: 2.96s    remaining: 6.91s
+24: learn: 0.4030118    total: 3.12s    remaining: 6.87s
+25: learn: 0.3997708    total: 3.3s remaining: 6.85s
+26: learn: 0.3945504    total: 3.44s    remaining: 6.75s
+27: learn: 0.3909571    total: 3.59s    remaining: 6.67s
+28: learn: 0.3874681    total: 3.74s    remaining: 6.58s
+29: learn: 0.3842159    total: 3.88s    remaining: 6.46s
+30: learn: 0.3817295    total: 4.02s    remaining: 6.36s
+31: learn: 0.3793464    total: 4.16s    remaining: 6.24s
+32: learn: 0.3760956    total: 4.28s    remaining: 6.1s
+33: learn: 0.3744325    total: 4.41s    remaining: 5.97s
+34: learn: 0.3711698    total: 4.55s    remaining: 5.85s
+35: learn: 0.3690638    total: 4.68s    remaining: 5.72s
+36: learn: 0.3659461    total: 4.82s    remaining: 5.61s
+37: learn: 0.3637044    total: 4.96s    remaining: 5.48s
+38: learn: 0.3621688    total: 5.08s    remaining: 5.35s
+39: learn: 0.3601269    total: 5.21s    remaining: 5.21s
+40: learn: 0.3580019    total: 5.33s    remaining: 5.07s
+41: learn: 0.3567636    total: 5.47s    remaining: 4.95s
+42: learn: 0.3544761    total: 5.6s remaining: 4.82s
+43: learn: 0.3505973    total: 5.74s    remaining: 4.7s
+44: learn: 0.3495149    total: 5.87s    remaining: 4.56s
+45: learn: 0.3476525    total: 6s   remaining: 4.43s
+46: learn: 0.3462577    total: 6.13s    remaining: 4.3s
+47: learn: 0.3445400    total: 6.25s    remaining: 4.17s
+48: learn: 0.3427600    total: 6.38s    remaining: 4.04s
+49: learn: 0.3408402    total: 6.52s    remaining: 3.91s
+50: learn: 0.3381710    total: 6.65s    remaining: 3.78s
+51: learn: 0.3364197    total: 6.8s remaining: 3.66s
+52: learn: 0.3339518    total: 6.93s    remaining: 3.53s
+53: learn: 0.3311018    total: 7.07s    remaining: 3.4s
+54: learn: 0.3294152    total: 7.21s    remaining: 3.28s
+55: learn: 0.3280687    total: 7.35s    remaining: 3.15s
+56: learn: 0.3269127    total: 7.48s    remaining: 3.02s
+57: learn: 0.3252681    total: 7.62s    remaining: 2.89s
+58: learn: 0.3243089    total: 7.75s    remaining: 2.76s
+59: learn: 0.3212165    total: 7.88s    remaining: 2.63s
+60: learn: 0.3201323    total: 8.02s    remaining: 2.5s
+61: learn: 0.3189120    total: 8.16s    remaining: 2.37s
+62: learn: 0.3178599    total: 8.31s    remaining: 2.24s
+63: learn: 0.3169985    total: 8.45s    remaining: 2.11s
+64: learn: 0.3154376    total: 8.59s    remaining: 1.98s
+65: learn: 0.3142858    total: 8.72s    remaining: 1.85s
+66: learn: 0.3130732    total: 8.86s    remaining: 1.72s
+67: learn: 0.3115498    total: 8.99s    remaining: 1.59s
+68: learn: 0.3106751    total: 9.13s    remaining: 1.46s
+69: learn: 0.3104327    total: 9.2s remaining: 1.31s
+70: learn: 0.3094918    total: 9.25s    remaining: 1.17s
+71: learn: 0.3084260    total: 9.38s    remaining: 1.04s
+72: learn: 0.3070031    total: 9.51s    remaining: 912ms
+73: learn: 0.3052639    total: 9.65s    remaining: 782ms
+74: learn: 0.3043254    total: 9.78s    remaining: 652ms
+75: learn: 0.3038159    total: 9.85s    remaining: 519ms
+76: learn: 0.3029093    total: 9.99s    remaining: 389ms
+77: learn: 0.3014591    total: 10.1s    remaining: 260ms
+78: learn: 0.2992314    total: 10.3s    remaining: 130ms
+79: learn: 0.2984094    total: 10.4s    remaining: 0us
+&lt;catboost.core.CatBoostClassifier object at 0x000002EB0C40E040&gt;</code></pre>
+</div>
+<ul>
+<li>Results from classification report are satisfactory as seen from the
+macro average of precision, recall, and f1-score. I also show the
+receiver operating characteristic curve below.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> roc_auc_score</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> classification_report</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>pred_ext <span class="op">=</span> CBC_tuned.predict(X_test_hybrid_ext)</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(classification_report(y_test_hybrid_ext, pred_ext))</span></code></pre></div>
+</details>
+<pre><code>              precision    recall  f1-score   support
+
+           0       0.86      0.92      0.88      3351
+           1       0.91      0.85      0.88      3433
+
+    accuracy                           0.88      6784
+   macro avg       0.88      0.88      0.88      6784
+weighted avg       0.88      0.88      0.88      6784</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>roc_auc_score(y_test_hybrid_ext, pred_ext)</span></code></pre></div>
+</details>
+<pre><code>0.8827700805886101</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn <span class="im">import</span> metrics</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>y_pred_proba_cat <span class="op">=</span> CBC_tuned.predict_proba(X_test_hybrid_ext)[::,<span class="dv">1</span>]</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>fpr_cat, tpr_cat, _ <span class="op">=</span> metrics.roc_curve(y_test_hybrid_ext,  y_pred_proba_cat)</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>auc_cat <span class="op">=</span> metrics.roc_auc_score(y_test_hybrid_ext, y_pred_proba_cat)</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="co">#create ROC curve</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>plt.plot(fpr_cat,tpr_cat, label<span class="op">=</span><span class="st">&quot;ROC_AUC=&quot;</span><span class="op">+</span><span class="bu">str</span>(auc_cat.<span class="bu">round</span>(<span class="dv">3</span>)))</span></code></pre></div>
+</details>
+<pre><code>[&lt;matplotlib.lines.Line2D object at 0x000002EB0D5E3160&gt;]</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>plt.legend(loc<span class="op">=</span><span class="st">&quot;lower right&quot;</span>)</span></code></pre></div>
+</details>
+<pre><code>&lt;matplotlib.legend.Legend object at 0x000002EB0D5E3E20&gt;</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb41"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">&#39;True Positive Rate&#39;</span>)</span></code></pre></div>
+</details>
+<pre><code>Text(0, 0.5, &#39;True Positive Rate&#39;)</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">&#39;False Positive Rate&#39;</span>)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="co"># displaying the title</span></span></code></pre></div>
+</details>
+<pre><code>Text(0.5, 0, &#39;False Positive Rate&#39;)</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">&quot;Area Under Curve&quot;</span>)</span></code></pre></div>
+</details>
+<pre><code>Text(0.5, 1.0, &#39;Area Under Curve&#39;)</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb47"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+</details>
+<p><img src="edm_files/figure-html5/unnamed-chunk-23-5.png" width="960" /></p>
+</div>
+<ul>
+<li>I also visualize feature importance of the model below. The most
+impactful predictor to students’ high school dropout is their last year
+GPA, followed by hours spent doing homework on typical school days, and
+their self-efficacy in mathematics.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb48"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.pyplot <span class="im">import</span> figure</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>importances_cat <span class="op">=</span> pd.Series(CBC_tuned.feature_importances_, index <span class="op">=</span> X_hybrid_extreme_trim.columns)</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>sorted_importance_cat <span class="op">=</span> importances_cat.sort_values()</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a><span class="co">#Horizontal bar plot</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>sorted_importance_cat.plot(kind<span class="op">=</span><span class="st">&#39;barh&#39;</span>, color<span class="op">=</span><span class="st">&#39;lightgreen&#39;</span>)<span class="op">;</span> </span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">&#39;Feature Importance Score&#39;</span>)</span></code></pre></div>
+</details>
+<pre><code>Text(0.5, 0, &#39;Feature Importance Score&#39;)</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb50"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">&#39;Features&#39;</span>)</span></code></pre></div>
+</details>
+<pre><code>Text(0, 0.5, &#39;Features&#39;)</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb52"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">&quot;Visualizing Important Features&quot;</span>)</span></code></pre></div>
+</details>
+<pre><code>Text(0.5, 1.0, &#39;Visualizing Important Features&#39;)</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb54"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">&quot;figure.figsize&quot;</span>] <span class="op">=</span> (<span class="dv">8</span>, <span class="dv">4</span>)</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+</details>
+<p><img src="edm_files/figure-html5/unnamed-chunk-24-7.png" width="960" /></p>
+</div>
+<h2 id="conclusion">Conclusion</h2>
+<ul>
+<li><p>The point of this post is to demonstrate how EDM can be used with
+large-scale educational data to derive insights and potentially apply it
+to practice. We started out with a lot of variables (4014), then we
+reduce it based on the relevant theory to 67, based on missing data to
+51, based on correlation coefficient to 38, and based on RFECV to
+20.</p></li>
+<li><p>We might want to select variables that are actionable for the
+model to be meaningful. For example, saying that a student is likely to
+dropout of their high school because of their socio-economic status
+might not be as helpful because you cannot change their family income in
+a matter of days or months. However, saying that their GPA and hours
+spent on home work are influencing factors might allow students to
+adjust their learning behavior.</p></li>
+<li><p>With a meaningful model, an early warning system can be developed
+to alert teachers of potential under-performing students for an early
+intervention. However, I do not mean that results from the model is
+perfect. It should be used in conjunction with other indicators such as
+student record, parents’ observation, and behavior note. As education
+goes online or semi-online, records of student data can be leveraged to
+better understand them and ultimately benefit the teaching
+practice.</p></li>
+</ul>
+<div class="sourceCode" id="cb55"><pre
+class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<!--radix_placeholder_article_footer-->
+<div class="article-footer">
+  <p class="social_footer">
+    <span class="disqus-comments">
+      <i class="fas fa-comments"></i>
+      &nbsp;
+      <span class="disqus-comment-count" data-disqus-identifier="posts/2022-08-06-edm/">Comment on this article</span>
+    </span>
+    <span class="article-sharing">
+      Share: &nbsp;
+      <a href="https://twitter.com/share?text=Leveraging%20a%20Large-Scale%20Educational%20Data%20Set%20with%20Educational%20Data%20Mining&amp;url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2022-08-06-edm%2F" aria-label="share on twitter">
+        <i class="fab fa-twitter" aria-hidden="true"></i>
+      </a>
+      <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2022-08-06-edm%2F&amp;title=Leveraging%20a%20Large-Scale%20Educational%20Data%20Set%20with%20Educational%20Data%20Mining" aria-label="share on linkedin">
+        <i class="fab fa-linkedin" aria-hidden="true"></i>
+      </a>
+      <a href="https://pinterest.com/pin/create/link/?url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2022-08-06-edm%2F&amp;description=Leveraging%20a%20Large-Scale%20Educational%20Data%20Set%20with%20Educational%20Data%20Mining" aria-label="share on pinterest">
+        <i class="fab fa-pinterest" aria-hidden="true"></i>
+      </a>
+      <a href="https://www.facebook.com/sharer/sharer.php?s=100&amp;p[url]=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2022-08-06-edm%2F" aria-label="share on facebook">
+        <i class="fab fa-facebook" aria-hidden="true"></i>
+      </a>
+    </span>
+  </p>
+  <script id="dsq-count-scr" src="https://Tarid&#39;s blog.disqus.com/count.js" async></script>
+  <div id="disqus_thread" class="hidden"></div>
+  <script type="text/javascript" cookie-consent="functionality">
+var disqus_config = function () {
+  this.page.url = 'https://taridwong.github.io/posts/2022-08-06-edm/';
+  this.page.identifier = 'posts/2022-08-06-edm/';
+};
+(function() {
+  var d = document, s = d.createElement('script');
+  s.src = 'https://Tarid's blog.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+})();
+</script>
+  <p>
+    <div class="subscribe"><form method='post' action='https://blogtrottr.com'>
+  <p>Enjoy this blog? Get notified of new posts via email:</p>
+  <input type='text' name='btr_email' />
+  <input type='hidden' name='btr_url'
+         value='https://taridwong.github.io/index.xml'/>
+  <input type='hidden' name='schedule_type' value='0' />
+  <input type='submit' value='Subscribe' />
+</form></div>
+  </p>
+</div>
+<!--/radix_placeholder_article_footer-->
+</div>
+
+<div class="d-appendix">
+</div>
+
+
+<!--radix_placeholder_site_after_body-->
+<!--/radix_placeholder_site_after_body-->
+<!--radix_placeholder_appendices-->
+<div class="appendix-bottom">
+  <h3 id="reuse">Reuse</h3>
+  <p>Text and figures are licensed under Creative Commons Attribution <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. The figures that have been reused from other sources don't fall under this license and can be recognized by a note in their caption: "Figure from ...".</p>
+  <h3 id="citation">Citation</h3>
+  <p>For attribution, please cite this work as</p>
+  <pre class="citation-appendix short">Wongvorachan (2022, Aug. 6). Tarid Wongvorachan: Leveraging a Large-Scale Educational Data Set with Educational Data Mining. Retrieved from https://taridwong.github.io/posts/2022-08-06-edm/</pre>
+  <p>BibTeX citation</p>
+  <pre class="citation-appendix long">@misc{wongvorachan2022leveraging,
+  author = {Wongvorachan, Tarid},
+  title = {Tarid Wongvorachan: Leveraging a Large-Scale Educational Data Set with Educational Data Mining},
+  url = {https://taridwong.github.io/posts/2022-08-06-edm/},
+  year = {2022}
+}</pre>
+</div>
+<!--/radix_placeholder_appendices-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<!--radix_placeholder_navigation_after_body--><html><body>
+<div class="distill-site-nav distill-site-footer">
+<p>© Copyright Tarid Wongvorachan 2021. Made with the R <a href="https://rstudio.github.io/distill/">distill</a> package.</p>
+</div>
+<!--/radix_placeholder_navigation_after_body-->
+</body></html>
+
+
+</body>
+
+</html>
