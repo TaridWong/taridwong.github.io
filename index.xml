@@ -7,7 +7,606 @@
     <description>Welcome to my data science blog!
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Sat, 06 Aug 2022 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 14 Aug 2022 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Test Shortening with Genetic Algorithm and Ant Colony Optimization</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2022-08-14-ga-aco</link>
+      <description>
+
+
+&lt;h2 id="introduction"&gt;Introduction&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Hi, Everyone. It’s been really hot here in Summer. I have some
+more time before my next school year (2023) begins. As I learned more
+about Psychometric, I came to know about techniques that can be used to
+reduce the number of questions in a questionnaire for efficiency. This
+post was inspired by &lt;a
+href="https://okan.cloud/posts/2021-01-19-how-to-shorten-a-measurement-instrument-automatically-part-ii/"&gt;my
+supervisor’s post of the same technique&lt;/a&gt;. He applied the data to the
+Experiences in Close Relationships (ECR) scale of Adult Romantic
+Attachment Measure (&lt;a
+href="https://psycnet.apa.org/record/1997-36873-002?source=post_page---------------------------"&gt;Brennan
+et al., 1998&lt;/a&gt;). I want to try following his footstep and replicate
+the same techniques to a different data set for my practice. In this
+post, I will use Genetic Algorithm and Ant Colony Optimization Algorithm
+to automatically shorten the length of a test.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We will be using the International Personality Item Pool data set
+(&lt;a
+href="https://www.sciencedirect.com/science/article/pii/S0092656605000553"&gt;Goldberg
+et al., 2006&lt;/a&gt;). The data set has polytomous test items; that is,
+answers from test takers can be more than two values. Instead of “right”
+and “wrong”, the answer can be “strongly disagree”, “disagree”,
+“neutral”, “agree”, and “strongly agree”. The test measures person’s
+characteristics of extraversion, emotional stability, agreeableness,
+conscientiousness, and openness to experience.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;First, we will import the data set and subset a portion of the
+data for feasibility. The full data set has 176,380 cases. We will
+subset only 5000 of them.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;setwd(&amp;#39;D:/Class_and_Work/U_Alberta/Research projects/Response time&amp;#39;)
+library(tidyverse)
+library(data.table)
+RANDOM_STATE = 123
+
+df &amp;lt;- fread(&amp;quot;ipip.csv&amp;quot;, header = TRUE, fill = TRUE)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The data set contains responses of individuals to 50 personality
+test questions. Each response is on ordinal scale, meaning that the
+response can be categorized and ranked (i.e., disagree - neutral -
+agree). The correlation plot below indicates relationships between items
+measuring the same dimension (e.g., extraversion). Items with negative
+correlation are reverse-coded, meaning that the items are rephrased to
+have an opposite meaning. For example, a question measuring extraversion
+may ask “I see myself as someone who is talkative”. The reverse-coded
+version maybe “I see myself as someone who tends to be quiet”.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;df_survey &amp;lt;- df[1:5000, 1:50]
+
+head(df_survey)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;   EXT1 EXT2 EXT3 EXT4 EXT5 EXT6 EXT7 EXT8 EXT9 EXT10 EST1 EST2 EST3
+1:    4    1    5    2    5    1    5    2    4     1    1    4    4
+2:    3    5    3    4    3    3    2    5    1     5    2    3    4
+3:    2    3    4    4    3    2    1    3    2     5    4    4    4
+4:    2    2    2    3    4    2    2    4    1     4    3    3    3
+5:    3    3    3    3    5    3    3    5    3     4    1    5    5
+6:    3    3    4    2    4    2    2    3    3     4    3    4    3
+   EST4 EST5 EST6 EST7 EST8 EST9 EST10 AGR1 AGR2 AGR3 AGR4 AGR5 AGR6
+1:    2    2    2    2    2    3     2    2    5    2    4    2    3
+2:    1    3    1    2    1    3     1    1    4    1    5    1    5
+3:    2    2    2    2    2    1     3    1    4    1    4    2    4
+4:    2    3    2    2    2    4     3    2    4    3    4    2    4
+5:    3    1    1    1    1    3     2    1    5    1    5    1    3
+6:    2    2    1    2    1    2     2    2    3    1    4    2    3
+   AGR7 AGR8 AGR9 AGR10 CSN1 CSN2 CSN3 CSN4 CSN5 CSN6 CSN7 CSN8 CSN9
+1:    2    4    3     4    3    4    3    2    2    4    4    2    4
+2:    3    4    5     3    3    2    5    3    3    1    3    3    5
+3:    1    4    4     3    4    2    2    2    3    3    4    2    4
+4:    2    4    3     4    2    4    4    4    1    2    2    3    1
+5:    1    5    5     3    5    1    5    1    3    1    5    1    5
+6:    2    3    4     4    3    2    4    1    3    2    4    3    4
+   CSN10 OPN1 OPN2 OPN3 OPN4 OPN5 OPN6 OPN7 OPN8 OPN9 OPN10
+1:     4    5    1    4    1    4    1    5    3    4     5
+2:     3    1    2    4    2    3    1    4    2    5     3
+3:     2    5    1    2    1    4    2    5    3    4     4
+4:     4    4    2    5    2    3    1    4    4    3     3
+5:     5    5    1    5    1    5    1    5    3    5     5
+6:     3    5    1    5    1    3    1    5    4    5     2&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;DataExplorer::plot_correlation(df_survey)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file25dc51793def_files/figure-html/unnamed-chunk-3-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The test has 10 items (or questions) in each domain, totalling 50
+test items. This number seems reasonable, but we could further reduce
+the number of items to avoid fatiguing our examinee. One way we can
+reduce the number is through the use of coefficient alpha reliability.
+The &lt;code&gt;alpha&lt;/code&gt; function in &lt;code&gt;psych&lt;/code&gt; package can be
+used to examine how much reliability the test will have after dropping
+some items.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;alpha &amp;lt;- psych::alpha(df_survey, check.keys=TRUE)
+alpha$alpha.drop&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;       raw_alpha std.alpha   G6(smc) average_r      S/N    alpha se
+EXT1-  0.8696207 0.8679394 0.9137837 0.1182655 6.572282 0.002611411
+EXT2   0.8691535 0.8675726 0.9134115 0.1179326 6.551309 0.002621739
+EXT3-  0.8668282 0.8651111 0.9121684 0.1157390 6.413506 0.002671484
+EXT4   0.8683708 0.8667878 0.9129267 0.1172256 6.506819 0.002638125
+EXT5-  0.8673617 0.8656936 0.9123513 0.1162518 6.445660 0.002659426
+EXT6   0.8685602 0.8667696 0.9132939 0.1172093 6.505797 0.002632815
+EXT7-  0.8682855 0.8668348 0.9129689 0.1172677 6.509470 0.002640926
+EXT8   0.8712934 0.8695949 0.9150056 0.1197881 6.668412 0.002577510
+EXT9-  0.8704641 0.8687061 0.9143138 0.1189665 6.616502 0.002593862
+EXT10  0.8683898 0.8669061 0.9133637 0.1173317 6.513491 0.002638721
+EST1   0.8703855 0.8687731 0.9141121 0.1190281 6.620390 0.002594302
+EST2-  0.8715179 0.8698555 0.9152856 0.1200308 6.683770 0.002572223
+EST3   0.8713890 0.8698611 0.9149559 0.1200360 6.684096 0.002575067
+EST4-  0.8722369 0.8705305 0.9161060 0.1206634 6.723826 0.002558568
+EST5   0.8712487 0.8695326 0.9155456 0.1197302 6.664750 0.002576908
+EST6   0.8697921 0.8682577 0.9140230 0.1185557 6.590577 0.002606440
+EST7   0.8698114 0.8682822 0.9134175 0.1185780 6.591988 0.002605601
+EST8   0.8695089 0.8680298 0.9130377 0.1183477 6.577465 0.002612008
+EST9   0.8692737 0.8677100 0.9136737 0.1180571 6.559153 0.002617047
+EST10  0.8680675 0.8667208 0.9130501 0.1171656 6.503046 0.002644521
+AGR1   0.8729617 0.8708241 0.9162004 0.1209403 6.741382 0.002540781
+AGR2-  0.8696206 0.8674465 0.9136713 0.1178184 6.544122 0.002609287
+AGR3   0.8720020 0.8701186 0.9156558 0.1202767 6.699333 0.002559864
+AGR4-  0.8718810 0.8699519 0.9145632 0.1201208 6.689461 0.002561684
+AGR5   0.8713817 0.8694433 0.9147959 0.1196472 6.659506 0.002572622
+AGR6-  0.8740795 0.8722052 0.9166081 0.1222577 6.825042 0.002520054
+AGR7   0.8695310 0.8674391 0.9132795 0.1178118 6.543703 0.002610839
+AGR8-  0.8712084 0.8692263 0.9151725 0.1194462 6.646796 0.002576807
+AGR9-  0.8719947 0.8700279 0.9149316 0.1201919 6.693960 0.002559508
+AGR10- 0.8692295 0.8669770 0.9138922 0.1173954 6.517496 0.002617962
+CSN1-  0.8715010 0.8696873 0.9151554 0.1198740 6.673849 0.002569307
+CSN2   0.8743915 0.8722266 0.9165440 0.1222783 6.826354 0.002512017
+CSN3-  0.8729250 0.8712122 0.9165431 0.1213081 6.764712 0.002542491
+CSN4   0.8695425 0.8679183 0.9139521 0.1182463 6.571073 0.002609660
+CSN5-  0.8713024 0.8695137 0.9151010 0.1197126 6.663639 0.002573481
+CSN6   0.8723390 0.8703796 0.9153758 0.1205215 6.714834 0.002551467
+CSN7-  0.8739940 0.8724664 0.9170480 0.1225097 6.841070 0.002522233
+CSN8   0.8704663 0.8686382 0.9148756 0.1189042 6.612566 0.002591175
+CSN9-  0.8724726 0.8705899 0.9156435 0.1207194 6.727375 0.002550163
+CSN10- 0.8718644 0.8699681 0.9157181 0.1201359 6.690420 0.002563072
+OPN1-  0.8731489 0.8713227 0.9152167 0.1214131 6.771378 0.002536994
+OPN2   0.8723907 0.8704576 0.9152106 0.1205948 6.719479 0.002551733
+OPN3-  0.8742745 0.8725471 0.9161203 0.1225876 6.846034 0.002516526
+OPN4   0.8733534 0.8715435 0.9160396 0.1216236 6.784738 0.002533974
+OPN5-  0.8710467 0.8687933 0.9141883 0.1190467 6.621561 0.002579241
+OPN6   0.8723086 0.8703180 0.9150081 0.1204637 6.711173 0.002553227
+OPN7-  0.8718728 0.8699217 0.9156417 0.1200926 6.687679 0.002563265
+OPN8-  0.8752372 0.8730645 0.9163104 0.1230898 6.878014 0.002497109
+OPN9   0.8760793 0.8755095 0.9191497 0.1255113 7.032742 0.002491151
+OPN10- 0.8716998 0.8695968 0.9144305 0.1197899 6.668526 0.002565750
+            var.r      med.r
+EXT1-  0.02247896 0.08151262
+EXT2   0.02242356 0.08166635
+EXT3-  0.02239961 0.07907977
+EXT4   0.02233050 0.08041782
+EXT5-  0.02230091 0.07914325
+EXT6   0.02288756 0.07930301
+EXT7-  0.02235567 0.08146699
+EXT8   0.02281218 0.08201026
+EXT9-  0.02271017 0.08153477
+EXT10  0.02258192 0.08041782
+EST1   0.02257745 0.08146699
+EST2-  0.02293955 0.08210536
+EST3   0.02261406 0.08151262
+EST4-  0.02326988 0.08180150
+EST5   0.02327337 0.08157208
+EST6   0.02262279 0.08082590
+EST7   0.02258286 0.08146699
+EST8   0.02248911 0.08132409
+EST9   0.02280470 0.08041782
+EST10  0.02268410 0.08002237
+AGR1   0.02320503 0.08201026
+AGR2-  0.02287127 0.08108114
+AGR3   0.02323923 0.08151262
+AGR4-  0.02249784 0.08225522
+AGR5   0.02279661 0.08201026
+AGR6-  0.02261039 0.08321513
+AGR7   0.02275238 0.08092384
+AGR8-  0.02309551 0.08162526
+AGR9-  0.02265465 0.08180150
+AGR10- 0.02322872 0.07874079
+CSN1-  0.02314059 0.08166635
+CSN2   0.02285444 0.08249577
+CSN3-  0.02337612 0.08195375
+CSN4   0.02299208 0.08082590
+CSN5-  0.02315868 0.08157208
+CSN6   0.02302597 0.08225522
+CSN7-  0.02294173 0.08385676
+CSN8   0.02335693 0.07998131
+CSN9-  0.02305508 0.08195375
+CSN10- 0.02344565 0.08162526
+OPN1-  0.02302069 0.08295971
+OPN2   0.02315918 0.08201026
+OPN3-  0.02266237 0.08249577
+OPN4   0.02310353 0.08225522
+OPN5-  0.02321234 0.08082590
+OPN6   0.02315973 0.08201026
+OPN7-  0.02343876 0.08146699
+OPN8-  0.02269568 0.08336518
+OPN9   0.02248538 0.08407870
+OPN10- 0.02292938 0.08162526&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;summary(alpha)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Reliability analysis   
+ raw_alpha std.alpha G6(smc) average_r S/N    ase mean   sd median_r
+      0.87      0.87    0.92      0.12 6.8 0.0025  2.7 0.44    0.082&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="genetic-algorithm"&gt;Genetic Algorithm&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Another way we can reduce the number of items is through the use
+of Genetic Algorithm, which is an optimization method inspired from the
+natural selection theory (&lt;a
+href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0167110"&gt;Schroeders
+et al., 2016&lt;/a&gt;). This is how it works:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;First, the algorithm randomly selects several item sets from the
+item pool. These item sets act as parents.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Second, the algorithm picks items from each parent to form
+several sets of items as children (or an offspring).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Third, some items in the children set were exchanged with items
+from the item pool as a mutation.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Fourth, the children were evaluated. Children who produce better
+results were kept while those that did not do well are discarded. The
+process continues until a certain criterion is met.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Figure 1 below from visualizes how the process is done.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="figure"&gt;
+&lt;img src="https://taridwong.github.io//posts/2022-08-14-ga-acoGA.png" style="width:75.0%" alt="" /&gt;
+&lt;p class="caption"&gt;Illustration of the Genetic Algorithm. Figure from &lt;a
+href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0167110"&gt;Schroeders
+et al. (2016)&lt;/a&gt; .No copyright infringement is intended&lt;/p&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;We will use the &lt;code&gt;GAabbreviate&lt;/code&gt; package to perform test
+abbreviation with the Genetic Algorithm (&lt;a
+href="https://www.frontiersin.org/articles/10.3389/fpsyg.2016.00189/full"&gt;Sahdra
+et al., 2016&lt;/a&gt;). To prepare the data, we will first create summations
+of scores in each domain for every examinee as the scale score. We will
+also transform the data frame into a matrix.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;library(GAabbreviate)
+
+scales = cbind(rowSums(df_survey[, 1:10]), 
+               rowSums(df_survey[, 11:20]),
+               rowSums(df_survey[, 21:30]),
+               rowSums(df_survey[, 31:40]),
+               rowSums(df_survey[, 41:50]))
+
+df_survey &amp;lt;- as.data.frame(sapply(df_survey, as.integer))
+
+df_survey &amp;lt;- matrix(as.integer(unlist(df_survey)), nrow=nrow(df_survey))&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We will create the Genetic Algorithm object with the
+&lt;code&gt;GAabbreviate&lt;/code&gt; function (&lt;a
+href="https://www.frontiersin.org/articles/10.3389/fpsyg.2016.00189/full"&gt;Sahdra
+et al, 2016&lt;/a&gt;). We will set the cost of each item to 0.001 so that the
+algorithm can produce results that explains the most variance (&lt;a
+href="https://www.sciencedirect.com/science/article/pii/S0092656610000036"&gt;Yarkoni,
+2010&lt;/a&gt;).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;ipip_ga &amp;lt;- GAabbreviate(items = df_survey, # Matrix of item responses
+                      verbose = FALSE,
+                      scales = scales, # Scale scores
+                      itemCost = 0.001, # The cost of each item
+                      maxItems = 5, # Max number of items per dimension
+                      maxiter = 1000, # Max number of iterations
+                      run = 100, # Number of runs
+                      crossVal = TRUE, # Cross-validation
+                      seed = RANDOM_STATE) # Seed for reproducibility&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We can request for a summary of the algorithm below. The algorithm
+ran 301 times before achieving the best results. The number of items in
+the final set is 25, meaning that we reduced the test in half.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;summary(ipip_ga)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;── Genetic Algorithm ─────────────────── 
+
+GA settings: 
+Type                  =  binary 
+Population size       =  50 
+Number of generations =  1000 
+Elitism               =  2 
+Crossover probability =  0.8 
+Mutation probability  =  0.1 
+
+GA results: 
+Iterations             = 301 
+Total cost             = 1.74582
+Number of items in initial set = 50
+Number of items in final set = 25
+Mean coefficient alpha = 0.3212
+Mean convergent correlation (training) = 0.8069
+Mean convergent correlation (validation) = 0.8029&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We can call for coefficient alpha reliability of the test dimensions
+below. Reliability of the emotional stability, agreeableness, and
+openness to experience dimension are satisfactory (0.80 for emotional
+stability, 0.73 for agreeableness), meaning that the subtest we created
+for the mentioned two dimensions are usable (&lt;a
+href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4205511/"&gt;Tavakol
+&amp;amp; Dennick, 2011&lt;/a&gt;). However, items in the extraversion,
+conscientiousness, openness to experience dimension should be revised as
+indicated by their reliability (-0.21 for extraversion, -0.39 for
+conscientiousness, and 0.67 for openness) (&lt;a
+href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4205511/"&gt;Tavakol
+&amp;amp; Dennick, 2011&lt;/a&gt;).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;ipip_ga$measure$alpha&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;              A1        A2        A3         A4        A5
+alpha -0.2131873 0.8071732 0.7320936 -0.3923633 0.6721945&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We can also request for the list of items in each dimension as
+demonstrated below.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;ext &amp;lt;- which(ipip_ga$measure$key[,1]==1)
+est &amp;lt;- which(ipip_ga$measure$key[,2]==1)
+agr &amp;lt;- which(ipip_ga$measure$key[,3]==1)
+csn &amp;lt;- which(ipip_ga$measure$key[,4]==1)
+opn &amp;lt;- which(ipip_ga$measure$key[,5]==1)
+
+ipip_ga$measure$items[ext]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;x1 x2 x3 x6 x7 
+ 1  2  3  6  7 &lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;ipip_ga$measure$items[est]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;x11 x15 x16 x17 x18 
+ 11  15  16  17  18 &lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;ipip_ga$measure$items[agr]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;x22 x26 x28 x29 x30 
+ 22  26  28  29  30 &lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;ipip_ga$measure$items[csn]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;x32 x33 x35 x36 x37 
+ 32  33  35  36  37 &lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;ipip_ga$measure$items[opn]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;x41 x45 x48 x49 x50 
+ 41  45  48  49  50 &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We can also request for a summary plot of the Genetic Algorithm
+below. The plot has total cost, test length, mean of the overall
+explained variance, explained variance in each dimension, and pattern of
+items included in each iteration.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot(ipip_ga)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file25dc51793def_files/figure-html/unnamed-chunk-11-1.png" width="672" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;h2 id="ant-colony-algorithm"&gt;Ant Colony Algorithm&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;One more way we can shorten our test is using the Ant Colony
+Optimization (ACO) algorithm. ACO is an optimization method inspired
+from the foraging behavior of Argentine ants by using virtual ants to
+find the shortest path to a destination, which is the optimal set of
+test items for our case (&lt;a href="10.1109/MCI.2006.329691"&gt;Doringo et
+al., 2006&lt;/a&gt;).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;See Figure 2 below for the visual illustration of ACO. There are
+two routes that lead to the same food source. As ants travel randomly to
+the food source, they all leave pheromone for others to follow
+them.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;However, given that the upper route is shorter, it receives more
+pheromone as ants travel back and forth from their nest to the food
+source more often. The route with more pheromone (i.e., the shorter
+route) is chosen more by the ants while the longer route gets chosen
+less as the pheromone evaporates from having less ant.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="figure"&gt;
+&lt;img src="https://taridwong.github.io//posts/2022-08-14-ga-acoACO.png" style="width:75.0%" alt="" /&gt;
+&lt;p class="caption"&gt;Illustration of the Any Colony Optimization
+Algorithm. Figure from &lt;a href="10.1109/MCI.2006.329691"&gt;Doringo et
+al. (2006)&lt;/a&gt;. No copyright infringement is intended&lt;/p&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;We will use the &lt;code&gt;Shortform&lt;/code&gt; package to perform test
+abbreviation with ACO (&lt;a
+href="https://cran.r-project.org/web/packages/ShortForm/index.html"&gt;Raborn
+&amp;amp; Leite, 2020&lt;/a&gt;). We will load the package and subset the data for
+feasibility. ACO is quite computationally expensive with a large data
+set. To save time, I subsetted only the first 100 cases of IPIP response
+data.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;library(ShortForm)
+
+df_survey_aco &amp;lt;- df[1:100, 1:50] #ACO uses dataframe format&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We will also define model structure of the measurement with
+&lt;code&gt;lavaan&lt;/code&gt; syntax. Here, I defined five dimensions that are
+measured by 10 items each. In addition to the measurement model, I will
+also indicate the list of items that measure each dimension.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;model &amp;lt;- &amp;quot; ext =~ EXT1+EXT2+EXT3+EXT4+EXT5+EXT6+EXT7+EXT8+EXT9+EXT10
+           est =~ EST1+EST2+EST3+EST4+EST5+EST6+EST7+EST8+EST9+EST10
+           agr =~ AGR1+AGR2+AGR3+AGR4+AGR5+AGR6+AGR7+AGR8+AGR9+AGR10
+           csn =~ CSN1+CSN2+CSN3+CSN4+CSN5+CSN6+CSN7+CSN8+CSN9+CSN10
+           opn =~ OPN1+OPN2+OPN3+OPN4+OPN5+OPN6+OPN7+OPN8+OPN9+OPN10
+         &amp;quot;
+
+items &amp;lt;- list(c(paste0(&amp;quot;EXT&amp;quot;, seq(1, 10))),
+              c(paste0(&amp;quot;EST&amp;quot;, seq(1, 10))),
+              c(paste0(&amp;quot;AGR&amp;quot;, seq(1, 10))),
+              c(paste0(&amp;quot;CSN&amp;quot;, seq(1, 10))),
+              c(paste0(&amp;quot;OPN&amp;quot;, seq(1, 10)))
+              )
+
+items&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[[1]]
+ [1] &amp;quot;EXT1&amp;quot;  &amp;quot;EXT2&amp;quot;  &amp;quot;EXT3&amp;quot;  &amp;quot;EXT4&amp;quot;  &amp;quot;EXT5&amp;quot;  &amp;quot;EXT6&amp;quot;  &amp;quot;EXT7&amp;quot;  &amp;quot;EXT8&amp;quot; 
+ [9] &amp;quot;EXT9&amp;quot;  &amp;quot;EXT10&amp;quot;
+
+[[2]]
+ [1] &amp;quot;EST1&amp;quot;  &amp;quot;EST2&amp;quot;  &amp;quot;EST3&amp;quot;  &amp;quot;EST4&amp;quot;  &amp;quot;EST5&amp;quot;  &amp;quot;EST6&amp;quot;  &amp;quot;EST7&amp;quot;  &amp;quot;EST8&amp;quot; 
+ [9] &amp;quot;EST9&amp;quot;  &amp;quot;EST10&amp;quot;
+
+[[3]]
+ [1] &amp;quot;AGR1&amp;quot;  &amp;quot;AGR2&amp;quot;  &amp;quot;AGR3&amp;quot;  &amp;quot;AGR4&amp;quot;  &amp;quot;AGR5&amp;quot;  &amp;quot;AGR6&amp;quot;  &amp;quot;AGR7&amp;quot;  &amp;quot;AGR8&amp;quot; 
+ [9] &amp;quot;AGR9&amp;quot;  &amp;quot;AGR10&amp;quot;
+
+[[4]]
+ [1] &amp;quot;CSN1&amp;quot;  &amp;quot;CSN2&amp;quot;  &amp;quot;CSN3&amp;quot;  &amp;quot;CSN4&amp;quot;  &amp;quot;CSN5&amp;quot;  &amp;quot;CSN6&amp;quot;  &amp;quot;CSN7&amp;quot;  &amp;quot;CSN8&amp;quot; 
+ [9] &amp;quot;CSN9&amp;quot;  &amp;quot;CSN10&amp;quot;
+
+[[5]]
+ [1] &amp;quot;OPN1&amp;quot;  &amp;quot;OPN2&amp;quot;  &amp;quot;OPN3&amp;quot;  &amp;quot;OPN4&amp;quot;  &amp;quot;OPN5&amp;quot;  &amp;quot;OPN6&amp;quot;  &amp;quot;OPN7&amp;quot;  &amp;quot;OPN8&amp;quot; 
+ [9] &amp;quot;OPN9&amp;quot;  &amp;quot;OPN10&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We will create the ACO object with the &lt;code&gt;antcolony.lavaan&lt;/code&gt;
+function. We will set the number of ants to 20, pheromone evaporation
+rate to 0.5, and fit indices of comparative fit index (CFI),
+Tucker-Lewis index (TLI), and root mean square error of approximation
+(RMSEA).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;ipip_ACO &amp;lt;- antcolony.lavaan(data = df_survey_aco, # Response data set
+                            ants = 20, # Number of ants
+                            evaporation = 0.5, #  % of the pheromone retained after evaporation
+                            antModel = model, # Factor model for IPIP
+                            list.items = items, # Items for each dimension
+                            full = 50, # The total number of unique items in the IPIP scale
+                            i.per.f = c(5, 5, 5, 5, 5), # The desired number of items per dimension. The number has to match the number of dimension
+                            factors = c(&amp;#39;EXT&amp;#39;,&amp;#39;EST&amp;#39;,&amp;#39;AGR&amp;#39;,&amp;#39;CSN&amp;#39;,&amp;#39;OPN&amp;#39;), # Names of dimensions
+                            
+                            # lavaan settings - Change estimator to WLSMV
+                            lavaan.model.specs = list(model.type = &amp;quot;cfa&amp;quot;, auto.var = T, estimator = &amp;quot;WLSMV&amp;quot;,
+                                                      ordered = NULL, int.ov.free = TRUE, int.lv.free = FALSE, 
+                                                      auto.fix.first = TRUE, auto.fix.single = TRUE, 
+                                                      auto.cov.lv.x = TRUE, auto.th = TRUE, auto.delta = TRUE,
+                                                      auto.cov.y = TRUE, std.lv = F),
+                            
+                            steps = 50, # The number of ants in a row for which the model does not change
+                            fit.indices = c(&amp;#39;cfi&amp;#39;, &amp;#39;tli&amp;#39;, &amp;#39;rmsea&amp;#39;), # Fit statistics to use
+                            fit.statistics.test = &amp;quot;(cfi &amp;gt; 0.95)&amp;amp;(tli &amp;gt; 0.95)&amp;amp;(rmsea &amp;lt; 0.06)&amp;quot;,
+                            max.run = 300) # The maximum number of ants to run before the algorithm stops&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+ Run number 1.           
+ Run number 2.           
+ Run number 3.           
+ Run number 4.           
+ Run number 5.           
+ Run number 6.           
+ Run number 7.           
+ Run number 8.           
+ Run number 9.           
+ Run number 10.           
+ Run number 11.           
+ Run number 12.           
+ Run number 13.           
+ Run number 14.           
+ Run number 15.           
+ Run number 16.           
+ Run number 17.           
+ Run number 18.           
+ Run number 19.           
+ Run number 20.           
+ Run number 21.           [1] &amp;quot;Compiling results.&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;After getting the result, we can check our fit indices and the list
+of items retained by ACO. Item that has “1” indicates that it is
+selected by the algorithm.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;ipip_ACO[[1]]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;          cfi       tli      rmsea mean_gamma EXT1 EXT2 EXT3 EXT4
+[1,] 0.968031 0.9638086 0.03537734      0.529    1    0    1    0
+     EXT5 EXT6 EXT7 EXT8 EXT9 EXT10 EST1 EST2 EST3 EST4 EST5 EST6
+[1,]    1    0    1    0    1     0    0    0    1    0    1    1
+     EST7 EST8 EST9 EST10 AGR1 AGR2 AGR3 AGR4 AGR5 AGR6 AGR7 AGR8
+[1,]    0    1    0     1    0    1    1    1    1    0    0    1
+     AGR9 AGR10 CSN1 CSN2 CSN3 CSN4 CSN5 CSN6 CSN7 CSN8 CSN9 CSN10
+[1,]    0     0    1    1    0    0    1    0    0    0    1     1
+     OPN1 OPN2 OPN3 OPN4 OPN5 OPN6 OPN7 OPN8 OPN9 OPN10
+[1,]    1    0    0    0    1    0    0    1    1     1&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We can also request for the summary of lavaan model from the subtest
+extracted by ACO.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;ipip_ACO$best.model&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;lavaan 0.6-11 ended normally after 71 iterations
+
+  Estimator                                       DWLS
+  Optimization method                           NLMINB
+  Number of model parameters                        60
+                                                      
+  Number of observations                           100
+                                                      
+Model Test User Model:
+                                              Standard      Robust
+  Test Statistic                               283.962     324.326
+  Degrees of freedom                               265         265
+  P-value (Chi-square)                           0.202       0.007
+  Scaling correction factor                                  1.883
+  Shift parameter                                          173.490
+       simple second-order correction                             &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Next, we can also request for an output of which item is loaded onto
+which dimension in the new model.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;cat(ipip_ACO$best.syntax)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;EXT =~ EXT7 + EXT3 + EXT5 + EXT1 + EXT9
+EST =~ EST3 + EST10 + EST6 + EST8 + EST5
+AGR =~ AGR8 + AGR4 + AGR3 + AGR2 + AGR7
+CSN =~ CSN2 + CSN5 + CSN9 + CSN1 + CSN10
+OPN =~ OPN5 + OPN8 + OPN1 + OPN9 + OPN10
+         &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;When checking coefficient alpha reliability of the items chosen by
+ACO, we can see below that the dimension of extraversion, emotional
+stability, agreeableness, and conscientiousness have satisfactory
+reliability values.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#check reliability of each subscale
+
+#EXT
+psych::alpha(df_survey_aco[, c(&amp;quot;EXT1&amp;quot;, &amp;quot;EXT3&amp;quot;, &amp;quot;EXT5&amp;quot;, &amp;quot;EXT4&amp;quot;, &amp;quot;EXT7&amp;quot;)], check.keys=TRUE)$total&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt; raw_alpha std.alpha   G6(smc) average_r      S/N        ase  mean
+ 0.8854019  0.886472 0.8729437 0.6096311 7.808396 0.01810261 3.038
+       sd  median_r
+ 1.032285 0.5956059&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#EST
+psych::alpha(df_survey_aco[, c(&amp;quot;EST1&amp;quot;, &amp;quot;EST5&amp;quot;, &amp;quot;EST6&amp;quot;, &amp;quot;EST7&amp;quot;, &amp;quot;EST8&amp;quot;)], check.keys=TRUE)$total&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt; raw_alpha std.alpha  G6(smc) average_r      S/N        ase  mean
+  0.819672 0.8179554 0.816637 0.4733049 4.493158 0.02866376 2.962
+        sd  median_r
+ 0.9705544 0.4724666&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#AGR
+psych::alpha(df_survey_aco[, c(&amp;quot;AGR2&amp;quot;, &amp;quot;AGR4&amp;quot;, &amp;quot;AGR5&amp;quot;, &amp;quot;AGR9&amp;quot;, &amp;quot;AGR10&amp;quot;)], check.keys=TRUE)$total&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt; raw_alpha std.alpha G6(smc) average_r      S/N        ase  mean
+ 0.7890755  0.788927 0.76396 0.4277669 3.737698 0.03327975 3.794
+        sd  median_r
+ 0.7776967 0.4230731&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#CSN
+psych::alpha(df_survey_aco[, c(&amp;quot;CSN3&amp;quot;, &amp;quot;CSN5&amp;quot;, &amp;quot;CSN7&amp;quot;, &amp;quot;CSN9&amp;quot;, &amp;quot;CSN10&amp;quot;)], check.keys=TRUE)$total&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt; raw_alpha std.alpha   G6(smc) average_r      S/N        ase  mean
+ 0.7009179 0.6928163 0.6664406 0.3108564 2.255382 0.04580886 3.284
+        sd  median_r
+ 0.7914595 0.2909734&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#OPN
+psych::alpha(df_survey_aco[, c(&amp;quot;OPN5&amp;quot;, &amp;quot;OPN7&amp;quot;, &amp;quot;OPN8&amp;quot;, &amp;quot;OPN9&amp;quot;, &amp;quot;OPN10&amp;quot;)], check.keys=TRUE)$total&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt; raw_alpha std.alpha   G6(smc) average_r      S/N        ase  mean
+ 0.5971511 0.6095035 0.5874082 0.2379028 1.560843 0.06264639 3.802
+        sd  median_r
+ 0.6006697 0.2483103&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The explained variance plot below shows that ACO was able to
+increase the amount of variance explained by the model.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot(ipip_ACO, type = &amp;quot;variance&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;$Pheromone
+NULL
+
+$Gamma
+NULL
+
+$Beta
+NULL
+
+$Variance&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file25dc51793def_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;This post demonstrated several ways we can reduce the number of
+test items whether through the traditional method of reliability
+examination, Genetic Algorithm, or ACO. Many psychological assessment
+provides helpful insights to clinicians, educators, and the examinee
+themselves with helpful information. However, some tests are quite
+lengthy that they fatigue the examinee out before; for example, the
+[Minnesota Multiphasic Personality Inventory-2 Restructured Form
+(MMPI-2-RF)](&lt;a
+href="https://www.upress.umn.edu/test-division/MMPI-2-RF#"
+class="uri"&gt;https://www.upress.umn.edu/test-division/MMPI-2-RF#&lt;/a&gt;:~:text=2%2DRF%20Overview-,The%20Minnesota%20Multiphasic%20Personality%20Inventory%2D2%20Restructured%20Form%20(MMPI%2D,psychological%20dysfunction%20and%20treatment%20planning.)
+has 338 items. Genetic Algorithm and ACO may be useful to reduce the
+number of test items to the optimal level while retaining accuracy and
+representativeness of the test.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;However, note that the two algorithms are not silver bullets. We
+cannot just apply them to every test without consulting the literature,
+test developers, test users, and other relevant stakeholders first.
+After reducing the number of test items, researchers should check if the
+remaining items are representative to the measured construct and perform
+a pilot testing to examine if the test serves its intended purpose. As
+always, thank you very much for reading this!&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>c46ab128857e41863a9767e1dac6d118</distill:md5>
+      <category>R</category>
+      <category>Psychometric</category>
+      <guid>https://taridwong.github.io/posts/2022-08-14-ga-aco</guid>
+      <pubDate>Sun, 14 Aug 2022 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2022-08-14-ga-aco/ga-aco_files/figure-html5/unnamed-chunk-11-1.png" medium="image" type="image/png" width="1248" height="768"/>
+    </item>
     <item>
       <title>Leveraging a Large-Scale Educational Data Set with Educational Data Mining</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -189,18 +788,16 @@ Neighbor Embedding (tSNE) plot and a count plot.&lt;/li&gt;
 
 TSNE_result = tsne.fit_transform(X_extreme)
 
-plt.figure(figsize=(12,8))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1200x800 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="python"&gt;&lt;code&gt;sns.scatterplot(TSNE_result[:,0], TSNE_result[:,1], hue=y_extreme, legend=&amp;#39;full&amp;#39;, palette=&amp;quot;hls&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file366c53d3573_files/figure-html/unnamed-chunk-10-1.png" width="1152" /&gt;&lt;/p&gt;
+plt.figure(figsize=(12,8))
+sns.scatterplot(TSNE_result[:,0], TSNE_result[:,1], hue=y_extreme, legend=&amp;#39;full&amp;#39;, palette=&amp;quot;hls&amp;quot;)
+
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="../file25dc4a9b1d5a_files/figure-html/unnamed-chunk-10-1.png" width="1152" /&gt;&lt;/p&gt;
 &lt;pre class="python"&gt;&lt;code&gt;
 sns.set_theme(style=&amp;quot;darkgrid&amp;quot;)
-sns.countplot(x=&amp;quot;X4EVERDROP&amp;quot;, data = df)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:xlabel=&amp;#39;X4EVERDROP&amp;#39;, ylabel=&amp;#39;count&amp;#39;&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file366c53d3573_files/figure-html/unnamed-chunk-11-3.png" width="1152" /&gt;&lt;/p&gt;
+sns.countplot(x=&amp;quot;X4EVERDROP&amp;quot;, data = df)
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="../file25dc4a9b1d5a_files/figure-html/unnamed-chunk-11-3.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;In &lt;a href="https://taridwong.github.io/posts/2022-04-28-xai/"&gt;my
 previous post&lt;/a&gt;, I used the combination of Synthetic Minority
@@ -237,17 +834,15 @@ seen from the tSNE plot and the count plot below.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="python"&gt;&lt;code&gt;TSNE_result = tsne.fit_transform(X_hybrid_extreme)
 
-plt.figure(figsize=(12,8))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1200x800 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="python"&gt;&lt;code&gt;sns.scatterplot(TSNE_result[:,0], TSNE_result[:,1], hue=y_hybrid_extreme, legend=&amp;#39;full&amp;#39;, palette=&amp;quot;hls&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file366c53d3573_files/figure-html/unnamed-chunk-13-5.png" width="1152" /&gt;&lt;/p&gt;
+plt.figure(figsize=(12,8))
+sns.scatterplot(TSNE_result[:,0], TSNE_result[:,1], hue=y_hybrid_extreme, legend=&amp;#39;full&amp;#39;, palette=&amp;quot;hls&amp;quot;)
+
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="../file25dc4a9b1d5a_files/figure-html/unnamed-chunk-13-5.png" width="1152" /&gt;&lt;/p&gt;
 &lt;pre class="python"&gt;&lt;code&gt;sns.set_theme(style=&amp;quot;darkgrid&amp;quot;)
-sns.countplot(y_hybrid_extreme)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:xlabel=&amp;#39;X4EVERDROP&amp;#39;, ylabel=&amp;#39;count&amp;#39;&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file366c53d3573_files/figure-html/unnamed-chunk-14-7.png" width="1152" /&gt;&lt;/p&gt;
+sns.countplot(y_hybrid_extreme)
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="../file25dc4a9b1d5a_files/figure-html/unnamed-chunk-14-7.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Next, we will proceed to the classification stage. For many
 classification algorithms such as XGBoost or Random Forest, you need to
@@ -286,1654 +881,21 @@ Cat_random = RandomizedSearchCV(estimator = CBC,
 
 Cat_random.fit(X_train_hybrid_ext, y_train_hybrid_ext, cat_features = cat_features)
 &lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;0:  learn: 0.6798844    total: 43.6ms   remaining: 3.88s
-1:  learn: 0.6658710    total: 86.2ms   remaining: 3.79s
-2:  learn: 0.6523493    total: 147ms    remaining: 4.25s
-3:  learn: 0.6413995    total: 188ms    remaining: 4.04s
-4:  learn: 0.6278567    total: 235ms    remaining: 3.99s
-5:  learn: 0.6186284    total: 286ms    remaining: 4.01s
-6:  learn: 0.6089585    total: 333ms    remaining: 3.95s
-7:  learn: 0.5985513    total: 384ms    remaining: 3.94s
-8:  learn: 0.5884809    total: 463ms    remaining: 4.17s
-9:  learn: 0.5785280    total: 514ms    remaining: 4.11s
-10: learn: 0.5702242    total: 563ms    remaining: 4.05s
-11: learn: 0.5597852    total: 610ms    remaining: 3.97s
-12: learn: 0.5527543    total: 668ms    remaining: 3.96s
-13: learn: 0.5439965    total: 723ms    remaining: 3.92s
-14: learn: 0.5354271    total: 799ms    remaining: 3.99s
-15: learn: 0.5295986    total: 846ms    remaining: 3.91s
-16: learn: 0.5235632    total: 907ms    remaining: 3.9s
-17: learn: 0.5180815    total: 960ms    remaining: 3.84s
-18: learn: 0.5128125    total: 1.01s    remaining: 3.79s
-19: learn: 0.5060868    total: 1.06s    remaining: 3.72s
-20: learn: 0.5001726    total: 1.12s    remaining: 3.67s
-21: learn: 0.4957502    total: 1.17s    remaining: 3.62s
-22: learn: 0.4914979    total: 1.22s    remaining: 3.56s
-23: learn: 0.4883335    total: 1.27s    remaining: 3.5s
-24: learn: 0.4843515    total: 1.33s    remaining: 3.45s
-25: learn: 0.4806735    total: 1.38s    remaining: 3.39s
-26: learn: 0.4774183    total: 1.46s    remaining: 3.4s
-27: learn: 0.4752628    total: 1.5s remaining: 3.33s
-28: learn: 0.4723224    total: 1.57s    remaining: 3.31s
-29: learn: 0.4696826    total: 1.62s    remaining: 3.24s
-30: learn: 0.4639752    total: 1.67s    remaining: 3.18s
-31: learn: 0.4616352    total: 1.72s    remaining: 3.12s
-32: learn: 0.4574664    total: 1.78s    remaining: 3.07s
-33: learn: 0.4550142    total: 1.83s    remaining: 3.01s
-34: learn: 0.4517165    total: 1.88s    remaining: 2.96s
-35: learn: 0.4482490    total: 1.93s    remaining: 2.9s
-36: learn: 0.4452413    total: 1.99s    remaining: 2.85s
-37: learn: 0.4427028    total: 2.04s    remaining: 2.79s
-38: learn: 0.4398182    total: 2.14s    remaining: 2.8s
-39: learn: 0.4386967    total: 2.17s    remaining: 2.71s
-40: learn: 0.4366265    total: 2.23s    remaining: 2.67s
-41: learn: 0.4340851    total: 2.28s    remaining: 2.61s
-42: learn: 0.4319768    total: 2.34s    remaining: 2.56s
-43: learn: 0.4300976    total: 2.39s    remaining: 2.5s
-44: learn: 0.4285674    total: 2.45s    remaining: 2.45s
-45: learn: 0.4265530    total: 2.52s    remaining: 2.4s
-46: learn: 0.4245068    total: 2.57s    remaining: 2.35s
-47: learn: 0.4223266    total: 2.62s    remaining: 2.29s
-48: learn: 0.4206147    total: 2.68s    remaining: 2.24s
-49: learn: 0.4184022    total: 2.74s    remaining: 2.19s
-50: learn: 0.4170437    total: 2.8s remaining: 2.14s
-51: learn: 0.4149012    total: 2.87s    remaining: 2.09s
-52: learn: 0.4137503    total: 2.92s    remaining: 2.04s
-53: learn: 0.4117136    total: 2.97s    remaining: 1.98s
-54: learn: 0.4089305    total: 3.03s    remaining: 1.93s
-55: learn: 0.4066496    total: 3.08s    remaining: 1.87s
-56: learn: 0.4057898    total: 3.15s    remaining: 1.82s
-57: learn: 0.4046035    total: 3.2s remaining: 1.77s
-58: learn: 0.4035047    total: 3.26s    remaining: 1.71s
-59: learn: 0.4021765    total: 3.31s    remaining: 1.66s
-60: learn: 0.3990097    total: 3.4s remaining: 1.62s
-61: learn: 0.3980288    total: 3.46s    remaining: 1.56s
-62: learn: 0.3964750    total: 3.51s    remaining: 1.5s
-63: learn: 0.3954893    total: 3.56s    remaining: 1.45s
-64: learn: 0.3943143    total: 3.63s    remaining: 1.4s
-65: learn: 0.3918841    total: 3.68s    remaining: 1.34s
-66: learn: 0.3899150    total: 3.74s    remaining: 1.28s
-67: learn: 0.3890711    total: 3.79s    remaining: 1.23s
-68: learn: 0.3881179    total: 3.85s    remaining: 1.17s
-69: learn: 0.3868025    total: 3.91s    remaining: 1.12s
-70: learn: 0.3850559    total: 3.99s    remaining: 1.07s
-71: learn: 0.3841090    total: 4.04s    remaining: 1.01s
-72: learn: 0.3832880    total: 4.11s    remaining: 957ms
-73: learn: 0.3819060    total: 4.16s    remaining: 901ms
-74: learn: 0.3811645    total: 4.22s    remaining: 843ms
-75: learn: 0.3792427    total: 4.27s    remaining: 786ms
-76: learn: 0.3789477    total: 4.3s remaining: 726ms
-77: learn: 0.3771891    total: 4.35s    remaining: 669ms
-78: learn: 0.3749524    total: 4.4s remaining: 613ms
-79: learn: 0.3734599    total: 4.47s    remaining: 558ms
-80: learn: 0.3727318    total: 4.52s    remaining: 503ms
-81: learn: 0.3711936    total: 4.58s    remaining: 447ms
-82: learn: 0.3704078    total: 4.64s    remaining: 392ms
-83: learn: 0.3697014    total: 4.7s remaining: 336ms
-84: learn: 0.3688939    total: 4.76s    remaining: 280ms
-85: learn: 0.3681721    total: 4.82s    remaining: 224ms
-86: learn: 0.3675191    total: 4.87s    remaining: 168ms
-87: learn: 0.3667829    total: 4.96s    remaining: 113ms
-88: learn: 0.3661064    total: 5.01s    remaining: 56.3ms
-89: learn: 0.3654935    total: 5.07s    remaining: 0us
-0:  learn: 0.6789438    total: 47.8ms   remaining: 4.25s
-1:  learn: 0.6622984    total: 100ms    remaining: 4.41s
-2:  learn: 0.6528820    total: 162ms    remaining: 4.71s
-3:  learn: 0.6378865    total: 217ms    remaining: 4.67s
-4:  learn: 0.6248902    total: 271ms    remaining: 4.6s
-5:  learn: 0.6143424    total: 327ms    remaining: 4.58s
-6:  learn: 0.6051266    total: 385ms    remaining: 4.56s
-7:  learn: 0.5963677    total: 435ms    remaining: 4.46s
-8:  learn: 0.5878444    total: 491ms    remaining: 4.41s
-9:  learn: 0.5791189    total: 543ms    remaining: 4.34s
-10: learn: 0.5699589    total: 601ms    remaining: 4.31s
-11: learn: 0.5631775    total: 658ms    remaining: 4.27s
-12: learn: 0.5549372    total: 710ms    remaining: 4.21s
-13: learn: 0.5489560    total: 763ms    remaining: 4.14s
-14: learn: 0.5398350    total: 826ms    remaining: 4.13s
-15: learn: 0.5335363    total: 885ms    remaining: 4.09s
-16: learn: 0.5286711    total: 943ms    remaining: 4.05s
-17: learn: 0.5248677    total: 998ms    remaining: 3.99s
-18: learn: 0.5208806    total: 1.07s    remaining: 4s
-19: learn: 0.5137198    total: 1.13s    remaining: 3.96s
-20: learn: 0.5089934    total: 1.19s    remaining: 3.93s
-21: learn: 0.5041599    total: 1.25s    remaining: 3.87s
-22: learn: 0.4994555    total: 1.3s remaining: 3.8s
-23: learn: 0.4933377    total: 1.36s    remaining: 3.74s
-24: learn: 0.4888624    total: 1.42s    remaining: 3.7s
-25: learn: 0.4848647    total: 1.49s    remaining: 3.66s
-26: learn: 0.4806195    total: 1.56s    remaining: 3.65s
-27: learn: 0.4782823    total: 1.62s    remaining: 3.58s
-28: learn: 0.4737880    total: 1.68s    remaining: 3.53s
-29: learn: 0.4716028    total: 1.74s    remaining: 3.47s
-30: learn: 0.4665243    total: 1.8s remaining: 3.43s
-31: learn: 0.4640058    total: 1.86s    remaining: 3.37s
-32: learn: 0.4596530    total: 1.91s    remaining: 3.3s
-33: learn: 0.4570517    total: 1.96s    remaining: 3.23s
-34: learn: 0.4538448    total: 2.03s    remaining: 3.19s
-35: learn: 0.4518482    total: 2.07s    remaining: 3.1s
-36: learn: 0.4473907    total: 2.12s    remaining: 3.04s
-37: learn: 0.4444594    total: 2.19s    remaining: 3s
-38: learn: 0.4429416    total: 2.25s    remaining: 2.94s
-39: learn: 0.4405574    total: 2.3s remaining: 2.88s
-40: learn: 0.4384978    total: 2.36s    remaining: 2.82s
-41: learn: 0.4357888    total: 2.41s    remaining: 2.75s
-42: learn: 0.4333328    total: 2.47s    remaining: 2.7s
-43: learn: 0.4311137    total: 2.52s    remaining: 2.64s
-44: learn: 0.4287708    total: 2.58s    remaining: 2.58s
-45: learn: 0.4263805    total: 2.64s    remaining: 2.52s
-46: learn: 0.4243778    total: 2.72s    remaining: 2.49s
-47: learn: 0.4226912    total: 2.77s    remaining: 2.42s
-48: learn: 0.4201662    total: 2.83s    remaining: 2.37s
-49: learn: 0.4183090    total: 2.88s    remaining: 2.31s
-50: learn: 0.4161610    total: 2.94s    remaining: 2.25s
-51: learn: 0.4148893    total: 3s   remaining: 2.19s
-52: learn: 0.4128819    total: 3.07s    remaining: 2.14s
-53: learn: 0.4114953    total: 3.13s    remaining: 2.09s
-54: learn: 0.4101021    total: 3.2s remaining: 2.04s
-55: learn: 0.4088186    total: 3.25s    remaining: 1.97s
-56: learn: 0.4075637    total: 3.33s    remaining: 1.93s
-57: learn: 0.4053970    total: 3.39s    remaining: 1.87s
-58: learn: 0.4030154    total: 3.45s    remaining: 1.81s
-59: learn: 0.4017849    total: 3.5s remaining: 1.75s
-60: learn: 0.3997640    total: 3.59s    remaining: 1.7s
-61: learn: 0.3975432    total: 3.64s    remaining: 1.65s
-62: learn: 0.3954974    total: 3.71s    remaining: 1.59s
-63: learn: 0.3942386    total: 3.75s    remaining: 1.52s
-64: learn: 0.3935385    total: 3.81s    remaining: 1.47s
-65: learn: 0.3914313    total: 3.86s    remaining: 1.41s
-66: learn: 0.3905388    total: 3.92s    remaining: 1.34s
-67: learn: 0.3896347    total: 3.97s    remaining: 1.28s
-68: learn: 0.3882451    total: 4.02s    remaining: 1.22s
-69: learn: 0.3871845    total: 4.09s    remaining: 1.17s
-70: learn: 0.3863762    total: 4.15s    remaining: 1.11s
-71: learn: 0.3847478    total: 4.2s remaining: 1.05s
-72: learn: 0.3837932    total: 4.26s    remaining: 993ms
-73: learn: 0.3830264    total: 4.32s    remaining: 934ms
-74: learn: 0.3813505    total: 4.36s    remaining: 871ms
-75: learn: 0.3805847    total: 4.41s    remaining: 813ms
-76: learn: 0.3779104    total: 4.47s    remaining: 755ms
-77: learn: 0.3762739    total: 4.52s    remaining: 696ms
-78: learn: 0.3740235    total: 4.58s    remaining: 638ms
-79: learn: 0.3727875    total: 4.63s    remaining: 579ms
-80: learn: 0.3719730    total: 4.7s remaining: 522ms
-81: learn: 0.3711517    total: 4.75s    remaining: 464ms
-82: learn: 0.3700075    total: 4.8s remaining: 405ms
-83: learn: 0.3683987    total: 4.87s    remaining: 348ms
-84: learn: 0.3678371    total: 5.05s    remaining: 297ms
-85: learn: 0.3671215    total: 5.13s    remaining: 238ms
-86: learn: 0.3653367    total: 5.19s    remaining: 179ms
-87: learn: 0.3636935    total: 5.29s    remaining: 120ms
-88: learn: 0.3624679    total: 5.34s    remaining: 60ms
-89: learn: 0.3618877    total: 5.43s    remaining: 0us
-0:  learn: 0.6741178    total: 52.8ms   remaining: 4.7s
-1:  learn: 0.6620692    total: 105ms    remaining: 4.6s
-2:  learn: 0.6501160    total: 156ms    remaining: 4.52s
-3:  learn: 0.6358792    total: 206ms    remaining: 4.43s
-4:  learn: 0.6235486    total: 257ms    remaining: 4.37s
-5:  learn: 0.6116855    total: 310ms    remaining: 4.34s
-6:  learn: 0.6019227    total: 394ms    remaining: 4.67s
-7:  learn: 0.5939390    total: 446ms    remaining: 4.57s
-8:  learn: 0.5860754    total: 510ms    remaining: 4.59s
-9:  learn: 0.5749311    total: 568ms    remaining: 4.54s
-10: learn: 0.5670579    total: 622ms    remaining: 4.47s
-11: learn: 0.5601169    total: 674ms    remaining: 4.38s
-12: learn: 0.5547385    total: 756ms    remaining: 4.47s
-13: learn: 0.5484639    total: 810ms    remaining: 4.4s
-14: learn: 0.5433616    total: 868ms    remaining: 4.34s
-15: learn: 0.5375490    total: 917ms    remaining: 4.24s
-16: learn: 0.5315263    total: 972ms    remaining: 4.17s
-17: learn: 0.5271360    total: 1.03s    remaining: 4.11s
-18: learn: 0.5221979    total: 1.09s    remaining: 4.07s
-19: learn: 0.5140389    total: 1.14s    remaining: 3.99s
-20: learn: 0.5081484    total: 1.22s    remaining: 4s
-21: learn: 0.5036802    total: 1.27s    remaining: 3.93s
-22: learn: 0.4989852    total: 1.33s    remaining: 3.86s
-23: learn: 0.4962544    total: 1.38s    remaining: 3.78s
-24: learn: 0.4924226    total: 1.43s    remaining: 3.73s
-25: learn: 0.4884310    total: 1.49s    remaining: 3.67s
-26: learn: 0.4856478    total: 1.56s    remaining: 3.65s
-27: learn: 0.4822786    total: 1.62s    remaining: 3.59s
-28: learn: 0.4766774    total: 1.69s    remaining: 3.54s
-29: learn: 0.4737081    total: 1.74s    remaining: 3.48s
-30: learn: 0.4712776    total: 1.81s    remaining: 3.44s
-31: learn: 0.4675332    total: 1.88s    remaining: 3.4s
-32: learn: 0.4643978    total: 1.95s    remaining: 3.36s
-33: learn: 0.4613327    total: 2s   remaining: 3.29s
-34: learn: 0.4571739    total: 2.06s    remaining: 3.23s
-35: learn: 0.4542738    total: 2.11s    remaining: 3.16s
-36: learn: 0.4517763    total: 2.17s    remaining: 3.1s
-37: learn: 0.4492796    total: 2.23s    remaining: 3.04s
-38: learn: 0.4465959    total: 2.29s    remaining: 3s
-39: learn: 0.4429619    total: 2.35s    remaining: 2.94s
-40: learn: 0.4405566    total: 2.4s remaining: 2.87s
-41: learn: 0.4380638    total: 2.46s    remaining: 2.82s
-42: learn: 0.4337473    total: 2.53s    remaining: 2.77s
-43: learn: 0.4301822    total: 2.59s    remaining: 2.71s
-44: learn: 0.4279891    total: 2.66s    remaining: 2.66s
-45: learn: 0.4266312    total: 2.72s    remaining: 2.6s
-46: learn: 0.4246471    total: 2.78s    remaining: 2.54s
-47: learn: 0.4225972    total: 2.84s    remaining: 2.48s
-48: learn: 0.4210475    total: 2.91s    remaining: 2.43s
-49: learn: 0.4192105    total: 2.97s    remaining: 2.38s
-50: learn: 0.4180917    total: 3.04s    remaining: 2.33s
-51: learn: 0.4162651    total: 3.11s    remaining: 2.27s
-52: learn: 0.4145738    total: 3.17s    remaining: 2.21s
-53: learn: 0.4135470    total: 3.23s    remaining: 2.15s
-54: learn: 0.4113829    total: 3.29s    remaining: 2.09s
-55: learn: 0.4083366    total: 3.35s    remaining: 2.04s
-56: learn: 0.4071852    total: 3.42s    remaining: 1.98s
-57: learn: 0.4060343    total: 3.49s    remaining: 1.92s
-58: learn: 0.4049222    total: 3.56s    remaining: 1.87s
-59: learn: 0.4015865    total: 3.62s    remaining: 1.81s
-60: learn: 0.4005098    total: 3.69s    remaining: 1.75s
-61: learn: 0.3994448    total: 3.76s    remaining: 1.7s
-62: learn: 0.3982600    total: 3.85s    remaining: 1.65s
-63: learn: 0.3967756    total: 3.9s remaining: 1.58s
-64: learn: 0.3956166    total: 3.97s    remaining: 1.52s
-65: learn: 0.3932374    total: 4.03s    remaining: 1.46s
-66: learn: 0.3920478    total: 4.09s    remaining: 1.4s
-67: learn: 0.3910069    total: 4.15s    remaining: 1.34s
-68: learn: 0.3888444    total: 4.21s    remaining: 1.28s
-69: learn: 0.3876487    total: 4.26s    remaining: 1.22s
-70: learn: 0.3867444    total: 4.33s    remaining: 1.16s
-71: learn: 0.3858815    total: 4.39s    remaining: 1.1s
-72: learn: 0.3849503    total: 4.45s    remaining: 1.04s
-73: learn: 0.3840737    total: 4.5s remaining: 974ms
-74: learn: 0.3833085    total: 4.57s    remaining: 913ms
-75: learn: 0.3824363    total: 4.62s    remaining: 851ms
-76: learn: 0.3801746    total: 4.68s    remaining: 790ms
-77: learn: 0.3787439    total: 4.73s    remaining: 728ms
-78: learn: 0.3780631    total: 4.79s    remaining: 667ms
-79: learn: 0.3770939    total: 4.84s    remaining: 605ms
-80: learn: 0.3760120    total: 4.9s remaining: 545ms
-81: learn: 0.3747921    total: 4.95s    remaining: 483ms
-82: learn: 0.3736694    total: 5.01s    remaining: 422ms
-83: learn: 0.3723968    total: 5.06s    remaining: 361ms
-84: learn: 0.3716942    total: 5.12s    remaining: 301ms
-85: learn: 0.3707126    total: 5.17s    remaining: 240ms
-86: learn: 0.3696831    total: 5.22s    remaining: 180ms
-87: learn: 0.3690034    total: 5.28s    remaining: 120ms
-88: learn: 0.3672579    total: 5.33s    remaining: 60ms
-89: learn: 0.3657457    total: 5.39s    remaining: 0us
-0:  learn: 0.6891827    total: 42.1ms   remaining: 2.48s
-1:  learn: 0.6832416    total: 88.4ms   remaining: 2.56s
-2:  learn: 0.6799339    total: 135ms    remaining: 2.56s
-3:  learn: 0.6753852    total: 178ms    remaining: 2.5s
-4:  learn: 0.6713542    total: 230ms    remaining: 2.53s
-5:  learn: 0.6680221    total: 276ms    remaining: 2.48s
-6:  learn: 0.6643313    total: 322ms    remaining: 2.43s
-7:  learn: 0.6603958    total: 372ms    remaining: 2.42s
-8:  learn: 0.6566409    total: 421ms    remaining: 2.39s
-9:  learn: 0.6523928    total: 467ms    remaining: 2.33s
-10: learn: 0.6490019    total: 516ms    remaining: 2.3s
-11: learn: 0.6450495    total: 561ms    remaining: 2.24s
-12: learn: 0.6418979    total: 620ms    remaining: 2.24s
-13: learn: 0.6369726    total: 668ms    remaining: 2.2s
-14: learn: 0.6337408    total: 718ms    remaining: 2.15s
-15: learn: 0.6291213    total: 761ms    remaining: 2.09s
-16: learn: 0.6253233    total: 808ms    remaining: 2.04s
-17: learn: 0.6216481    total: 851ms    remaining: 1.99s
-18: learn: 0.6185586    total: 916ms    remaining: 1.98s
-19: learn: 0.6146644    total: 961ms    remaining: 1.92s
-20: learn: 0.6117712    total: 1.02s    remaining: 1.9s
-21: learn: 0.6085535    total: 1.07s    remaining: 1.85s
-22: learn: 0.6063618    total: 1.12s    remaining: 1.79s
-23: learn: 0.6033707    total: 1.16s    remaining: 1.73s
-24: learn: 0.6011590    total: 1.2s remaining: 1.68s
-25: learn: 0.5980825    total: 1.25s    remaining: 1.63s
-26: learn: 0.5952362    total: 1.3s remaining: 1.58s
-27: learn: 0.5926361    total: 1.34s    remaining: 1.53s
-28: learn: 0.5898130    total: 1.39s    remaining: 1.49s
-29: learn: 0.5862358    total: 1.44s    remaining: 1.44s
-30: learn: 0.5826405    total: 1.53s    remaining: 1.43s
-31: learn: 0.5799910    total: 1.57s    remaining: 1.38s
-32: learn: 0.5773621    total: 1.62s    remaining: 1.33s
-33: learn: 0.5753155    total: 1.67s    remaining: 1.27s
-34: learn: 0.5721495    total: 1.73s    remaining: 1.23s
-35: learn: 0.5699541    total: 1.77s    remaining: 1.18s
-36: learn: 0.5683134    total: 1.82s    remaining: 1.13s
-37: learn: 0.5662259    total: 1.86s    remaining: 1.08s
-38: learn: 0.5631273    total: 1.92s    remaining: 1.03s
-39: learn: 0.5611466    total: 1.97s    remaining: 985ms
-40: learn: 0.5585133    total: 2.02s    remaining: 935ms
-41: learn: 0.5561262    total: 2.07s    remaining: 888ms
-42: learn: 0.5540212    total: 2.12s    remaining: 836ms
-43: learn: 0.5520581    total: 2.17s    remaining: 790ms
-44: learn: 0.5496373    total: 2.23s    remaining: 742ms
-45: learn: 0.5469572    total: 2.27s    remaining: 691ms
-46: learn: 0.5449205    total: 2.31s    remaining: 640ms
-47: learn: 0.5422714    total: 2.36s    remaining: 590ms
-48: learn: 0.5392169    total: 2.41s    remaining: 541ms
-49: learn: 0.5373144    total: 2.46s    remaining: 491ms
-50: learn: 0.5356060    total: 2.5s remaining: 441ms
-51: learn: 0.5343717    total: 2.56s    remaining: 393ms
-52: learn: 0.5328772    total: 2.6s remaining: 344ms
-53: learn: 0.5313314    total: 2.64s    remaining: 294ms
-54: learn: 0.5290473    total: 2.69s    remaining: 244ms
-55: learn: 0.5278621    total: 2.74s    remaining: 195ms
-56: learn: 0.5266591    total: 2.78s    remaining: 146ms
-57: learn: 0.5248089    total: 2.84s    remaining: 97.9ms
-58: learn: 0.5229226    total: 2.9s remaining: 49.1ms
-59: learn: 0.5211238    total: 2.94s    remaining: 0us
-0:  learn: 0.6883565    total: 41.9ms   remaining: 2.47s
-1:  learn: 0.6836626    total: 85.6ms   remaining: 2.48s
-2:  learn: 0.6803896    total: 127ms    remaining: 2.4s
-3:  learn: 0.6767302    total: 171ms    remaining: 2.4s
-4:  learn: 0.6723705    total: 238ms    remaining: 2.62s
-5:  learn: 0.6683962    total: 283ms    remaining: 2.55s
-6:  learn: 0.6641959    total: 327ms    remaining: 2.48s
-7:  learn: 0.6606501    total: 383ms    remaining: 2.49s
-8:  learn: 0.6578427    total: 426ms    remaining: 2.41s
-9:  learn: 0.6533980    total: 479ms    remaining: 2.4s
-10: learn: 0.6498456    total: 529ms    remaining: 2.35s
-11: learn: 0.6461800    total: 570ms    remaining: 2.28s
-12: learn: 0.6429715    total: 625ms    remaining: 2.26s
-13: learn: 0.6392294    total: 673ms    remaining: 2.21s
-14: learn: 0.6347095    total: 722ms    remaining: 2.17s
-15: learn: 0.6312490    total: 770ms    remaining: 2.12s
-16: learn: 0.6289288    total: 821ms    remaining: 2.08s
-17: learn: 0.6250441    total: 864ms    remaining: 2.02s
-18: learn: 0.6216653    total: 919ms    remaining: 1.98s
-19: learn: 0.6193114    total: 971ms    remaining: 1.94s
-20: learn: 0.6160372    total: 1.02s    remaining: 1.89s
-21: learn: 0.6129786    total: 1.07s    remaining: 1.84s
-22: learn: 0.6098641    total: 1.11s    remaining: 1.79s
-23: learn: 0.6060756    total: 1.16s    remaining: 1.74s
-24: learn: 0.6032837    total: 1.21s    remaining: 1.69s
-25: learn: 0.6006062    total: 1.25s    remaining: 1.64s
-26: learn: 0.5963792    total: 1.3s remaining: 1.59s
-27: learn: 0.5935965    total: 1.35s    remaining: 1.54s
-28: learn: 0.5911082    total: 1.43s    remaining: 1.52s
-29: learn: 0.5884068    total: 1.47s    remaining: 1.47s
-30: learn: 0.5855242    total: 1.52s    remaining: 1.42s
-31: learn: 0.5836715    total: 1.56s    remaining: 1.37s
-32: learn: 0.5807843    total: 1.64s    remaining: 1.34s
-33: learn: 0.5787853    total: 1.68s    remaining: 1.28s
-34: learn: 0.5749655    total: 1.73s    remaining: 1.24s
-35: learn: 0.5725083    total: 1.77s    remaining: 1.18s
-36: learn: 0.5706425    total: 1.82s    remaining: 1.13s
-37: learn: 0.5684386    total: 1.87s    remaining: 1.08s
-38: learn: 0.5663417    total: 1.91s    remaining: 1.03s
-39: learn: 0.5633125    total: 1.95s    remaining: 977ms
-40: learn: 0.5611171    total: 2s   remaining: 928ms
-41: learn: 0.5586256    total: 2.04s    remaining: 876ms
-42: learn: 0.5561923    total: 2.09s    remaining: 827ms
-43: learn: 0.5542360    total: 2.13s    remaining: 776ms
-44: learn: 0.5521751    total: 2.18s    remaining: 726ms
-45: learn: 0.5504413    total: 2.22s    remaining: 676ms
-46: learn: 0.5488480    total: 2.27s    remaining: 627ms
-47: learn: 0.5472914    total: 2.31s    remaining: 579ms
-48: learn: 0.5452874    total: 2.36s    remaining: 530ms
-49: learn: 0.5436439    total: 2.41s    remaining: 481ms
-50: learn: 0.5411503    total: 2.48s    remaining: 437ms
-51: learn: 0.5383509    total: 2.52s    remaining: 388ms
-52: learn: 0.5366184    total: 2.57s    remaining: 339ms
-53: learn: 0.5343908    total: 2.61s    remaining: 290ms
-54: learn: 0.5330084    total: 2.65s    remaining: 241ms
-55: learn: 0.5317342    total: 2.71s    remaining: 194ms
-56: learn: 0.5304471    total: 2.79s    remaining: 147ms
-57: learn: 0.5288729    total: 2.84s    remaining: 97.8ms
-58: learn: 0.5273035    total: 2.88s    remaining: 48.8ms
-59: learn: 0.5255895    total: 2.93s    remaining: 0us
-0:  learn: 0.6882838    total: 59.7ms   remaining: 3.52s
-1:  learn: 0.6832112    total: 108ms    remaining: 3.13s
-2:  learn: 0.6799919    total: 187ms    remaining: 3.54s
-3:  learn: 0.6771048    total: 229ms    remaining: 3.2s
-4:  learn: 0.6738181    total: 281ms    remaining: 3.09s
-5:  learn: 0.6707208    total: 336ms    remaining: 3.02s
-6:  learn: 0.6679867    total: 405ms    remaining: 3.07s
-7:  learn: 0.6654101    total: 466ms    remaining: 3.03s
-8:  learn: 0.6621987    total: 520ms    remaining: 2.95s
-9:  learn: 0.6580098    total: 572ms    remaining: 2.86s
-10: learn: 0.6546495    total: 634ms    remaining: 2.83s
-11: learn: 0.6513982    total: 686ms    remaining: 2.74s
-12: learn: 0.6474299    total: 746ms    remaining: 2.7s
-13: learn: 0.6446765    total: 798ms    remaining: 2.62s
-14: learn: 0.6409242    total: 864ms    remaining: 2.59s
-15: learn: 0.6362265    total: 916ms    remaining: 2.52s
-16: learn: 0.6332374    total: 964ms    remaining: 2.44s
-17: learn: 0.6290921    total: 1.01s    remaining: 2.36s
-18: learn: 0.6258450    total: 1.06s    remaining: 2.29s
-19: learn: 0.6214934    total: 1.1s remaining: 2.2s
-20: learn: 0.6191940    total: 1.15s    remaining: 2.13s
-21: learn: 0.6147269    total: 1.2s remaining: 2.06s
-22: learn: 0.6121340    total: 1.24s    remaining: 2s
-23: learn: 0.6088729    total: 1.28s    remaining: 1.93s
-24: learn: 0.6060512    total: 1.35s    remaining: 1.89s
-25: learn: 0.6030904    total: 1.39s    remaining: 1.82s
-26: learn: 0.6007806    total: 1.44s    remaining: 1.76s
-27: learn: 0.5986268    total: 1.48s    remaining: 1.7s
-28: learn: 0.5959227    total: 1.53s    remaining: 1.63s
-29: learn: 0.5929901    total: 1.57s    remaining: 1.57s
-30: learn: 0.5910613    total: 1.62s    remaining: 1.51s
-31: learn: 0.5886354    total: 1.67s    remaining: 1.46s
-32: learn: 0.5849181    total: 1.71s    remaining: 1.4s
-33: learn: 0.5823567    total: 1.76s    remaining: 1.34s
-34: learn: 0.5802187    total: 1.81s    remaining: 1.29s
-35: learn: 0.5780069    total: 1.85s    remaining: 1.23s
-36: learn: 0.5753076    total: 1.9s remaining: 1.18s
-37: learn: 0.5719202    total: 1.95s    remaining: 1.13s
-38: learn: 0.5696997    total: 2s   remaining: 1.07s
-39: learn: 0.5672249    total: 2.04s    remaining: 1.02s
-40: learn: 0.5640378    total: 2.09s    remaining: 968ms
-41: learn: 0.5617436    total: 2.13s    remaining: 914ms
-42: learn: 0.5594742    total: 2.18s    remaining: 863ms
-43: learn: 0.5568258    total: 2.23s    remaining: 810ms
-44: learn: 0.5541508    total: 2.27s    remaining: 758ms
-45: learn: 0.5516927    total: 2.32s    remaining: 706ms
-46: learn: 0.5494778    total: 2.38s    remaining: 658ms
-47: learn: 0.5465194    total: 2.42s    remaining: 606ms
-48: learn: 0.5445204    total: 2.47s    remaining: 554ms
-49: learn: 0.5424344    total: 2.51s    remaining: 503ms
-50: learn: 0.5407045    total: 2.56s    remaining: 453ms
-51: learn: 0.5380486    total: 2.61s    remaining: 401ms
-52: learn: 0.5352292    total: 2.66s    remaining: 351ms
-53: learn: 0.5333757    total: 2.7s remaining: 300ms
-54: learn: 0.5322769    total: 2.75s    remaining: 250ms
-55: learn: 0.5305465    total: 2.79s    remaining: 199ms
-56: learn: 0.5291379    total: 2.84s    remaining: 149ms
-57: learn: 0.5275452    total: 2.88s    remaining: 99.3ms
-58: learn: 0.5256782    total: 2.93s    remaining: 49.6ms
-59: learn: 0.5239801    total: 2.97s    remaining: 0us
-0:  learn: 0.6780674    total: 36.5ms   remaining: 3.61s
-1:  learn: 0.6656423    total: 72.2ms   remaining: 3.54s
-2:  learn: 0.6499618    total: 109ms    remaining: 3.54s
-3:  learn: 0.6394232    total: 144ms    remaining: 3.45s
-4:  learn: 0.6275185    total: 192ms    remaining: 3.64s
-5:  learn: 0.6156624    total: 232ms    remaining: 3.63s
-6:  learn: 0.6007392    total: 271ms    remaining: 3.6s
-7:  learn: 0.5896390    total: 332ms    remaining: 3.82s
-8:  learn: 0.5800070    total: 376ms    remaining: 3.8s
-9:  learn: 0.5667137    total: 415ms    remaining: 3.73s
-10: learn: 0.5561906    total: 460ms    remaining: 3.72s
-11: learn: 0.5475448    total: 524ms    remaining: 3.84s
-12: learn: 0.5399063    total: 582ms    remaining: 3.89s
-13: learn: 0.5328563    total: 659ms    remaining: 4.05s
-14: learn: 0.5269186    total: 698ms    remaining: 3.96s
-15: learn: 0.5229059    total: 751ms    remaining: 3.94s
-16: learn: 0.5166568    total: 793ms    remaining: 3.87s
-17: learn: 0.5116476    total: 835ms    remaining: 3.8s
-18: learn: 0.5060172    total: 877ms    remaining: 3.74s
-19: learn: 0.5000798    total: 918ms    remaining: 3.67s
-20: learn: 0.4957177    total: 973ms    remaining: 3.66s
-21: learn: 0.4912718    total: 1.01s    remaining: 3.59s
-22: learn: 0.4876625    total: 1.05s    remaining: 3.53s
-23: learn: 0.4845066    total: 1.09s    remaining: 3.45s
-24: learn: 0.4792528    total: 1.13s    remaining: 3.39s
-25: learn: 0.4743935    total: 1.17s    remaining: 3.33s
-26: learn: 0.4718634    total: 1.22s    remaining: 3.31s
-27: learn: 0.4674427    total: 1.31s    remaining: 3.36s
-28: learn: 0.4652127    total: 1.36s    remaining: 3.33s
-29: learn: 0.4634977    total: 1.4s remaining: 3.27s
-30: learn: 0.4610593    total: 1.45s    remaining: 3.23s
-31: learn: 0.4590537    total: 1.49s    remaining: 3.16s
-32: learn: 0.4573011    total: 1.53s    remaining: 3.1s
-33: learn: 0.4546308    total: 1.59s    remaining: 3.08s
-34: learn: 0.4517896    total: 1.62s    remaining: 3.01s
-35: learn: 0.4480228    total: 1.66s    remaining: 2.96s
-36: learn: 0.4462477    total: 1.7s remaining: 2.89s
-37: learn: 0.4434832    total: 1.77s    remaining: 2.89s
-38: learn: 0.4409929    total: 1.82s    remaining: 2.84s
-39: learn: 0.4374450    total: 1.86s    remaining: 2.79s
-40: learn: 0.4350297    total: 1.9s remaining: 2.73s
-41: learn: 0.4329302    total: 1.94s    remaining: 2.68s
-42: learn: 0.4297999    total: 2.02s    remaining: 2.68s
-43: learn: 0.4281784    total: 2.06s    remaining: 2.62s
-44: learn: 0.4271110    total: 2.1s remaining: 2.57s
-45: learn: 0.4259213    total: 2.19s    remaining: 2.57s
-46: learn: 0.4248926    total: 2.22s    remaining: 2.5s
-47: learn: 0.4224029    total: 2.26s    remaining: 2.45s
-48: learn: 0.4210638    total: 2.3s remaining: 2.39s
-49: learn: 0.4198819    total: 2.34s    remaining: 2.34s
-50: learn: 0.4189043    total: 2.37s    remaining: 2.28s
-51: learn: 0.4179394    total: 2.41s    remaining: 2.23s
-52: learn: 0.4145549    total: 2.45s    remaining: 2.17s
-53: learn: 0.4116847    total: 2.49s    remaining: 2.12s
-54: learn: 0.4107215    total: 2.53s    remaining: 2.07s
-55: learn: 0.4084986    total: 2.57s    remaining: 2.02s
-56: learn: 0.4067278    total: 2.61s    remaining: 1.97s
-57: learn: 0.4058478    total: 2.67s    remaining: 1.93s
-58: learn: 0.4050000    total: 2.73s    remaining: 1.89s
-59: learn: 0.4039232    total: 2.77s    remaining: 1.85s
-60: learn: 0.4032417    total: 2.8s remaining: 1.79s
-61: learn: 0.4025092    total: 2.85s    remaining: 1.75s
-62: learn: 0.4019447    total: 2.92s    remaining: 1.71s
-63: learn: 0.3978013    total: 2.97s    remaining: 1.67s
-64: learn: 0.3971572    total: 3.03s    remaining: 1.63s
-65: learn: 0.3952749    total: 3.07s    remaining: 1.58s
-66: learn: 0.3943706    total: 3.11s    remaining: 1.53s
-67: learn: 0.3935298    total: 3.15s    remaining: 1.48s
-68: learn: 0.3928379    total: 3.18s    remaining: 1.43s
-69: learn: 0.3922042    total: 3.22s    remaining: 1.38s
-70: learn: 0.3915744    total: 3.25s    remaining: 1.33s
-71: learn: 0.3909309    total: 3.29s    remaining: 1.28s
-72: learn: 0.3902807    total: 3.33s    remaining: 1.23s
-73: learn: 0.3897191    total: 3.37s    remaining: 1.18s
-74: learn: 0.3870658    total: 3.4s remaining: 1.14s
-75: learn: 0.3854908    total: 3.44s    remaining: 1.09s
-76: learn: 0.3849864    total: 3.49s    remaining: 1.04s
-77: learn: 0.3843592    total: 3.54s    remaining: 1000ms
-78: learn: 0.3837757    total: 3.59s    remaining: 954ms
-79: learn: 0.3834153    total: 3.63s    remaining: 907ms
-80: learn: 0.3820647    total: 3.67s    remaining: 860ms
-81: learn: 0.3815409    total: 3.73s    remaining: 819ms
-82: learn: 0.3809143    total: 3.77s    remaining: 771ms
-83: learn: 0.3804150    total: 3.81s    remaining: 725ms
-84: learn: 0.3783076    total: 3.84s    remaining: 678ms
-85: learn: 0.3777422    total: 3.89s    remaining: 633ms
-86: learn: 0.3773108    total: 3.93s    remaining: 587ms
-87: learn: 0.3759948    total: 3.99s    remaining: 545ms
-88: learn: 0.3733624    total: 4.04s    remaining: 499ms
-89: learn: 0.3728116    total: 4.07s    remaining: 453ms
-90: learn: 0.3722956    total: 4.12s    remaining: 407ms
-91: learn: 0.3718745    total: 4.17s    remaining: 363ms
-92: learn: 0.3709713    total: 4.21s    remaining: 317ms
-93: learn: 0.3705749    total: 4.25s    remaining: 271ms
-94: learn: 0.3701589    total: 4.29s    remaining: 226ms
-95: learn: 0.3696644    total: 4.34s    remaining: 181ms
-96: learn: 0.3693308    total: 4.37s    remaining: 135ms
-97: learn: 0.3689769    total: 4.42s    remaining: 90.1ms
-98: learn: 0.3685521    total: 4.46s    remaining: 45.1ms
-99: learn: 0.3681502    total: 4.5s remaining: 0us
-0:  learn: 0.6787347    total: 36.7ms   remaining: 3.64s
-1:  learn: 0.6629308    total: 80.4ms   remaining: 3.94s
-2:  learn: 0.6521186    total: 112ms    remaining: 3.63s
-3:  learn: 0.6424923    total: 154ms    remaining: 3.69s
-4:  learn: 0.6330328    total: 185ms    remaining: 3.52s
-5:  learn: 0.6254169    total: 219ms    remaining: 3.42s
-6:  learn: 0.6134426    total: 258ms    remaining: 3.43s
-7:  learn: 0.6037043    total: 296ms    remaining: 3.41s
-8:  learn: 0.5960655    total: 331ms    remaining: 3.34s
-9:  learn: 0.5894701    total: 372ms    remaining: 3.35s
-10: learn: 0.5801976    total: 411ms    remaining: 3.32s
-11: learn: 0.5686701    total: 458ms    remaining: 3.36s
-12: learn: 0.5604865    total: 496ms    remaining: 3.32s
-13: learn: 0.5518040    total: 538ms    remaining: 3.31s
-14: learn: 0.5465118    total: 590ms    remaining: 3.34s
-15: learn: 0.5355247    total: 628ms    remaining: 3.3s
-16: learn: 0.5289492    total: 665ms    remaining: 3.25s
-17: learn: 0.5228831    total: 710ms    remaining: 3.23s
-18: learn: 0.5187277    total: 750ms    remaining: 3.2s
-19: learn: 0.5136091    total: 791ms    remaining: 3.16s
-20: learn: 0.5089900    total: 841ms    remaining: 3.16s
-21: learn: 0.5028772    total: 884ms    remaining: 3.13s
-22: learn: 0.4980801    total: 951ms    remaining: 3.18s
-23: learn: 0.4936861    total: 991ms    remaining: 3.14s
-24: learn: 0.4904537    total: 1.03s    remaining: 3.09s
-25: learn: 0.4867408    total: 1.07s    remaining: 3.04s
-26: learn: 0.4836632    total: 1.1s remaining: 2.99s
-27: learn: 0.4810250    total: 1.14s    remaining: 2.94s
-28: learn: 0.4770696    total: 1.18s    remaining: 2.89s
-29: learn: 0.4747817    total: 1.24s    remaining: 2.9s
-30: learn: 0.4702333    total: 1.28s    remaining: 2.86s
-31: learn: 0.4681339    total: 1.32s    remaining: 2.81s
-32: learn: 0.4661564    total: 1.37s    remaining: 2.78s
-33: learn: 0.4627045    total: 1.42s    remaining: 2.75s
-34: learn: 0.4593287    total: 1.46s    remaining: 2.71s
-35: learn: 0.4577672    total: 1.51s    remaining: 2.68s
-36: learn: 0.4541266    total: 1.55s    remaining: 2.64s
-37: learn: 0.4509724    total: 1.6s remaining: 2.61s
-38: learn: 0.4492433    total: 1.65s    remaining: 2.58s
-39: learn: 0.4454138    total: 1.69s    remaining: 2.53s
-40: learn: 0.4440516    total: 1.73s    remaining: 2.48s
-41: learn: 0.4413669    total: 1.76s    remaining: 2.44s
-42: learn: 0.4383825    total: 1.82s    remaining: 2.42s
-43: learn: 0.4364719    total: 1.86s    remaining: 2.37s
-44: learn: 0.4338141    total: 1.91s    remaining: 2.33s
-45: learn: 0.4326615    total: 1.98s    remaining: 2.32s
-46: learn: 0.4310823    total: 2.02s    remaining: 2.28s
-47: learn: 0.4274267    total: 2.06s    remaining: 2.23s
-48: learn: 0.4263108    total: 2.1s remaining: 2.19s
-49: learn: 0.4232592    total: 2.15s    remaining: 2.15s
-50: learn: 0.4219268    total: 2.21s    remaining: 2.13s
-51: learn: 0.4209638    total: 2.27s    remaining: 2.09s
-52: learn: 0.4189954    total: 2.31s    remaining: 2.05s
-53: learn: 0.4156722    total: 2.35s    remaining: 2s
-54: learn: 0.4141122    total: 2.39s    remaining: 1.96s
-55: learn: 0.4131974    total: 2.44s    remaining: 1.91s
-56: learn: 0.4091712    total: 2.49s    remaining: 1.88s
-57: learn: 0.4073386    total: 2.53s    remaining: 1.83s
-58: learn: 0.4061417    total: 2.57s    remaining: 1.79s
-59: learn: 0.4051938    total: 2.62s    remaining: 1.75s
-60: learn: 0.4029454    total: 2.68s    remaining: 1.71s
-61: learn: 0.4023675    total: 2.73s    remaining: 1.68s
-62: learn: 0.4017586    total: 2.77s    remaining: 1.63s
-63: learn: 0.4010712    total: 2.81s    remaining: 1.58s
-64: learn: 0.3987395    total: 2.86s    remaining: 1.54s
-65: learn: 0.3979852    total: 2.89s    remaining: 1.49s
-66: learn: 0.3974124    total: 2.94s    remaining: 1.45s
-67: learn: 0.3950991    total: 2.98s    remaining: 1.4s
-68: learn: 0.3943587    total: 3.02s    remaining: 1.36s
-69: learn: 0.3924520    total: 3.06s    remaining: 1.31s
-70: learn: 0.3895471    total: 3.1s remaining: 1.27s
-71: learn: 0.3887278    total: 3.15s    remaining: 1.22s
-72: learn: 0.3879781    total: 3.19s    remaining: 1.18s
-73: learn: 0.3863183    total: 3.24s    remaining: 1.14s
-74: learn: 0.3858390    total: 3.31s    remaining: 1.1s
-75: learn: 0.3837355    total: 3.35s    remaining: 1.06s
-76: learn: 0.3831220    total: 3.4s remaining: 1.01s
-77: learn: 0.3825741    total: 3.46s    remaining: 975ms
-78: learn: 0.3819807    total: 3.5s remaining: 930ms
-79: learn: 0.3816032    total: 3.54s    remaining: 884ms
-80: learn: 0.3810282    total: 3.58s    remaining: 840ms
-81: learn: 0.3788452    total: 3.63s    remaining: 797ms
-82: learn: 0.3784096    total: 3.67s    remaining: 753ms
-83: learn: 0.3777615    total: 3.72s    remaining: 709ms
-84: learn: 0.3773304    total: 3.77s    remaining: 665ms
-85: learn: 0.3768781    total: 3.81s    remaining: 621ms
-86: learn: 0.3744644    total: 3.85s    remaining: 576ms
-87: learn: 0.3740947    total: 3.9s remaining: 532ms
-88: learn: 0.3737719    total: 3.96s    remaining: 489ms
-89: learn: 0.3727752    total: 4s   remaining: 445ms
-90: learn: 0.3724632    total: 4.05s    remaining: 400ms
-91: learn: 0.3720264    total: 4.09s    remaining: 356ms
-92: learn: 0.3715933    total: 4.13s    remaining: 311ms
-93: learn: 0.3701342    total: 4.17s    remaining: 266ms
-94: learn: 0.3697976    total: 4.22s    remaining: 222ms
-95: learn: 0.3694249    total: 4.26s    remaining: 178ms
-96: learn: 0.3674265    total: 4.3s remaining: 133ms
-97: learn: 0.3660059    total: 4.34s    remaining: 88.6ms
-98: learn: 0.3650624    total: 4.38s    remaining: 44.3ms
-99: learn: 0.3641319    total: 4.43s    remaining: 0us
-0:  learn: 0.6755975    total: 36.6ms   remaining: 3.62s
-1:  learn: 0.6640494    total: 73.8ms   remaining: 3.62s
-2:  learn: 0.6479160    total: 118ms    remaining: 3.8s
-3:  learn: 0.6353381    total: 159ms    remaining: 3.81s
-4:  learn: 0.6256086    total: 194ms    remaining: 3.69s
-5:  learn: 0.6123194    total: 242ms    remaining: 3.8s
-6:  learn: 0.6004987    total: 288ms    remaining: 3.83s
-7:  learn: 0.5877596    total: 327ms    remaining: 3.76s
-8:  learn: 0.5787817    total: 396ms    remaining: 4.01s
-9:  learn: 0.5685038    total: 458ms    remaining: 4.12s
-10: learn: 0.5621513    total: 490ms    remaining: 3.96s
-11: learn: 0.5530775    total: 554ms    remaining: 4.07s
-12: learn: 0.5472004    total: 592ms    remaining: 3.96s
-13: learn: 0.5408390    total: 630ms    remaining: 3.87s
-14: learn: 0.5362334    total: 672ms    remaining: 3.81s
-15: learn: 0.5291432    total: 715ms    remaining: 3.76s
-16: learn: 0.5192261    total: 758ms    remaining: 3.7s
-17: learn: 0.5160676    total: 794ms    remaining: 3.62s
-18: learn: 0.5102759    total: 877ms    remaining: 3.74s
-19: learn: 0.5053539    total: 935ms    remaining: 3.74s
-20: learn: 0.5018072    total: 1.01s    remaining: 3.81s
-21: learn: 0.4984342    total: 1.06s    remaining: 3.75s
-22: learn: 0.4946264    total: 1.1s remaining: 3.67s
-23: learn: 0.4895979    total: 1.14s    remaining: 3.6s
-24: learn: 0.4864200    total: 1.17s    remaining: 3.52s
-25: learn: 0.4833633    total: 1.22s    remaining: 3.47s
-26: learn: 0.4787359    total: 1.26s    remaining: 3.41s
-27: learn: 0.4742556    total: 1.3s remaining: 3.35s
-28: learn: 0.4722703    total: 1.34s    remaining: 3.29s
-29: learn: 0.4680890    total: 1.38s    remaining: 3.22s
-30: learn: 0.4646848    total: 1.43s    remaining: 3.18s
-31: learn: 0.4624585    total: 1.48s    remaining: 3.15s
-32: learn: 0.4603976    total: 1.52s    remaining: 3.08s
-33: learn: 0.4586205    total: 1.56s    remaining: 3.03s
-34: learn: 0.4554294    total: 1.6s remaining: 2.97s
-35: learn: 0.4521939    total: 1.66s    remaining: 2.94s
-36: learn: 0.4490775    total: 1.7s remaining: 2.9s
-37: learn: 0.4476623    total: 1.74s    remaining: 2.84s
-38: learn: 0.4459154    total: 1.81s    remaining: 2.83s
-39: learn: 0.4442376    total: 1.85s    remaining: 2.77s
-40: learn: 0.4415100    total: 1.89s    remaining: 2.71s
-41: learn: 0.4402119    total: 1.93s    remaining: 2.66s
-42: learn: 0.4388914    total: 1.96s    remaining: 2.6s
-43: learn: 0.4362361    total: 2s   remaining: 2.54s
-44: learn: 0.4351212    total: 2.03s    remaining: 2.48s
-45: learn: 0.4339355    total: 2.12s    remaining: 2.49s
-46: learn: 0.4316856    total: 2.18s    remaining: 2.46s
-47: learn: 0.4303935    total: 2.21s    remaining: 2.4s
-48: learn: 0.4290825    total: 2.25s    remaining: 2.35s
-49: learn: 0.4268229    total: 2.31s    remaining: 2.31s
-50: learn: 0.4258701    total: 2.34s    remaining: 2.25s
-51: learn: 0.4247373    total: 2.39s    remaining: 2.21s
-52: learn: 0.4237794    total: 2.42s    remaining: 2.15s
-53: learn: 0.4227810    total: 2.47s    remaining: 2.1s
-54: learn: 0.4179922    total: 2.51s    remaining: 2.05s
-55: learn: 0.4168096    total: 2.55s    remaining: 2s
-56: learn: 0.4159020    total: 2.58s    remaining: 1.95s
-57: learn: 0.4149399    total: 2.63s    remaining: 1.9s
-58: learn: 0.4110033    total: 2.66s    remaining: 1.85s
-59: learn: 0.4100967    total: 2.71s    remaining: 1.8s
-60: learn: 0.4083306    total: 2.75s    remaining: 1.76s
-61: learn: 0.4072024    total: 2.79s    remaining: 1.71s
-62: learn: 0.4065295    total: 2.83s    remaining: 1.66s
-63: learn: 0.4058783    total: 2.86s    remaining: 1.61s
-64: learn: 0.4039702    total: 2.93s    remaining: 1.58s
-65: learn: 0.4022050    total: 2.98s    remaining: 1.53s
-66: learn: 0.4003304    total: 3.02s    remaining: 1.49s
-67: learn: 0.3997262    total: 3.06s    remaining: 1.44s
-68: learn: 0.3982798    total: 3.1s remaining: 1.39s
-69: learn: 0.3976596    total: 3.16s    remaining: 1.35s
-70: learn: 0.3971132    total: 3.21s    remaining: 1.31s
-71: learn: 0.3964351    total: 3.25s    remaining: 1.26s
-72: learn: 0.3945348    total: 3.29s    remaining: 1.22s
-73: learn: 0.3939425    total: 3.33s    remaining: 1.17s
-74: learn: 0.3932463    total: 3.37s    remaining: 1.12s
-75: learn: 0.3928738    total: 3.41s    remaining: 1.08s
-76: learn: 0.3911859    total: 3.46s    remaining: 1.03s
-77: learn: 0.3907312    total: 3.5s remaining: 988ms
-78: learn: 0.3896094    total: 3.57s    remaining: 948ms
-79: learn: 0.3890563    total: 3.6s remaining: 901ms
-80: learn: 0.3884495    total: 3.65s    remaining: 856ms
-81: learn: 0.3878721    total: 3.68s    remaining: 809ms
-82: learn: 0.3870853    total: 3.75s    remaining: 768ms
-83: learn: 0.3864268    total: 3.79s    remaining: 721ms
-84: learn: 0.3836755    total: 3.83s    remaining: 675ms
-85: learn: 0.3831474    total: 3.87s    remaining: 631ms
-86: learn: 0.3824414    total: 3.91s    remaining: 585ms
-87: learn: 0.3820372    total: 3.95s    remaining: 539ms
-88: learn: 0.3811514    total: 4.01s    remaining: 496ms
-89: learn: 0.3785666    total: 4.05s    remaining: 450ms
-90: learn: 0.3777927    total: 4.12s    remaining: 407ms
-91: learn: 0.3773483    total: 4.18s    remaining: 363ms
-92: learn: 0.3768092    total: 4.21s    remaining: 317ms
-93: learn: 0.3747709    total: 4.25s    remaining: 272ms
-94: learn: 0.3738006    total: 4.29s    remaining: 226ms
-95: learn: 0.3726374    total: 4.36s    remaining: 182ms
-96: learn: 0.3714779    total: 4.4s remaining: 136ms
-97: learn: 0.3708958    total: 4.43s    remaining: 90.5ms
-98: learn: 0.3704787    total: 4.49s    remaining: 45.3ms
-99: learn: 0.3693287    total: 4.54s    remaining: 0us
-0:  learn: 0.6854808    total: 44.5ms   remaining: 3.07s
-1:  learn: 0.6789342    total: 76.1ms   remaining: 2.59s
-2:  learn: 0.6710810    total: 119ms    remaining: 2.67s
-3:  learn: 0.6652697    total: 153ms    remaining: 2.53s
-4:  learn: 0.6584662    total: 198ms    remaining: 2.57s
-5:  learn: 0.6511288    total: 233ms    remaining: 2.49s
-6:  learn: 0.6465899    total: 272ms    remaining: 2.45s
-7:  learn: 0.6414408    total: 306ms    remaining: 2.37s
-8:  learn: 0.6351526    total: 367ms    remaining: 2.49s
-9:  learn: 0.6288849    total: 408ms    remaining: 2.45s
-10: learn: 0.6214170    total: 447ms    remaining: 2.4s
-11: learn: 0.6170727    total: 506ms    remaining: 2.45s
-12: learn: 0.6105342    total: 544ms    remaining: 2.39s
-13: learn: 0.6051710    total: 585ms    remaining: 2.34s
-14: learn: 0.5995441    total: 623ms    remaining: 2.28s
-15: learn: 0.5955350    total: 672ms    remaining: 2.27s
-16: learn: 0.5899862    total: 715ms    remaining: 2.23s
-17: learn: 0.5845524    total: 752ms    remaining: 2.17s
-18: learn: 0.5800335    total: 833ms    remaining: 2.24s
-19: learn: 0.5748668    total: 874ms    remaining: 2.18s
-20: learn: 0.5706926    total: 912ms    remaining: 2.13s
-21: learn: 0.5644252    total: 970ms    remaining: 2.12s
-22: learn: 0.5606822    total: 1.01s    remaining: 2.06s
-23: learn: 0.5553719    total: 1.05s    remaining: 2.01s
-24: learn: 0.5526506    total: 1.08s    remaining: 1.95s
-25: learn: 0.5490226    total: 1.12s    remaining: 1.9s
-26: learn: 0.5437315    total: 1.16s    remaining: 1.85s
-27: learn: 0.5406485    total: 1.2s remaining: 1.8s
-28: learn: 0.5372565    total: 1.24s    remaining: 1.76s
-29: learn: 0.5327823    total: 1.28s    remaining: 1.71s
-30: learn: 0.5298844    total: 1.32s    remaining: 1.66s
-31: learn: 0.5265301    total: 1.36s    remaining: 1.61s
-32: learn: 0.5244033    total: 1.42s    remaining: 1.59s
-33: learn: 0.5204570    total: 1.5s remaining: 1.59s
-34: learn: 0.5186000    total: 1.54s    remaining: 1.54s
-35: learn: 0.5166380    total: 1.58s    remaining: 1.49s
-36: learn: 0.5138762    total: 1.64s    remaining: 1.47s
-37: learn: 0.5113238    total: 1.7s remaining: 1.43s
-38: learn: 0.5079826    total: 1.74s    remaining: 1.38s
-39: learn: 0.5063132    total: 1.77s    remaining: 1.33s
-40: learn: 0.5034582    total: 1.81s    remaining: 1.28s
-41: learn: 0.5016317    total: 1.85s    remaining: 1.23s
-42: learn: 0.4989641    total: 1.89s    remaining: 1.19s
-43: learn: 0.4968961    total: 1.93s    remaining: 1.14s
-44: learn: 0.4955183    total: 1.97s    remaining: 1.09s
-45: learn: 0.4940431    total: 2s   remaining: 1.04s
-46: learn: 0.4912095    total: 2.05s    remaining: 1s
-47: learn: 0.4897417    total: 2.11s    remaining: 968ms
-48: learn: 0.4874051    total: 2.16s    remaining: 924ms
-49: learn: 0.4853273    total: 2.2s remaining: 879ms
-50: learn: 0.4830105    total: 2.24s    remaining: 833ms
-51: learn: 0.4792982    total: 2.28s    remaining: 788ms
-52: learn: 0.4773667    total: 2.31s    remaining: 743ms
-53: learn: 0.4751678    total: 2.36s    remaining: 699ms
-54: learn: 0.4720366    total: 2.4s remaining: 655ms
-55: learn: 0.4702685    total: 2.46s    remaining: 615ms
-56: learn: 0.4690686    total: 2.5s remaining: 571ms
-57: learn: 0.4670308    total: 2.54s    remaining: 527ms
-58: learn: 0.4659758    total: 2.59s    remaining: 482ms
-59: learn: 0.4648619    total: 2.66s    remaining: 444ms
-60: learn: 0.4637065    total: 2.7s remaining: 398ms
-61: learn: 0.4616158    total: 2.78s    remaining: 359ms
-62: learn: 0.4606571    total: 2.82s    remaining: 313ms
-63: learn: 0.4580198    total: 2.86s    remaining: 268ms
-64: learn: 0.4564792    total: 2.9s remaining: 223ms
-65: learn: 0.4555989    total: 2.95s    remaining: 179ms
-66: learn: 0.4544228    total: 3.03s    remaining: 136ms
-67: learn: 0.4533427    total: 3.07s    remaining: 90.2ms
-68: learn: 0.4518842    total: 3.1s remaining: 45ms
-69: learn: 0.4510303    total: 3.14s    remaining: 0us
-0:  learn: 0.6858449    total: 42.3ms   remaining: 2.92s
-1:  learn: 0.6778718    total: 94.4ms   remaining: 3.21s
-2:  learn: 0.6719399    total: 168ms    remaining: 3.74s
-3:  learn: 0.6664632    total: 211ms    remaining: 3.48s
-4:  learn: 0.6591999    total: 310ms    remaining: 4.03s
-5:  learn: 0.6538062    total: 377ms    remaining: 4.02s
-6:  learn: 0.6478654    total: 422ms    remaining: 3.79s
-7:  learn: 0.6426394    total: 469ms    remaining: 3.63s
-8:  learn: 0.6359268    total: 509ms    remaining: 3.45s
-9:  learn: 0.6298517    total: 564ms    remaining: 3.38s
-10: learn: 0.6239089    total: 616ms    remaining: 3.3s
-11: learn: 0.6164559    total: 677ms    remaining: 3.27s
-12: learn: 0.6120916    total: 742ms    remaining: 3.25s
-13: learn: 0.6081299    total: 786ms    remaining: 3.15s
-14: learn: 0.6042900    total: 832ms    remaining: 3.05s
-15: learn: 0.6012153    total: 868ms    remaining: 2.93s
-16: learn: 0.5954841    total: 929ms    remaining: 2.9s
-17: learn: 0.5903460    total: 974ms    remaining: 2.81s
-18: learn: 0.5836323    total: 1.01s    remaining: 2.72s
-19: learn: 0.5803133    total: 1.06s    remaining: 2.64s
-20: learn: 0.5767913    total: 1.1s remaining: 2.56s
-21: learn: 0.5733150    total: 1.14s    remaining: 2.48s
-22: learn: 0.5701430    total: 1.19s    remaining: 2.44s
-23: learn: 0.5658711    total: 1.24s    remaining: 2.37s
-24: learn: 0.5615695    total: 1.29s    remaining: 2.32s
-25: learn: 0.5583077    total: 1.34s    remaining: 2.27s
-26: learn: 0.5553097    total: 1.38s    remaining: 2.19s
-27: learn: 0.5524697    total: 1.42s    remaining: 2.13s
-28: learn: 0.5488063    total: 1.47s    remaining: 2.07s
-29: learn: 0.5454557    total: 1.54s    remaining: 2.05s
-30: learn: 0.5418739    total: 1.63s    remaining: 2.05s
-31: learn: 0.5372384    total: 1.73s    remaining: 2.05s
-32: learn: 0.5339865    total: 1.79s    remaining: 2.01s
-33: learn: 0.5300285    total: 1.85s    remaining: 1.96s
-34: learn: 0.5281090    total: 1.9s remaining: 1.9s
-35: learn: 0.5250143    total: 1.95s    remaining: 1.84s
-36: learn: 0.5220368    total: 2s   remaining: 1.78s
-37: learn: 0.5189688    total: 2.05s    remaining: 1.73s
-38: learn: 0.5161286    total: 2.1s remaining: 1.67s
-39: learn: 0.5132831    total: 2.17s    remaining: 1.62s
-40: learn: 0.5106647    total: 2.21s    remaining: 1.56s
-41: learn: 0.5089302    total: 2.25s    remaining: 1.5s
-42: learn: 0.5070844    total: 2.3s remaining: 1.44s
-43: learn: 0.5044440    total: 2.34s    remaining: 1.38s
-44: learn: 0.5024906    total: 2.38s    remaining: 1.32s
-45: learn: 0.4986218    total: 2.42s    remaining: 1.26s
-46: learn: 0.4959638    total: 2.47s    remaining: 1.21s
-47: learn: 0.4937223    total: 2.51s    remaining: 1.15s
-48: learn: 0.4906317    total: 2.55s    remaining: 1.09s
-49: learn: 0.4879473    total: 2.6s remaining: 1.04s
-50: learn: 0.4855137    total: 2.64s    remaining: 983ms
-51: learn: 0.4841537    total: 2.68s    remaining: 928ms
-52: learn: 0.4825360    total: 2.72s    remaining: 872ms
-53: learn: 0.4809738    total: 2.76s    remaining: 818ms
-54: learn: 0.4797089    total: 2.79s    remaining: 762ms
-55: learn: 0.4785221    total: 2.86s    remaining: 715ms
-56: learn: 0.4771580    total: 2.9s remaining: 661ms
-57: learn: 0.4757980    total: 2.95s    remaining: 610ms
-58: learn: 0.4746702    total: 2.99s    remaining: 558ms
-59: learn: 0.4734499    total: 3.03s    remaining: 505ms
-60: learn: 0.4714873    total: 3.08s    remaining: 455ms
-61: learn: 0.4704030    total: 3.13s    remaining: 404ms
-62: learn: 0.4691505    total: 3.17s    remaining: 352ms
-63: learn: 0.4682198    total: 3.21s    remaining: 301ms
-64: learn: 0.4674057    total: 3.25s    remaining: 250ms
-65: learn: 0.4662900    total: 3.29s    remaining: 200ms
-66: learn: 0.4646490    total: 3.33s    remaining: 149ms
-67: learn: 0.4637058    total: 3.39s    remaining: 99.7ms
-68: learn: 0.4626845    total: 3.45s    remaining: 50ms
-69: learn: 0.4617493    total: 3.49s    remaining: 0us
-0:  learn: 0.6842231    total: 35.3ms   remaining: 2.44s
-1:  learn: 0.6781632    total: 72.9ms   remaining: 2.48s
-2:  learn: 0.6688444    total: 109ms    remaining: 2.43s
-3:  learn: 0.6616521    total: 149ms    remaining: 2.46s
-4:  learn: 0.6564388    total: 193ms    remaining: 2.5s
-5:  learn: 0.6512287    total: 232ms    remaining: 2.47s
-6:  learn: 0.6456828    total: 288ms    remaining: 2.59s
-7:  learn: 0.6406841    total: 326ms    remaining: 2.53s
-8:  learn: 0.6343532    total: 371ms    remaining: 2.52s
-9:  learn: 0.6305959    total: 412ms    remaining: 2.47s
-10: learn: 0.6247688    total: 489ms    remaining: 2.63s
-11: learn: 0.6188381    total: 547ms    remaining: 2.64s
-12: learn: 0.6147997    total: 587ms    remaining: 2.57s
-13: learn: 0.6101684    total: 625ms    remaining: 2.5s
-14: learn: 0.6038660    total: 676ms    remaining: 2.48s
-15: learn: 0.5987693    total: 718ms    remaining: 2.42s
-16: learn: 0.5932746    total: 782ms    remaining: 2.44s
-17: learn: 0.5881489    total: 846ms    remaining: 2.44s
-18: learn: 0.5816394    total: 891ms    remaining: 2.39s
-19: learn: 0.5752610    total: 928ms    remaining: 2.32s
-20: learn: 0.5723198    total: 983ms    remaining: 2.29s
-21: learn: 0.5674529    total: 1.03s    remaining: 2.25s
-22: learn: 0.5631400    total: 1.08s    remaining: 2.21s
-23: learn: 0.5587330    total: 1.14s    remaining: 2.19s
-24: learn: 0.5548008    total: 1.19s    remaining: 2.15s
-25: learn: 0.5512702    total: 1.24s    remaining: 2.1s
-26: learn: 0.5484515    total: 1.29s    remaining: 2.05s
-27: learn: 0.5449410    total: 1.33s    remaining: 2s
-28: learn: 0.5409617    total: 1.38s    remaining: 1.94s
-29: learn: 0.5375626    total: 1.44s    remaining: 1.92s
-30: learn: 0.5345770    total: 1.48s    remaining: 1.86s
-31: learn: 0.5322886    total: 1.52s    remaining: 1.8s
-32: learn: 0.5300507    total: 1.57s    remaining: 1.77s
-33: learn: 0.5282686    total: 1.61s    remaining: 1.71s
-34: learn: 0.5253057    total: 1.67s    remaining: 1.67s
-35: learn: 0.5223315    total: 1.71s    remaining: 1.62s
-36: learn: 0.5194561    total: 1.76s    remaining: 1.57s
-37: learn: 0.5176734    total: 1.8s remaining: 1.52s
-38: learn: 0.5151183    total: 1.85s    remaining: 1.47s
-39: learn: 0.5121722    total: 1.89s    remaining: 1.42s
-40: learn: 0.5087551    total: 1.95s    remaining: 1.38s
-41: learn: 0.5061796    total: 2s   remaining: 1.33s
-42: learn: 0.5041603    total: 2.03s    remaining: 1.28s
-43: learn: 0.5008195    total: 2.08s    remaining: 1.23s
-44: learn: 0.4981981    total: 2.11s    remaining: 1.17s
-45: learn: 0.4961635    total: 2.17s    remaining: 1.13s
-46: learn: 0.4943916    total: 2.21s    remaining: 1.08s
-47: learn: 0.4928103    total: 2.27s    remaining: 1.04s
-48: learn: 0.4912153    total: 2.31s    remaining: 988ms
-49: learn: 0.4891246    total: 2.34s    remaining: 938ms
-50: learn: 0.4876870    total: 2.39s    remaining: 891ms
-51: learn: 0.4860567    total: 2.43s    remaining: 842ms
-52: learn: 0.4847793    total: 2.47s    remaining: 792ms
-53: learn: 0.4837673    total: 2.52s    remaining: 746ms
-54: learn: 0.4817976    total: 2.55s    remaining: 697ms
-55: learn: 0.4803827    total: 2.59s    remaining: 649ms
-56: learn: 0.4791580    total: 2.63s    remaining: 600ms
-57: learn: 0.4770999    total: 2.67s    remaining: 553ms
-58: learn: 0.4760986    total: 2.71s    remaining: 505ms
-59: learn: 0.4739569    total: 2.75s    remaining: 458ms
-60: learn: 0.4719559    total: 2.8s remaining: 413ms
-61: learn: 0.4708329    total: 2.86s    remaining: 369ms
-62: learn: 0.4696806    total: 2.92s    remaining: 324ms
-63: learn: 0.4681599    total: 2.96s    remaining: 278ms
-64: learn: 0.4672418    total: 3.01s    remaining: 232ms
-65: learn: 0.4653938    total: 3.05s    remaining: 185ms
-66: learn: 0.4643815    total: 3.09s    remaining: 138ms
-67: learn: 0.4634560    total: 3.15s    remaining: 92.6ms
-68: learn: 0.4620317    total: 3.19s    remaining: 46.2ms
-69: learn: 0.4608927    total: 3.23s    remaining: 0us
-0:  learn: 0.6820864    total: 79.4ms   remaining: 715ms
-1:  learn: 0.6717586    total: 179ms    remaining: 718ms
-2:  learn: 0.6653624    total: 280ms    remaining: 654ms
-3:  learn: 0.6535887    total: 402ms    remaining: 603ms
-4:  learn: 0.6436591    total: 528ms    remaining: 528ms
-5:  learn: 0.6357576    total: 614ms    remaining: 410ms
-6:  learn: 0.6283024    total: 726ms    remaining: 311ms
-7:  learn: 0.6206824    total: 816ms    remaining: 204ms
-8:  learn: 0.6120411    total: 913ms    remaining: 101ms
-9:  learn: 0.6045663    total: 1.01s    remaining: 0us
-0:  learn: 0.6812725    total: 79.5ms   remaining: 715ms
-1:  learn: 0.6682593    total: 168ms    remaining: 670ms
-2:  learn: 0.6600218    total: 251ms    remaining: 585ms
-3:  learn: 0.6502116    total: 334ms    remaining: 502ms
-4:  learn: 0.6418241    total: 429ms    remaining: 429ms
-5:  learn: 0.6320138    total: 536ms    remaining: 357ms
-6:  learn: 0.6246990    total: 623ms    remaining: 267ms
-7:  learn: 0.6172527    total: 739ms    remaining: 185ms
-8:  learn: 0.6107522    total: 835ms    remaining: 92.8ms
-9:  learn: 0.6046327    total: 938ms    remaining: 0us
-0:  learn: 0.6778932    total: 77.7ms   remaining: 700ms
-1:  learn: 0.6699917    total: 169ms    remaining: 676ms
-2:  learn: 0.6630856    total: 263ms    remaining: 614ms
-3:  learn: 0.6541323    total: 359ms    remaining: 539ms
-4:  learn: 0.6465458    total: 449ms    remaining: 449ms
-5:  learn: 0.6383303    total: 535ms    remaining: 357ms
-6:  learn: 0.6319545    total: 621ms    remaining: 266ms
-7:  learn: 0.6249272    total: 739ms    remaining: 185ms
-8:  learn: 0.6182948    total: 829ms    remaining: 92.2ms
-9:  learn: 0.6095659    total: 920ms    remaining: 0us
-0:  learn: 0.6788336    total: 59.1ms   remaining: 532ms
-1:  learn: 0.6641919    total: 123ms    remaining: 493ms
-2:  learn: 0.6520778    total: 193ms    remaining: 449ms
-3:  learn: 0.6378013    total: 291ms    remaining: 436ms
-4:  learn: 0.6280943    total: 359ms    remaining: 359ms
-5:  learn: 0.6183372    total: 426ms    remaining: 284ms
-6:  learn: 0.6045327    total: 512ms    remaining: 219ms
-7:  learn: 0.5970878    total: 593ms    remaining: 148ms
-8:  learn: 0.5855487    total: 675ms    remaining: 75ms
-9:  learn: 0.5745267    total: 749ms    remaining: 0us
-0:  learn: 0.6754175    total: 63.9ms   remaining: 575ms
-1:  learn: 0.6657609    total: 137ms    remaining: 549ms
-2:  learn: 0.6497813    total: 210ms    remaining: 490ms
-3:  learn: 0.6385731    total: 276ms    remaining: 414ms
-4:  learn: 0.6243063    total: 347ms    remaining: 347ms
-5:  learn: 0.6121638    total: 420ms    remaining: 280ms
-6:  learn: 0.6001453    total: 502ms    remaining: 215ms
-7:  learn: 0.5917983    total: 582ms    remaining: 146ms
-8:  learn: 0.5795535    total: 653ms    remaining: 72.5ms
-9:  learn: 0.5703570    total: 728ms    remaining: 0us
-0:  learn: 0.6736660    total: 59.9ms   remaining: 539ms
-1:  learn: 0.6632992    total: 132ms    remaining: 529ms
-2:  learn: 0.6518791    total: 201ms    remaining: 468ms
-3:  learn: 0.6420412    total: 271ms    remaining: 406ms
-4:  learn: 0.6300900    total: 341ms    remaining: 341ms
-5:  learn: 0.6202904    total: 414ms    remaining: 276ms
-6:  learn: 0.6090917    total: 484ms    remaining: 207ms
-7:  learn: 0.6016861    total: 551ms    remaining: 138ms
-8:  learn: 0.5888547    total: 621ms    remaining: 69ms
-9:  learn: 0.5786878    total: 686ms    remaining: 0us
-0:  learn: 0.6870159    total: 181ms    remaining: 12.5s
-1:  learn: 0.6828002    total: 375ms    remaining: 12.8s
-2:  learn: 0.6777351    total: 559ms    remaining: 12.5s
-3:  learn: 0.6726369    total: 751ms    remaining: 12.4s
-4:  learn: 0.6657397    total: 935ms    remaining: 12.2s
-5:  learn: 0.6593904    total: 1.13s    remaining: 12s
-6:  learn: 0.6543954    total: 1.34s    remaining: 12s
-7:  learn: 0.6501775    total: 1.54s    remaining: 12s
-8:  learn: 0.6455502    total: 1.74s    remaining: 11.8s
-9:  learn: 0.6401297    total: 1.95s    remaining: 11.7s
-10: learn: 0.6358096    total: 2.14s    remaining: 11.5s
-11: learn: 0.6307778    total: 2.33s    remaining: 11.3s
-12: learn: 0.6262099    total: 2.53s    remaining: 11.1s
-13: learn: 0.6222219    total: 2.72s    remaining: 10.9s
-14: learn: 0.6177531    total: 2.91s    remaining: 10.7s
-15: learn: 0.6144299    total: 3.12s    remaining: 10.5s
-16: learn: 0.6097591    total: 3.31s    remaining: 10.3s
-17: learn: 0.6060434    total: 3.51s    remaining: 10.1s
-18: learn: 0.6016303    total: 3.69s    remaining: 9.91s
-19: learn: 0.5982357    total: 3.89s    remaining: 9.73s
-20: learn: 0.5944408    total: 4.11s    remaining: 9.59s
-21: learn: 0.5904644    total: 4.3s remaining: 9.39s
-22: learn: 0.5864407    total: 4.5s remaining: 9.19s
-23: learn: 0.5830545    total: 4.68s    remaining: 8.97s
-24: learn: 0.5795563    total: 4.87s    remaining: 8.76s
-25: learn: 0.5759693    total: 5.08s    remaining: 8.61s
-26: learn: 0.5728544    total: 5.28s    remaining: 8.42s
-27: learn: 0.5695674    total: 5.48s    remaining: 8.22s
-28: learn: 0.5663685    total: 5.67s    remaining: 8.02s
-29: learn: 0.5634423    total: 5.86s    remaining: 7.82s
-30: learn: 0.5609288    total: 6.08s    remaining: 7.64s
-31: learn: 0.5570840    total: 6.28s    remaining: 7.45s
-32: learn: 0.5529839    total: 6.47s    remaining: 7.26s
-33: learn: 0.5504068    total: 6.67s    remaining: 7.06s
-34: learn: 0.5476205    total: 6.87s    remaining: 6.87s
-35: learn: 0.5446545    total: 7.07s    remaining: 6.68s
-36: learn: 0.5419831    total: 7.27s    remaining: 6.48s
-37: learn: 0.5380515    total: 7.47s    remaining: 6.29s
-38: learn: 0.5342235    total: 7.66s    remaining: 6.09s
-39: learn: 0.5308639    total: 7.86s    remaining: 5.89s
-40: learn: 0.5278329    total: 8.08s    remaining: 5.71s
-41: learn: 0.5255189    total: 8.29s    remaining: 5.52s
-42: learn: 0.5228636    total: 8.48s    remaining: 5.33s
-43: learn: 0.5199856    total: 8.68s    remaining: 5.13s
-44: learn: 0.5169885    total: 8.86s    remaining: 4.92s
-45: learn: 0.5145012    total: 9.06s    remaining: 4.73s
-46: learn: 0.5123452    total: 9.26s    remaining: 4.53s
-47: learn: 0.5101961    total: 9.45s    remaining: 4.33s
-48: learn: 0.5079208    total: 9.64s    remaining: 4.13s
-49: learn: 0.5054776    total: 9.83s    remaining: 3.93s
-50: learn: 0.5032262    total: 10s  remaining: 3.74s
-51: learn: 0.5011123    total: 10.3s    remaining: 3.55s
-52: learn: 0.4990094    total: 10.5s    remaining: 3.35s
-53: learn: 0.4964270    total: 10.7s    remaining: 3.16s
-54: learn: 0.4943683    total: 10.9s    remaining: 2.96s
-55: learn: 0.4922463    total: 11s  remaining: 2.76s
-56: learn: 0.4904286    total: 11.2s    remaining: 2.56s
-57: learn: 0.4879954    total: 11.4s    remaining: 2.36s
-58: learn: 0.4860014    total: 11.6s    remaining: 2.17s
-59: learn: 0.4842943    total: 11.8s    remaining: 1.97s
-60: learn: 0.4824070    total: 12s  remaining: 1.78s
-61: learn: 0.4800439    total: 12.2s    remaining: 1.58s
-62: learn: 0.4783785    total: 12.5s    remaining: 1.38s
-63: learn: 0.4759009    total: 12.6s    remaining: 1.19s
-64: learn: 0.4739579    total: 12.8s    remaining: 986ms
-65: learn: 0.4718904    total: 13s  remaining: 790ms
-66: learn: 0.4704376    total: 13.2s    remaining: 592ms
-67: learn: 0.4687568    total: 13.4s    remaining: 394ms
-68: learn: 0.4675015    total: 13.6s    remaining: 197ms
-69: learn: 0.4661309    total: 13.8s    remaining: 0us
-0:  learn: 0.6867160    total: 188ms    remaining: 13s
-1:  learn: 0.6817983    total: 375ms    remaining: 12.8s
-2:  learn: 0.6763436    total: 564ms    remaining: 12.6s
-3:  learn: 0.6707665    total: 745ms    remaining: 12.3s
-4:  learn: 0.6655522    total: 943ms    remaining: 12.3s
-5:  learn: 0.6595188    total: 1.15s    remaining: 12.2s
-6:  learn: 0.6541515    total: 1.33s    remaining: 12s
-7:  learn: 0.6491243    total: 1.53s    remaining: 11.9s
-8:  learn: 0.6447512    total: 1.72s    remaining: 11.7s
-9:  learn: 0.6392623    total: 1.92s    remaining: 11.5s
-10: learn: 0.6346267    total: 2.11s    remaining: 11.3s
-11: learn: 0.6298721    total: 2.31s    remaining: 11.2s
-12: learn: 0.6248463    total: 2.51s    remaining: 11s
-13: learn: 0.6205205    total: 2.69s    remaining: 10.8s
-14: learn: 0.6170393    total: 2.88s    remaining: 10.6s
-15: learn: 0.6130706    total: 3.07s    remaining: 10.4s
-16: learn: 0.6087552    total: 3.27s    remaining: 10.2s
-17: learn: 0.6044712    total: 3.47s    remaining: 10s
-18: learn: 0.6013824    total: 3.67s    remaining: 9.85s
-19: learn: 0.5975130    total: 3.86s    remaining: 9.66s
-20: learn: 0.5936635    total: 4.08s    remaining: 9.52s
-21: learn: 0.5902263    total: 4.28s    remaining: 9.34s
-22: learn: 0.5872904    total: 4.5s remaining: 9.2s
-23: learn: 0.5843652    total: 4.72s    remaining: 9.05s
-24: learn: 0.5793123    total: 4.92s    remaining: 8.86s
-25: learn: 0.5761650    total: 5.13s    remaining: 8.69s
-26: learn: 0.5729976    total: 5.33s    remaining: 8.49s
-27: learn: 0.5698271    total: 5.54s    remaining: 8.3s
-28: learn: 0.5652784    total: 5.73s    remaining: 8.1s
-29: learn: 0.5622549    total: 5.94s    remaining: 7.92s
-30: learn: 0.5596275    total: 6.14s    remaining: 7.73s
-31: learn: 0.5564927    total: 6.34s    remaining: 7.53s
-32: learn: 0.5535853    total: 6.53s    remaining: 7.32s
-33: learn: 0.5510388    total: 6.72s    remaining: 7.12s
-34: learn: 0.5488515    total: 6.92s    remaining: 6.92s
-35: learn: 0.5457913    total: 7.12s    remaining: 6.73s
-36: learn: 0.5426674    total: 7.32s    remaining: 6.53s
-37: learn: 0.5399439    total: 7.52s    remaining: 6.33s
-38: learn: 0.5369225    total: 7.71s    remaining: 6.13s
-39: learn: 0.5336043    total: 7.91s    remaining: 5.93s
-40: learn: 0.5303811    total: 8.11s    remaining: 5.74s
-41: learn: 0.5277906    total: 8.31s    remaining: 5.54s
-42: learn: 0.5240578    total: 8.51s    remaining: 5.34s
-43: learn: 0.5219273    total: 8.71s    remaining: 5.15s
-44: learn: 0.5193463    total: 8.9s remaining: 4.94s
-45: learn: 0.5172282    total: 9.1s remaining: 4.75s
-46: learn: 0.5144832    total: 9.3s remaining: 4.55s
-47: learn: 0.5121899    total: 9.49s    remaining: 4.35s
-48: learn: 0.5101026    total: 9.68s    remaining: 4.15s
-49: learn: 0.5079813    total: 9.87s    remaining: 3.95s
-50: learn: 0.5051492    total: 10.1s    remaining: 3.75s
-51: learn: 0.5027441    total: 10.3s    remaining: 3.56s
-52: learn: 0.5009599    total: 10.5s    remaining: 3.36s
-53: learn: 0.4981433    total: 10.7s    remaining: 3.16s
-54: learn: 0.4962993    total: 10.8s    remaining: 2.96s
-55: learn: 0.4936682    total: 11s  remaining: 2.76s
-56: learn: 0.4916918    total: 11.2s    remaining: 2.56s
-57: learn: 0.4891126    total: 11.4s    remaining: 2.36s
-58: learn: 0.4869325    total: 11.6s    remaining: 2.17s
-59: learn: 0.4848522    total: 11.8s    remaining: 1.97s
-60: learn: 0.4829020    total: 12s  remaining: 1.77s
-61: learn: 0.4812473    total: 12.2s    remaining: 1.58s
-62: learn: 0.4795380    total: 12.4s    remaining: 1.38s
-63: learn: 0.4775164    total: 12.6s    remaining: 1.18s
-64: learn: 0.4757711    total: 12.8s    remaining: 985ms
-65: learn: 0.4738938    total: 13s  remaining: 789ms
-66: learn: 0.4717643    total: 13.2s    remaining: 593ms
-67: learn: 0.4699461    total: 13.5s    remaining: 396ms
-68: learn: 0.4679298    total: 13.7s    remaining: 198ms
-69: learn: 0.4661554    total: 13.9s    remaining: 0us
-0:  learn: 0.6856073    total: 185ms    remaining: 12.8s
-1:  learn: 0.6813658    total: 369ms    remaining: 12.5s
-2:  learn: 0.6763579    total: 565ms    remaining: 12.6s
-3:  learn: 0.6714679    total: 763ms    remaining: 12.6s
-4:  learn: 0.6660735    total: 973ms    remaining: 12.6s
-5:  learn: 0.6590186    total: 1.16s    remaining: 12.4s
-6:  learn: 0.6539830    total: 1.36s    remaining: 12.2s
-7:  learn: 0.6491584    total: 1.55s    remaining: 12s
-8:  learn: 0.6447890    total: 1.75s    remaining: 11.8s
-9:  learn: 0.6392684    total: 1.96s    remaining: 11.8s
-10: learn: 0.6345571    total: 2.16s    remaining: 11.6s
-11: learn: 0.6311585    total: 2.37s    remaining: 11.4s
-12: learn: 0.6257382    total: 2.73s    remaining: 12s
-13: learn: 0.6210128    total: 3.08s    remaining: 12.3s
-14: learn: 0.6167537    total: 3.33s    remaining: 12.2s
-15: learn: 0.6117552    total: 3.54s    remaining: 11.9s
-16: learn: 0.6068090    total: 3.76s    remaining: 11.7s
-17: learn: 0.6026308    total: 3.97s    remaining: 11.5s
-18: learn: 0.5994881    total: 4.17s    remaining: 11.2s
-19: learn: 0.5950413    total: 4.37s    remaining: 10.9s
-20: learn: 0.5911287    total: 4.56s    remaining: 10.6s
-21: learn: 0.5879195    total: 4.78s    remaining: 10.4s
-22: learn: 0.5846708    total: 4.98s    remaining: 10.2s
-23: learn: 0.5808136    total: 5.18s    remaining: 9.94s
-24: learn: 0.5771825    total: 5.38s    remaining: 9.68s
-25: learn: 0.5729025    total: 5.57s    remaining: 9.42s
-26: learn: 0.5697713    total: 5.78s    remaining: 9.21s
-27: learn: 0.5665399    total: 5.99s    remaining: 8.98s
-28: learn: 0.5630845    total: 6.18s    remaining: 8.74s
-29: learn: 0.5605371    total: 6.38s    remaining: 8.51s
-30: learn: 0.5576014    total: 6.58s    remaining: 8.29s
-31: learn: 0.5548633    total: 6.8s remaining: 8.07s
-32: learn: 0.5512260    total: 7s   remaining: 7.85s
-33: learn: 0.5485768    total: 7.19s    remaining: 7.61s
-34: learn: 0.5459721    total: 7.39s    remaining: 7.39s
-35: learn: 0.5433590    total: 7.58s    remaining: 7.16s
-36: learn: 0.5404806    total: 7.79s    remaining: 6.95s
-37: learn: 0.5376623    total: 8s   remaining: 6.74s
-38: learn: 0.5352702    total: 8.22s    remaining: 6.53s
-39: learn: 0.5318593    total: 8.43s    remaining: 6.33s
-40: learn: 0.5287440    total: 8.65s    remaining: 6.12s
-41: learn: 0.5263023    total: 8.85s    remaining: 5.9s
-42: learn: 0.5238787    total: 9.04s    remaining: 5.68s
-43: learn: 0.5211830    total: 9.24s    remaining: 5.46s
-44: learn: 0.5192002    total: 9.44s    remaining: 5.24s
-45: learn: 0.5169270    total: 9.64s    remaining: 5.03s
-46: learn: 0.5140122    total: 9.86s    remaining: 4.82s
-47: learn: 0.5117085    total: 10.1s    remaining: 4.61s
-48: learn: 0.5090780    total: 10.3s    remaining: 4.4s
-49: learn: 0.5069044    total: 10.5s    remaining: 4.18s
-50: learn: 0.5048360    total: 10.6s    remaining: 3.96s
-51: learn: 0.5030125    total: 10.8s    remaining: 3.75s
-52: learn: 0.5011650    total: 11s  remaining: 3.54s
-53: learn: 0.4981879    total: 11.2s    remaining: 3.32s
-54: learn: 0.4960101    total: 11.4s    remaining: 3.11s
-55: learn: 0.4932337    total: 11.6s    remaining: 2.89s
-56: learn: 0.4912376    total: 11.8s    remaining: 2.69s
-57: learn: 0.4887712    total: 12s  remaining: 2.48s
-58: learn: 0.4868622    total: 12.2s    remaining: 2.27s
-59: learn: 0.4853113    total: 12.4s    remaining: 2.06s
-60: learn: 0.4832912    total: 12.6s    remaining: 1.85s
-61: learn: 0.4806880    total: 12.8s    remaining: 1.65s
-62: learn: 0.4787688    total: 13s  remaining: 1.44s
-63: learn: 0.4769648    total: 13.2s    remaining: 1.23s
-64: learn: 0.4750955    total: 13.4s    remaining: 1.03s
-65: learn: 0.4730873    total: 13.5s    remaining: 821ms
-66: learn: 0.4714787    total: 13.8s    remaining: 616ms
-67: learn: 0.4698039    total: 14s  remaining: 411ms
-68: learn: 0.4680462    total: 14.2s    remaining: 205ms
-69: learn: 0.4665342    total: 14.4s    remaining: 0us
-0:  learn: 0.6788336    total: 66.7ms   remaining: 1.27s
-1:  learn: 0.6641919    total: 134ms    remaining: 1.21s
-2:  learn: 0.6520778    total: 205ms    remaining: 1.16s
-3:  learn: 0.6378013    total: 277ms    remaining: 1.11s
-4:  learn: 0.6280943    total: 352ms    remaining: 1.06s
-5:  learn: 0.6183372    total: 418ms    remaining: 975ms
-6:  learn: 0.6045327    total: 486ms    remaining: 902ms
-7:  learn: 0.5970878    total: 552ms    remaining: 828ms
-8:  learn: 0.5855487    total: 656ms    remaining: 801ms
-9:  learn: 0.5745267    total: 727ms    remaining: 727ms
-10: learn: 0.5635858    total: 804ms    remaining: 658ms
-11: learn: 0.5562680    total: 875ms    remaining: 583ms
-12: learn: 0.5494956    total: 962ms    remaining: 518ms
-13: learn: 0.5434607    total: 1.04s    remaining: 444ms
-14: learn: 0.5366582    total: 1.11s    remaining: 369ms
-15: learn: 0.5306572    total: 1.19s    remaining: 296ms
-16: learn: 0.5249508    total: 1.26s    remaining: 222ms
-17: learn: 0.5189863    total: 1.33s    remaining: 148ms
-18: learn: 0.5142055    total: 1.4s remaining: 73.6ms
-19: learn: 0.5078640    total: 1.49s    remaining: 0us
-0:  learn: 0.6754175    total: 62.9ms   remaining: 1.2s
-1:  learn: 0.6657609    total: 128ms    remaining: 1.15s
-2:  learn: 0.6497813    total: 209ms    remaining: 1.19s
-3:  learn: 0.6385731    total: 275ms    remaining: 1.1s
-4:  learn: 0.6243063    total: 363ms    remaining: 1.09s
-5:  learn: 0.6121638    total: 429ms    remaining: 1s
-6:  learn: 0.6001453    total: 497ms    remaining: 923ms
-7:  learn: 0.5917983    total: 561ms    remaining: 842ms
-8:  learn: 0.5795535    total: 628ms    remaining: 768ms
-9:  learn: 0.5703570    total: 703ms    remaining: 703ms
-10: learn: 0.5607939    total: 775ms    remaining: 634ms
-11: learn: 0.5511210    total: 843ms    remaining: 562ms
-12: learn: 0.5461723    total: 910ms    remaining: 490ms
-13: learn: 0.5394976    total: 979ms    remaining: 420ms
-14: learn: 0.5329465    total: 1.05s    remaining: 351ms
-15: learn: 0.5261160    total: 1.13s    remaining: 281ms
-16: learn: 0.5212908    total: 1.19s    remaining: 210ms
-17: learn: 0.5171155    total: 1.27s    remaining: 141ms
-18: learn: 0.5100957    total: 1.44s    remaining: 75.8ms
-19: learn: 0.5040100    total: 1.54s    remaining: 0us
-0:  learn: 0.6736660    total: 66.6ms   remaining: 1.26s
-1:  learn: 0.6632992    total: 139ms    remaining: 1.25s
-2:  learn: 0.6518791    total: 227ms    remaining: 1.28s
-3:  learn: 0.6420412    total: 302ms    remaining: 1.21s
-4:  learn: 0.6300900    total: 392ms    remaining: 1.18s
-5:  learn: 0.6202904    total: 462ms    remaining: 1.08s
-6:  learn: 0.6090917    total: 547ms    remaining: 1.01s
-7:  learn: 0.6016861    total: 613ms    remaining: 920ms
-8:  learn: 0.5888547    total: 711ms    remaining: 869ms
-9:  learn: 0.5786878    total: 780ms    remaining: 780ms
-10: learn: 0.5690928    total: 853ms    remaining: 698ms
-11: learn: 0.5605502    total: 923ms    remaining: 616ms
-12: learn: 0.5552464    total: 1s   remaining: 541ms
-13: learn: 0.5451069    total: 1.07s    remaining: 460ms
-14: learn: 0.5388667    total: 1.16s    remaining: 388ms
-15: learn: 0.5330966    total: 1.24s    remaining: 310ms
-16: learn: 0.5254825    total: 1.31s    remaining: 232ms
-17: learn: 0.5204746    total: 1.38s    remaining: 154ms
-18: learn: 0.5137134    total: 1.48s    remaining: 78.1ms
-19: learn: 0.5077613    total: 1.55s    remaining: 0us
-0:  learn: 0.6661865    total: 83.7ms   remaining: 6.61s
-1:  learn: 0.6442901    total: 182ms    remaining: 7.1s
-2:  learn: 0.6296108    total: 283ms    remaining: 7.27s
-3:  learn: 0.6041061    total: 387ms    remaining: 7.35s
-4:  learn: 0.5846803    total: 482ms    remaining: 7.23s
-5:  learn: 0.5694868    total: 570ms    remaining: 7.03s
-6:  learn: 0.5564804    total: 653ms    remaining: 6.81s
-7:  learn: 0.5362603    total: 753ms    remaining: 6.77s
-8:  learn: 0.5249824    total: 860ms    remaining: 6.78s
-9:  learn: 0.5156833    total: 947ms    remaining: 6.63s
-10: learn: 0.5074373    total: 1.06s    remaining: 6.63s
-11: learn: 0.4966087    total: 1.17s    remaining: 6.62s
-12: learn: 0.4843238    total: 1.25s    remaining: 6.44s
-13: learn: 0.4751487    total: 1.33s    remaining: 6.28s
-14: learn: 0.4667416    total: 1.45s    remaining: 6.26s
-15: learn: 0.4601999    total: 1.56s    remaining: 6.23s
-16: learn: 0.4506270    total: 1.65s    remaining: 6.1s
-17: learn: 0.4443271    total: 1.74s    remaining: 5.99s
-18: learn: 0.4364742    total: 1.82s    remaining: 5.85s
-19: learn: 0.4287354    total: 1.91s    remaining: 5.72s
-20: learn: 0.4225620    total: 2.01s    remaining: 5.65s
-21: learn: 0.4179536    total: 2.13s    remaining: 5.6s
-22: learn: 0.4146607    total: 2.21s    remaining: 5.48s
-23: learn: 0.4116159    total: 2.3s remaining: 5.38s
-24: learn: 0.4072502    total: 2.4s remaining: 5.27s
-25: learn: 0.4033408    total: 2.5s remaining: 5.18s
-26: learn: 0.3992202    total: 2.58s    remaining: 5.07s
-27: learn: 0.3950707    total: 2.67s    remaining: 4.96s
-28: learn: 0.3920537    total: 2.77s    remaining: 4.87s
-29: learn: 0.3892721    total: 2.86s    remaining: 4.77s
-30: learn: 0.3878469    total: 2.91s    remaining: 4.6s
-31: learn: 0.3853206    total: 3.01s    remaining: 4.51s
-32: learn: 0.3825435    total: 3.1s remaining: 4.42s
-33: learn: 0.3797944    total: 3.2s remaining: 4.33s
-34: learn: 0.3776274    total: 3.3s remaining: 4.25s
-35: learn: 0.3749218    total: 3.4s remaining: 4.16s
-36: learn: 0.3730313    total: 3.48s    remaining: 4.05s
-37: learn: 0.3697761    total: 3.58s    remaining: 3.95s
-38: learn: 0.3679260    total: 3.68s    remaining: 3.87s
-39: learn: 0.3655824    total: 3.77s    remaining: 3.77s
-40: learn: 0.3625396    total: 3.85s    remaining: 3.67s
-41: learn: 0.3606557    total: 3.95s    remaining: 3.58s
-42: learn: 0.3586780    total: 4.06s    remaining: 3.49s
-43: learn: 0.3569128    total: 4.14s    remaining: 3.39s
-44: learn: 0.3547151    total: 4.23s    remaining: 3.29s
-45: learn: 0.3530752    total: 4.32s    remaining: 3.2s
-46: learn: 0.3516675    total: 4.41s    remaining: 3.1s
-47: learn: 0.3500730    total: 4.5s remaining: 3s
-48: learn: 0.3482186    total: 4.6s remaining: 2.91s
-49: learn: 0.3469220    total: 4.72s    remaining: 2.83s
-50: learn: 0.3451109    total: 4.81s    remaining: 2.73s
-51: learn: 0.3426953    total: 4.89s    remaining: 2.63s
-52: learn: 0.3411557    total: 4.99s    remaining: 2.54s
-53: learn: 0.3385266    total: 5.11s    remaining: 2.46s
-54: learn: 0.3368309    total: 5.2s remaining: 2.36s
-55: learn: 0.3338607    total: 5.31s    remaining: 2.27s
-56: learn: 0.3305002    total: 5.39s    remaining: 2.18s
-57: learn: 0.3288964    total: 5.51s    remaining: 2.09s
-58: learn: 0.3273422    total: 5.61s    remaining: 2s
-59: learn: 0.3262397    total: 5.7s remaining: 1.9s
-60: learn: 0.3245780    total: 5.79s    remaining: 1.8s
-61: learn: 0.3225558    total: 5.88s    remaining: 1.71s
-62: learn: 0.3211791    total: 5.99s    remaining: 1.62s
-63: learn: 0.3197995    total: 6.09s    remaining: 1.52s
-64: learn: 0.3185145    total: 6.19s    remaining: 1.43s
-65: learn: 0.3174419    total: 6.33s    remaining: 1.34s
-66: learn: 0.3148381    total: 6.42s    remaining: 1.24s
-67: learn: 0.3134987    total: 6.51s    remaining: 1.15s
-68: learn: 0.3118657    total: 6.61s    remaining: 1.05s
-69: learn: 0.3106146    total: 6.7s remaining: 957ms
-70: learn: 0.3095362    total: 6.79s    remaining: 861ms
-71: learn: 0.3084200    total: 6.88s    remaining: 765ms
-72: learn: 0.3071627    total: 6.98s    remaining: 669ms
-73: learn: 0.3056916    total: 7.07s    remaining: 573ms
-74: learn: 0.3042122    total: 7.18s    remaining: 479ms
-75: learn: 0.3030383    total: 7.27s    remaining: 383ms
-76: learn: 0.3018889    total: 7.36s    remaining: 287ms
-77: learn: 0.3005356    total: 7.45s    remaining: 191ms
-78: learn: 0.2986284    total: 7.55s    remaining: 95.6ms
-79: learn: 0.2973939    total: 7.65s    remaining: 0us
-0:  learn: 0.6643290    total: 94.2ms   remaining: 7.45s
-1:  learn: 0.6454704    total: 186ms    remaining: 7.27s
-2:  learn: 0.6267988    total: 278ms    remaining: 7.13s
-3:  learn: 0.6045659    total: 389ms    remaining: 7.4s
-4:  learn: 0.5871720    total: 499ms    remaining: 7.49s
-5:  learn: 0.5693765    total: 590ms    remaining: 7.28s
-6:  learn: 0.5530513    total: 682ms    remaining: 7.12s
-7:  learn: 0.5386130    total: 776ms    remaining: 6.98s
-8:  learn: 0.5240635    total: 866ms    remaining: 6.83s
-9:  learn: 0.5159297    total: 959ms    remaining: 6.71s
-10: learn: 0.5085569    total: 1.07s    remaining: 6.74s
-11: learn: 0.5003657    total: 1.17s    remaining: 6.64s
-12: learn: 0.4913964    total: 1.3s remaining: 6.71s
-13: learn: 0.4835945    total: 1.46s    remaining: 6.87s
-14: learn: 0.4764090    total: 1.59s    remaining: 6.9s
-15: learn: 0.4699141    total: 1.73s    remaining: 6.9s
-16: learn: 0.4647210    total: 1.84s    remaining: 6.84s
-17: learn: 0.4583236    total: 1.96s    remaining: 6.74s
-18: learn: 0.4507625    total: 2.06s    remaining: 6.63s
-19: learn: 0.4434956    total: 2.21s    remaining: 6.62s
-20: learn: 0.4369761    total: 2.33s    remaining: 6.55s
-21: learn: 0.4315171    total: 2.44s    remaining: 6.42s
-22: learn: 0.4271261    total: 2.55s    remaining: 6.31s
-23: learn: 0.4231828    total: 2.65s    remaining: 6.19s
-24: learn: 0.4176501    total: 2.76s    remaining: 6.06s
-25: learn: 0.4142370    total: 2.88s    remaining: 5.99s
-26: learn: 0.4112396    total: 2.99s    remaining: 5.87s
-27: learn: 0.4080917    total: 3.09s    remaining: 5.74s
-28: learn: 0.4024743    total: 3.2s remaining: 5.63s
-29: learn: 0.3995273    total: 3.3s remaining: 5.5s
-30: learn: 0.3932476    total: 3.4s remaining: 5.37s
-31: learn: 0.3922751    total: 3.45s    remaining: 5.18s
-32: learn: 0.3900948    total: 3.54s    remaining: 5.05s
-33: learn: 0.3873775    total: 3.64s    remaining: 4.92s
-34: learn: 0.3846040    total: 3.76s    remaining: 4.84s
-35: learn: 0.3808225    total: 3.9s remaining: 4.77s
-36: learn: 0.3775607    total: 3.99s    remaining: 4.64s
-37: learn: 0.3753230    total: 4.08s    remaining: 4.51s
-38: learn: 0.3731365    total: 4.19s    remaining: 4.4s
-39: learn: 0.3709968    total: 4.29s    remaining: 4.29s
-40: learn: 0.3669675    total: 4.38s    remaining: 4.17s
-41: learn: 0.3630283    total: 4.47s    remaining: 4.04s
-42: learn: 0.3595623    total: 4.56s    remaining: 3.93s
-43: learn: 0.3582165    total: 4.66s    remaining: 3.81s
-44: learn: 0.3565920    total: 4.75s    remaining: 3.69s
-45: learn: 0.3545405    total: 4.85s    remaining: 3.59s
-46: learn: 0.3517645    total: 4.94s    remaining: 3.47s
-47: learn: 0.3496004    total: 5.04s    remaining: 3.36s
-48: learn: 0.3469607    total: 5.13s    remaining: 3.25s
-49: learn: 0.3450449    total: 5.23s    remaining: 3.14s
-50: learn: 0.3409540    total: 5.33s    remaining: 3.03s
-51: learn: 0.3393811    total: 5.42s    remaining: 2.92s
-52: learn: 0.3370172    total: 5.51s    remaining: 2.81s
-53: learn: 0.3350501    total: 5.61s    remaining: 2.7s
-54: learn: 0.3336867    total: 5.7s remaining: 2.59s
-55: learn: 0.3326568    total: 5.79s    remaining: 2.48s
-56: learn: 0.3305981    total: 5.9s remaining: 2.38s
-57: learn: 0.3291170    total: 5.99s    remaining: 2.27s
-58: learn: 0.3267238    total: 6.08s    remaining: 2.16s
-59: learn: 0.3254530    total: 6.18s    remaining: 2.06s
-60: learn: 0.3240547    total: 6.28s    remaining: 1.96s
-61: learn: 0.3227733    total: 6.38s    remaining: 1.85s
-62: learn: 0.3208503    total: 6.47s    remaining: 1.75s
-63: learn: 0.3192012    total: 6.58s    remaining: 1.65s
-64: learn: 0.3183069    total: 6.69s    remaining: 1.54s
-65: learn: 0.3166566    total: 6.78s    remaining: 1.44s
-66: learn: 0.3146433    total: 6.89s    remaining: 1.34s
-67: learn: 0.3127463    total: 6.98s    remaining: 1.23s
-68: learn: 0.3114390    total: 7.08s    remaining: 1.13s
-69: learn: 0.3101015    total: 7.21s    remaining: 1.03s
-70: learn: 0.3092973    total: 7.31s    remaining: 927ms
-71: learn: 0.3082230    total: 7.41s    remaining: 824ms
-72: learn: 0.3068674    total: 7.5s remaining: 719ms
-73: learn: 0.3050543    total: 7.6s remaining: 617ms
-74: learn: 0.3042546    total: 7.71s    remaining: 514ms
-75: learn: 0.3032710    total: 7.81s    remaining: 411ms
-76: learn: 0.3022287    total: 7.9s remaining: 308ms
-77: learn: 0.3010763    total: 8s   remaining: 205ms
-78: learn: 0.3000623    total: 8.14s    remaining: 103ms
-79: learn: 0.2986710    total: 8.24s    remaining: 0us
-0:  learn: 0.6562429    total: 81.1ms   remaining: 6.4s
-1:  learn: 0.6335780    total: 169ms    remaining: 6.6s
-2:  learn: 0.6186449    total: 262ms    remaining: 6.73s
-3:  learn: 0.6001972    total: 377ms    remaining: 7.16s
-4:  learn: 0.5860519    total: 472ms    remaining: 7.08s
-5:  learn: 0.5703638    total: 562ms    remaining: 6.93s
-6:  learn: 0.5581365    total: 649ms    remaining: 6.77s
-7:  learn: 0.5453623    total: 767ms    remaining: 6.9s
-8:  learn: 0.5348661    total: 861ms    remaining: 6.79s
-9:  learn: 0.5213708    total: 951ms    remaining: 6.65s
-10: learn: 0.5124921    total: 1.05s    remaining: 6.56s
-11: learn: 0.5043456    total: 1.14s    remaining: 6.46s
-12: learn: 0.4954577    total: 1.23s    remaining: 6.34s
-13: learn: 0.4879698    total: 1.33s    remaining: 6.26s
-14: learn: 0.4769865    total: 1.42s    remaining: 6.15s
-15: learn: 0.4697842    total: 1.52s    remaining: 6.08s
-16: learn: 0.4611150    total: 1.62s    remaining: 6.02s
-17: learn: 0.4545033    total: 1.72s    remaining: 5.93s
-18: learn: 0.4492953    total: 1.82s    remaining: 5.85s
-19: learn: 0.4422798    total: 1.92s    remaining: 5.75s
-20: learn: 0.4376908    total: 2.02s    remaining: 5.69s
-21: learn: 0.4331509    total: 2.12s    remaining: 5.6s
-22: learn: 0.4293290    total: 2.22s    remaining: 5.51s
-23: learn: 0.4249046    total: 2.32s    remaining: 5.42s
-24: learn: 0.4221392    total: 2.42s    remaining: 5.32s
-25: learn: 0.4183462    total: 2.51s    remaining: 5.22s
-26: learn: 0.4133569    total: 2.62s    remaining: 5.15s
-27: learn: 0.4094390    total: 2.73s    remaining: 5.06s
-28: learn: 0.4065924    total: 2.83s    remaining: 4.98s
-29: learn: 0.4036392    total: 2.94s    remaining: 4.9s
-30: learn: 0.3975599    total: 3.03s    remaining: 4.79s
-31: learn: 0.3945920    total: 3.12s    remaining: 4.68s
-32: learn: 0.3920131    total: 3.23s    remaining: 4.6s
-33: learn: 0.3894455    total: 3.33s    remaining: 4.51s
-34: learn: 0.3871030    total: 3.44s    remaining: 4.43s
-35: learn: 0.3852647    total: 3.54s    remaining: 4.33s
-36: learn: 0.3819382    total: 3.63s    remaining: 4.22s
-37: learn: 0.3796748    total: 3.77s    remaining: 4.16s
-38: learn: 0.3773800    total: 3.87s    remaining: 4.07s
-39: learn: 0.3748525    total: 3.97s    remaining: 3.97s
-40: learn: 0.3725744    total: 4.06s    remaining: 3.87s
-41: learn: 0.3689606    total: 4.15s    remaining: 3.76s
-42: learn: 0.3665860    total: 4.24s    remaining: 3.65s
-43: learn: 0.3626355    total: 4.35s    remaining: 3.56s
-44: learn: 0.3595666    total: 4.45s    remaining: 3.46s
-45: learn: 0.3567451    total: 4.59s    remaining: 3.39s
-46: learn: 0.3537801    total: 4.68s    remaining: 3.29s
-47: learn: 0.3515180    total: 4.79s    remaining: 3.19s
-48: learn: 0.3484534    total: 4.89s    remaining: 3.1s
-49: learn: 0.3460548    total: 4.98s    remaining: 2.99s
-50: learn: 0.3446576    total: 5.1s remaining: 2.9s
-51: learn: 0.3422310    total: 5.18s    remaining: 2.79s
-52: learn: 0.3402758    total: 5.27s    remaining: 2.69s
-53: learn: 0.3388304    total: 5.36s    remaining: 2.58s
-54: learn: 0.3369734    total: 5.47s    remaining: 2.49s
-55: learn: 0.3352839    total: 5.58s    remaining: 2.39s
-56: learn: 0.3338208    total: 5.69s    remaining: 2.3s
-57: learn: 0.3321561    total: 5.8s remaining: 2.2s
-58: learn: 0.3305014    total: 5.91s    remaining: 2.1s
-59: learn: 0.3292382    total: 6s   remaining: 2s
-60: learn: 0.3277298    total: 6.1s remaining: 1.9s
-61: learn: 0.3264114    total: 6.19s    remaining: 1.8s
-62: learn: 0.3242588    total: 6.32s    remaining: 1.7s
-63: learn: 0.3229963    total: 6.4s remaining: 1.6s
-64: learn: 0.3218746    total: 6.53s    remaining: 1.51s
-65: learn: 0.3198690    total: 6.61s    remaining: 1.4s
-66: learn: 0.3186453    total: 6.73s    remaining: 1.31s
-67: learn: 0.3171265    total: 6.86s    remaining: 1.21s
-68: learn: 0.3158560    total: 6.97s    remaining: 1.11s
-69: learn: 0.3146361    total: 7.06s    remaining: 1.01s
-70: learn: 0.3126894    total: 7.14s    remaining: 905ms
-71: learn: 0.3115763    total: 7.23s    remaining: 803ms
-72: learn: 0.3098584    total: 7.32s    remaining: 702ms
-73: learn: 0.3088046    total: 7.42s    remaining: 601ms
-74: learn: 0.3078307    total: 7.53s    remaining: 502ms
-75: learn: 0.3053759    total: 7.65s    remaining: 403ms
-76: learn: 0.3038827    total: 7.76s    remaining: 303ms
-77: learn: 0.3023627    total: 7.87s    remaining: 202ms
-78: learn: 0.3009514    total: 7.96s    remaining: 101ms
-79: learn: 0.2996157    total: 8.07s    remaining: 0us
-0:  learn: 0.6870159    total: 182ms    remaining: 1.64s
-1:  learn: 0.6828002    total: 368ms    remaining: 1.47s
-2:  learn: 0.6777351    total: 568ms    remaining: 1.32s
-3:  learn: 0.6726369    total: 767ms    remaining: 1.15s
-4:  learn: 0.6657397    total: 955ms    remaining: 955ms
-5:  learn: 0.6593904    total: 1.16s    remaining: 772ms
-6:  learn: 0.6543954    total: 1.35s    remaining: 581ms
-7:  learn: 0.6501775    total: 1.56s    remaining: 390ms
-8:  learn: 0.6455502    total: 1.78s    remaining: 198ms
-9:  learn: 0.6401297    total: 1.99s    remaining: 0us
-0:  learn: 0.6867160    total: 189ms    remaining: 1.7s
-1:  learn: 0.6817983    total: 396ms    remaining: 1.58s
-2:  learn: 0.6763436    total: 586ms    remaining: 1.37s
-3:  learn: 0.6707665    total: 785ms    remaining: 1.18s
-4:  learn: 0.6655522    total: 973ms    remaining: 973ms
-5:  learn: 0.6595188    total: 1.18s    remaining: 784ms
-6:  learn: 0.6541515    total: 1.4s remaining: 599ms
-7:  learn: 0.6491243    total: 1.62s    remaining: 405ms
-8:  learn: 0.6447512    total: 1.83s    remaining: 203ms
-9:  learn: 0.6392623    total: 2.03s    remaining: 0us
-0:  learn: 0.6856073    total: 173ms    remaining: 1.56s
-1:  learn: 0.6813658    total: 441ms    remaining: 1.76s
-2:  learn: 0.6763579    total: 659ms    remaining: 1.54s
-3:  learn: 0.6714679    total: 863ms    remaining: 1.29s
-4:  learn: 0.6660735    total: 1.06s    remaining: 1.06s
-5:  learn: 0.6590186    total: 1.29s    remaining: 859ms
-6:  learn: 0.6539830    total: 1.5s remaining: 645ms
-7:  learn: 0.6491584    total: 1.7s remaining: 426ms
-8:  learn: 0.6447890    total: 1.9s remaining: 211ms
-9:  learn: 0.6392684    total: 2.1s remaining: 0us
-0:  learn: 0.6665327    total: 93.2ms   remaining: 7.36s
-1:  learn: 0.6464428    total: 194ms    remaining: 7.55s
-2:  learn: 0.6274255    total: 294ms    remaining: 7.55s
-3:  learn: 0.6038900    total: 396ms    remaining: 7.53s
-4:  learn: 0.5853056    total: 500ms    remaining: 7.51s
-5:  learn: 0.5711453    total: 598ms    remaining: 7.38s
-6:  learn: 0.5518932    total: 699ms    remaining: 7.29s
-7:  learn: 0.5371312    total: 812ms    remaining: 7.31s
-8:  learn: 0.5246082    total: 911ms    remaining: 7.19s
-9:  learn: 0.5108871    total: 1.01s    remaining: 7.11s
-10: learn: 0.5017540    total: 1.12s    remaining: 7.04s
-11: learn: 0.4914030    total: 1.24s    remaining: 7.01s
-12: learn: 0.4829017    total: 1.33s    remaining: 6.87s
-13: learn: 0.4753740    total: 1.43s    remaining: 6.74s
-14: learn: 0.4684517    total: 1.57s    remaining: 6.82s
-15: learn: 0.4595894    total: 1.67s    remaining: 6.69s
-16: learn: 0.4516042    total: 1.78s    remaining: 6.59s
-17: learn: 0.4452736    total: 1.88s    remaining: 6.48s
-18: learn: 0.4382162    total: 1.99s    remaining: 6.4s
-19: learn: 0.4326054    total: 2.1s remaining: 6.29s
-20: learn: 0.4268372    total: 2.19s    remaining: 6.16s
-21: learn: 0.4202041    total: 2.29s    remaining: 6.03s
-22: learn: 0.4167642    total: 2.4s remaining: 5.95s
-23: learn: 0.4122437    total: 2.53s    remaining: 5.9s
-24: learn: 0.4093793    total: 2.68s    remaining: 5.89s
-25: learn: 0.4039919    total: 2.79s    remaining: 5.79s
-26: learn: 0.4004563    total: 2.9s remaining: 5.7s
-27: learn: 0.3975197    total: 3s   remaining: 5.58s
-28: learn: 0.3932144    total: 3.12s    remaining: 5.48s
-29: learn: 0.3904852    total: 3.24s    remaining: 5.4s
-30: learn: 0.3880708    total: 3.33s    remaining: 5.27s
-31: learn: 0.3859222    total: 3.44s    remaining: 5.16s
-32: learn: 0.3831005    total: 3.54s    remaining: 5.04s
-33: learn: 0.3810144    total: 3.65s    remaining: 4.94s
-34: learn: 0.3785504    total: 3.75s    remaining: 4.82s
-35: learn: 0.3761624    total: 3.87s    remaining: 4.73s
-36: learn: 0.3737088    total: 3.97s    remaining: 4.61s
-37: learn: 0.3712488    total: 4.06s    remaining: 4.49s
-38: learn: 0.3685311    total: 4.17s    remaining: 4.38s
-39: learn: 0.3662991    total: 4.26s    remaining: 4.26s
-40: learn: 0.3634880    total: 4.38s    remaining: 4.16s
-41: learn: 0.3606838    total: 4.48s    remaining: 4.05s
-42: learn: 0.3587348    total: 4.59s    remaining: 3.95s
-43: learn: 0.3567398    total: 4.7s remaining: 3.84s
-44: learn: 0.3548707    total: 4.83s    remaining: 3.75s
-45: learn: 0.3520839    total: 4.92s    remaining: 3.64s
-46: learn: 0.3492787    total: 5.03s    remaining: 3.53s
-47: learn: 0.3467724    total: 5.14s    remaining: 3.43s
-48: learn: 0.3430803    total: 5.24s    remaining: 3.31s
-49: learn: 0.3411632    total: 5.36s    remaining: 3.22s
-50: learn: 0.3396453    total: 5.46s    remaining: 3.1s
-51: learn: 0.3377685    total: 5.57s    remaining: 3s
-52: learn: 0.3362602    total: 5.69s    remaining: 2.9s
-53: learn: 0.3349568    total: 5.79s    remaining: 2.79s
-54: learn: 0.3336092    total: 5.9s remaining: 2.68s
-55: learn: 0.3318186    total: 6s   remaining: 2.57s
-56: learn: 0.3287766    total: 6.13s    remaining: 2.47s
-57: learn: 0.3268753    total: 6.22s    remaining: 2.36s
-58: learn: 0.3251920    total: 6.31s    remaining: 2.25s
-59: learn: 0.3227292    total: 6.43s    remaining: 2.14s
-60: learn: 0.3213152    total: 6.54s    remaining: 2.04s
-61: learn: 0.3192716    total: 6.63s    remaining: 1.93s
-62: learn: 0.3183261    total: 6.74s    remaining: 1.82s
-63: learn: 0.3171622    total: 6.85s    remaining: 1.71s
-64: learn: 0.3159563    total: 6.98s    remaining: 1.61s
-65: learn: 0.3143367    total: 7.09s    remaining: 1.5s
-66: learn: 0.3133019    total: 7.2s remaining: 1.4s
-67: learn: 0.3122973    total: 7.31s    remaining: 1.29s
-68: learn: 0.3103480    total: 7.4s remaining: 1.18s
-69: learn: 0.3093429    total: 7.52s    remaining: 1.07s
-70: learn: 0.3081943    total: 7.63s    remaining: 967ms
-71: learn: 0.3067472    total: 7.73s    remaining: 859ms
-72: learn: 0.3058445    total: 7.83s    remaining: 751ms
-73: learn: 0.3047133    total: 7.93s    remaining: 643ms
-74: learn: 0.3035925    total: 8.03s    remaining: 535ms
-75: learn: 0.3022633    total: 8.13s    remaining: 428ms
-76: learn: 0.3011552    total: 8.23s    remaining: 321ms
-77: learn: 0.2998250    total: 8.35s    remaining: 214ms
-78: learn: 0.2985347    total: 8.45s    remaining: 107ms
-79: learn: 0.2977599    total: 8.55s    remaining: 0us
-RandomizedSearchCV(cv=3, error_score=&amp;#39;raise&amp;#39;,
-                   estimator=&amp;lt;catboost.core.CatBoostClassifier object at 0x000002835E232280&amp;gt;,
-                   param_distributions={&amp;#39;depth&amp;#39;: [4, 5, 6, 7, 8, 9, 10],
-                                        &amp;#39;iterations&amp;#39;: [10, 20, 30, 40, 50, 60,
+&lt;style&gt;#sk-container-id-1 {color: black;background-color: white;}#sk-container-id-1 pre{padding: 0;}#sk-container-id-1 div.sk-toggleable {background-color: white;}#sk-container-id-1 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-1 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-1 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-1 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-1 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-1 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-1 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-1 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-1 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-1 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-1 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-1 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-1 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-1 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-1 div.sk-item {position: relative;z-index: 1;}#sk-container-id-1 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-1 div.sk-item::before, #sk-container-id-1 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-1 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-1 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-1 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-1 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-1 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-1 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-1 div.sk-label-container {text-align: center;}#sk-container-id-1 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-1 div.sk-text-repr-fallback {display: none;}&lt;/style&gt;&lt;div id="sk-container-id-1" class="sk-top-container"&gt;&lt;div class="sk-text-repr-fallback"&gt;&lt;pre&gt;RandomizedSearchCV(cv=3, error_score=&amp;#x27;raise&amp;#x27;,
+                   estimator=&amp;lt;catboost.core.CatBoostClassifier object at 0x0000014893573730&amp;gt;,
+                   param_distributions={&amp;#x27;depth&amp;#x27;: [4, 5, 6, 7, 8, 9, 10],
+                                        &amp;#x27;iterations&amp;#x27;: [10, 20, 30, 40, 50, 60,
                                                        70, 80, 90, 100],
-                                        &amp;#39;learning_rate&amp;#39;: [0.01, 0.02, 0.03,
+                                        &amp;#x27;learning_rate&amp;#x27;: [0.01, 0.02, 0.03,
                                                           0.04, 0.05]},
-                   random_state=123)&lt;/code&gt;&lt;/pre&gt;
+                   random_state=123)&lt;/pre&gt;&lt;b&gt;In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. &lt;br /&gt;On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.&lt;/b&gt;&lt;/div&gt;&lt;div class="sk-container" hidden&gt;&lt;div class="sk-item sk-dashed-wrapped"&gt;&lt;div class="sk-label-container"&gt;&lt;div class="sk-label sk-toggleable"&gt;&lt;input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-1" type="checkbox" &gt;&lt;label for="sk-estimator-id-1" class="sk-toggleable__label sk-toggleable__label-arrow"&gt;RandomizedSearchCV&lt;/label&gt;&lt;div class="sk-toggleable__content"&gt;&lt;pre&gt;RandomizedSearchCV(cv=3, error_score=&amp;#x27;raise&amp;#x27;,
+                   estimator=&amp;lt;catboost.core.CatBoostClassifier object at 0x0000014893573730&amp;gt;,
+                   param_distributions={&amp;#x27;depth&amp;#x27;: [4, 5, 6, 7, 8, 9, 10],
+                                        &amp;#x27;iterations&amp;#x27;: [10, 20, 30, 40, 50, 60,
+                                                       70, 80, 90, 100],
+                                        &amp;#x27;learning_rate&amp;#x27;: [0.01, 0.02, 0.03,
+                                                          0.04, 0.05]},
+                   random_state=123)&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="sk-parallel"&gt;&lt;div class="sk-parallel-item"&gt;&lt;div class="sk-item"&gt;&lt;div class="sk-label-container"&gt;&lt;div class="sk-label sk-toggleable"&gt;&lt;input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-2" type="checkbox" &gt;&lt;label for="sk-estimator-id-2" class="sk-toggleable__label sk-toggleable__label-arrow"&gt;estimator: CatBoostClassifier&lt;/label&gt;&lt;div class="sk-toggleable__content"&gt;&lt;pre&gt;&amp;lt;catboost.core.CatBoostClassifier object at 0x0000014893573730&amp;gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="sk-serial"&gt;&lt;div class="sk-item"&gt;&lt;div class="sk-estimator sk-toggleable"&gt;&lt;input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-3" type="checkbox" &gt;&lt;label for="sk-estimator-id-3" class="sk-toggleable__label sk-toggleable__label-arrow"&gt;CatBoostClassifier&lt;/label&gt;&lt;div class="sk-toggleable__content"&gt;&lt;pre&gt;&amp;lt;catboost.core.CatBoostClassifier object at 0x0000014893573730&amp;gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;ul&gt;
 &lt;li&gt;After the tuning, I will print out the grid search result. The best
 hyperparameter values we have are learning_rate = 0.05, iterations = 80,
@@ -1945,7 +907,7 @@ fitting the model.&lt;/li&gt;
 &lt;pre class="python"&gt;&lt;code&gt;print(&amp;quot;\n The best estimator across ALL searched params:\n&amp;quot;,Cat_random.best_estimator_)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;
  The best estimator across ALL searched params:
- &amp;lt;catboost.core.CatBoostClassifier object at 0x00000283655C1640&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+ &amp;lt;catboost.core.CatBoostClassifier object at 0x000001488C8A25E0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;print(&amp;quot;\n The best score across ALL searched params:\n&amp;quot;,Cat_random.best_score_)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;
  The best score across ALL searched params:
@@ -1957,87 +919,87 @@ fitting the model.&lt;/li&gt;
 &lt;pre class="python"&gt;&lt;code&gt;CBC_tuned = CatBoostClassifier(learning_rate = 0.05, iterations = 80, depth = 8, random_state=RANDOM_STATE)
 
 CBC_tuned.fit(X_train_hybrid_ext, y_train_hybrid_ext, cat_features = cat_features)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;0:  learn: 0.6665327    total: 76.9ms   remaining: 6.07s
-1:  learn: 0.6464428    total: 162ms    remaining: 6.3s
-2:  learn: 0.6274255    total: 252ms    remaining: 6.46s
-3:  learn: 0.6038900    total: 338ms    remaining: 6.41s
-4:  learn: 0.5853056    total: 434ms    remaining: 6.51s
-5:  learn: 0.5711453    total: 541ms    remaining: 6.67s
-6:  learn: 0.5518932    total: 642ms    remaining: 6.7s
-7:  learn: 0.5371312    total: 735ms    remaining: 6.61s
-8:  learn: 0.5246082    total: 822ms    remaining: 6.49s
-9:  learn: 0.5108871    total: 927ms    remaining: 6.49s
-10: learn: 0.5017540    total: 1.02s    remaining: 6.39s
-11: learn: 0.4914030    total: 1.11s    remaining: 6.28s
-12: learn: 0.4829017    total: 1.2s remaining: 6.18s
-13: learn: 0.4753740    total: 1.32s    remaining: 6.22s
-14: learn: 0.4684517    total: 1.44s    remaining: 6.23s
-15: learn: 0.4595894    total: 1.54s    remaining: 6.16s
-16: learn: 0.4516042    total: 1.63s    remaining: 6.05s
-17: learn: 0.4452736    total: 1.77s    remaining: 6.11s
-18: learn: 0.4382162    total: 1.87s    remaining: 5.99s
-19: learn: 0.4326054    total: 1.98s    remaining: 5.93s
-20: learn: 0.4268372    total: 2.08s    remaining: 5.86s
-21: learn: 0.4202041    total: 2.21s    remaining: 5.83s
-22: learn: 0.4167642    total: 2.31s    remaining: 5.71s
-23: learn: 0.4122437    total: 2.42s    remaining: 5.64s
-24: learn: 0.4093793    total: 2.54s    remaining: 5.6s
-25: learn: 0.4039919    total: 2.65s    remaining: 5.5s
-26: learn: 0.4004563    total: 2.75s    remaining: 5.39s
-27: learn: 0.3975197    total: 2.84s    remaining: 5.28s
-28: learn: 0.3932144    total: 2.94s    remaining: 5.17s
-29: learn: 0.3904852    total: 3.04s    remaining: 5.06s
-30: learn: 0.3880708    total: 3.13s    remaining: 4.95s
-31: learn: 0.3859222    total: 3.23s    remaining: 4.84s
-32: learn: 0.3831005    total: 3.32s    remaining: 4.73s
-33: learn: 0.3810144    total: 3.42s    remaining: 4.63s
-34: learn: 0.3785504    total: 3.54s    remaining: 4.55s
-35: learn: 0.3761624    total: 3.63s    remaining: 4.44s
-36: learn: 0.3737088    total: 3.72s    remaining: 4.33s
-37: learn: 0.3712488    total: 3.83s    remaining: 4.24s
-38: learn: 0.3685311    total: 3.94s    remaining: 4.14s
-39: learn: 0.3662991    total: 4.06s    remaining: 4.06s
-40: learn: 0.3634880    total: 4.17s    remaining: 3.96s
-41: learn: 0.3606838    total: 4.28s    remaining: 3.87s
-42: learn: 0.3587348    total: 4.39s    remaining: 3.77s
-43: learn: 0.3567398    total: 4.49s    remaining: 3.67s
-44: learn: 0.3548707    total: 4.59s    remaining: 3.57s
-45: learn: 0.3520839    total: 4.7s remaining: 3.48s
-46: learn: 0.3492787    total: 4.84s    remaining: 3.4s
-47: learn: 0.3467724    total: 4.96s    remaining: 3.3s
-48: learn: 0.3430803    total: 5.05s    remaining: 3.19s
-49: learn: 0.3411632    total: 5.14s    remaining: 3.09s
-50: learn: 0.3396453    total: 5.25s    remaining: 2.98s
-51: learn: 0.3377685    total: 5.35s    remaining: 2.88s
-52: learn: 0.3362602    total: 5.46s    remaining: 2.78s
-53: learn: 0.3349568    total: 5.57s    remaining: 2.68s
-54: learn: 0.3336092    total: 5.68s    remaining: 2.58s
-55: learn: 0.3318186    total: 5.77s    remaining: 2.47s
-56: learn: 0.3287766    total: 5.86s    remaining: 2.37s
-57: learn: 0.3268753    total: 5.96s    remaining: 2.26s
-58: learn: 0.3251920    total: 6.06s    remaining: 2.16s
-59: learn: 0.3227292    total: 6.16s    remaining: 2.05s
-60: learn: 0.3213152    total: 6.26s    remaining: 1.95s
-61: learn: 0.3192716    total: 6.39s    remaining: 1.86s
-62: learn: 0.3183261    total: 6.52s    remaining: 1.76s
-63: learn: 0.3171622    total: 6.61s    remaining: 1.65s
-64: learn: 0.3159563    total: 6.71s    remaining: 1.55s
-65: learn: 0.3143367    total: 6.82s    remaining: 1.45s
-66: learn: 0.3133019    total: 6.92s    remaining: 1.34s
-67: learn: 0.3122973    total: 7.01s    remaining: 1.24s
-68: learn: 0.3103480    total: 7.11s    remaining: 1.13s
-69: learn: 0.3093429    total: 7.21s    remaining: 1.03s
-70: learn: 0.3081943    total: 7.3s remaining: 926ms
-71: learn: 0.3067472    total: 7.41s    remaining: 823ms
-72: learn: 0.3058445    total: 7.52s    remaining: 721ms
-73: learn: 0.3047133    total: 7.63s    remaining: 619ms
-74: learn: 0.3035925    total: 7.73s    remaining: 515ms
-75: learn: 0.3022633    total: 7.83s    remaining: 412ms
-76: learn: 0.3011552    total: 7.95s    remaining: 310ms
-77: learn: 0.2998250    total: 8.05s    remaining: 207ms
-78: learn: 0.2985347    total: 8.17s    remaining: 103ms
-79: learn: 0.2977599    total: 8.28s    remaining: 0us
-&amp;lt;catboost.core.CatBoostClassifier object at 0x000002835E53F520&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;0:  learn: 0.6665327    total: 67.5ms   remaining: 5.33s
+1:  learn: 0.6464428    total: 143ms    remaining: 5.57s
+2:  learn: 0.6274255    total: 235ms    remaining: 6.03s
+3:  learn: 0.6038900    total: 319ms    remaining: 6.07s
+4:  learn: 0.5853056    total: 405ms    remaining: 6.08s
+5:  learn: 0.5711453    total: 492ms    remaining: 6.06s
+6:  learn: 0.5518932    total: 581ms    remaining: 6.06s
+7:  learn: 0.5371312    total: 671ms    remaining: 6.04s
+8:  learn: 0.5246082    total: 773ms    remaining: 6.1s
+9:  learn: 0.5108871    total: 867ms    remaining: 6.07s
+10: learn: 0.5017540    total: 989ms    remaining: 6.2s
+11: learn: 0.4914030    total: 1.09s    remaining: 6.16s
+12: learn: 0.4829017    total: 1.19s    remaining: 6.11s
+13: learn: 0.4753740    total: 1.3s remaining: 6.12s
+14: learn: 0.4684517    total: 1.4s remaining: 6.05s
+15: learn: 0.4595894    total: 1.49s    remaining: 5.98s
+16: learn: 0.4516042    total: 1.61s    remaining: 5.96s
+17: learn: 0.4452736    total: 1.73s    remaining: 5.95s
+18: learn: 0.4382162    total: 1.83s    remaining: 5.89s
+19: learn: 0.4326054    total: 1.94s    remaining: 5.83s
+20: learn: 0.4268372    total: 2.05s    remaining: 5.77s
+21: learn: 0.4202041    total: 2.15s    remaining: 5.68s
+22: learn: 0.4167642    total: 2.26s    remaining: 5.61s
+23: learn: 0.4122437    total: 2.37s    remaining: 5.52s
+24: learn: 0.4093793    total: 2.48s    remaining: 5.45s
+25: learn: 0.4039919    total: 2.59s    remaining: 5.37s
+26: learn: 0.4004563    total: 2.69s    remaining: 5.29s
+27: learn: 0.3975197    total: 2.81s    remaining: 5.22s
+28: learn: 0.3932144    total: 2.94s    remaining: 5.16s
+29: learn: 0.3904852    total: 3.05s    remaining: 5.09s
+30: learn: 0.3880708    total: 3.17s    remaining: 5.01s
+31: learn: 0.3859222    total: 3.28s    remaining: 4.92s
+32: learn: 0.3831005    total: 3.39s    remaining: 4.83s
+33: learn: 0.3810144    total: 3.5s remaining: 4.74s
+34: learn: 0.3785504    total: 3.61s    remaining: 4.65s
+35: learn: 0.3761624    total: 3.73s    remaining: 4.56s
+36: learn: 0.3737088    total: 3.85s    remaining: 4.47s
+37: learn: 0.3712488    total: 3.95s    remaining: 4.37s
+38: learn: 0.3685311    total: 4.09s    remaining: 4.3s
+39: learn: 0.3662991    total: 4.21s    remaining: 4.21s
+40: learn: 0.3634880    total: 4.32s    remaining: 4.11s
+41: learn: 0.3606838    total: 4.43s    remaining: 4s
+42: learn: 0.3587348    total: 4.54s    remaining: 3.9s
+43: learn: 0.3567398    total: 4.65s    remaining: 3.81s
+44: learn: 0.3548707    total: 4.76s    remaining: 3.7s
+45: learn: 0.3520839    total: 4.87s    remaining: 3.6s
+46: learn: 0.3492787    total: 4.98s    remaining: 3.5s
+47: learn: 0.3467724    total: 5.11s    remaining: 3.41s
+48: learn: 0.3430803    total: 5.21s    remaining: 3.3s
+49: learn: 0.3411632    total: 5.32s    remaining: 3.19s
+50: learn: 0.3396453    total: 5.43s    remaining: 3.09s
+51: learn: 0.3377685    total: 5.55s    remaining: 2.99s
+52: learn: 0.3362602    total: 5.66s    remaining: 2.88s
+53: learn: 0.3349568    total: 5.77s    remaining: 2.78s
+54: learn: 0.3336092    total: 5.88s    remaining: 2.67s
+55: learn: 0.3318186    total: 5.98s    remaining: 2.56s
+56: learn: 0.3287766    total: 6.09s    remaining: 2.46s
+57: learn: 0.3268753    total: 6.2s remaining: 2.35s
+58: learn: 0.3251920    total: 6.31s    remaining: 2.25s
+59: learn: 0.3227292    total: 6.42s    remaining: 2.14s
+60: learn: 0.3213152    total: 6.53s    remaining: 2.03s
+61: learn: 0.3192716    total: 6.68s    remaining: 1.94s
+62: learn: 0.3183261    total: 6.79s    remaining: 1.83s
+63: learn: 0.3171622    total: 6.9s remaining: 1.72s
+64: learn: 0.3159563    total: 7s   remaining: 1.61s
+65: learn: 0.3143367    total: 7.11s    remaining: 1.51s
+66: learn: 0.3133019    total: 7.22s    remaining: 1.4s
+67: learn: 0.3122973    total: 7.34s    remaining: 1.29s
+68: learn: 0.3103480    total: 7.45s    remaining: 1.19s
+69: learn: 0.3093429    total: 7.58s    remaining: 1.08s
+70: learn: 0.3081943    total: 7.71s    remaining: 977ms
+71: learn: 0.3067472    total: 7.81s    remaining: 868ms
+72: learn: 0.3058445    total: 7.91s    remaining: 759ms
+73: learn: 0.3047133    total: 8.04s    remaining: 652ms
+74: learn: 0.3035925    total: 8.15s    remaining: 543ms
+75: learn: 0.3022633    total: 8.25s    remaining: 434ms
+76: learn: 0.3011552    total: 8.35s    remaining: 326ms
+77: learn: 0.2998250    total: 8.46s    remaining: 217ms
+78: learn: 0.2985347    total: 8.57s    remaining: 109ms
+79: learn: 0.2977599    total: 8.69s    remaining: 0us
+&amp;lt;catboost.core.CatBoostClassifier object at 0x00000148934785B0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;We have 38 variables. We can use all of them, but we can also
 further reduce them for to look for the most relevant variables to the
@@ -2094,87 +1056,87 @@ data set and use it to predict the testing data set.&lt;/li&gt;
 &lt;pre class="python"&gt;&lt;code&gt;cat_features_post_trim = [0, 1, 7, 12, 13, 14, 15,16, 17, 19]
 
 CBC_tuned.fit(X_train_hybrid_ext, y_train_hybrid_ext, cat_features = cat_features_post_trim)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;0:  learn: 0.6630968    total: 61.4ms   remaining: 4.85s
-1:  learn: 0.6347421    total: 136ms    remaining: 5.3s
-2:  learn: 0.6135360    total: 209ms    remaining: 5.36s
-3:  learn: 0.5958557    total: 293ms    remaining: 5.57s
-4:  learn: 0.5789939    total: 368ms    remaining: 5.53s
-5:  learn: 0.5568907    total: 441ms    remaining: 5.44s
-6:  learn: 0.5378680    total: 526ms    remaining: 5.49s
-7:  learn: 0.5226018    total: 603ms    remaining: 5.43s
-8:  learn: 0.5087498    total: 680ms    remaining: 5.36s
-9:  learn: 0.5009270    total: 755ms    remaining: 5.28s
-10: learn: 0.4841922    total: 856ms    remaining: 5.37s
-11: learn: 0.4746953    total: 941ms    remaining: 5.33s
-12: learn: 0.4681778    total: 1.03s    remaining: 5.33s
-13: learn: 0.4612541    total: 1.13s    remaining: 5.32s
-14: learn: 0.4532992    total: 1.23s    remaining: 5.31s
-15: learn: 0.4450863    total: 1.31s    remaining: 5.24s
-16: learn: 0.4375271    total: 1.4s remaining: 5.2s
-17: learn: 0.4308885    total: 1.48s    remaining: 5.11s
-18: learn: 0.4254128    total: 1.59s    remaining: 5.1s
-19: learn: 0.4213425    total: 1.7s remaining: 5.09s
-20: learn: 0.4177958    total: 1.78s    remaining: 5.01s
-21: learn: 0.4131347    total: 1.87s    remaining: 4.93s
-22: learn: 0.4089653    total: 1.97s    remaining: 4.87s
-23: learn: 0.4055672    total: 2.07s    remaining: 4.84s
-24: learn: 0.4030118    total: 2.17s    remaining: 4.77s
-25: learn: 0.3997708    total: 2.26s    remaining: 4.69s
-26: learn: 0.3945504    total: 2.35s    remaining: 4.61s
-27: learn: 0.3909571    total: 2.44s    remaining: 4.54s
-28: learn: 0.3874681    total: 2.53s    remaining: 4.45s
-29: learn: 0.3842159    total: 2.62s    remaining: 4.36s
-30: learn: 0.3817295    total: 2.71s    remaining: 4.28s
-31: learn: 0.3793464    total: 2.8s remaining: 4.2s
-32: learn: 0.3760956    total: 2.88s    remaining: 4.11s
-33: learn: 0.3744325    total: 2.97s    remaining: 4.02s
-34: learn: 0.3711698    total: 3.06s    remaining: 3.94s
-35: learn: 0.3690638    total: 3.15s    remaining: 3.85s
-36: learn: 0.3659461    total: 3.25s    remaining: 3.78s
-37: learn: 0.3637044    total: 3.34s    remaining: 3.69s
-38: learn: 0.3621688    total: 3.42s    remaining: 3.6s
-39: learn: 0.3601269    total: 3.51s    remaining: 3.51s
-40: learn: 0.3580019    total: 3.59s    remaining: 3.42s
-41: learn: 0.3567636    total: 3.71s    remaining: 3.35s
-42: learn: 0.3544761    total: 3.79s    remaining: 3.26s
-43: learn: 0.3505973    total: 3.88s    remaining: 3.17s
-44: learn: 0.3495149    total: 3.97s    remaining: 3.09s
-45: learn: 0.3476525    total: 4.07s    remaining: 3.01s
-46: learn: 0.3462577    total: 4.18s    remaining: 2.93s
-47: learn: 0.3445400    total: 4.26s    remaining: 2.84s
-48: learn: 0.3427600    total: 4.36s    remaining: 2.76s
-49: learn: 0.3408402    total: 4.45s    remaining: 2.67s
-50: learn: 0.3381710    total: 4.54s    remaining: 2.58s
-51: learn: 0.3364197    total: 4.63s    remaining: 2.49s
-52: learn: 0.3339518    total: 4.74s    remaining: 2.41s
-53: learn: 0.3311018    total: 4.86s    remaining: 2.34s
-54: learn: 0.3294152    total: 4.94s    remaining: 2.25s
-55: learn: 0.3280687    total: 5.04s    remaining: 2.16s
-56: learn: 0.3269127    total: 5.13s    remaining: 2.07s
-57: learn: 0.3252681    total: 5.22s    remaining: 1.98s
-58: learn: 0.3243089    total: 5.3s remaining: 1.89s
-59: learn: 0.3212165    total: 5.39s    remaining: 1.8s
-60: learn: 0.3201323    total: 5.49s    remaining: 1.71s
-61: learn: 0.3189120    total: 5.58s    remaining: 1.62s
-62: learn: 0.3178599    total: 5.67s    remaining: 1.53s
-63: learn: 0.3169985    total: 5.75s    remaining: 1.44s
-64: learn: 0.3154376    total: 5.87s    remaining: 1.35s
-65: learn: 0.3142858    total: 5.95s    remaining: 1.26s
-66: learn: 0.3130732    total: 6.05s    remaining: 1.17s
-67: learn: 0.3115498    total: 6.14s    remaining: 1.08s
-68: learn: 0.3106751    total: 6.24s    remaining: 995ms
-69: learn: 0.3104327    total: 6.31s    remaining: 901ms
-70: learn: 0.3094918    total: 6.34s    remaining: 803ms
-71: learn: 0.3084260    total: 6.42s    remaining: 713ms
-72: learn: 0.3070031    total: 6.5s remaining: 624ms
-73: learn: 0.3052639    total: 6.61s    remaining: 536ms
-74: learn: 0.3043254    total: 6.71s    remaining: 447ms
-75: learn: 0.3038159    total: 6.76s    remaining: 356ms
-76: learn: 0.3029093    total: 6.85s    remaining: 267ms
-77: learn: 0.3014591    total: 6.93s    remaining: 178ms
-78: learn: 0.2992314    total: 7.02s    remaining: 88.8ms
-79: learn: 0.2984094    total: 7.12s    remaining: 0us
-&amp;lt;catboost.core.CatBoostClassifier object at 0x000002835E53F520&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;0:  learn: 0.6630968    total: 62.8ms   remaining: 4.96s
+1:  learn: 0.6347421    total: 121ms    remaining: 4.71s
+2:  learn: 0.6135360    total: 187ms    remaining: 4.8s
+3:  learn: 0.5958557    total: 253ms    remaining: 4.8s
+4:  learn: 0.5789939    total: 319ms    remaining: 4.79s
+5:  learn: 0.5568907    total: 389ms    remaining: 4.79s
+6:  learn: 0.5378680    total: 460ms    remaining: 4.8s
+7:  learn: 0.5226018    total: 536ms    remaining: 4.83s
+8:  learn: 0.5087498    total: 615ms    remaining: 4.85s
+9:  learn: 0.5009270    total: 694ms    remaining: 4.86s
+10: learn: 0.4841922    total: 768ms    remaining: 4.82s
+11: learn: 0.4746953    total: 854ms    remaining: 4.84s
+12: learn: 0.4681778    total: 932ms    remaining: 4.8s
+13: learn: 0.4612541    total: 1.01s    remaining: 4.76s
+14: learn: 0.4532992    total: 1.09s    remaining: 4.72s
+15: learn: 0.4450863    total: 1.17s    remaining: 4.67s
+16: learn: 0.4375271    total: 1.25s    remaining: 4.63s
+17: learn: 0.4308885    total: 1.34s    remaining: 4.6s
+18: learn: 0.4254128    total: 1.42s    remaining: 4.56s
+19: learn: 0.4213425    total: 1.51s    remaining: 4.52s
+20: learn: 0.4177958    total: 1.59s    remaining: 4.48s
+21: learn: 0.4131347    total: 1.68s    remaining: 4.43s
+22: learn: 0.4089653    total: 1.77s    remaining: 4.38s
+23: learn: 0.4055672    total: 1.86s    remaining: 4.33s
+24: learn: 0.4030118    total: 1.94s    remaining: 4.27s
+25: learn: 0.3997708    total: 2.03s    remaining: 4.22s
+26: learn: 0.3945504    total: 2.12s    remaining: 4.16s
+27: learn: 0.3909571    total: 2.21s    remaining: 4.1s
+28: learn: 0.3874681    total: 2.32s    remaining: 4.08s
+29: learn: 0.3842159    total: 2.42s    remaining: 4.03s
+30: learn: 0.3817295    total: 2.5s remaining: 3.96s
+31: learn: 0.3793464    total: 2.59s    remaining: 3.89s
+32: learn: 0.3760956    total: 2.68s    remaining: 3.81s
+33: learn: 0.3744325    total: 2.77s    remaining: 3.74s
+34: learn: 0.3711698    total: 2.85s    remaining: 3.67s
+35: learn: 0.3690638    total: 2.94s    remaining: 3.6s
+36: learn: 0.3659461    total: 3.03s    remaining: 3.52s
+37: learn: 0.3637044    total: 3.12s    remaining: 3.45s
+38: learn: 0.3621688    total: 3.22s    remaining: 3.39s
+39: learn: 0.3601269    total: 3.31s    remaining: 3.31s
+40: learn: 0.3580019    total: 3.4s remaining: 3.23s
+41: learn: 0.3567636    total: 3.49s    remaining: 3.16s
+42: learn: 0.3544761    total: 3.58s    remaining: 3.08s
+43: learn: 0.3505973    total: 3.67s    remaining: 3s
+44: learn: 0.3495149    total: 3.75s    remaining: 2.92s
+45: learn: 0.3476525    total: 3.84s    remaining: 2.84s
+46: learn: 0.3462577    total: 3.92s    remaining: 2.75s
+47: learn: 0.3445400    total: 4s   remaining: 2.67s
+48: learn: 0.3427600    total: 4.09s    remaining: 2.59s
+49: learn: 0.3408402    total: 4.19s    remaining: 2.51s
+50: learn: 0.3381710    total: 4.29s    remaining: 2.44s
+51: learn: 0.3364197    total: 4.38s    remaining: 2.36s
+52: learn: 0.3339518    total: 4.46s    remaining: 2.27s
+53: learn: 0.3311018    total: 4.56s    remaining: 2.2s
+54: learn: 0.3294152    total: 4.67s    remaining: 2.12s
+55: learn: 0.3280687    total: 4.76s    remaining: 2.04s
+56: learn: 0.3269127    total: 4.85s    remaining: 1.96s
+57: learn: 0.3252681    total: 4.94s    remaining: 1.87s
+58: learn: 0.3243089    total: 5.03s    remaining: 1.79s
+59: learn: 0.3212165    total: 5.12s    remaining: 1.71s
+60: learn: 0.3201323    total: 5.21s    remaining: 1.62s
+61: learn: 0.3189120    total: 5.32s    remaining: 1.54s
+62: learn: 0.3178599    total: 5.41s    remaining: 1.46s
+63: learn: 0.3169985    total: 5.49s    remaining: 1.37s
+64: learn: 0.3154376    total: 5.57s    remaining: 1.29s
+65: learn: 0.3142858    total: 5.66s    remaining: 1.2s
+66: learn: 0.3130732    total: 5.75s    remaining: 1.11s
+67: learn: 0.3115498    total: 5.83s    remaining: 1.03s
+68: learn: 0.3106751    total: 5.92s    remaining: 944ms
+69: learn: 0.3104327    total: 5.96s    remaining: 852ms
+70: learn: 0.3094918    total: 6s   remaining: 760ms
+71: learn: 0.3084260    total: 6.09s    remaining: 676ms
+72: learn: 0.3070031    total: 6.18s    remaining: 593ms
+73: learn: 0.3052639    total: 6.28s    remaining: 509ms
+74: learn: 0.3043254    total: 6.37s    remaining: 425ms
+75: learn: 0.3038159    total: 6.43s    remaining: 339ms
+76: learn: 0.3029093    total: 6.52s    remaining: 254ms
+77: learn: 0.3014591    total: 6.61s    remaining: 169ms
+78: learn: 0.2992314    total: 6.72s    remaining: 85.1ms
+79: learn: 0.2984094    total: 6.81s    remaining: 0us
+&amp;lt;catboost.core.CatBoostClassifier object at 0x00000148934785B0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;Results from classification report are satisfactory as seen from the
 macro average of precision, recall, and f1-score. I also show the
@@ -2205,9 +1167,9 @@ auc_cat = metrics.roc_auc_score(y_test_hybrid_ext, y_pred_proba_cat)
 
 #create ROC curve
 plt.plot(fpr_cat,tpr_cat, label=&amp;quot;ROC_AUC=&amp;quot;+str(auc_cat.round(3)))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x000002835E591550&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x000001488CF84340&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.legend(loc=&amp;quot;lower right&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x000002835E5915B0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x000001488CFFD160&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;#39;True Positive Rate&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0, 0.5, &amp;#39;True Positive Rate&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.xlabel(&amp;#39;False Positive Rate&amp;#39;)
@@ -2217,7 +1179,7 @@ plt.plot(fpr_cat,tpr_cat, label=&amp;quot;ROC_AUC=&amp;quot;+str(auc_cat.round(3
 &lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Area Under Curve&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Area Under Curve&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file366c53d3573_files/figure-html/unnamed-chunk-23-9.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file25dc4a9b1d5a_files/figure-html/unnamed-chunk-23-9.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;I also visualize feature importance of the model below. The most
 impactful predictor to students’ high school dropout is their last year
@@ -2240,7 +1202,7 @@ plt.xlabel(&amp;#39;Feature Importance Score&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Visualizing Important Features&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.rcParams[&amp;quot;figure.figsize&amp;quot;] = (8, 4)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file366c53d3573_files/figure-html/unnamed-chunk-24-11.png" width="1152" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file25dc4a9b1d5a_files/figure-html/unnamed-chunk-24-11.png" width="1152" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The point of this post is to demonstrate how EDM can be used with
@@ -2476,7 +1438,7 @@ rasch(data = LSAT, constraint = cbind(length(LSAT) + 1, 1))
 
 Tobs: 30.6 
 # data-sets: 200 
-p-value: 0.27 &lt;/code&gt;&lt;/pre&gt;
+p-value: 0.265 &lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;Based on 200 data-points, the non significant p-value suggests an
 acceptable fit of the model. The null hypothesis states that the
@@ -2613,7 +1575,7 @@ unitest_1pl &amp;lt;- unidimTest(mod_1pl,LSAT)
 plot(unitest_1pl, type = &amp;quot;b&amp;quot;, pch = 1:2, main = &amp;quot;Modified Parallel Analysis Plot&amp;quot;)
 legend(&amp;quot;topright&amp;quot;, c(&amp;quot;Real Data&amp;quot;, &amp;quot;Average Simulated Data&amp;quot;), lty = 1, 
     pch = 1:2, col = 1:2, bty = &amp;quot;n&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file366c48bb7554_files/figure-html/unnamed-chunk-11-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file25dc4cb91212_files/figure-html/unnamed-chunk-11-1.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The first plot is ICC of out 1PL model. ICC shows the
 relationship between examinee ability (θ) and the probability of
@@ -2671,9 +1633,9 @@ Alternative hypothesis: the second eigenvalue of the observed data is substantia
             than the second eigenvalue of data under the assumed IRT model
 
 Second eigenvalue in the observed data: 0.2254
-Average of second eigenvalues in Monte Carlo samples: 0.2561
+Average of second eigenvalues in Monte Carlo samples: 0.2541
 Monte Carlo samples: 100
-p-value: 0.6535&lt;/code&gt;&lt;/pre&gt;
+p-value: 0.5941&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;The last plot is a test for unidimensionality of the test with
 modified parallel analysis &lt;a
@@ -2891,7 +1853,7 @@ unitest_2pl &amp;lt;- unidimTest(mod_2pl,LSAT)
 plot(unitest_2pl, type = &amp;quot;b&amp;quot;, pch = 1:2)
 legend(&amp;quot;topright&amp;quot;, c(&amp;quot;Real Data&amp;quot;, &amp;quot;Average Simulated Data&amp;quot;), lty = 1, 
     pch = 1:2, col = 1:2, bty = &amp;quot;n&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file366c48bb7554_files/figure-html/unnamed-chunk-18-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file25dc4cb91212_files/figure-html/unnamed-chunk-18-1.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;ICC and IIC of the two models are different, meaning that when we
 allow item discrimination to vary, characteristics and yielded
@@ -2916,9 +1878,9 @@ Alternative hypothesis: the second eigenvalue of the observed data is substantia
             than the second eigenvalue of data under the assumed IRT model
 
 Second eigenvalue in the observed data: 0.2254
-Average of second eigenvalues in Monte Carlo samples: 0.2423
+Average of second eigenvalues in Monte Carlo samples: 0.251
 Monte Carlo samples: 100
-p-value: 0.604&lt;/code&gt;&lt;/pre&gt;
+p-value: 0.6634&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;The above results of unidimensionality testing also suggests that
 the test measures only one construct. When considering two models
@@ -3011,7 +1973,7 @@ unitest_3pl &amp;lt;- unidimTest(mod_3pl,LSAT)
 plot(unitest_3pl, type = &amp;quot;b&amp;quot;, pch = 1:2)
 legend(&amp;quot;topright&amp;quot;, c(&amp;quot;Real Data&amp;quot;, &amp;quot;Average Simulated Data&amp;quot;), lty = 1, 
     pch = 1:2, col = 1:2, bty = &amp;quot;n&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file366c48bb7554_files/figure-html/unnamed-chunk-21-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file25dc4cb91212_files/figure-html/unnamed-chunk-21-1.png" width="1152" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;unitest_3pl&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;
 Unidimensionality Check using Modified Parallel Analysis
@@ -3031,9 +1993,9 @@ Alternative hypothesis: the second eigenvalue of the observed data is substantia
             than the second eigenvalue of data under the assumed IRT model
 
 Second eigenvalue in the observed data: 0.2254
-Average of second eigenvalues in Monte Carlo samples: 0.2495
+Average of second eigenvalues in Monte Carlo samples: 0.2482
 Monte Carlo samples: 100
-p-value: 0.5842&lt;/code&gt;&lt;/pre&gt;
+p-value: 0.5743&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;The unidimensionality testing above suggested non-significant
 result, meaning that the test measures one construct as intended.&lt;/li&gt;
@@ -3301,7 +2263,7 @@ gpcm(data = Environment, constraint = &amp;quot;rasch&amp;quot;)
 
 Tobs: 1001.41 
 # data-sets: 200 
-p-value: 0.08 &lt;/code&gt;&lt;/pre&gt;
+p-value: 0.085 &lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;Based on 200 data-points, the non significant p-value suggests an
 acceptable fit of the model. The null hypothesis states that the
@@ -3568,7 +2530,7 @@ text(-1.9, 8, labels = paste(&amp;quot;Information in (-4, 0):&amp;quot;,
                              paste(round(100 * info3$PropRange, 1), &amp;quot;%&amp;quot;, sep = &amp;quot;&amp;quot;),
                              &amp;quot;\n\nInformation in (0, 4):&amp;quot;,
                              paste(round(100 * info4$PropRange, 1), &amp;quot;%&amp;quot;, sep = &amp;quot;&amp;quot;)), cex = 0.5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file366c48bb7554_files/figure-html/unnamed-chunk-37-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file25dc4cb91212_files/figure-html/unnamed-chunk-37-1.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;From the Item Characteristic Curve, we observe that there is low
 probability of endorsing the the first option, “very concerned”, for
@@ -3619,7 +2581,7 @@ for (ctg in 2:3)
       xlab = &amp;quot;Latent Trait&amp;quot;, cex.main = 0.7, cex.lab = 0.7,
       cex.axis = 1)
   }&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file366c48bb7554_files/figure-html/unnamed-chunk-40-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file25dc4cb91212_files/figure-html/unnamed-chunk-40-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;From the plot, the response option for RadioWaste and Chemicals have
 nearly identical characteristic curves for all categories, indicating
@@ -3989,9 +2951,9 @@ fpr_rf, tpr_rf, _ = metrics.roc_curve(y_test,  y_pred_proba_rf)
 
 auc_rf = metrics.roc_auc_score(y_test, y_pred_proba_rf)
 plt.plot(fpr_rf,tpr_rf, label=&amp;quot;AUC for Random Forest Classifier = &amp;quot;+str(auc_rf.round(3)))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x000002836A80FDF0&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x000001488D3B18E0&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.legend(loc=&amp;quot;lower right&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x000002836A80F580&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x000001488CA81F10&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;#39;True Positive Rate&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0, 0.5, &amp;#39;True Positive Rate&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.xlabel(&amp;#39;False Positive Rate&amp;#39;)
@@ -4000,7 +2962,7 @@ plt.plot(fpr_rf,tpr_rf, label=&amp;quot;AUC for Random Forest Classifier = &amp;
 &lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Receiver-Operator Curve (ROC)&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Receiver-Operator Curve (ROC)&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file366c664c513a_files/figure-html/unnamed-chunk-10-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file25dc2ca336da_files/figure-html/unnamed-chunk-10-1.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The results will be evaluated with the Receiver Operator
 Characteristic (ROC) curve, which shows the diagnostic ability of binary
@@ -4051,7 +3013,7 @@ plt.xlabel(&amp;#39;Feature Importance Score&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Visualizing Important Features&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Visualizing Important Features&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file366c664c513a_files/figure-html/unnamed-chunk-11-3.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file25dc2ca336da_files/figure-html/unnamed-chunk-11-3.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Another way, which we will focus on in this post, is to use the
 permutation importance score from the area of XAI. Permutation
@@ -4140,7 +3102,7 @@ pdp_bullied = pdp.pdp_isolate(model=clf_rfc, dataset=X_test, model_features=FEAT
 pdp.pdp_plot(pdp_bullied, &amp;#39;BEINGBULLIED&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;(&amp;lt;Figure size 1500x950 with 2 Axes&amp;gt;, {&amp;#39;title_ax&amp;#39;: &amp;lt;AxesSubplot:&amp;gt;, &amp;#39;pdp_ax&amp;#39;: &amp;lt;AxesSubplot:xlabel=&amp;#39;BEINGBULLIED&amp;#39;&amp;gt;})&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file366c664c513a_files/figure-html/unnamed-chunk-13-5.png" width="1440" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file25dc2ca336da_files/figure-html/unnamed-chunk-13-5.png" width="1440" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Partial Dependence Plots can also be used to examine interactions
 between variables as well. The graph below shows predictions for any
@@ -4164,7 +3126,7 @@ inter1  =  pdp.pdp_interact(model=clf_rfc, dataset=X_test, model_features=FEATUR
 pdp.pdp_interact_plot(pdp_interact_out=inter1, feature_names=features_to_plot, plot_type=&amp;#39;contour&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;(&amp;lt;Figure size 750x950 with 3 Axes&amp;gt;, {&amp;#39;title_ax&amp;#39;: &amp;lt;AxesSubplot:&amp;gt;, &amp;#39;pdp_inter_ax&amp;#39;: &amp;lt;AxesSubplot:xlabel=&amp;#39;BEINGBULLIED&amp;#39;, ylabel=&amp;#39;Parent_emosup&amp;#39;&amp;gt;})&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file366c664c513a_files/figure-html/unnamed-chunk-14-7.png" width="720" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file25dc2ca336da_files/figure-html/unnamed-chunk-14-7.png" width="720" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h3 id="shap-values"&gt;SHAP Values&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Finally, SHAP value allows us to interpret the prediction at a
@@ -4642,11 +3604,11 @@ counts = groups.size()
 
 # Vertical lines
 plt.axvline(x = 7.0, color = &amp;#39;forestgreen&amp;#39;, label = &amp;#39;The reopening date&amp;#39;, linestyle=&amp;#39;--&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.lines.Line2D object at 0x00000283881BD430&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.lines.Line2D object at 0x00000148A0C3C250&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.axvline(x = 8.0, color = &amp;#39;firebrick&amp;#39;, label = &amp;#39;Wave 4 started&amp;#39;, linestyle=&amp;#39;--&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.lines.Line2D object at 0x00000283881BD940&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.lines.Line2D object at 0x00000148A0C302E0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.legend(bbox_to_anchor = (1.0, 1), loc = &amp;#39;upper right&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x00000283881BD400&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x00000148A0C3C910&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Tweet count across months&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Tweet count across months&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;quot;Tweet count&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
@@ -4656,7 +3618,7 @@ plt.axvline(x = 7.0, color = &amp;#39;forestgreen&amp;#39;, label = &amp;#39;The
 &lt;pre class="python"&gt;&lt;code&gt;counts.plot()&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:title={&amp;#39;center&amp;#39;:&amp;#39;Tweet count across months&amp;#39;}, xlabel=&amp;#39;Month&amp;#39;, ylabel=&amp;#39;Tweet count&amp;#39;&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file366c12431b17_files/figure-html/unnamed-chunk-5-1.png" width="720" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file25dc6798364f_files/figure-html/unnamed-chunk-5-1.png" width="720" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The line plot above represents tweet counts across months after the
 provincial reopening date. The x-axis indicates months and the y-axis
@@ -4699,11 +3661,11 @@ wordcloud_tweet = WordCloud(stopwords=stopwords_cloud, background_color=&amp;quo
 plt.figure(figsize=[10,10])&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1000x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.imshow(wordcloud_tweet, interpolation=&amp;#39;bilinear&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.image.AxesImage object at 0x00000283881B1730&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.image.AxesImage object at 0x000001489EAC6970&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.axis(&amp;quot;off&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;(-0.5, 399.5, 199.5, -0.5)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file366c12431b17_files/figure-html/unnamed-chunk-6-3.png" width="960" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file25dc6798364f_files/figure-html/unnamed-chunk-6-3.png" width="960" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The thing is, word cloud can only provide a rough visual
 presentation for the characteristics of our textual data. We would need
@@ -4752,7 +3714,7 @@ count_data = tfidf_vectorizer.fit_transform(tweets_df[&amp;#39;Text_processed&am
 
 # Visualise the 10 most common words
 plot_10_most_common_words(count_data, tfidf_vectorizer)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file366c12431b17_files/figure-html/unnamed-chunk-7-5.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file25dc6798364f_files/figure-html/unnamed-chunk-7-5.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The bar plot above gave us a more detailed information of which
 word occurs more frequently than the others based on the term
