@@ -1,0 +1,3466 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1"/>
+  <meta name="generator" content="distill" />
+
+  <style type="text/css">
+  /* Hide doc at startup (prevent jankiness while JS renders/transforms) */
+  body {
+    visibility: hidden;
+  }
+  </style>
+
+ <!--radix_placeholder_import_source-->
+ <!--/radix_placeholder_import_source-->
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  { color: #00769e; background-color: #f1f3f5; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span { color: #00769e; } /* Normal */
+code span.al { color: #ad0000; } /* Alert */
+code span.an { color: #5e5e5e; } /* Annotation */
+code span.at { color: #657422; } /* Attribute */
+code span.bn { color: #ad0000; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #00769e; } /* ControlFlow */
+code span.ch { color: #20794d; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #5e5e5e; } /* Comment */
+code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+code span.dt { color: #ad0000; } /* DataType */
+code span.dv { color: #ad0000; } /* DecVal */
+code span.er { color: #ad0000; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #ad0000; } /* Float */
+code span.fu { color: #4758ab; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #5e5e5e; } /* Information */
+code span.kw { color: #00769e; } /* Keyword */
+code span.op { color: #5e5e5e; } /* Operator */
+code span.ot { color: #00769e; } /* Other */
+code span.pp { color: #ad0000; } /* Preprocessor */
+code span.sc { color: #5e5e5e; } /* SpecialChar */
+code span.ss { color: #20794d; } /* SpecialString */
+code span.st { color: #20794d; } /* String */
+code span.va { color: #111111; } /* Variable */
+code span.vs { color: #20794d; } /* VerbatimString */
+code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+</style>
+
+
+  <!--radix_placeholder_meta_tags-->
+<title>Tarid Wongvorachan: Test Shortening with Genetic Algorithm and Ant Colony Optimization</title>
+
+<meta property="description" itemprop="description" content="In this post, I will use Genetic Algorithm and Ant Colony Optimization Algorithm to automatically shorten the length of a test.&#10;&#10; (8 min read)"/>
+
+<link rel="canonical" href="https://taridwong.github.io/posts/2022-08-14-ga-aco/"/>
+<link rel="license" href="https://creativecommons.org/licenses/by/4.0/"/>
+
+<!--  https://schema.org/Article -->
+<meta property="article:published" itemprop="datePublished" content="2022-08-14"/>
+<meta property="article:created" itemprop="dateCreated" content="2022-08-14"/>
+<meta name="article:author" content="Tarid Wongvorachan"/>
+
+<!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
+<meta property="og:title" content="Tarid Wongvorachan: Test Shortening with Genetic Algorithm and Ant Colony Optimization"/>
+<meta property="og:type" content="article"/>
+<meta property="og:description" content="In this post, I will use Genetic Algorithm and Ant Colony Optimization Algorithm to automatically shorten the length of a test.&#10;&#10; (8 min read)"/>
+<meta property="og:url" content="https://taridwong.github.io/posts/2022-08-14-ga-aco/"/>
+<meta property="og:image" content="https://taridwong.github.io/posts/2022-08-14-ga-aco/ga-aco_files/figure-html5/unnamed-chunk-11-1.png"/>
+<meta property="og:image:width" content="1248"/>
+<meta property="og:image:height" content="768"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:site_name" content="Tarid Wongvorachan"/>
+
+<!--  https://dev.twitter.com/cards/types/summary -->
+<meta property="twitter:card" content="summary_large_image"/>
+<meta property="twitter:title" content="Tarid Wongvorachan: Test Shortening with Genetic Algorithm and Ant Colony Optimization"/>
+<meta property="twitter:description" content="In this post, I will use Genetic Algorithm and Ant Colony Optimization Algorithm to automatically shorten the length of a test.&#10;&#10; (8 min read)"/>
+<meta property="twitter:url" content="https://taridwong.github.io/posts/2022-08-14-ga-aco/"/>
+<meta property="twitter:image" content="https://taridwong.github.io/posts/2022-08-14-ga-aco/ga-aco_files/figure-html5/unnamed-chunk-11-1.png"/>
+<meta property="twitter:image:width" content="1248"/>
+<meta property="twitter:image:height" content="768"/>
+
+<!--  https://scholar.google.com/intl/en/scholar/inclusion.html#indexing -->
+<meta name="citation_title" content="Tarid Wongvorachan: Test Shortening with Genetic Algorithm and Ant Colony Optimization"/>
+<meta name="citation_fulltext_html_url" content="https://taridwong.github.io/posts/2022-08-14-ga-aco/"/>
+<meta name="citation_fulltext_world_readable" content=""/>
+<meta name="citation_online_date" content="2022/08/14"/>
+<meta name="citation_publication_date" content="2022/08/14"/>
+<meta name="citation_author" content="Tarid Wongvorachan"/>
+<meta name="citation_author_institution" content="University of Alberta"/>
+<!--/radix_placeholder_meta_tags-->
+  <!--radix_placeholder_rmarkdown_metadata-->
+
+<script type="text/json" id="radix-rmarkdown-metadata">
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["creative_commons","title","description","author","date","categories","output","citation_url","canonical_url"]}},"value":[{"type":"character","attributes":{},"value":["CC BY"]},{"type":"character","attributes":{},"value":["Test Shortening with Genetic Algorithm and Ant Colony Optimization"]},{"type":"character","attributes":{},"value":["In this post, I will use Genetic Algorithm and Ant Colony Optimization Algorithm to automatically shorten the length of a test.\n\n (8 min read)"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Tarid Wongvorachan"]},{"type":"character","attributes":{},"value":["University of Alberta"]},{"type":"character","attributes":{},"value":["https://www.ualberta.ca"]}]}]},{"type":"character","attributes":{},"value":["2022-08-14"]},{"type":"character","attributes":{},"value":["R","Psychometric"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["code_folding","toc","toc_depth","toc_float","self_contained"]}},"value":[{"type":"logical","attributes":{},"value":[true]},{"type":"logical","attributes":{},"value":[true]},{"type":"integer","attributes":{},"value":[2]},{"type":"logical","attributes":{},"value":[false]},{"type":"logical","attributes":{},"value":[false]}]}]},{"type":"character","attributes":{},"value":["https://taridwong.github.io/posts/2022-08-14-ga-aco/"]},{"type":"character","attributes":{},"value":["https://taridwong.github.io/posts/2022-08-14-ga-aco/"]}]}
+</script>
+<!--/radix_placeholder_rmarkdown_metadata-->
+  
+  <script type="text/json" id="radix-resource-manifest">
+  {"type":"character","attributes":{},"value":["ACO.png","ga-aco_files/figure-html5/unnamed-chunk-11-1.png","ga-aco_files/figure-html5/unnamed-chunk-19-1.png","ga-aco_files/figure-html5/unnamed-chunk-3-1.png","GA.png","ipip.csv"]}
+  </script>
+  <!--radix_placeholder_navigation_in_header-->
+<meta name="distill:offset" content="../.."/>
+
+<script type="application/javascript">
+
+  window.headroom_prevent_pin = false;
+
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+
+    // initialize headroom for banner
+    var header = $('header').get(0);
+    var headerHeight = header.offsetHeight;
+    var headroom = new Headroom(header, {
+      tolerance: 5,
+      onPin : function() {
+        if (window.headroom_prevent_pin) {
+          window.headroom_prevent_pin = false;
+          headroom.unpin();
+        }
+      }
+    });
+    headroom.init();
+    if(window.location.hash)
+      headroom.unpin();
+    $(header).addClass('headroom--transition');
+
+    // offset scroll location for banner on hash change
+    // (see: https://github.com/WickyNilliams/headroom.js/issues/38)
+    window.addEventListener("hashchange", function(event) {
+      window.scrollTo(0, window.pageYOffset - (headerHeight + 25));
+    });
+
+    // responsive menu
+    $('.distill-site-header').each(function(i, val) {
+      var topnav = $(this);
+      var toggle = topnav.find('.nav-toggle');
+      toggle.on('click', function() {
+        topnav.toggleClass('responsive');
+      });
+    });
+
+    // nav dropdowns
+    $('.nav-dropbtn').click(function(e) {
+      $(this).next('.nav-dropdown-content').toggleClass('nav-dropdown-active');
+      $(this).parent().siblings('.nav-dropdown')
+         .children('.nav-dropdown-content').removeClass('nav-dropdown-active');
+    });
+    $("body").click(function(e){
+      $('.nav-dropdown-content').removeClass('nav-dropdown-active');
+    });
+    $(".nav-dropdown").click(function(e){
+      e.stopPropagation();
+    });
+  });
+</script>
+
+<style type="text/css">
+
+/* Theme (user-documented overrideables for nav appearance) */
+
+.distill-site-nav {
+  color: rgba(255, 255, 255, 0.8);
+  background-color: #0F2E3D;
+  font-size: 15px;
+  font-weight: 300;
+}
+
+.distill-site-nav a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.distill-site-nav a:hover {
+  color: white;
+}
+
+@media print {
+  .distill-site-nav {
+    display: none;
+  }
+}
+
+.distill-site-header {
+
+}
+
+.distill-site-footer {
+
+}
+
+
+/* Site Header */
+
+.distill-site-header {
+  width: 100%;
+  box-sizing: border-box;
+  z-index: 3;
+}
+
+.distill-site-header .nav-left {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+@media screen and (max-width: 768px) {
+  .distill-site-header .nav-left {
+    margin-left: 0;
+  }
+}
+
+
+.distill-site-header .nav-right {
+  float: right;
+  margin-right: 8px;
+}
+
+.distill-site-header a,
+.distill-site-header .title {
+  display: inline-block;
+  text-align: center;
+  padding: 14px 10px 14px 10px;
+}
+
+.distill-site-header .title {
+  font-size: 18px;
+  min-width: 150px;
+}
+
+.distill-site-header .logo {
+  padding: 0;
+}
+
+.distill-site-header .logo img {
+  display: none;
+  max-height: 20px;
+  width: auto;
+  margin-bottom: -4px;
+}
+
+.distill-site-header .nav-image img {
+  max-height: 18px;
+  width: auto;
+  display: inline-block;
+  margin-bottom: -3px;
+}
+
+
+
+@media screen and (min-width: 1000px) {
+  .distill-site-header .logo img {
+    display: inline-block;
+  }
+  .distill-site-header .nav-left {
+    margin-left: 20px;
+  }
+  .distill-site-header .nav-right {
+    margin-right: 20px;
+  }
+  .distill-site-header .title {
+    padding-left: 12px;
+  }
+}
+
+
+.distill-site-header .nav-toggle {
+  display: none;
+}
+
+.nav-dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+.nav-dropdown .nav-dropbtn {
+  border: none;
+  outline: none;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 16px 10px;
+  background-color: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  margin: 0;
+  margin-top: 1px;
+  z-index: 2;
+}
+
+.nav-dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 200px;
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 4px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
+  z-index: 1;
+  margin-top: 2px;
+  white-space: nowrap;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.nav-dropdown-content hr {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.nav-dropdown-active {
+  display: block;
+}
+
+.nav-dropdown-content a, .nav-dropdown-content .nav-dropdown-header {
+  color: black;
+  padding: 6px 24px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+.nav-dropdown-content .nav-dropdown-header {
+  display: block;
+  padding: 5px 24px;
+  padding-bottom: 0;
+  text-transform: uppercase;
+  font-size: 14px;
+  color: #999999;
+  white-space: nowrap;
+}
+
+.nav-dropdown:hover .nav-dropbtn {
+  color: white;
+}
+
+.nav-dropdown-content a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.nav-right .nav-dropdown-content {
+  margin-left: -45%;
+  right: 0;
+}
+
+@media screen and (max-width: 768px) {
+  .distill-site-header a, .distill-site-header .nav-dropdown  {display: none;}
+  .distill-site-header a.nav-toggle {
+    float: right;
+    display: block;
+  }
+  .distill-site-header .title {
+    margin-left: 0;
+  }
+  .distill-site-header .nav-right {
+    margin-right: 0;
+  }
+  .distill-site-header {
+    overflow: hidden;
+  }
+  .nav-right .nav-dropdown-content {
+    margin-left: 0;
+  }
+}
+
+
+@media screen and (max-width: 768px) {
+  .distill-site-header.responsive {position: relative; min-height: 500px; }
+  .distill-site-header.responsive a.nav-toggle {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  .distill-site-header.responsive a,
+  .distill-site-header.responsive .nav-dropdown {
+    display: block;
+    text-align: left;
+  }
+  .distill-site-header.responsive .nav-left,
+  .distill-site-header.responsive .nav-right {
+    width: 100%;
+  }
+  .distill-site-header.responsive .nav-dropdown {float: none;}
+  .distill-site-header.responsive .nav-dropdown-content {position: relative;}
+  .distill-site-header.responsive .nav-dropdown .nav-dropbtn {
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+}
+
+/* Site Footer */
+
+.distill-site-footer {
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  z-index: 3;
+  margin-top: 30px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  text-align: center;
+}
+
+/* Headroom */
+
+d-title {
+  padding-top: 6rem;
+}
+
+@media print {
+  d-title {
+    padding-top: 4rem;
+  }
+}
+
+.headroom {
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.headroom--transition {
+  transition: all .4s ease-in-out;
+}
+
+.headroom--unpinned {
+  top: -100px;
+}
+
+.headroom--pinned {
+  top: 0;
+}
+
+/* adjust viewport for navbar height */
+/* helps vertically center bootstrap (non-distill) content */
+.min-vh-100 {
+  min-height: calc(100vh - 100px) !important;
+}
+
+</style>
+
+<script src="../../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="../../site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet"/>
+<link href="../../site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet"/>
+<script src="../../site_libs/headroom-0.9.4/headroom.min.js"></script>
+<script src="../../site_libs/autocomplete-0.37.1/autocomplete.min.js"></script>
+<script src="../../site_libs/fuse-6.4.1/fuse.min.js"></script>
+
+<script type="application/javascript">
+
+function getMeta(metaName) {
+  var metas = document.getElementsByTagName('meta');
+  for (let i = 0; i < metas.length; i++) {
+    if (metas[i].getAttribute('name') === metaName) {
+      return metas[i].getAttribute('content');
+    }
+  }
+  return '';
+}
+
+function offsetURL(url) {
+  var offset = getMeta('distill:offset');
+  return offset ? offset + '/' + url : url;
+}
+
+function createFuseIndex() {
+
+  // create fuse index
+  var options = {
+    keys: [
+      { name: 'title', weight: 20 },
+      { name: 'categories', weight: 15 },
+      { name: 'description', weight: 10 },
+      { name: 'contents', weight: 5 },
+    ],
+    ignoreLocation: true,
+    threshold: 0
+  };
+  var fuse = new window.Fuse([], options);
+
+  // fetch the main search.json
+  return fetch(offsetURL('search.json'))
+    .then(function(response) {
+      if (response.status == 200) {
+        return response.json().then(function(json) {
+          // index main articles
+          json.articles.forEach(function(article) {
+            fuse.add(article);
+          });
+          // download collections and index their articles
+          return Promise.all(json.collections.map(function(collection) {
+            return fetch(offsetURL(collection)).then(function(response) {
+              if (response.status === 200) {
+                return response.json().then(function(articles) {
+                  articles.forEach(function(article) {
+                    fuse.add(article);
+                  });
+                })
+              } else {
+                return Promise.reject(
+                  new Error('Unexpected status from search index request: ' +
+                            response.status)
+                );
+              }
+            });
+          })).then(function() {
+            return fuse;
+          });
+        });
+
+      } else {
+        return Promise.reject(
+          new Error('Unexpected status from search index request: ' +
+                      response.status)
+        );
+      }
+    });
+}
+
+window.document.addEventListener("DOMContentLoaded", function (event) {
+
+  // get search element (bail if we don't have one)
+  var searchEl = window.document.getElementById('distill-search');
+  if (!searchEl)
+    return;
+
+  createFuseIndex()
+    .then(function(fuse) {
+
+      // make search box visible
+      searchEl.classList.remove('hidden');
+
+      // initialize autocomplete
+      var options = {
+        autoselect: true,
+        hint: false,
+        minLength: 2,
+      };
+      window.autocomplete(searchEl, options, [{
+        source: function(query, callback) {
+          const searchOptions = {
+            isCaseSensitive: false,
+            shouldSort: true,
+            minMatchCharLength: 2,
+            limit: 10,
+          };
+          var results = fuse.search(query, searchOptions);
+          callback(results
+            .map(function(result) { return result.item; })
+          );
+        },
+        templates: {
+          suggestion: function(suggestion) {
+            var img = suggestion.preview && Object.keys(suggestion.preview).length > 0
+              ? `<img src="${offsetURL(suggestion.preview)}"</img>`
+              : '';
+            var html = `
+              <div class="search-item">
+                <h3>${suggestion.title}</h3>
+                <div class="search-item-description">
+                  ${suggestion.description || ''}
+                </div>
+                <div class="search-item-preview">
+                  ${img}
+                </div>
+              </div>
+            `;
+            return html;
+          }
+        }
+      }]).on('autocomplete:selected', function(event, suggestion) {
+        window.location.href = offsetURL(suggestion.path);
+      });
+      // remove inline display style on autocompleter (we want to
+      // manage responsive display via css)
+      $('.algolia-autocomplete').css("display", "");
+    })
+    .catch(function(error) {
+      console.log(error);
+    });
+
+});
+
+</script>
+
+<style type="text/css">
+
+.nav-search {
+  font-size: x-small;
+}
+
+/* Algolioa Autocomplete */
+
+.algolia-autocomplete {
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: sub;
+  background-color: white;
+  color: black;
+  padding: 6px;
+  padding-top: 8px;
+  padding-bottom: 0;
+  border-radius: 6px;
+  border: 1px #0F2E3D solid;
+  width: 180px;
+}
+
+
+@media screen and (max-width: 768px) {
+  .distill-site-nav .algolia-autocomplete {
+    display: none;
+    visibility: hidden;
+  }
+  .distill-site-nav.responsive .algolia-autocomplete {
+    display: inline-block;
+    visibility: visible;
+  }
+  .distill-site-nav.responsive .algolia-autocomplete .aa-dropdown-menu {
+    margin-left: 0;
+    width: 400px;
+    max-height: 400px;
+  }
+}
+
+.algolia-autocomplete .aa-input, .algolia-autocomplete .aa-hint {
+  width: 90%;
+  outline: none;
+  border: none;
+}
+
+.algolia-autocomplete .aa-hint {
+  color: #999;
+}
+.algolia-autocomplete .aa-dropdown-menu {
+  width: 550px;
+  max-height: 70vh;
+  overflow-x: visible;
+  overflow-y: scroll;
+  padding: 5px;
+  margin-top: 3px;
+  margin-left: -150px;
+  background-color: #fff;
+  border-radius: 5px;
+  border: 1px solid #999;
+  border-top: none;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion {
+  cursor: pointer;
+  padding: 5px 4px;
+  border-bottom: 1px solid #eee;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion:last-of-type {
+  border-bottom: none;
+  margin-bottom: 2px;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item {
+  overflow: hidden;
+  font-size: 0.8em;
+  line-height: 1.4em;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item h3 {
+  font-size: 1rem;
+  margin-block-start: 0;
+  margin-block-end: 5px;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item-description {
+  display: inline-block;
+  overflow: hidden;
+  height: 2.8em;
+  width: 80%;
+  margin-right: 4%;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item-preview {
+  display: inline-block;
+  width: 15%;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item-preview img {
+  height: 3em;
+  width: auto;
+  display: none;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion .search-item-preview img[src] {
+  display: initial;
+}
+
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion.aa-cursor {
+  background-color: #eee;
+}
+.algolia-autocomplete .aa-dropdown-menu .aa-suggestion em {
+  font-weight: bold;
+  font-style: normal;
+}
+
+</style>
+
+
+<!--/radix_placeholder_navigation_in_header-->
+  <!--radix_placeholder_distill-->
+
+<style type="text/css">
+
+body {
+  background-color: white;
+}
+
+.pandoc-table {
+  width: 100%;
+}
+
+.pandoc-table>caption {
+  margin-bottom: 10px;
+}
+
+.pandoc-table th:not([align]) {
+  text-align: left;
+}
+
+.pagedtable-footer {
+  font-size: 15px;
+}
+
+d-byline .byline {
+  grid-template-columns: 2fr 2fr;
+}
+
+d-byline .byline h3 {
+  margin-block-start: 1.5em;
+}
+
+d-byline .byline .authors-affiliations h3 {
+  margin-block-start: 0.5em;
+}
+
+.authors-affiliations .orcid-id {
+  width: 16px;
+  height:16px;
+  margin-left: 4px;
+  margin-right: 4px;
+  vertical-align: middle;
+  padding-bottom: 2px;
+}
+
+d-title .dt-tags {
+  margin-top: 1em;
+  grid-column: text;
+}
+
+.dt-tags .dt-tag {
+  text-decoration: none;
+  display: inline-block;
+  color: rgba(0,0,0,0.6);
+  padding: 0em 0.4em;
+  margin-right: 0.5em;
+  margin-bottom: 0.4em;
+  font-size: 70%;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 3px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+d-article table.gt_table td,
+d-article table.gt_table th {
+  border-bottom: none;
+}
+
+.html-widget {
+  margin-bottom: 2.0em;
+}
+
+.l-screen-inset {
+  padding-right: 16px;
+}
+
+.l-screen .caption {
+  margin-left: 10px;
+}
+
+.shaded {
+  background: rgb(247, 247, 247);
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.shaded .html-widget {
+  margin-bottom: 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.shaded .shaded-content {
+  background: white;
+}
+
+.text-output {
+  margin-top: 0;
+  line-height: 1.5em;
+}
+
+.hidden {
+  display: none !important;
+}
+
+d-article {
+  padding-top: 2.5rem;
+  padding-bottom: 30px;
+}
+
+d-appendix {
+  padding-top: 30px;
+}
+
+d-article>p>img {
+  width: 100%;
+}
+
+d-article h2 {
+  margin: 1rem 0 1.5rem 0;
+}
+
+d-article h3 {
+  margin-top: 1.5rem;
+}
+
+d-article iframe {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 2.0em;
+  width: 100%;
+}
+
+/* Tweak code blocks */
+
+d-article div.sourceCode code,
+d-article pre code {
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+}
+
+d-article pre,
+d-article div.sourceCode,
+d-article div.sourceCode pre {
+  overflow: auto;
+}
+
+d-article div.sourceCode {
+  background-color: white;
+}
+
+d-article div.sourceCode pre {
+  padding-left: 10px;
+  font-size: 12px;
+  border-left: 2px solid rgba(0,0,0,0.1);
+}
+
+d-article pre {
+  font-size: 12px;
+  color: black;
+  background: none;
+  margin-top: 0;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+d-article pre a {
+  border-bottom: none;
+}
+
+d-article pre a:hover {
+  border-bottom: none;
+  text-decoration: underline;
+}
+
+d-article details {
+  grid-column: text;
+  margin-bottom: 0.8em;
+}
+
+@media(min-width: 768px) {
+
+d-article pre,
+d-article div.sourceCode,
+d-article div.sourceCode pre {
+  overflow: visible !important;
+}
+
+d-article div.sourceCode pre {
+  padding-left: 18px;
+  font-size: 14px;
+}
+
+d-article pre {
+  font-size: 14px;
+}
+
+}
+
+figure img.external {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+/* CSS for d-contents */
+
+.d-contents {
+  grid-column: text;
+  color: rgba(0,0,0,0.8);
+  font-size: 0.9em;
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+  padding-bottom: 0.5em;
+  margin-bottom: 1em;
+  padding-left: 0.25em;
+  justify-self: start;
+}
+
+@media(min-width: 1000px) {
+  .d-contents.d-contents-float {
+    height: 0;
+    grid-column-start: 1;
+    grid-column-end: 4;
+    justify-self: center;
+    padding-right: 3em;
+    padding-left: 2em;
+  }
+}
+
+.d-contents nav h3 {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+.d-contents li {
+  list-style-type: none
+}
+
+.d-contents nav > ul {
+  padding-left: 0;
+}
+
+.d-contents ul {
+  padding-left: 1em
+}
+
+.d-contents nav ul li {
+  margin-top: 0.6em;
+  margin-bottom: 0.2em;
+}
+
+.d-contents nav a {
+  font-size: 13px;
+  border-bottom: none;
+  text-decoration: none
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.d-contents nav a:hover {
+  text-decoration: underline solid rgba(0, 0, 0, 0.6)
+}
+
+.d-contents nav > ul > li > a {
+  font-weight: 600;
+}
+
+.d-contents nav > ul > li > ul {
+  font-weight: inherit;
+}
+
+.d-contents nav > ul > li > ul > li {
+  margin-top: 0.2em;
+}
+
+
+.d-contents nav ul {
+  margin-top: 0;
+  margin-bottom: 0.25em;
+}
+
+.d-article-with-toc h2:nth-child(2) {
+  margin-top: 0;
+}
+
+
+/* Figure */
+
+.figure {
+  position: relative;
+  margin-bottom: 2.5em;
+  margin-top: 1.5em;
+}
+
+.figure .caption {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+  line-height: 1.5em;
+}
+
+.figure img.external {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+.figure .caption a {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.figure .caption b,
+.figure .caption strong, {
+  font-weight: 600;
+  color: rgba(0, 0, 0, 1.0);
+}
+
+/* Citations */
+
+d-article .citation {
+  color: inherit;
+  cursor: inherit;
+}
+
+div.hanging-indent{
+  margin-left: 1em; text-indent: -1em;
+}
+
+/* Citation hover box */
+
+.tippy-box[data-theme~=light-border] {
+  background-color: rgba(250, 250, 250, 0.95);
+}
+
+.tippy-content > p {
+  margin-bottom: 0;
+  padding: 2px;
+}
+
+
+/* Tweak 1000px media break to show more text */
+
+@media(min-width: 1000px) {
+  .base-grid,
+  distill-header,
+  d-title,
+  d-abstract,
+  d-article,
+  d-appendix,
+  distill-appendix,
+  d-byline,
+  d-footnote-list,
+  d-citation-list,
+  distill-footer {
+    grid-template-columns: [screen-start] 1fr [page-start kicker-start] 80px [middle-start] 50px [text-start kicker-end] 65px 65px 65px 65px 65px 65px 65px 65px [text-end gutter-start] 65px [middle-end] 65px [page-end gutter-end] 1fr [screen-end];
+    grid-column-gap: 16px;
+  }
+
+  .grid {
+    grid-column-gap: 16px;
+  }
+
+  d-article {
+    font-size: 1.06rem;
+    line-height: 1.7em;
+  }
+  figure .caption, .figure .caption, figure figcaption {
+    font-size: 13px;
+  }
+}
+
+@media(min-width: 1180px) {
+  .base-grid,
+  distill-header,
+  d-title,
+  d-abstract,
+  d-article,
+  d-appendix,
+  distill-appendix,
+  d-byline,
+  d-footnote-list,
+  d-citation-list,
+  distill-footer {
+    grid-template-columns: [screen-start] 1fr [page-start kicker-start] 60px [middle-start] 60px [text-start kicker-end] 60px 60px 60px 60px 60px 60px 60px 60px [text-end gutter-start] 60px [middle-end] 60px [page-end gutter-end] 1fr [screen-end];
+    grid-column-gap: 32px;
+  }
+
+  .grid {
+    grid-column-gap: 32px;
+  }
+}
+
+
+/* Get the citation styles for the appendix (not auto-injected on render since
+   we do our own rendering of the citation appendix) */
+
+d-appendix .citation-appendix,
+.d-appendix .citation-appendix {
+  font-size: 11px;
+  line-height: 15px;
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  padding-left: 18px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.02);
+  padding: 10px 18px;
+  border-radius: 3px;
+  color: rgba(150, 150, 150, 1);
+  overflow: hidden;
+  margin-top: -12px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Include appendix styles here so they can be overridden */
+
+d-appendix {
+  contain: layout style;
+  font-size: 0.8em;
+  line-height: 1.7em;
+  margin-top: 60px;
+  margin-bottom: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  color: rgba(0,0,0,0.5);
+  padding-top: 60px;
+  padding-bottom: 48px;
+}
+
+d-appendix h3 {
+  grid-column: page-start / text-start;
+  font-size: 15px;
+  font-weight: 500;
+  margin-top: 1em;
+  margin-bottom: 0;
+  color: rgba(0,0,0,0.65);
+}
+
+d-appendix h3 + * {
+  margin-top: 1em;
+}
+
+d-appendix ol {
+  padding: 0 0 0 15px;
+}
+
+@media (min-width: 768px) {
+  d-appendix ol {
+    padding: 0 0 0 30px;
+    margin-left: -30px;
+  }
+}
+
+d-appendix li {
+  margin-bottom: 1em;
+}
+
+d-appendix a {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+d-appendix > * {
+  grid-column: text;
+}
+
+d-appendix > d-footnote-list,
+d-appendix > d-citation-list,
+d-appendix > distill-appendix {
+  grid-column: screen;
+}
+
+/* Include footnote styles here so they can be overridden */
+
+d-footnote-list {
+  contain: layout style;
+}
+
+d-footnote-list > * {
+  grid-column: text;
+}
+
+d-footnote-list a.footnote-backlink {
+  color: rgba(0,0,0,0.3);
+  padding-left: 0.5em;
+}
+
+
+
+/* Anchor.js */
+
+.anchorjs-link {
+  /*transition: all .25s linear; */
+  text-decoration: none;
+  border-bottom: none;
+}
+*:hover > .anchorjs-link {
+  margin-left: -1.125em !important;
+  text-decoration: none;
+  border-bottom: none;
+}
+
+/* Social footer */
+
+.social_footer {
+  margin-top: 30px;
+  margin-bottom: 0;
+  color: rgba(0,0,0,0.67);
+}
+
+.disqus-comments {
+  margin-right: 30px;
+}
+
+.disqus-comment-count {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+#disqus_thread {
+  margin-top: 30px;
+}
+
+.article-sharing a {
+  border-bottom: none;
+  margin-right: 8px;
+}
+
+.article-sharing a:hover {
+  border-bottom: none;
+}
+
+.sidebar-section.subscribe {
+  font-size: 12px;
+  line-height: 1.6em;
+}
+
+.subscribe p {
+  margin-bottom: 0.5em;
+}
+
+
+.article-footer .subscribe {
+  font-size: 15px;
+  margin-top: 45px;
+}
+
+
+.sidebar-section.custom {
+  font-size: 12px;
+  line-height: 1.6em;
+}
+
+.custom p {
+  margin-bottom: 0.5em;
+}
+
+/* Styles for listing layout (hide title) */
+.layout-listing d-title, .layout-listing .d-title {
+  display: none;
+}
+
+/* Styles for posts lists (not auto-injected) */
+
+
+.posts-with-sidebar {
+  padding-left: 45px;
+  padding-right: 45px;
+}
+
+.posts-list .description h2,
+.posts-list .description p {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+.posts-list .description h2 {
+  font-weight: 700;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.posts-list h2.post-tag {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  padding-bottom: 12px;
+}
+.posts-list {
+  margin-top: 60px;
+  margin-bottom: 24px;
+}
+
+.posts-list .post-preview {
+  text-decoration: none;
+  overflow: hidden;
+  display: block;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 24px 0;
+}
+
+.post-preview-last {
+  border-bottom: none !important;
+}
+
+.posts-list .posts-list-caption {
+  grid-column: screen;
+  font-weight: 400;
+}
+
+.posts-list .post-preview h2 {
+  margin: 0 0 6px 0;
+  line-height: 1.2em;
+  font-style: normal;
+  font-size: 24px;
+}
+
+.posts-list .post-preview p {
+  margin: 0 0 12px 0;
+  line-height: 1.4em;
+  font-size: 16px;
+}
+
+.posts-list .post-preview .thumbnail {
+  box-sizing: border-box;
+  margin-bottom: 24px;
+  position: relative;
+  max-width: 500px;
+}
+.posts-list .post-preview img {
+  width: 100%;
+  display: block;
+}
+
+.posts-list .metadata {
+  font-size: 12px;
+  line-height: 1.4em;
+  margin-bottom: 18px;
+}
+
+.posts-list .metadata > * {
+  display: inline-block;
+}
+
+.posts-list .metadata .publishedDate {
+  margin-right: 2em;
+}
+
+.posts-list .metadata .dt-authors {
+  display: block;
+  margin-top: 0.3em;
+  margin-right: 2em;
+}
+
+.posts-list .dt-tags {
+  display: block;
+  line-height: 1em;
+}
+
+.posts-list .dt-tags .dt-tag {
+  display: inline-block;
+  color: rgba(0,0,0,0.6);
+  padding: 0.3em 0.4em;
+  margin-right: 0.2em;
+  margin-bottom: 0.4em;
+  font-size: 60%;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 3px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.posts-list img {
+  opacity: 1;
+}
+
+.posts-list img[data-src] {
+  opacity: 0;
+}
+
+.posts-more {
+  clear: both;
+}
+
+
+.posts-sidebar {
+  font-size: 16px;
+}
+
+.posts-sidebar h3 {
+  font-size: 16px;
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.sidebar-section {
+  margin-bottom: 30px;
+}
+
+.categories ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.categories li {
+  color: rgba(0, 0, 0, 0.8);
+  margin-bottom: 0;
+}
+
+.categories li>a {
+  border-bottom: none;
+}
+
+.categories li>a:hover {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+.categories .active {
+  font-weight: 600;
+}
+
+.categories .category-count {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+
+@media(min-width: 768px) {
+  .posts-list .post-preview h2 {
+    font-size: 26px;
+  }
+  .posts-list .post-preview .thumbnail {
+    float: right;
+    width: 30%;
+    margin-bottom: 0;
+  }
+  .posts-list .post-preview .description {
+    float: left;
+    width: 45%;
+  }
+  .posts-list .post-preview .metadata {
+    float: left;
+    width: 20%;
+    margin-top: 8px;
+  }
+  .posts-list .post-preview p {
+    margin: 0 0 12px 0;
+    line-height: 1.5em;
+    font-size: 16px;
+  }
+  .posts-with-sidebar .posts-list {
+    float: left;
+    width: 75%;
+  }
+  .posts-with-sidebar .posts-sidebar {
+    float: right;
+    width: 20%;
+    margin-top: 60px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+}
+
+
+/* Improve display for browsers without grid (IE/Edge <= 15) */
+
+.downlevel {
+  line-height: 1.6em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+}
+
+.downlevel .d-title {
+  padding-top: 6rem;
+  padding-bottom: 1.5rem;
+}
+
+.downlevel .d-title h1 {
+  font-size: 50px;
+  font-weight: 700;
+  line-height: 1.1em;
+  margin: 0 0 0.5rem;
+}
+
+.downlevel .d-title p {
+  font-weight: 300;
+  font-size: 1.2rem;
+  line-height: 1.55em;
+  margin-top: 0;
+}
+
+.downlevel .d-byline {
+  padding-top: 0.8em;
+  padding-bottom: 0.8em;
+  font-size: 0.8rem;
+  line-height: 1.8em;
+}
+
+.downlevel .section-separator {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.downlevel .d-article {
+  font-size: 1.06rem;
+  line-height: 1.7em;
+  padding-top: 1rem;
+  padding-bottom: 2rem;
+}
+
+
+.downlevel .d-appendix {
+  padding-left: 0;
+  padding-right: 0;
+  max-width: none;
+  font-size: 0.8em;
+  line-height: 1.7em;
+  margin-bottom: 0;
+  color: rgba(0,0,0,0.5);
+  padding-top: 40px;
+  padding-bottom: 48px;
+}
+
+.downlevel .footnotes ol {
+  padding-left: 13px;
+}
+
+.downlevel .base-grid,
+.downlevel .distill-header,
+.downlevel .d-title,
+.downlevel .d-abstract,
+.downlevel .d-article,
+.downlevel .d-appendix,
+.downlevel .distill-appendix,
+.downlevel .d-byline,
+.downlevel .d-footnote-list,
+.downlevel .d-citation-list,
+.downlevel .distill-footer,
+.downlevel .appendix-bottom,
+.downlevel .posts-container {
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+@media(min-width: 768px) {
+  .downlevel .base-grid,
+  .downlevel .distill-header,
+  .downlevel .d-title,
+  .downlevel .d-abstract,
+  .downlevel .d-article,
+  .downlevel .d-appendix,
+  .downlevel .distill-appendix,
+  .downlevel .d-byline,
+  .downlevel .d-footnote-list,
+  .downlevel .d-citation-list,
+  .downlevel .distill-footer,
+  .downlevel .appendix-bottom,
+  .downlevel .posts-container {
+  padding-left: 150px;
+  padding-right: 150px;
+  max-width: 900px;
+}
+}
+
+.downlevel pre code {
+  display: block;
+  border-left: 2px solid rgba(0, 0, 0, .1);
+  padding: 0 0 0 20px;
+  font-size: 14px;
+}
+
+.downlevel code, .downlevel pre {
+  color: black;
+  background: none;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+.downlevel .posts-list .post-preview {
+  color: inherit;
+}
+
+
+
+</style>
+
+<script type="application/javascript">
+
+function is_downlevel_browser() {
+  if (bowser.isUnsupportedBrowser({ msie: "12", msedge: "16"},
+                                 window.navigator.userAgent)) {
+    return true;
+  } else {
+    return window.load_distill_framework === undefined;
+  }
+}
+
+// show body when load is complete
+function on_load_complete() {
+
+  // add anchors
+  if (window.anchors) {
+    window.anchors.options.placement = 'left';
+    window.anchors.add('d-article > h2, d-article > h3, d-article > h4, d-article > h5');
+  }
+
+
+  // set body to visible
+  document.body.style.visibility = 'visible';
+
+  // force redraw for leaflet widgets
+  if (window.HTMLWidgets) {
+    var maps = window.HTMLWidgets.findAll(".leaflet");
+    $.each(maps, function(i, el) {
+      var map = this.getMap();
+      map.invalidateSize();
+      map.eachLayer(function(layer) {
+        if (layer instanceof L.TileLayer)
+          layer.redraw();
+      });
+    });
+  }
+
+  // trigger 'shown' so htmlwidgets resize
+  $('d-article').trigger('shown');
+}
+
+function init_distill() {
+
+  init_common();
+
+  // create front matter
+  var front_matter = $('<d-front-matter></d-front-matter>');
+  $('#distill-front-matter').wrap(front_matter);
+
+  // create d-title
+  $('.d-title').changeElementType('d-title');
+
+  // create d-byline
+  var byline = $('<d-byline></d-byline>');
+  $('.d-byline').replaceWith(byline);
+
+  // create d-article
+  var article = $('<d-article></d-article>');
+  $('.d-article').wrap(article).children().unwrap();
+
+  // move posts container into article
+  $('.posts-container').appendTo($('d-article'));
+
+  // create d-appendix
+  $('.d-appendix').changeElementType('d-appendix');
+
+  // flag indicating that we have appendix items
+  var appendix = $('.appendix-bottom').children('h3').length > 0;
+
+  // replace footnotes with <d-footnote>
+  $('.footnote-ref').each(function(i, val) {
+    appendix = true;
+    var href = $(this).attr('href');
+    var id = href.replace('#', '');
+    var fn = $('#' + id);
+    var fn_p = $('#' + id + '>p');
+    fn_p.find('.footnote-back').remove();
+    var text = fn_p.html();
+    var dtfn = $('<d-footnote></d-footnote>');
+    dtfn.html(text);
+    $(this).replaceWith(dtfn);
+  });
+  // remove footnotes
+  $('.footnotes').remove();
+
+  // move refs into #references-listing
+  $('#references-listing').replaceWith($('#refs'));
+
+  $('h1.appendix, h2.appendix').each(function(i, val) {
+    $(this).changeElementType('h3');
+  });
+  $('h3.appendix').each(function(i, val) {
+    var id = $(this).attr('id');
+    $('.d-contents a[href="#' + id + '"]').parent().remove();
+    appendix = true;
+    $(this).nextUntil($('h1, h2, h3')).addBack().appendTo($('d-appendix'));
+  });
+
+  // show d-appendix if we have appendix content
+  $("d-appendix").css('display', appendix ? 'grid' : 'none');
+
+  // localize layout chunks to just output
+  $('.layout-chunk').each(function(i, val) {
+
+    // capture layout
+    var layout = $(this).attr('data-layout');
+
+    // apply layout to markdown level block elements
+    var elements = $(this).children().not('details, div.sourceCode, pre, script');
+    elements.each(function(i, el) {
+      var layout_div = $('<div class="' + layout + '"></div>');
+      if (layout_div.hasClass('shaded')) {
+        var shaded_content = $('<div class="shaded-content"></div>');
+        $(this).wrap(shaded_content);
+        $(this).parent().wrap(layout_div);
+      } else {
+        $(this).wrap(layout_div);
+      }
+    });
+
+
+    // unwrap the layout-chunk div
+    $(this).children().unwrap();
+  });
+
+  // remove code block used to force  highlighting css
+  $('.distill-force-highlighting-css').parent().remove();
+
+  // remove empty line numbers inserted by pandoc when using a
+  // custom syntax highlighting theme
+  $('code.sourceCode a:empty').remove();
+
+  // load distill framework
+  load_distill_framework();
+
+  // wait for window.distillRunlevel == 4 to do post processing
+  function distill_post_process() {
+
+    if (!window.distillRunlevel || window.distillRunlevel < 4)
+      return;
+
+    // hide author/affiliations entirely if we have no authors
+    var front_matter = JSON.parse($("#distill-front-matter").html());
+    var have_authors = front_matter.authors && front_matter.authors.length > 0;
+    if (!have_authors)
+      $('d-byline').addClass('hidden');
+
+    // article with toc class
+    $('.d-contents').parent().addClass('d-article-with-toc');
+
+    // strip links that point to #
+    $('.authors-affiliations').find('a[href="#"]').removeAttr('href');
+
+    // add orcid ids
+    $('.authors-affiliations').find('.author').each(function(i, el) {
+      var orcid_id = front_matter.authors[i].orcidID;
+      if (orcid_id) {
+        var a = $('<a></a>');
+        a.attr('href', 'https://orcid.org/' + orcid_id);
+        var img = $('<img></img>');
+        img.addClass('orcid-id');
+        img.attr('alt', 'ORCID ID');
+        img.attr('src','data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg==');
+        a.append(img);
+        $(this).append(a);
+      }
+    });
+
+    // hide elements of author/affiliations grid that have no value
+    function hide_byline_column(caption) {
+      $('d-byline').find('h3:contains("' + caption + '")').parent().css('visibility', 'hidden');
+    }
+
+    // affiliations
+    var have_affiliations = false;
+    for (var i = 0; i<front_matter.authors.length; ++i) {
+      var author = front_matter.authors[i];
+      if (author.affiliation !== "&nbsp;") {
+        have_affiliations = true;
+        break;
+      }
+    }
+    if (!have_affiliations)
+      $('d-byline').find('h3:contains("Affiliations")').css('visibility', 'hidden');
+
+    // published date
+    if (!front_matter.publishedDate)
+      hide_byline_column("Published");
+
+    // document object identifier
+    var doi = $('d-byline').find('h3:contains("DOI")');
+    var doi_p = doi.next().empty();
+    if (!front_matter.doi) {
+      // if we have a citation and valid citationText then link to that
+      if ($('#citation').length > 0 && front_matter.citationText) {
+        doi.html('Citation');
+        $('<a href="#citation"></a>')
+          .text(front_matter.citationText)
+          .appendTo(doi_p);
+      } else {
+        hide_byline_column("DOI");
+      }
+    } else {
+      $('<a></a>')
+         .attr('href', "https://doi.org/" + front_matter.doi)
+         .html(front_matter.doi)
+         .appendTo(doi_p);
+    }
+
+     // change plural form of authors/affiliations
+    if (front_matter.authors.length === 1) {
+      var grid = $('.authors-affiliations');
+      grid.children('h3:contains("Authors")').text('Author');
+      grid.children('h3:contains("Affiliations")').text('Affiliation');
+    }
+
+    // remove d-appendix and d-footnote-list local styles
+    $('d-appendix > style:first-child').remove();
+    $('d-footnote-list > style:first-child').remove();
+
+    // move appendix-bottom entries to the bottom
+    $('.appendix-bottom').appendTo('d-appendix').children().unwrap();
+    $('.appendix-bottom').remove();
+
+    // hoverable references
+    $('span.citation[data-cites]').each(function() {
+      if ($(this).children()[0].nodeName == "D-FOOTNOTE") {
+        var fn = $(this).children()[0]
+        $(this).html(fn.shadowRoot.querySelector("sup"))
+        $(this).id = fn.id
+        fn.remove()
+      }
+      var refs = $(this).attr('data-cites').split(" ");
+      var refHtml = refs.map(function(ref) {
+        return "<p>" + $('#ref-' + ref).html() + "</p>";
+      }).join("\n");
+      window.tippy(this, {
+        allowHTML: true,
+        content: refHtml,
+        maxWidth: 500,
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'light-border',
+        placement: 'bottom-start'
+      });
+    });
+
+    // fix footnotes in tables (#411)
+    // replacing broken distill.pub feature
+    $('table d-footnote').each(function() {
+      // we replace internal showAtNode methode which is triggered when hovering a footnote
+      this.hoverBox.showAtNode = function(node) {
+        // ported from https://github.com/distillpub/template/pull/105/files
+        calcOffset = function(elem) {
+            let x = elem.offsetLeft;
+            let y = elem.offsetTop;
+            // Traverse upwards until an `absolute` element is found or `elem`
+            // becomes null.
+            while (elem = elem.offsetParent && elem.style.position != 'absolute') {
+                x += elem.offsetLeft;
+                y += elem.offsetTop;
+            }
+
+            return { left: x, top: y };
+        }
+        // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetTop
+        const bbox = node.getBoundingClientRect();
+        const offset = calcOffset(node);
+        this.show([offset.left + bbox.width, offset.top + bbox.height]);
+      }
+    })
+
+    // clear polling timer
+    clearInterval(tid);
+
+    // show body now that everything is ready
+    on_load_complete();
+  }
+
+  var tid = setInterval(distill_post_process, 50);
+  distill_post_process();
+
+}
+
+function init_downlevel() {
+
+  init_common();
+
+   // insert hr after d-title
+  $('.d-title').after($('<hr class="section-separator"/>'));
+
+  // check if we have authors
+  var front_matter = JSON.parse($("#distill-front-matter").html());
+  var have_authors = front_matter.authors && front_matter.authors.length > 0;
+
+  // manage byline/border
+  if (!have_authors)
+    $('.d-byline').remove();
+  $('.d-byline').after($('<hr class="section-separator"/>'));
+  $('.d-byline a').remove();
+
+  // remove toc
+  $('.d-contents').remove();
+
+  // move appendix elements
+  $('h1.appendix, h2.appendix').each(function(i, val) {
+    $(this).changeElementType('h3');
+  });
+  $('h3.appendix').each(function(i, val) {
+    $(this).nextUntil($('h1, h2, h3')).addBack().appendTo($('.d-appendix'));
+  });
+
+
+  // inject headers into references and footnotes
+  var refs_header = $('<h3></h3>');
+  refs_header.text('References');
+  $('#refs').prepend(refs_header);
+
+  var footnotes_header = $('<h3></h3');
+  footnotes_header.text('Footnotes');
+  $('.footnotes').children('hr').first().replaceWith(footnotes_header);
+
+  // move appendix-bottom entries to the bottom
+  $('.appendix-bottom').appendTo('.d-appendix').children().unwrap();
+  $('.appendix-bottom').remove();
+
+  // remove appendix if it's empty
+  if ($('.d-appendix').children().length === 0)
+    $('.d-appendix').remove();
+
+  // prepend separator above appendix
+  $('.d-appendix').before($('<hr class="section-separator" style="clear: both"/>'));
+
+  // trim code
+  $('pre>code').each(function(i, val) {
+    $(this).html($.trim($(this).html()));
+  });
+
+  // move posts-container right before article
+  $('.posts-container').insertBefore($('.d-article'));
+
+  $('body').addClass('downlevel');
+
+  on_load_complete();
+}
+
+
+function init_common() {
+
+  // jquery plugin to change element types
+  (function($) {
+    $.fn.changeElementType = function(newType) {
+      var attrs = {};
+
+      $.each(this[0].attributes, function(idx, attr) {
+        attrs[attr.nodeName] = attr.nodeValue;
+      });
+
+      this.replaceWith(function() {
+        return $("<" + newType + "/>", attrs).append($(this).contents());
+      });
+    };
+  })(jQuery);
+
+  // prevent underline for linked images
+  $('a > img').parent().css({'border-bottom' : 'none'});
+
+  // mark non-body figures created by knitr chunks as 100% width
+  $('.layout-chunk').each(function(i, val) {
+    var figures = $(this).find('img, .html-widget');
+    // ignore leaflet img layers (#106)
+    figures = figures.filter(':not(img[class*="leaflet"])')
+    if ($(this).attr('data-layout') !== "l-body") {
+      figures.css('width', '100%');
+    } else {
+      figures.css('max-width', '100%');
+      figures.filter("[width]").each(function(i, val) {
+        var fig = $(this);
+        fig.css('width', fig.attr('width') + 'px');
+      });
+
+    }
+  });
+
+  // auto-append index.html to post-preview links in file: protocol
+  // and in rstudio ide preview
+  $('.post-preview').each(function(i, val) {
+    if (window.location.protocol === "file:")
+      $(this).attr('href', $(this).attr('href') + "index.html");
+  });
+
+  // get rid of index.html references in header
+  if (window.location.protocol !== "file:") {
+    $('.distill-site-header a[href]').each(function(i,val) {
+      $(this).attr('href', $(this).attr('href').replace(/^index[.]html/, "./"));
+    });
+  }
+
+  // add class to pandoc style tables
+  $('tr.header').parent('thead').parent('table').addClass('pandoc-table');
+  $('.kable-table').children('table').addClass('pandoc-table');
+
+  // add figcaption style to table captions
+  $('caption').parent('table').addClass("figcaption");
+
+  // initialize posts list
+  if (window.init_posts_list)
+    window.init_posts_list();
+
+  // implmement disqus comment link
+  $('.disqus-comment-count').click(function() {
+    window.headroom_prevent_pin = true;
+    $('#disqus_thread').toggleClass('hidden');
+    if (!$('#disqus_thread').hasClass('hidden')) {
+      var offset = $(this).offset();
+      $(window).resize();
+      $('html, body').animate({
+        scrollTop: offset.top - 35
+      });
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (is_downlevel_browser())
+    init_downlevel();
+  else
+    window.addEventListener('WebComponentsReady', init_distill);
+});
+
+</script>
+
+<style type="text/css">
+/* base variables */
+
+/* Edit the CSS properties in this file to create a custom
+   Distill theme. Only edit values in the right column
+   for each row; values shown are the CSS defaults.
+   To return any property to the default,
+   you may set its value to: unset
+   All rows must end with a semi-colon.                      */
+
+/* Optional: embed custom fonts here with `@import`          */
+/* This must remain at the top of this file.                 */
+
+
+
+html {
+  /*-- Main font sizes --*/
+  --title-size:      50px;
+  --body-size:       1.06rem;
+  --code-size:       14px;
+  --aside-size:      12px;
+  --fig-cap-size:    13px;
+  /*-- Main font colors --*/
+  --title-color:     #000000;
+  --header-color:    rgba(0, 0, 0, 0.8);
+  --body-color:      rgba(0, 0, 0, 0.8);
+  --aside-color:     rgba(0, 0, 0, 0.6);
+  --fig-cap-color:   rgba(0, 0, 0, 0.6);
+  /*-- Specify custom fonts ~~~ must be imported above   --*/
+  --heading-font:    sans-serif;
+  --mono-font:       monospace;
+  --body-font:       sans-serif;
+  --navbar-font:     sans-serif;  /* websites + blogs only */
+}
+
+/*-- ARTICLE METADATA --*/
+d-byline {
+  --heading-size:    0.6rem;
+  --heading-color:   rgba(0, 0, 0, 0.5);
+  --body-size:       0.8rem;
+  --body-color:      rgba(0, 0, 0, 0.8);
+}
+
+/*-- ARTICLE TABLE OF CONTENTS --*/
+.d-contents {
+  --heading-size:    18px;
+  --contents-size:   13px;
+}
+
+/*-- ARTICLE APPENDIX --*/
+d-appendix {
+  --heading-size:    15px;
+  --heading-color:   rgba(0, 0, 0, 0.65);
+  --text-size:       0.8em;
+  --text-color:      rgba(0, 0, 0, 0.5);
+}
+
+/*-- WEBSITE HEADER + FOOTER --*/
+/* These properties only apply to Distill sites and blogs  */
+
+.distill-site-header {
+  --title-size:       18px;
+  --text-color:       rgba(255, 255, 255, 0.8);
+  --text-size:        15px;
+  --hover-color:      white;
+  --bkgd-color:       #0F2E3D;
+}
+
+.distill-site-footer {
+  --text-color:       rgba(255, 255, 255, 0.8);
+  --text-size:        15px;
+  --hover-color:      white;
+  --bkgd-color:       #0F2E3D;
+}
+
+/*-- Additional custom styles --*/
+/* Add any additional CSS rules below                      */
+</style>
+<style type="text/css">/* base variables */
+
+/* Edit the CSS properties in this file to create a custom
+   Distill theme. Only edit values in the right column
+   for each row; values shown are the CSS defaults.
+   To return any property to the default,
+   you may set its value to: unset
+   All rows must end with a semi-colon.                      */
+
+/* Optional: embed custom fonts here with `@import`          */
+/* This must remain at the top of this file.                 */
+@import url('https://fonts.googleapis.com/css2?family=Lato');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Mono');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat');
+
+html {
+  /*-- Main font sizes --*/
+  --title-size:      50px;
+  --body-size:       1.0rem;                     /* edited */
+  --code-size:       0.9rem;                     /* edited */
+  --aside-size:      12px;
+  --fig-cap-size:    13px;
+  /*-- Main font colors --*/
+  --title-color:     #000000;
+  --heading-color:   rgba(0, 0, 0, 0.8);
+  --body-color:      #383838;                    /* edited */
+  --aside-color:     rgba(0, 0, 0, 0.6);
+  --fig-cap-color:   rgba(0, 0, 0, 0.6);
+  /*-- Specify custom fonts ~~~ must be imported above   --*/
+  --heading-font:    'Lato', sans-serif;         /* edited */
+  --mono-font:       'Fira Mono', monospace;     /* edited */
+  --body-font:       'Lato', sans-serif;         /* edited */
+  --navbar-font:     'Montserrat', sans-serif;   /* edited */
+}
+
+/*-- ARTICLE METADATA --*/
+d-byline {
+  --heading-size:    0.6rem;
+  --heading-color:   rgba(0, 0, 0, 0.5);
+  --body-size:       0.8rem;
+  --body-color:      rgba(0, 0, 0, 0.8);
+}
+
+/*-- ARTICLE TABLE OF CONTENTS --*/
+.d-contents {
+  --heading-size:    18px;
+  --contents-size:   13px;
+}
+
+/*-- ARTICLE APPENDIX --*/
+d-appendix {
+  --heading-size:    15px;
+  --heading-color:   rgba(0, 0, 0, 0.65);
+  --text-size:       0.8em;
+  --text-color:      rgba(0, 0, 0, 0.5);
+}
+
+/*-- WEBSITE HEADER + FOOTER --*/
+/* These properties only apply to Distill sites and blogs  */
+
+.distill-site-header {
+  --title-size:       20px;                      /* edited */
+  --text-color:       #FFFFFF;                   /* edited */
+  --text-size:        20px;                      /* edited */
+  --hover-color:      #383838;                   /* edited */
+  --bkgd-color:       rgb(249, 83, 85);          /* edited */
+}
+
+.distill-site-footer {
+  --text-color:       rgba(255, 255, 255, 0.8);
+  --text-size:        15px;
+  --hover-color:      white;
+  --bkgd-color:       #0F2E3D;
+}
+
+
+/*-- Additional custom styles --*/
+
+.posts-list .metadata .publishedDate {
+    color: rgb(249, 83, 85);
+}
+
+d-article p code {
+  color: #383838;
+  background: rgba(249, 83, 85, 0.1);
+  font-weight: 400;
+  font-size: 0.9em;
+}
+
+d-article a {
+    border-bottom: 2px solid rgba(249, 83, 85, 0.4);
+    text-decoration: none;
+}
+
+.distill-site-header .title {
+    font-weight: 600; 
+}
+
+ul > li::marker {
+  color: rgb(249, 83, 85);
+}</style>
+<style type="text/css">
+/* base style */
+
+/* FONT FAMILIES */
+
+:root {
+  --heading-default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono-default: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  --body-default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+body,
+.posts-list .post-preview p,
+.posts-list .description p {
+  font-family: var(--body-font), var(--body-default);
+}
+
+h1, h2, h3, h4, h5, h6,
+.posts-list .post-preview h2,
+.posts-list .description h2 {
+  font-family: var(--heading-font), var(--heading-default);
+}
+
+d-article div.sourceCode code,
+d-article pre code {
+  font-family: var(--mono-font), var(--mono-default);
+}
+
+
+/*-- TITLE --*/
+d-title h1,
+.posts-list > h1 {
+  color: var(--title-color, black);
+}
+
+d-title h1 {
+  font-size: var(--title-size, 50px);
+}
+
+/*-- HEADERS --*/
+d-article h1,
+d-article h2,
+d-article h3,
+d-article h4,
+d-article h5,
+d-article h6 {
+  color: var(--header-color, rgba(0, 0, 0, 0.8));
+}
+
+/*-- BODY --*/
+d-article > p,  /* only text inside of <p> tags */
+d-article > ul, /* lists */
+d-article > ol {
+  color: var(--body-color, rgba(0, 0, 0, 0.8));
+  font-size: var(--body-size, 1.06rem);
+}
+
+
+/*-- CODE --*/
+d-article div.sourceCode code,
+d-article pre code {
+  font-size: var(--code-size, 14px);
+}
+
+/*-- ASIDE --*/
+d-article aside {
+  font-size: var(--aside-size, 12px);
+  color: var(--aside-color, rgba(0, 0, 0, 0.6));
+}
+
+/*-- FIGURE CAPTIONS --*/
+figure .caption,
+figure figcaption,
+.figure .caption {
+  font-size: var(--fig-cap-size, 13px);
+  color: var(--fig-cap-color, rgba(0, 0, 0, 0.6));
+}
+
+/*-- METADATA --*/
+d-byline h3 {
+  font-size: var(--heading-size, 0.6rem);
+  color: var(--heading-color, rgba(0, 0, 0, 0.5));
+}
+
+d-byline {
+  font-size: var(--body-size, 0.8rem);
+  color: var(--body-color, rgba(0, 0, 0, 0.8));
+}
+
+d-byline a,
+d-article d-byline a {
+  color: var(--body-color, rgba(0, 0, 0, 0.8));
+}
+
+/*-- TABLE OF CONTENTS --*/
+.d-contents nav h3 {
+  font-size: var(--heading-size, 18px);
+}
+
+.d-contents nav a {
+  font-size: var(--contents-size, 13px);
+}
+
+/*-- APPENDIX --*/
+d-appendix h3 {
+  font-size: var(--heading-size, 15px);
+  color: var(--heading-color, rgba(0, 0, 0, 0.65));
+}
+
+d-appendix {
+  font-size: var(--text-size, 0.8em);
+  color: var(--text-color, rgba(0, 0, 0, 0.5));
+}
+
+d-appendix d-footnote-list a.footnote-backlink {
+  color: var(--text-color, rgba(0, 0, 0, 0.5));
+}
+
+/*-- WEBSITE HEADER + FOOTER --*/
+.distill-site-header .title {
+  font-size: var(--title-size, 18px);
+  font-family: var(--navbar-font), var(--heading-default);
+}
+
+.distill-site-header a,
+.nav-dropdown .nav-dropbtn {
+  font-family: var(--navbar-font), var(--heading-default);
+}
+
+.nav-dropdown .nav-dropbtn {
+  color: var(--text-color, rgba(255, 255, 255, 0.8));
+  font-size: var(--text-size, 15px);
+}
+
+.distill-site-header a:hover,
+.nav-dropdown:hover .nav-dropbtn {
+  color: var(--hover-color, white);
+}
+
+.distill-site-header {
+  font-size: var(--text-size, 15px);
+  color: var(--text-color, rgba(255, 255, 255, 0.8));
+  background-color: var(--bkgd-color, #0F2E3D);
+}
+
+.distill-site-footer {
+  font-size: var(--text-size, 15px);
+  color: var(--text-color, rgba(255, 255, 255, 0.8));
+  background-color: var(--bkgd-color, #0F2E3D);
+}
+
+.distill-site-footer a:hover {
+  color: var(--hover-color, white);
+}</style>
+<!--/radix_placeholder_distill-->
+  <script src="../../site_libs/header-attrs-2.14/header-attrs.js"></script>
+  <script src="../../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+  <script src="../../site_libs/popper-2.6.0/popper.min.js"></script>
+  <link href="../../site_libs/tippy-6.2.7/tippy.css" rel="stylesheet" />
+  <link href="../../site_libs/tippy-6.2.7/tippy-light-border.css" rel="stylesheet" />
+  <script src="../../site_libs/tippy-6.2.7/tippy.umd.min.js"></script>
+  <script src="../../site_libs/anchor-4.2.2/anchor.min.js"></script>
+  <script src="../../site_libs/bowser-1.9.3/bowser.min.js"></script>
+  <script src="../../site_libs/webcomponents-2.0.0/webcomponents.js"></script>
+  <script src="../../site_libs/distill-2.2.21/template.v2.js"></script>
+  <!--radix_placeholder_site_in_header-->
+<script type="text/javascript" cookie-consent="tracking" async src="https://www.googletagmanager.com/gtag/js?id=G-N6RYE4NFCW"></script>
+<script type="text/javascript" cookie-consent="tracking">
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-N6RYE4NFCW');
+</script>
+<!--/radix_placeholder_site_in_header-->
+
+
+</head>
+
+<body>
+
+<!--radix_placeholder_front_matter-->
+
+<script id="distill-front-matter" type="text/json">
+{"title":"Test Shortening with Genetic Algorithm and Ant Colony Optimization","description":"In this post, I will use Genetic Algorithm and Ant Colony Optimization Algorithm to automatically shorten the length of a test.\n\n (8 min read)","authors":[{"author":"Tarid Wongvorachan","authorURL":"#","affiliation":"University of Alberta","affiliationURL":"https://www.ualberta.ca","orcidID":""}],"publishedDate":"2022-08-14T00:00:00.000-06:00","citationText":"Wongvorachan, 2022"}
+</script>
+
+<!--/radix_placeholder_front_matter-->
+<!--radix_placeholder_navigation_before_body-->
+<header class="header header--fixed" role="banner">
+<nav class="distill-site-nav distill-site-header">
+<div class="nav-left">
+<a href="../../index.html" class="title">Tarid Wongvorachan</a>
+<input id="distill-search" class="nav-search hidden" type="text" placeholder="Search..."/>
+</div>
+<div class="nav-right">
+<a href="../../index.html">Blog</a>
+<a href="../../about.html">About</a>
+<a href="https://github.com/TaridWong">
+<i class="fa fa-github" aria-hidden="true"></i>
+</a>
+<a href="../../index.xml">
+<i class="fa fa-rss" aria-hidden="true"></i>
+</a>
+<a href="javascript:void(0);" class="nav-toggle">&#9776;</a>
+</div>
+</nav>
+</header>
+<!--/radix_placeholder_navigation_before_body-->
+<!--radix_placeholder_site_before_body-->
+<!--/radix_placeholder_site_before_body-->
+
+<div class="d-title">
+<h1>Test Shortening with Genetic Algorithm and Ant Colony Optimization</h1>
+<!--radix_placeholder_categories-->
+<div class="dt-tags">
+  <a href="../../index.html#category:R" class="dt-tag">R</a>
+  <a href="../../index.html#category:Psychometric" class="dt-tag">Psychometric</a>
+</div>
+<!--/radix_placeholder_categories-->
+<p><p>In this post, I will use Genetic Algorithm and Ant Colony
+Optimization Algorithm to automatically shorten the length of a
+test.</p>
+<p>(8 min read)</p></p>
+</div>
+
+<div class="d-byline">
+  Tarid Wongvorachan  (University of Alberta)<a
+href="https://www.ualberta.ca" class="uri">https://www.ualberta.ca</a>
+  
+<br/>2022-08-14
+</div>
+
+<div class="d-article">
+<div class="d-contents">
+<nav class="l-text toc figcaption" id="TOC">
+<h3>Contents</h3>
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#genetic-algorithm" id="toc-genetic-algorithm">Genetic
+Algorithm</a></li>
+<li><a href="#ant-colony-algorithm" id="toc-ant-colony-algorithm">Ant
+Colony Algorithm</a></li>
+<li><a href="#conclusion" id="toc-conclusion">Conclusion</a></li>
+</ul>
+</nav>
+</div>
+<h2 id="introduction">Introduction</h2>
+<ul>
+<li><p>Hi, Everyone. It’s been really hot here in Summer. I have some
+more time before my next school year (2023) begins. As I learned more
+about Psychometric, I came to know about techniques that can be used to
+reduce the number of questions in a questionnaire for efficiency. This
+post was inspired by <a
+href="https://okan.cloud/posts/2021-01-19-how-to-shorten-a-measurement-instrument-automatically-part-ii/">my
+supervisor’s post of the same technique</a>. He applied the data to the
+Experiences in Close Relationships (ECR) scale of Adult Romantic
+Attachment Measure (<a
+href="https://psycnet.apa.org/record/1997-36873-002?source=post_page---------------------------">Brennan
+et al., 1998</a>). I want to try following his footstep and replicate
+the same techniques to a different data set for my practice. In this
+post, I will use Genetic Algorithm and Ant Colony Optimization Algorithm
+to automatically shorten the length of a test.</p></li>
+<li><p>We will be using the International Personality Item Pool data set
+(<a
+href="https://www.sciencedirect.com/science/article/pii/S0092656605000553">Goldberg
+et al., 2006</a>). The data set has polytomous test items; that is,
+answers from test takers can be more than two values. Instead of “right”
+and “wrong”, the answer can be “strongly disagree”, “disagree”,
+“neutral”, “agree”, and “strongly agree”. The test measures person’s
+characteristics of extraversion, emotional stability, agreeableness,
+conscientiousness, and openness to experience.</p></li>
+<li><p>First, we will import the data set and subset a portion of the
+data for feasibility. The full data set has 176,380 cases. We will
+subset only 5000 of them.</p></li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>setwd</a></span><span class='op'>(</span><span class='st'>'D:/Class_and_Work/U_Alberta/Research projects/Response time'</span><span class='op'>)</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://r-datatable.com'>data.table</a></span><span class='op'>)</span>
+<span class='va'>RANDOM_STATE</span> <span class='op'>=</span> <span class='fl'>123</span>
+
+<span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://Rdatatable.gitlab.io/data.table/reference/fread.html'>fread</a></span><span class='op'>(</span><span class='st'>"ipip.csv"</span>, header <span class='op'>=</span> <span class='cn'>TRUE</span>, fill <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<ul>
+<li>The data set contains responses of individuals to 50 personality
+test questions. Each response is on ordinal scale, meaning that the
+response can be categorized and ranked (i.e., disagree - neutral -
+agree). The correlation plot below indicates relationships between items
+measuring the same dimension (e.g., extraversion). Items with negative
+correlation are reverse-coded, meaning that the items are rephrased to
+have an opposite meaning. For example, a question measuring extraversion
+may ask “I see myself as someone who is talkative”. The reverse-coded
+version maybe “I see myself as someone who tends to be quiet”.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>df_survey</span> <span class='op'>&lt;-</span> <span class='va'>df</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5000</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>50</span><span class='op'>]</span>
+
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>df_survey</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>   EXT1 EXT2 EXT3 EXT4 EXT5 EXT6 EXT7 EXT8 EXT9 EXT10 EST1 EST2 EST3
+1:    4    1    5    2    5    1    5    2    4     1    1    4    4
+2:    3    5    3    4    3    3    2    5    1     5    2    3    4
+3:    2    3    4    4    3    2    1    3    2     5    4    4    4
+4:    2    2    2    3    4    2    2    4    1     4    3    3    3
+5:    3    3    3    3    5    3    3    5    3     4    1    5    5
+6:    3    3    4    2    4    2    2    3    3     4    3    4    3
+   EST4 EST5 EST6 EST7 EST8 EST9 EST10 AGR1 AGR2 AGR3 AGR4 AGR5 AGR6
+1:    2    2    2    2    2    3     2    2    5    2    4    2    3
+2:    1    3    1    2    1    3     1    1    4    1    5    1    5
+3:    2    2    2    2    2    1     3    1    4    1    4    2    4
+4:    2    3    2    2    2    4     3    2    4    3    4    2    4
+5:    3    1    1    1    1    3     2    1    5    1    5    1    3
+6:    2    2    1    2    1    2     2    2    3    1    4    2    3
+   AGR7 AGR8 AGR9 AGR10 CSN1 CSN2 CSN3 CSN4 CSN5 CSN6 CSN7 CSN8 CSN9
+1:    2    4    3     4    3    4    3    2    2    4    4    2    4
+2:    3    4    5     3    3    2    5    3    3    1    3    3    5
+3:    1    4    4     3    4    2    2    2    3    3    4    2    4
+4:    2    4    3     4    2    4    4    4    1    2    2    3    1
+5:    1    5    5     3    5    1    5    1    3    1    5    1    5
+6:    2    3    4     4    3    2    4    1    3    2    4    3    4
+   CSN10 OPN1 OPN2 OPN3 OPN4 OPN5 OPN6 OPN7 OPN8 OPN9 OPN10
+1:     4    5    1    4    1    4    1    5    3    4     5
+2:     3    1    2    4    2    3    1    4    2    5     3
+3:     2    5    1    2    1    4    2    5    3    4     4
+4:     4    4    2    5    2    3    1    4    4    3     3
+5:     5    5    1    5    1    5    1    5    3    5     5
+6:     3    5    1    5    1    3    1    5    4    5     2</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'>DataExplorer</span><span class='fu'>::</span><span class='fu'><a href='http://boxuancui.github.io/DataExplorer/reference/plot_correlation.html'>plot_correlation</a></span><span class='op'>(</span><span class='va'>df_survey</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<p><img src="ga-aco_files/figure-html5/unnamed-chunk-3-1.png" width="624" /></p>
+</div>
+<ul>
+<li>The test has 10 items (or questions) in each domain, totalling 50
+test items. This number seems reasonable, but we could further reduce
+the number of items to avoid fatiguing our examinee. One way we can
+reduce the number is through the use of coefficient alpha reliability.
+The <code>alpha</code> function in <code>psych</code> package can be
+used to examine how much reliability the test will have after dropping
+some items.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>alpha</span> <span class='op'>&lt;-</span> <span class='fu'>psych</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/psych/man/alpha.html'>alpha</a></span><span class='op'>(</span><span class='va'>df_survey</span>, check.keys<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='va'>alpha</span><span class='op'>$</span><span class='va'>alpha.drop</span>
+</code></pre>
+</div>
+</details>
+<pre><code>       raw_alpha std.alpha   G6(smc) average_r      S/N    alpha se
+EXT1-  0.8696207 0.8679394 0.9137837 0.1182655 6.572282 0.002611411
+EXT2   0.8691535 0.8675726 0.9134115 0.1179326 6.551309 0.002621739
+EXT3-  0.8668282 0.8651111 0.9121684 0.1157390 6.413506 0.002671484
+EXT4   0.8683708 0.8667878 0.9129267 0.1172256 6.506819 0.002638125
+EXT5-  0.8673617 0.8656936 0.9123513 0.1162518 6.445660 0.002659426
+EXT6   0.8685602 0.8667696 0.9132939 0.1172093 6.505797 0.002632815
+EXT7-  0.8682855 0.8668348 0.9129689 0.1172677 6.509470 0.002640926
+EXT8   0.8712934 0.8695949 0.9150056 0.1197881 6.668412 0.002577510
+EXT9-  0.8704641 0.8687061 0.9143138 0.1189665 6.616502 0.002593862
+EXT10  0.8683898 0.8669061 0.9133637 0.1173317 6.513491 0.002638721
+EST1   0.8703855 0.8687731 0.9141121 0.1190281 6.620390 0.002594302
+EST2-  0.8715179 0.8698555 0.9152856 0.1200308 6.683770 0.002572223
+EST3   0.8713890 0.8698611 0.9149559 0.1200360 6.684096 0.002575067
+EST4-  0.8722369 0.8705305 0.9161060 0.1206634 6.723826 0.002558568
+EST5   0.8712487 0.8695326 0.9155456 0.1197302 6.664750 0.002576908
+EST6   0.8697921 0.8682577 0.9140230 0.1185557 6.590577 0.002606440
+EST7   0.8698114 0.8682822 0.9134175 0.1185780 6.591988 0.002605601
+EST8   0.8695089 0.8680298 0.9130377 0.1183477 6.577465 0.002612008
+EST9   0.8692737 0.8677100 0.9136737 0.1180571 6.559153 0.002617047
+EST10  0.8680675 0.8667208 0.9130501 0.1171656 6.503046 0.002644521
+AGR1   0.8729617 0.8708241 0.9162004 0.1209403 6.741382 0.002540781
+AGR2-  0.8696206 0.8674465 0.9136713 0.1178184 6.544122 0.002609287
+AGR3   0.8720020 0.8701186 0.9156558 0.1202767 6.699333 0.002559864
+AGR4-  0.8718810 0.8699519 0.9145632 0.1201208 6.689461 0.002561684
+AGR5   0.8713817 0.8694433 0.9147959 0.1196472 6.659506 0.002572622
+AGR6-  0.8740795 0.8722052 0.9166081 0.1222577 6.825042 0.002520054
+AGR7   0.8695310 0.8674391 0.9132795 0.1178118 6.543703 0.002610839
+AGR8-  0.8712084 0.8692263 0.9151725 0.1194462 6.646796 0.002576807
+AGR9-  0.8719947 0.8700279 0.9149316 0.1201919 6.693960 0.002559508
+AGR10- 0.8692295 0.8669770 0.9138922 0.1173954 6.517496 0.002617962
+CSN1-  0.8715010 0.8696873 0.9151554 0.1198740 6.673849 0.002569307
+CSN2   0.8743915 0.8722266 0.9165440 0.1222783 6.826354 0.002512017
+CSN3-  0.8729250 0.8712122 0.9165431 0.1213081 6.764712 0.002542491
+CSN4   0.8695425 0.8679183 0.9139521 0.1182463 6.571073 0.002609660
+CSN5-  0.8713024 0.8695137 0.9151010 0.1197126 6.663639 0.002573481
+CSN6   0.8723390 0.8703796 0.9153758 0.1205215 6.714834 0.002551467
+CSN7-  0.8739940 0.8724664 0.9170480 0.1225097 6.841070 0.002522233
+CSN8   0.8704663 0.8686382 0.9148756 0.1189042 6.612566 0.002591175
+CSN9-  0.8724726 0.8705899 0.9156435 0.1207194 6.727375 0.002550163
+CSN10- 0.8718644 0.8699681 0.9157181 0.1201359 6.690420 0.002563072
+OPN1-  0.8731489 0.8713227 0.9152167 0.1214131 6.771378 0.002536994
+OPN2   0.8723907 0.8704576 0.9152106 0.1205948 6.719479 0.002551733
+OPN3-  0.8742745 0.8725471 0.9161203 0.1225876 6.846034 0.002516526
+OPN4   0.8733534 0.8715435 0.9160396 0.1216236 6.784738 0.002533974
+OPN5-  0.8710467 0.8687933 0.9141883 0.1190467 6.621561 0.002579241
+OPN6   0.8723086 0.8703180 0.9150081 0.1204637 6.711173 0.002553227
+OPN7-  0.8718728 0.8699217 0.9156417 0.1200926 6.687679 0.002563265
+OPN8-  0.8752372 0.8730645 0.9163104 0.1230898 6.878014 0.002497109
+OPN9   0.8760793 0.8755095 0.9191497 0.1255113 7.032742 0.002491151
+OPN10- 0.8716998 0.8695968 0.9144305 0.1197899 6.668526 0.002565750
+            var.r      med.r
+EXT1-  0.02247896 0.08151262
+EXT2   0.02242356 0.08166635
+EXT3-  0.02239961 0.07907977
+EXT4   0.02233050 0.08041782
+EXT5-  0.02230091 0.07914325
+EXT6   0.02288756 0.07930301
+EXT7-  0.02235567 0.08146699
+EXT8   0.02281218 0.08201026
+EXT9-  0.02271017 0.08153477
+EXT10  0.02258192 0.08041782
+EST1   0.02257745 0.08146699
+EST2-  0.02293955 0.08210536
+EST3   0.02261406 0.08151262
+EST4-  0.02326988 0.08180150
+EST5   0.02327337 0.08157208
+EST6   0.02262279 0.08082590
+EST7   0.02258286 0.08146699
+EST8   0.02248911 0.08132409
+EST9   0.02280470 0.08041782
+EST10  0.02268410 0.08002237
+AGR1   0.02320503 0.08201026
+AGR2-  0.02287127 0.08108114
+AGR3   0.02323923 0.08151262
+AGR4-  0.02249784 0.08225522
+AGR5   0.02279661 0.08201026
+AGR6-  0.02261039 0.08321513
+AGR7   0.02275238 0.08092384
+AGR8-  0.02309551 0.08162526
+AGR9-  0.02265465 0.08180150
+AGR10- 0.02322872 0.07874079
+CSN1-  0.02314059 0.08166635
+CSN2   0.02285444 0.08249577
+CSN3-  0.02337612 0.08195375
+CSN4   0.02299208 0.08082590
+CSN5-  0.02315868 0.08157208
+CSN6   0.02302597 0.08225522
+CSN7-  0.02294173 0.08385676
+CSN8   0.02335693 0.07998131
+CSN9-  0.02305508 0.08195375
+CSN10- 0.02344565 0.08162526
+OPN1-  0.02302069 0.08295971
+OPN2   0.02315918 0.08201026
+OPN3-  0.02266237 0.08249577
+OPN4   0.02310353 0.08225522
+OPN5-  0.02321234 0.08082590
+OPN6   0.02315973 0.08201026
+OPN7-  0.02343876 0.08146699
+OPN8-  0.02269568 0.08336518
+OPN9   0.02248538 0.08407870
+OPN10- 0.02292938 0.08162526</code></pre>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>alpha</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>
+Reliability analysis   
+ raw_alpha std.alpha G6(smc) average_r S/N    ase mean   sd median_r
+      0.87      0.87    0.92      0.12 6.8 0.0025  2.7 0.44    0.082</code></pre>
+</div>
+<h2 id="genetic-algorithm">Genetic Algorithm</h2>
+<ul>
+<li><p>Another way we can reduce the number of items is through the use
+of Genetic Algorithm, which is an optimization method inspired from the
+natural selection theory (<a
+href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0167110">Schroeders
+et al., 2016</a>). This is how it works:</p>
+<ul>
+<li><p>First, the algorithm randomly selects several item sets from the
+item pool. These item sets act as parents.</p></li>
+<li><p>Second, the algorithm picks items from each parent to form
+several sets of items as children (or an offspring).</p></li>
+<li><p>Third, some items in the children set were exchanged with items
+from the item pool as a mutation.</p></li>
+<li><p>Fourth, the children were evaluated. Children who produce better
+results were kept while those that did not do well are discarded. The
+process continues until a certain criterion is met.</p></li>
+</ul></li>
+<li><p>Figure 1 below from visualizes how the process is done.</p></li>
+</ul>
+<figure>
+<img src="GA.png" style="width:75.0%"
+alt="Illustration of the Genetic Algorithm. Figure from Schroeders et al. (2016) .No copyright infringement is intended" />
+<figcaption aria-hidden="true">Illustration of the Genetic Algorithm.
+Figure from <a
+href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0167110">Schroeders
+et al. (2016)</a> .No copyright infringement is intended</figcaption>
+</figure>
+<ul>
+<li>We will use the <code>GAabbreviate</code> package to perform test
+abbreviation with the Genetic Algorithm (<a
+href="https://www.frontiersin.org/articles/10.3389/fpsyg.2016.00189/full">Sahdra
+et al., 2016</a>). To prepare the data, we will first create summations
+of scores in each domain for every examinee as the scale score. We will
+also transform the data frame into a matrix.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>GAabbreviate</span><span class='op'>)</span>
+
+<span class='va'>scales</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>cbind</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>df_survey</span><span class='op'>[</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span><span class='op'>]</span><span class='op'>)</span>, 
+               <span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>df_survey</span><span class='op'>[</span>, <span class='fl'>11</span><span class='op'>:</span><span class='fl'>20</span><span class='op'>]</span><span class='op'>)</span>,
+               <span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>df_survey</span><span class='op'>[</span>, <span class='fl'>21</span><span class='op'>:</span><span class='fl'>30</span><span class='op'>]</span><span class='op'>)</span>,
+               <span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>df_survey</span><span class='op'>[</span>, <span class='fl'>31</span><span class='op'>:</span><span class='fl'>40</span><span class='op'>]</span><span class='op'>)</span>,
+               <span class='fu'><a href='https://rdrr.io/r/base/colSums.html'>rowSums</a></span><span class='op'>(</span><span class='va'>df_survey</span><span class='op'>[</span>, <span class='fl'>41</span><span class='op'>:</span><span class='fl'>50</span><span class='op'>]</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='va'>df_survey</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/as.data.frame.html'>as.data.frame</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>sapply</a></span><span class='op'>(</span><span class='va'>df_survey</span>, <span class='va'>as.integer</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='va'>df_survey</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/integer.html'>as.integer</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/unlist.html'>unlist</a></span><span class='op'>(</span><span class='va'>df_survey</span><span class='op'>)</span><span class='op'>)</span>, nrow<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>df_survey</span><span class='op'>)</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+</div>
+<ul>
+<li>We will create the Genetic Algorithm object with the
+<code>GAabbreviate</code> function (<a
+href="https://www.frontiersin.org/articles/10.3389/fpsyg.2016.00189/full">Sahdra
+et al, 2016</a>). We will set the cost of each item to 0.001 so that the
+algorithm can produce results that explains the most variance (<a
+href="https://www.sciencedirect.com/science/article/pii/S0092656610000036">Yarkoni,
+2010</a>).</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ipip_ga</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/GAabbreviate/man/GAabbreviate.html'>GAabbreviate</a></span><span class='op'>(</span>items <span class='op'>=</span> <span class='va'>df_survey</span>, <span class='co'># Matrix of item responses</span>
+                      verbose <span class='op'>=</span> <span class='cn'>FALSE</span>,
+                      scales <span class='op'>=</span> <span class='va'>scales</span>, <span class='co'># Scale scores</span>
+                      itemCost <span class='op'>=</span> <span class='fl'>0.001</span>, <span class='co'># The cost of each item</span>
+                      maxItems <span class='op'>=</span> <span class='fl'>5</span>, <span class='co'># Max number of items per dimension</span>
+                      maxiter <span class='op'>=</span> <span class='fl'>1000</span>, <span class='co'># Max number of iterations</span>
+                      run <span class='op'>=</span> <span class='fl'>100</span>, <span class='co'># Number of runs</span>
+                      crossVal <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='co'># Cross-validation</span>
+                      seed <span class='op'>=</span> <span class='va'>RANDOM_STATE</span><span class='op'>)</span> <span class='co'># Seed for reproducibility</span>
+</code></pre>
+</div>
+</details>
+</div>
+<ul>
+<li>We can request for a summary of the algorithm below. The algorithm
+ran 301 times before achieving the best results. The number of items in
+the final set is 25, meaning that we reduced the test in half.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>ipip_ga</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>── Genetic Algorithm ─────────────────── 
+
+GA settings: 
+Type                  =  binary 
+Population size       =  50 
+Number of generations =  1000 
+Elitism               =  2 
+Crossover probability =  0.8 
+Mutation probability  =  0.1 
+
+GA results: 
+Iterations             = 301 
+Total cost             = 1.74582
+Number of items in initial set = 50
+Number of items in final set = 25
+Mean coefficient alpha = 0.3212
+Mean convergent correlation (training) = 0.8069
+Mean convergent correlation (validation) = 0.8029</code></pre>
+</div>
+<ul>
+<li>We can call for coefficient alpha reliability of the test dimensions
+below. Reliability of the emotional stability, agreeableness, and
+openness to experience dimension are satisfactory (0.80 for emotional
+stability, 0.73 for agreeableness), meaning that the subtest we created
+for the mentioned two dimensions are usable (<a
+href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4205511/">Tavakol
+&amp; Dennick, 2011</a>). However, items in the extraversion,
+conscientiousness, openness to experience dimension should be revised as
+indicated by their reliability (-0.21 for extraversion, -0.39 for
+conscientiousness, and 0.67 for openness) (<a
+href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4205511/">Tavakol
+&amp; Dennick, 2011</a>).</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ipip_ga</span><span class='op'>$</span><span class='va'>measure</span><span class='op'>$</span><span class='va'>alpha</span>
+</code></pre>
+</div>
+</details>
+<pre><code>              A1        A2        A3         A4        A5
+alpha -0.2131873 0.8071732 0.7320936 -0.3923633 0.6721945</code></pre>
+</div>
+<ul>
+<li>We can also request for the list of items in each dimension as
+demonstrated below.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ext</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/which.html'>which</a></span><span class='op'>(</span><span class='va'>ipip_ga</span><span class='op'>$</span><span class='va'>measure</span><span class='op'>$</span><span class='va'>key</span><span class='op'>[</span>,<span class='fl'>1</span><span class='op'>]</span><span class='op'>==</span><span class='fl'>1</span><span class='op'>)</span>
+<span class='va'>est</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/which.html'>which</a></span><span class='op'>(</span><span class='va'>ipip_ga</span><span class='op'>$</span><span class='va'>measure</span><span class='op'>$</span><span class='va'>key</span><span class='op'>[</span>,<span class='fl'>2</span><span class='op'>]</span><span class='op'>==</span><span class='fl'>1</span><span class='op'>)</span>
+<span class='va'>agr</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/which.html'>which</a></span><span class='op'>(</span><span class='va'>ipip_ga</span><span class='op'>$</span><span class='va'>measure</span><span class='op'>$</span><span class='va'>key</span><span class='op'>[</span>,<span class='fl'>3</span><span class='op'>]</span><span class='op'>==</span><span class='fl'>1</span><span class='op'>)</span>
+<span class='va'>csn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/which.html'>which</a></span><span class='op'>(</span><span class='va'>ipip_ga</span><span class='op'>$</span><span class='va'>measure</span><span class='op'>$</span><span class='va'>key</span><span class='op'>[</span>,<span class='fl'>4</span><span class='op'>]</span><span class='op'>==</span><span class='fl'>1</span><span class='op'>)</span>
+<span class='va'>opn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/which.html'>which</a></span><span class='op'>(</span><span class='va'>ipip_ga</span><span class='op'>$</span><span class='va'>measure</span><span class='op'>$</span><span class='va'>key</span><span class='op'>[</span>,<span class='fl'>5</span><span class='op'>]</span><span class='op'>==</span><span class='fl'>1</span><span class='op'>)</span>
+
+<span class='va'>ipip_ga</span><span class='op'>$</span><span class='va'>measure</span><span class='op'>$</span><span class='va'>items</span><span class='op'>[</span><span class='va'>ext</span><span class='op'>]</span>
+</code></pre>
+</div>
+</details>
+<pre><code>x1 x2 x3 x6 x7 
+ 1  2  3  6  7 </code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ipip_ga</span><span class='op'>$</span><span class='va'>measure</span><span class='op'>$</span><span class='va'>items</span><span class='op'>[</span><span class='va'>est</span><span class='op'>]</span>
+</code></pre>
+</div>
+</details>
+<pre><code>x11 x15 x16 x17 x18 
+ 11  15  16  17  18 </code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ipip_ga</span><span class='op'>$</span><span class='va'>measure</span><span class='op'>$</span><span class='va'>items</span><span class='op'>[</span><span class='va'>agr</span><span class='op'>]</span>
+</code></pre>
+</div>
+</details>
+<pre><code>x22 x26 x28 x29 x30 
+ 22  26  28  29  30 </code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ipip_ga</span><span class='op'>$</span><span class='va'>measure</span><span class='op'>$</span><span class='va'>items</span><span class='op'>[</span><span class='va'>csn</span><span class='op'>]</span>
+</code></pre>
+</div>
+</details>
+<pre><code>x32 x33 x35 x36 x37 
+ 32  33  35  36  37 </code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ipip_ga</span><span class='op'>$</span><span class='va'>measure</span><span class='op'>$</span><span class='va'>items</span><span class='op'>[</span><span class='va'>opn</span><span class='op'>]</span>
+</code></pre>
+</div>
+</details>
+<pre><code>x41 x45 x48 x49 x50 
+ 41  45  48  49  50 </code></pre>
+</div>
+<ul>
+<li>We can also request for a summary plot of the Genetic Algorithm
+below. The plot has total cost, test length, mean of the overall
+explained variance, explained variance in each dimension, and pattern of
+items included in each iteration.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>ipip_ga</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<p><img src="ga-aco_files/figure-html5/unnamed-chunk-11-1.png" width="624" data-distill-preview=1 /></p>
+</div>
+<h2 id="ant-colony-algorithm">Ant Colony Algorithm</h2>
+<ul>
+<li><p>One more way we can shorten our test is using the Ant Colony
+Optimization (ACO) algorithm. ACO is an optimization method inspired
+from the foraging behavior of Argentine ants by using virtual ants to
+find the shortest path to a destination, which is the optimal set of
+test items for our case (<a href="10.1109/MCI.2006.329691">Doringo et
+al., 2006</a>).</p></li>
+<li><p>See Figure 2 below for the visual illustration of ACO. There are
+two routes that lead to the same food source. As ants travel randomly to
+the food source, they all leave pheromone for others to follow
+them.</p></li>
+<li><p>However, given that the upper route is shorter, it receives more
+pheromone as ants travel back and forth from their nest to the food
+source more often. The route with more pheromone (i.e., the shorter
+route) is chosen more by the ants while the longer route gets chosen
+less as the pheromone evaporates from having less ant.</p></li>
+</ul>
+<figure>
+<img src="ACO.png" style="width:75.0%"
+alt="Illustration of the Any Colony Optimization Algorithm. Figure from Doringo et al. (2006). No copyright infringement is intended" />
+<figcaption aria-hidden="true">Illustration of the Any Colony
+Optimization Algorithm. Figure from <a
+href="10.1109/MCI.2006.329691">Doringo et al. (2006)</a>. No copyright
+infringement is intended</figcaption>
+</figure>
+<ul>
+<li>We will use the <code>Shortform</code> package to perform test
+abbreviation with ACO (<a
+href="https://cran.r-project.org/web/packages/ShortForm/index.html">Raborn
+&amp; Leite, 2020</a>). We will load the package and subset the data for
+feasibility. ACO is quite computationally expensive with a large data
+set. To save time, I subsetted only the first 100 cases of IPIP response
+data.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/AnthonyRaborn/ShortForm'>ShortForm</a></span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>  #####                             #######                      
+ #     # #    #  ####  #####  ##### #        ####  #####  #    # 
+ #       #    # #    # #    #   #   #       #    # #    # ##  ## 
+  #####  ###### #    # #    #   #   #####   #    # #    # # ## # 
+       # #    # #    # #####    #   #       #    # #####  #    # 
+ #     # #    # #    # #   #    #   #       #    # #   #  #    # 
+  #####  #    #  ####  #    #   #   #        ####  #    # #    # 
+ 
+         Version 0.4.6
+             (o&lt;
+             //\
+             V_/_ </code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>df_survey_aco</span> <span class='op'>&lt;-</span> <span class='va'>df</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>100</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>50</span><span class='op'>]</span> <span class='co'>#ACO uses dataframe format</span>
+</code></pre>
+</div>
+</details>
+</div>
+<ul>
+<li>We will also define model structure of the measurement with
+<code>lavaan</code> syntax. Here, I defined five dimensions that are
+measured by 10 items each. In addition to the measurement model, I will
+also indicate the list of items that measure each dimension.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>model</span> <span class='op'>&lt;-</span> <span class='st'>" ext =~ EXT1+EXT2+EXT3+EXT4+EXT5+EXT6+EXT7+EXT8+EXT9+EXT10
+           est =~ EST1+EST2+EST3+EST4+EST5+EST6+EST7+EST8+EST9+EST10
+           agr =~ AGR1+AGR2+AGR3+AGR4+AGR5+AGR6+AGR7+AGR8+AGR9+AGR10
+           csn =~ CSN1+CSN2+CSN3+CSN4+CSN5+CSN6+CSN7+CSN8+CSN9+CSN10
+           opn =~ OPN1+OPN2+OPN3+OPN4+OPN5+OPN6+OPN7+OPN8+OPN9+OPN10
+         "</span>
+
+<span class='va'>items</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"EXT"</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>,
+              <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"EST"</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>,
+              <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"AGR"</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>,
+              <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"CSN"</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>,
+              <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"OPN"</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
+              <span class='op'>)</span>
+
+<span class='va'>items</span>
+</code></pre>
+</div>
+</details>
+<pre><code>[[1]]
+ [1] &quot;EXT1&quot;  &quot;EXT2&quot;  &quot;EXT3&quot;  &quot;EXT4&quot;  &quot;EXT5&quot;  &quot;EXT6&quot;  &quot;EXT7&quot;  &quot;EXT8&quot; 
+ [9] &quot;EXT9&quot;  &quot;EXT10&quot;
+
+[[2]]
+ [1] &quot;EST1&quot;  &quot;EST2&quot;  &quot;EST3&quot;  &quot;EST4&quot;  &quot;EST5&quot;  &quot;EST6&quot;  &quot;EST7&quot;  &quot;EST8&quot; 
+ [9] &quot;EST9&quot;  &quot;EST10&quot;
+
+[[3]]
+ [1] &quot;AGR1&quot;  &quot;AGR2&quot;  &quot;AGR3&quot;  &quot;AGR4&quot;  &quot;AGR5&quot;  &quot;AGR6&quot;  &quot;AGR7&quot;  &quot;AGR8&quot; 
+ [9] &quot;AGR9&quot;  &quot;AGR10&quot;
+
+[[4]]
+ [1] &quot;CSN1&quot;  &quot;CSN2&quot;  &quot;CSN3&quot;  &quot;CSN4&quot;  &quot;CSN5&quot;  &quot;CSN6&quot;  &quot;CSN7&quot;  &quot;CSN8&quot; 
+ [9] &quot;CSN9&quot;  &quot;CSN10&quot;
+
+[[5]]
+ [1] &quot;OPN1&quot;  &quot;OPN2&quot;  &quot;OPN3&quot;  &quot;OPN4&quot;  &quot;OPN5&quot;  &quot;OPN6&quot;  &quot;OPN7&quot;  &quot;OPN8&quot; 
+ [9] &quot;OPN9&quot;  &quot;OPN10&quot;</code></pre>
+</div>
+<ul>
+<li>We will create the ACO object with the <code>antcolony.lavaan</code>
+function. We will set the number of ants to 20, pheromone evaporation
+rate to 0.5, and fit indices of comparative fit index (CFI),
+Tucker-Lewis index (TLI), and root mean square error of approximation
+(RMSEA).</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ipip_ACO</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/ShortForm/man/antcolony.lavaan.html'>antcolony.lavaan</a></span><span class='op'>(</span>data <span class='op'>=</span> <span class='va'>df_survey_aco</span>, <span class='co'># Response data set</span>
+                            ants <span class='op'>=</span> <span class='fl'>20</span>, <span class='co'># Number of ants</span>
+                            evaporation <span class='op'>=</span> <span class='fl'>0.5</span>, <span class='co'>#  % of the pheromone retained after evaporation</span>
+                            antModel <span class='op'>=</span> <span class='va'>model</span>, <span class='co'># Factor model for IPIP</span>
+                            list.items <span class='op'>=</span> <span class='va'>items</span>, <span class='co'># Items for each dimension</span>
+                            full <span class='op'>=</span> <span class='fl'>50</span>, <span class='co'># The total number of unique items in the IPIP scale</span>
+                            i.per.f <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>5</span>, <span class='fl'>5</span>, <span class='fl'>5</span>, <span class='fl'>5</span>, <span class='fl'>5</span><span class='op'>)</span>, <span class='co'># The desired number of items per dimension. The number has to match the number of dimension</span>
+                            factors <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'EXT'</span>,<span class='st'>'EST'</span>,<span class='st'>'AGR'</span>,<span class='st'>'CSN'</span>,<span class='st'>'OPN'</span><span class='op'>)</span>, <span class='co'># Names of dimensions</span>
+                            
+                            <span class='co'># lavaan settings - Change estimator to WLSMV</span>
+                            lavaan.model.specs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>model.type <span class='op'>=</span> <span class='st'>"cfa"</span>, auto.var <span class='op'>=</span> <span class='cn'>T</span>, estimator <span class='op'>=</span> <span class='st'>"WLSMV"</span>,
+                                                      ordered <span class='op'>=</span> <span class='cn'>NULL</span>, int.ov.free <span class='op'>=</span> <span class='cn'>TRUE</span>, int.lv.free <span class='op'>=</span> <span class='cn'>FALSE</span>, 
+                                                      auto.fix.first <span class='op'>=</span> <span class='cn'>TRUE</span>, auto.fix.single <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+                                                      auto.cov.lv.x <span class='op'>=</span> <span class='cn'>TRUE</span>, auto.th <span class='op'>=</span> <span class='cn'>TRUE</span>, auto.delta <span class='op'>=</span> <span class='cn'>TRUE</span>,
+                                                      auto.cov.y <span class='op'>=</span> <span class='cn'>TRUE</span>, std.lv <span class='op'>=</span> <span class='cn'>F</span><span class='op'>)</span>,
+                            
+                            steps <span class='op'>=</span> <span class='fl'>50</span>, <span class='co'># The number of ants in a row for which the model does not change</span>
+                            fit.indices <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'cfi'</span>, <span class='st'>'tli'</span>, <span class='st'>'rmsea'</span><span class='op'>)</span>, <span class='co'># Fit statistics to use</span>
+                            fit.statistics.test <span class='op'>=</span> <span class='st'>"(cfi &gt; 0.95)&amp;(tli &gt; 0.95)&amp;(rmsea &lt; 0.06)"</span>,
+                            max.run <span class='op'>=</span> <span class='fl'>300</span><span class='op'>)</span> <span class='co'># The maximum number of ants to run before the algorithm stops</span>
+</code></pre>
+</div>
+</details>
+<pre><code>
+ Run number 1.           
+ Run number 2.           
+ Run number 3.           
+ Run number 4.           
+ Run number 5.           
+ Run number 6.           
+ Run number 7.           
+ Run number 8.           
+ Run number 9.           
+ Run number 10.           
+ Run number 11.           
+ Run number 12.           
+ Run number 13.           
+ Run number 14.           
+ Run number 15.           
+ Run number 16.           
+ Run number 17.           
+ Run number 18.           
+ Run number 19.           
+ Run number 20.           
+ Run number 21.           [1] &quot;Compiling results.&quot;</code></pre>
+</div>
+<ul>
+<li>After getting the result, we can check our fit indices and the list
+of items retained by ACO. Item that has “1” indicates that it is
+selected by the algorithm.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ipip_ACO</span><span class='op'>[[</span><span class='fl'>1</span><span class='op'>]</span><span class='op'>]</span>
+</code></pre>
+</div>
+</details>
+<pre><code>          cfi       tli      rmsea mean_gamma EXT1 EXT2 EXT3 EXT4
+[1,] 0.968031 0.9638086 0.03537734      0.529    1    0    1    0
+     EXT5 EXT6 EXT7 EXT8 EXT9 EXT10 EST1 EST2 EST3 EST4 EST5 EST6
+[1,]    1    0    1    0    1     0    0    0    1    0    1    1
+     EST7 EST8 EST9 EST10 AGR1 AGR2 AGR3 AGR4 AGR5 AGR6 AGR7 AGR8
+[1,]    0    1    0     1    0    1    1    1    1    0    0    1
+     AGR9 AGR10 CSN1 CSN2 CSN3 CSN4 CSN5 CSN6 CSN7 CSN8 CSN9 CSN10
+[1,]    0     0    1    1    0    0    1    0    0    0    1     1
+     OPN1 OPN2 OPN3 OPN4 OPN5 OPN6 OPN7 OPN8 OPN9 OPN10
+[1,]    1    0    0    0    1    0    0    1    1     1</code></pre>
+</div>
+<ul>
+<li>We can also request for the summary of lavaan model from the subtest
+extracted by ACO.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>ipip_ACO</span><span class='op'>$</span><span class='va'>best.model</span>
+</code></pre>
+</div>
+</details>
+<pre><code>lavaan 0.6-11 ended normally after 71 iterations
+
+  Estimator                                       DWLS
+  Optimization method                           NLMINB
+  Number of model parameters                        60
+                                                      
+  Number of observations                           100
+                                                      
+Model Test User Model:
+                                              Standard      Robust
+  Test Statistic                               283.962     324.326
+  Degrees of freedom                               265         265
+  P-value (Chi-square)                           0.202       0.007
+  Scaling correction factor                                  1.883
+  Shift parameter                                          173.490
+       simple second-order correction                             </code></pre>
+</div>
+<ul>
+<li>Next, we can also request for an output of which item is loaded onto
+which dimension in the new model.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/r/base/cat.html'>cat</a></span><span class='op'>(</span><span class='va'>ipip_ACO</span><span class='op'>$</span><span class='va'>best.syntax</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>EXT =~ EXT7 + EXT3 + EXT5 + EXT1 + EXT9
+EST =~ EST3 + EST10 + EST6 + EST8 + EST5
+AGR =~ AGR8 + AGR4 + AGR3 + AGR2 + AGR7
+CSN =~ CSN2 + CSN5 + CSN9 + CSN1 + CSN10
+OPN =~ OPN5 + OPN8 + OPN1 + OPN9 + OPN10
+         </code></pre>
+</div>
+<ul>
+<li>When checking coefficient alpha reliability of the items chosen by
+ACO, we can see below that the dimension of extraversion, emotional
+stability, agreeableness, and conscientiousness have satisfactory
+reliability values.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#check reliability of each subscale</span>
+
+<span class='co'>#EXT</span>
+<span class='fu'>psych</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/psych/man/alpha.html'>alpha</a></span><span class='op'>(</span><span class='va'>df_survey_aco</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"EXT1"</span>, <span class='st'>"EXT3"</span>, <span class='st'>"EXT5"</span>, <span class='st'>"EXT4"</span>, <span class='st'>"EXT7"</span><span class='op'>)</span><span class='op'>]</span>, check.keys<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>$</span><span class='va'>total</span>
+</code></pre>
+</div>
+</details>
+<pre><code> raw_alpha std.alpha   G6(smc) average_r      S/N        ase  mean
+ 0.8854019  0.886472 0.8729437 0.6096311 7.808396 0.01810261 3.038
+       sd  median_r
+ 1.032285 0.5956059</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#EST</span>
+<span class='fu'>psych</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/psych/man/alpha.html'>alpha</a></span><span class='op'>(</span><span class='va'>df_survey_aco</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"EST1"</span>, <span class='st'>"EST5"</span>, <span class='st'>"EST6"</span>, <span class='st'>"EST7"</span>, <span class='st'>"EST8"</span><span class='op'>)</span><span class='op'>]</span>, check.keys<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>$</span><span class='va'>total</span>
+</code></pre>
+</div>
+</details>
+<pre><code> raw_alpha std.alpha  G6(smc) average_r      S/N        ase  mean
+  0.819672 0.8179554 0.816637 0.4733049 4.493158 0.02866376 2.962
+        sd  median_r
+ 0.9705544 0.4724666</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#AGR</span>
+<span class='fu'>psych</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/psych/man/alpha.html'>alpha</a></span><span class='op'>(</span><span class='va'>df_survey_aco</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"AGR2"</span>, <span class='st'>"AGR4"</span>, <span class='st'>"AGR5"</span>, <span class='st'>"AGR9"</span>, <span class='st'>"AGR10"</span><span class='op'>)</span><span class='op'>]</span>, check.keys<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>$</span><span class='va'>total</span>
+</code></pre>
+</div>
+</details>
+<pre><code> raw_alpha std.alpha G6(smc) average_r      S/N        ase  mean
+ 0.7890755  0.788927 0.76396 0.4277669 3.737698 0.03327975 3.794
+        sd  median_r
+ 0.7776967 0.4230731</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#CSN</span>
+<span class='fu'>psych</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/psych/man/alpha.html'>alpha</a></span><span class='op'>(</span><span class='va'>df_survey_aco</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"CSN3"</span>, <span class='st'>"CSN5"</span>, <span class='st'>"CSN7"</span>, <span class='st'>"CSN9"</span>, <span class='st'>"CSN10"</span><span class='op'>)</span><span class='op'>]</span>, check.keys<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>$</span><span class='va'>total</span>
+</code></pre>
+</div>
+</details>
+<pre><code> raw_alpha std.alpha   G6(smc) average_r      S/N        ase  mean
+ 0.7009179 0.6928163 0.6664406 0.3108564 2.255382 0.04580886 3.284
+        sd  median_r
+ 0.7914595 0.2909734</code></pre>
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#OPN</span>
+<span class='fu'>psych</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/psych/man/alpha.html'>alpha</a></span><span class='op'>(</span><span class='va'>df_survey_aco</span><span class='op'>[</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"OPN5"</span>, <span class='st'>"OPN7"</span>, <span class='st'>"OPN8"</span>, <span class='st'>"OPN9"</span>, <span class='st'>"OPN10"</span><span class='op'>)</span><span class='op'>]</span>, check.keys<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>$</span><span class='va'>total</span>
+</code></pre>
+</div>
+</details>
+<pre><code> raw_alpha std.alpha   G6(smc) average_r      S/N        ase  mean
+ 0.5971511 0.6095035 0.5874082 0.2379028 1.560843 0.06264639 3.802
+        sd  median_r
+ 0.6006697 0.2483103</code></pre>
+</div>
+<ul>
+<li>The explained variance plot below shows that ACO was able to
+increase the amount of variance explained by the model.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/ShortForm/man/plot.html'>plot</a></span><span class='op'>(</span><span class='va'>ipip_ACO</span>, type <span class='op'>=</span> <span class='st'>"variance"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>$Pheromone
+NULL
+
+$Gamma
+NULL
+
+$Beta
+NULL
+
+$Variance</code></pre>
+<p><img src="ga-aco_files/figure-html5/unnamed-chunk-19-1.png" width="624" /></p>
+</div>
+<h2 id="conclusion">Conclusion</h2>
+<ul>
+<li><p>This post demonstrated several ways we can reduce the number of
+test items whether through the traditional method of reliability
+examination, Genetic Algorithm, or ACO. Many psychological assessment
+provides helpful insights to clinicians, educators, and the examinee
+themselves with helpful information. However, some tests are quite
+lengthy that they fatigue the examinee out before; for example, the
+[Minnesota Multiphasic Personality Inventory-2 Restructured Form
+(MMPI-2-RF)](<a
+href="https://www.upress.umn.edu/test-division/MMPI-2-RF#"
+class="uri">https://www.upress.umn.edu/test-division/MMPI-2-RF#</a>:~:text=2%2DRF%20Overview-,The%20Minnesota%20Multiphasic%20Personality%20Inventory%2D2%20Restructured%20Form%20(MMPI%2D,psychological%20dysfunction%20and%20treatment%20planning.)
+has 338 items. Genetic Algorithm and ACO may be useful to reduce the
+number of test items to the optimal level while retaining accuracy and
+representativeness of the test.</p></li>
+<li><p>However, note that the two algorithms are not silver bullets. We
+cannot just apply them to every test without consulting the literature,
+test developers, test users, and other relevant stakeholders first.
+After reducing the number of test items, researchers should check if the
+remaining items are representative to the measured construct and perform
+a pilot testing to examine if the test serves its intended purpose. As
+always, thank you very much for reading this!</p></li>
+</ul>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<!--radix_placeholder_article_footer-->
+<div class="article-footer">
+  <p class="social_footer">
+    <span class="disqus-comments">
+      <i class="fas fa-comments"></i>
+      &nbsp;
+      <span class="disqus-comment-count" data-disqus-identifier="posts/2022-08-14-ga-aco/">Comment on this article</span>
+    </span>
+    <span class="article-sharing">
+      Share: &nbsp;
+      <a href="https://twitter.com/share?text=Test%20Shortening%20with%20Genetic%20Algorithm%20and%20Ant%20Colony%20Optimization&amp;url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2022-08-14-ga-aco%2F" aria-label="share on twitter">
+        <i class="fab fa-twitter" aria-hidden="true"></i>
+      </a>
+      <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2022-08-14-ga-aco%2F&amp;title=Test%20Shortening%20with%20Genetic%20Algorithm%20and%20Ant%20Colony%20Optimization" aria-label="share on linkedin">
+        <i class="fab fa-linkedin" aria-hidden="true"></i>
+      </a>
+      <a href="https://pinterest.com/pin/create/link/?url=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2022-08-14-ga-aco%2F&amp;description=Test%20Shortening%20with%20Genetic%20Algorithm%20and%20Ant%20Colony%20Optimization" aria-label="share on pinterest">
+        <i class="fab fa-pinterest" aria-hidden="true"></i>
+      </a>
+      <a href="https://www.facebook.com/sharer/sharer.php?s=100&amp;p[url]=https%3A%2F%2Ftaridwong.github.io%2Fposts%2F2022-08-14-ga-aco%2F" aria-label="share on facebook">
+        <i class="fab fa-facebook" aria-hidden="true"></i>
+      </a>
+    </span>
+  </p>
+  <script id="dsq-count-scr" src="https://Tarid&#39;s blog.disqus.com/count.js" async></script>
+  <div id="disqus_thread" class="hidden"></div>
+  <script type="text/javascript" cookie-consent="functionality">
+var disqus_config = function () {
+  this.page.url = 'https://taridwong.github.io/posts/2022-08-14-ga-aco/';
+  this.page.identifier = 'posts/2022-08-14-ga-aco/';
+};
+(function() {
+  var d = document, s = d.createElement('script');
+  s.src = 'https://Tarid's blog.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+})();
+</script>
+  <p>
+    <div class="subscribe"><form method='post' action='https://blogtrottr.com'>
+  <p>Enjoy this blog? Get notified of new posts via email:</p>
+  <input type='text' name='btr_email' />
+  <input type='hidden' name='btr_url'
+         value='https://taridwong.github.io/index.xml'/>
+  <input type='hidden' name='schedule_type' value='0' />
+  <input type='submit' value='Subscribe' />
+</form></div>
+  </p>
+</div>
+<!--/radix_placeholder_article_footer-->
+</div>
+
+<div class="d-appendix">
+</div>
+
+
+<!--radix_placeholder_site_after_body-->
+<!--/radix_placeholder_site_after_body-->
+<!--radix_placeholder_appendices-->
+<div class="appendix-bottom">
+  <h3 id="reuse">Reuse</h3>
+  <p>Text and figures are licensed under Creative Commons Attribution <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. The figures that have been reused from other sources don't fall under this license and can be recognized by a note in their caption: "Figure from ...".</p>
+  <h3 id="citation">Citation</h3>
+  <p>For attribution, please cite this work as</p>
+  <pre class="citation-appendix short">Wongvorachan (2022, Aug. 14). Tarid Wongvorachan: Test Shortening with Genetic Algorithm and Ant Colony Optimization. Retrieved from https://taridwong.github.io/posts/2022-08-14-ga-aco/</pre>
+  <p>BibTeX citation</p>
+  <pre class="citation-appendix long">@misc{wongvorachan2022test,
+  author = {Wongvorachan, Tarid},
+  title = {Tarid Wongvorachan: Test Shortening with Genetic Algorithm and Ant Colony Optimization},
+  url = {https://taridwong.github.io/posts/2022-08-14-ga-aco/},
+  year = {2022}
+}</pre>
+</div>
+<!--/radix_placeholder_appendices-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<!--radix_placeholder_navigation_after_body--><html><body>
+<div class="distill-site-nav distill-site-footer">
+<p>© Copyright Tarid Wongvorachan 2021. Made with the R <a href="https://rstudio.github.io/distill/">distill</a> package.</p>
+</div>
+<!--/radix_placeholder_navigation_after_body-->
+</body></html>
+
+
+</body>
+
+</html>
