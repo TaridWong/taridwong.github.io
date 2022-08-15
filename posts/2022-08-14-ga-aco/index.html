@@ -137,7 +137,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--/radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-resource-manifest">
-  {"type":"character","attributes":{},"value":["ACO.png","ga-aco_files/anchor-4.2.2/anchor.min.js","ga-aco_files/bowser-1.9.3/bowser.min.js","ga-aco_files/distill-2.2.21/template.v2.js","ga-aco_files/figure-html5/unnamed-chunk-11-1.png","ga-aco_files/figure-html5/unnamed-chunk-19-1.png","ga-aco_files/figure-html5/unnamed-chunk-3-1.png","ga-aco_files/header-attrs-2.14/header-attrs.js","ga-aco_files/jquery-3.6.0/jquery-3.6.0.js","ga-aco_files/jquery-3.6.0/jquery-3.6.0.min.js","ga-aco_files/jquery-3.6.0/jquery-3.6.0.min.map","ga-aco_files/popper-2.6.0/popper.min.js","ga-aco_files/tippy-6.2.7/tippy-bundle.umd.min.js","ga-aco_files/tippy-6.2.7/tippy-light-border.css","ga-aco_files/tippy-6.2.7/tippy.css","ga-aco_files/tippy-6.2.7/tippy.umd.min.js","ga-aco_files/webcomponents-2.0.0/webcomponents.js","GA.png","ipip.csv"]}
+  {"type":"character","attributes":{},"value":["ACO.png","ga-aco_files/anchor-4.2.2/anchor.min.js","ga-aco_files/bowser-1.9.3/bowser.min.js","ga-aco_files/distill-2.2.21/template.v2.js","ga-aco_files/figure-html5/unnamed-chunk-11-1.png","ga-aco_files/figure-html5/unnamed-chunk-19-1.png","ga-aco_files/figure-html5/unnamed-chunk-20-1.png","ga-aco_files/figure-html5/unnamed-chunk-3-1.png","ga-aco_files/header-attrs-2.14/header-attrs.js","ga-aco_files/jquery-3.6.0/jquery-3.6.0.js","ga-aco_files/jquery-3.6.0/jquery-3.6.0.min.js","ga-aco_files/jquery-3.6.0/jquery-3.6.0.min.map","ga-aco_files/popper-2.6.0/popper.min.js","ga-aco_files/tippy-6.2.7/tippy-bundle.umd.min.js","ga-aco_files/tippy-6.2.7/tippy-light-border.css","ga-aco_files/tippy-6.2.7/tippy.css","ga-aco_files/tippy-6.2.7/tippy.umd.min.js","ga-aco_files/webcomponents-2.0.0/webcomponents.js","GA.png","ipip.csv"]}
   </script>
   <!--radix_placeholder_navigation_in_header-->
 <meta name="distill:offset" content="../.."/>
@@ -3353,6 +3353,33 @@ NULL
 $Variance</code></pre>
 <p><img src="ga-aco_files/figure-html5/unnamed-chunk-19-1.png" width="624" /></p>
 </div>
+<ul>
+<li>We can also request for the pheromone plot with the argument
+<code>type=""pheromone</code>. This will allow us to see the amount of
+pheromone used by our virtual ants.</li>
+</ul>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/ShortForm/man/plot.html'>plot</a></span><span class='op'>(</span><span class='va'>ipip_ACO</span>, type <span class='op'>=</span> <span class='st'>"pheromone"</span><span class='op'>)</span>
+</code></pre>
+</div>
+</details>
+<pre><code>$Pheromone</code></pre>
+<p><img src="ga-aco_files/figure-html5/unnamed-chunk-20-1.png" width="624" /></p>
+<pre><code>
+$Gamma
+NULL
+
+$Beta
+NULL
+
+$Variance
+NULL</code></pre>
+</div>
 <h2 id="conclusion">Conclusion</h2>
 <ul>
 <li><p>This post demonstrated several ways we can reduce the number of
@@ -3374,7 +3401,7 @@ remaining items are representative to the measured construct and perform
 a pilot testing to examine if the test serves its intended purpose. As
 always, thank you very much for reading this!</p></li>
 </ul>
-<div class="sourceCode" id="cb23"><pre
+<div class="sourceCode" id="cb25"><pre
 class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <div class="article-footer">
