@@ -7,7 +7,403 @@
     <description>Welcome to my data science blog!
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Sun, 14 Aug 2022 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 31 Dec 2022 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Data Exploration with </title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2022-12-31-ggstat</link>
+      <description>
+
+
+&lt;h1 id="its-been-a-while-eh"&gt;It’s been a while, eh?&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Hi everyone. It has been a while since my last post. I have been
+busy with finishing my conference submissions and manuscripts. While
+working, one of my professors asked me and my colleague to perform a
+t-test for one of our projects. It was that time that I was introduced
+to a very helpful package called &lt;a
+href="https://indrajeetpatil.github.io/ggstatsplot/index.html"&gt;&lt;code&gt;ggstatsplot&lt;/code&gt;&lt;/a&gt;.
+I usually do t-test with the &lt;code&gt;t.test&lt;/code&gt; function from the base
+&lt;code&gt;stats&lt;/code&gt; package. It still works, but I found that
+&lt;code&gt;ggstatsplot&lt;/code&gt; is more user-friendly as it provides visual of
+the results instead of just texts and numbers. Plus, I like graphing. It
+is fun and beautiful.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The mentioned reason is why I decided to write this post as a way
+to introduce how useful &lt;code&gt;ggstatsplot&lt;/code&gt; is, as well as brushing
+up the basic knowledge of data exploration techniques that maybe simple
+but foundational to a lot of existing quantitative analysis techniques
+out there. It is almost a mandatory for every researchers to learn about
+these techniques in their introduction to research course. That is why I
+hope this post would serve as a useful reference for you all. I also
+want to keep things simple as a change to discussing about advance
+techniques like genetic algorithm and machine learning.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;In this post, I will be performing and visualizing data
+exploration techniques such as Pearson’s correlation test, Chi-square
+Goodness of Fit test, Chi-square Test of Independence, One-sample
+t-test, and Paired-sample t-test.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;About the data, we will be using the student alcohol consumption
+data set, which is a survey data of students’ mathematics score from
+Portuguese secondary schools in 2005-2006 school year. The data is
+available in the &lt;a
+href="https://archive.ics.uci.edu/ml/datasets.php"&gt;University of
+California-Irvine machine learning repository&lt;/a&gt; and &lt;a
+href="https://www.kaggle.com/datasets/uciml/student-alcohol-consumption?select=student-mat.csv"&gt;Kaggle&lt;/a&gt;.
+The data was collected and used by &lt;a
+href="https://repositorium.sdum.uminho.pt/handle/1822/8024"&gt;Cortez and
+Silva (2008)&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="data-preprocessing-and-assumption-check"&gt;Data Preprocessing and
+Assumption Check&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;There are four packages that I used, &lt;code&gt;ggplot2&lt;/code&gt; for base
+data visualization, &lt;code&gt;dplyr&lt;/code&gt; for data manipulation,
+&lt;code&gt;DataExplorer&lt;/code&gt; for data summarization, &lt;code&gt;psych&lt;/code&gt; for
+descriptive statistics, &lt;code&gt;rstatix&lt;/code&gt; for preliminary analysis,
+and &lt;code&gt;ggstatsplot&lt;/code&gt;, the main package that we will play around
+today, for data visualization with statistical details.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;library(ggplot2)
+library(dplyr)
+library(DataExplorer)
+library(psych)
+library(rstatix)
+library(tidyr)
+library(ggstatsplot)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;First, we will read the data set with &lt;code&gt;read.csv&lt;/code&gt;, convert
+the categorical variables into factors with &lt;code&gt;as.factor&lt;/code&gt;, and
+subset relevant variables out with &lt;code&gt;select&lt;/code&gt;. It makes the
+data much easier to work with when we filter the variables that we want
+into a smaller data set.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;df &amp;lt;- read.csv(&amp;quot;student-mat.csv&amp;quot;, header = TRUE)
+
+df &amp;lt;- df %&amp;gt;% 
+  as.data.frame() %&amp;gt;%
+  mutate(across(c(sex, address, schoolsup, famsup), as.factor))
+
+#drop variable
+
+df_clean &amp;lt;- df %&amp;gt;% select (c(sex, address, schoolsup, famsup, G1, G3))&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Next, we will explore variable type in the data set and missing
+value with plot_intro and proportion of categorical variables with
+&lt;code&gt;plot_bar&lt;/code&gt;. Both packages are from the
+&lt;code&gt;DataExplorer&lt;/code&gt; package.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot_intro(df_clean)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34903e1337a_files/figure-html/unnamed-chunk-5-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The introduction bar plot shows no missing data. Majority of the
+variables are discrete, which are &lt;code&gt;sex&lt;/code&gt; - students’
+biological sex, &lt;code&gt;address&lt;/code&gt; - student’s home address type
+(binary: ‘U’ - urban or ‘R’ - rural), &lt;code&gt;schoolsup&lt;/code&gt; - whether
+that student enrolls in extra educational support, and
+&lt;code&gt;famsup&lt;/code&gt; - whether that student gets educational support from
+their family. The remaining variables are continuous; those variables
+are &lt;code&gt;G1&lt;/code&gt; - students’ score in the first data collection
+period, and &lt;code&gt;G3&lt;/code&gt; - students’ final score.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;plot_bar(df_clean)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34903e1337a_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The bar plots above show that the proportion between male and female
+students is rather balance. The proportion between students who receive
+educational support from family is skewed, and the proportion between
+students who receive extra educational support from school and students’
+home address type are severely skewed.&lt;/li&gt;
+&lt;li&gt;Next, we will perform preliminary analysis to check if our data
+follows assumptions of the test we will perform with the
+&lt;code&gt;ggstatsplot&lt;/code&gt; package. We will use descriptive statistics
+with the &lt;code&gt;describe&lt;/code&gt; function to examine characteristics of
+our variable of interest, and &lt;code&gt;identify_outliers&lt;/code&gt; to check
+for extreme outliers.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;describe(df_clean)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;           vars   n  mean   sd median trimmed  mad min max range
+sex*          1 395  1.47 0.50      1    1.47 0.00   1   2     1
+address*      2 395  1.78 0.42      2    1.85 0.00   1   2     1
+schoolsup*    3 395  1.13 0.34      1    1.04 0.00   1   2     1
+famsup*       4 395  1.61 0.49      2    1.64 0.00   1   2     1
+G1            5 395 10.91 3.32     11   10.80 4.45   3  19    16
+G3            6 395 10.42 4.58     11   10.84 4.45   0  20    20
+            skew kurtosis   se
+sex*        0.11    -1.99 0.03
+address*   -1.33    -0.24 0.02
+schoolsup*  2.20     2.86 0.02
+famsup*    -0.46    -1.79 0.02
+G1          0.24    -0.71 0.17
+G3         -0.73     0.37 0.23&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The descriptive results shows that most variables except
+&lt;code&gt;schoolsup&lt;/code&gt; have normal distribution, with skewness and
+kurtosis values within ± 2 (&lt;a
+href="https://www.routledge.com/An-Introduction-to-Statistical-Concepts/Hahs-Vaughn-Lomax/p/book/9781138650558"&gt;Lomax
+&amp;amp; Hahs-Vaughn, 2020&lt;/a&gt;). We can visually confirm normality with
+Quantile-quantile plot.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;set.seed(123)
+plot_qq(df_clean)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34903e1337a_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The Q-Q plots show no departure from normality in our continuous
+variables (i.e., test scores from the first period and final score).
+Next, we will examine the presence of outliers.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;df_clean %&amp;gt;% 
+  group_by(sex) %&amp;gt;%
+  identify_outliers(G1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[1] sex        address    schoolsup  famsup     G1         G3        
+[7] is.outlier is.extreme
+&amp;lt;0 rows&amp;gt; (or 0-length row.names)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;No outlier detected. We are good to perform Pearson’s correlation
+test, Chi-square test, One-sample t-test, and Dependent-sample t-test
+with &lt;code&gt;ggstatplot&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="scatter-plot---pearsons-correlation-test"&gt;Scatter plot -
+Pearson’s correlation test&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;The first function I really like is &lt;a
+href="https://indrajeetpatil.github.io/ggstatsplot/articles/web_only/ggscatterstats.html"&gt;&lt;code&gt;ggscatterstat&lt;/code&gt;&lt;/a&gt;.
+It provides a scatter plot with statistical details to show association
+between two continuous variables. The plot can be used to check whether
+the association between two contuinuous variables is linear, as well as
+their distribution.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;set.seed(123)
+
+ggstatsplot::ggscatterstats(
+  data = df_clean, 
+  x = G1, 
+  y = G3, 
+  type = &amp;quot;parametric&amp;quot;,            # type of test that needs to be run
+  conf.level = 0.95,
+  
+  title = &amp;quot;Correlation Test&amp;quot;,
+  xlab = &amp;quot;First period grade&amp;quot;,       # label for x axis
+  ylab = &amp;quot;Final grade&amp;quot;,              # label for y axis 
+  line.color = &amp;quot;blue&amp;quot;, 
+  messages = FALSE,
+  
+  label.var = famsup,
+  label.expression = G3 &amp;gt;= 19)+
+  
+  ggplot2::theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34903e1337a_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The scatter plot shows a strong positive correlation between
+first period scores and final scores among 395 pairs of students
+(&lt;em&gt;p&lt;/em&gt; &amp;lt; 0.001). The meaning is that students’ score tend to go
+the same way; that is, if a student scores well early in their course,
+it is likely that their final score will be high as well. The
+distribution of both scores also seems normal as shown by the bar
+plot.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We can also flag cases with extreme value with
+&lt;code&gt;label.expression&lt;/code&gt; and &lt;code&gt;label.var&lt;/code&gt; as well for
+further investigation. In our case, we flag student whose final score
+equal to or greater than 19 and ask the function to identify whether
+that student gets educational support from their family.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="pie-chart---chi-square-test"&gt;Pie Chart - Chi-Square test&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;The second function, &lt;a
+href="https://indrajeetpatil.github.io/ggstatsplot/articles/web_only/ggpiestats.html"&gt;&lt;code&gt;ggpiestats&lt;/code&gt;&lt;/a&gt;,
+can be used to examine “Goodness of fit” to see whether the proportions
+of our variable matches with what we hypothesized. We can first specify
+the proportion that we think our variable will have using
+&lt;code&gt;ratio&lt;/code&gt; argument. Here, I hypothesized that the proportion
+between students who receive- and did not receive educational support
+from family are 50/50; therefore ,the value in &lt;code&gt;ratio&lt;/code&gt;
+argument is c(0.5, 0.5).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;set.seed(123)
+
+ggstatsplot::ggpiestats(
+  data = df_clean,
+  x = famsup,
+  type = &amp;quot;parametric&amp;quot;,
+  ratio = c(0.50,0.50),
+  messages = FALSE,
+  paired = FALSE, #Logical indicating whether data came from a within-subjects or repeated measures design study
+  conf.level = 0.95,
+  title = &amp;quot;Chi-Square Goodness of Fit Test&amp;quot;
+)+
+  ggplot2::theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34903e1337a_files/figure-html/unnamed-chunk-11-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The pie chart shows that the proportion between students who
+receive- and did not receive educational support from family differ from
+what I hypothesized (&lt;em&gt;p&lt;/em&gt; &amp;lt; 0.001). In fact, the pie chart
+shows that 61% of students from our sample receive educational support
+from family and 39% of students did not receive educational support from
+family.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The Pearson’s C value indicates effect size, which is magnitude
+of the result reported by the plot. In our case, the effect size is
+0.22, indicating a small magnitude of difference between our
+hypothesized proportion and the actual proportion of our variable of
+interest. In plain language, it means that our hypothesized proportion
+(i.e., 50/50) is somewhat close to the actual proportion (i.e.,
+39/61).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We can also add another variable in the function to request for a
+Chi-Square test of independence that examines whether two variables are
+related. We will try examining if whether that student enrolls in extra
+educational support (&lt;code&gt;schoolsup&lt;/code&gt;) is associated with whether
+that student gets educational support from their family
+(&lt;code&gt;famsup&lt;/code&gt;).&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;set.seed(123)
+
+ggstatsplot::ggpiestats(
+  data = df_clean,
+  x = famsup,
+  y = schoolsup,
+  type = &amp;quot;parametric&amp;quot;,
+  ratio = c(0.50,0.50),
+  messages = FALSE,
+  paired = FALSE, #Logical indicating whether data came from a within-subjects or repeated measures design study
+  conf.level = 0.95,
+  title = &amp;quot;Chi-Square Test of Independence&amp;quot;
+)+
+  ggplot2::theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34903e1337a_files/figure-html/unnamed-chunk-12-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The pie chart shows a small difference between schoolsup and
+famsup (&lt;em&gt;p&lt;/em&gt; &amp;lt; 0.05). The Cramer’s V effect size of 0.09
+indicating a small magnitude of difference between the two variables.
+The interpretation is that there is a weak association between whether a
+student enrolls in extra educational support and whether that a student
+gets educational support from their family.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The plot also shows that the proportion within the two variables
+differn from 50/50 as indicated by the provided Chi-square goodness of
+fit results.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="histogram---one-sample-t-test"&gt;Histogram - One Sample
+t-test&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;The third function, &lt;a
+href="https://indrajeetpatil.github.io/ggstatsplot/articles/web_only/gghistostats.html"&gt;&lt;code&gt;gghistostats&lt;/code&gt;&lt;/a&gt;,
+can be used to examine distribution of a continuous variable and to test
+if the mean of a sample variable is different from a specified value
+(population parameter) with one-sample t-test. In the function, I
+hypothesized that the population mean for students’ final score
+(&lt;code&gt;G3&lt;/code&gt;) is 10 as specified in &lt;code&gt;test.value&lt;/code&gt;
+argument.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;set.seed(123)
+
+ggstatsplot::gghistostats(
+  data = df_clean,
+  x = G3,
+  title = &amp;quot;Distribution of Final Grade&amp;quot;,
+  centrality.type = &amp;quot;parametric&amp;quot;,    # one sample t-test
+  test.value = 10,                    
+  effsize.type = &amp;quot;d&amp;quot;,         
+  xlab = &amp;quot;Students&amp;#39; Final score&amp;quot;,
+  ylab = &amp;quot;Number of Student&amp;quot;,
+  centrality.para = &amp;quot;mean&amp;quot;,          # which measure of central tendency is to be plotted
+  normal.curve = TRUE,
+  binwidth = 1,                   # binwidth value (needs to be toyed around with until you find the best one)
+  messages = FALSE                   # turn off the messages
+) &lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34903e1337a_files/figure-html/unnamed-chunk-13-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The histogram shows that the sample mean does not significantly
+differ from the hypothesized (or population) mean (&lt;em&gt;p&lt;/em&gt; &amp;gt;
+0.05), meaning that the actual mean in our sample (i.e., 10.42) is close
+to the mean that we thought students’ population would have (i.e., 10).
+The histogram also shows that our data is normally distributed as seen
+from the normality curve. We will not interpret effect size (i.e.,
+Cohen’s d) as there is no statistical significance in the results.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="violin-plot---dependent-sample-t-test"&gt;Violin plot - Dependent
+Sample t-test&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;The fourth and final function we will play around is &lt;a
+href="https://indrajeetpatil.github.io/ggstatsplot/articles/web_only/ggwithinstats.html"&gt;&lt;code&gt;ggwithinstats&lt;/code&gt;&lt;/a&gt;,
+that performs a paired-sample t-test or dependent sample t-test to
+determine whether the mean the two measurement time point is zero. In
+our case, we are examining students’ mathematics score between their
+first period and their final score. The function requires a long-format
+data set, so we will transform the data with &lt;code&gt;pivot_longer&lt;/code&gt;
+from &lt;code&gt;tidyr&lt;/code&gt; package.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;df_long &amp;lt;- df_clean %&amp;gt;% pivot_longer(cols=c(&amp;#39;G1&amp;#39;, &amp;#39;G3&amp;#39;),
+                        names_to=&amp;#39;Measure_point&amp;#39;,
+                        values_to=&amp;#39;Scores&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# for reproducibility
+set.seed(123)
+
+ggstatsplot::ggwithinstats(
+  data = df_long, 
+  x = Measure_point, 
+  y = Scores,
+  type = &amp;quot;parametric&amp;quot;, # type of statistical test
+  xlab = &amp;quot;Period of testing&amp;quot;,
+  ylab = &amp;quot;Students&amp;#39; score&amp;quot;,
+  pairwise.comparisons = TRUE, 
+  sphericity.correction = FALSE, ## don&amp;#39;t display sphericity corrected dfs and p-values
+  
+  outlier.tagging = TRUE, ## whether outliers should be flagged
+  outlier.label = address, ## label to attach to outlier values
+  outlier.label.color = &amp;quot;green&amp;quot;, ## outlier point label color
+  
+  mean.plotting = TRUE, ## whether the mean is to be displayed
+  mean.color = &amp;quot;darkblue&amp;quot;, ## color for mean
+  
+  title = &amp;quot;Comparison of students&amp;#39; score&amp;quot;)+
+  
+  ggplot2::theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34903e1337a_files/figure-html/unnamed-chunk-15-1.png" width="672" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Results of the paired sample t-test are displayed along with
+violin plot that shows both mean and distribution density of both
+conditions (i.e., &lt;code&gt;G1&lt;/code&gt; and &lt;code&gt;G3&lt;/code&gt;). The results show
+that the mean of students’ score between two time points are different
+(&lt;em&gt;p&lt;/em&gt; &amp;lt; 0.001). The Hedges’s g effect size of 0.18 indicating a
+small magnitude of difference between the two variables. The
+interpretation is that there is a small difference between students’
+first period and final mathematics scores.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The dotted lines in the plot show the pair of students between
+the two time points. Note that there are some students who took the
+first exam but did not take the final exam as shown from outliers in the
+final exam scores (i.e., the orange part). There are some students who
+scored zero in the final exam.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="conclusion"&gt;Conclusion&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Both descriptive and inferential statistics techniques that we
+used in this post are mainly for data exploration. Despite their
+simplicity, they serve as foundations for several research that
+underlies products such as data driven COVID-19 policy (&lt;a
+href="https://www.mdpi.com/668636"&gt;Li et al., 2020&lt;/a&gt;), validation
+method for machine learning algorithm (&lt;a
+href="https://dx.plos.org/10.1371/journal.pone.0224365"&gt;Vabalas et al.,
+2019&lt;/a&gt;), and more complex statistical analysis such as structural
+equation modeling (&lt;a
+href="https://journal.psych.ac.cn/acps/EN/abstract/abstract2415.shtml"&gt;Zhonglin
+et al., 2004&lt;/a&gt;).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;My point for this post is that simpler techniques should not be
+overlooked. In some cases, they are enough to answer research questions
+without relying on complex techniques that are more challenging to
+perform, yet provide results that are harder to interpret. Basically, if
+it makes sense for your work to use just a simple t-test, then there is
+no need to overthink. In &lt;a
+href="https://doi.org/10.1111/bjet.13276"&gt;one of our articles&lt;/a&gt;, we
+used step-wise regression instead of random forest algorithm because it
+performs better with a smaller sample size and is easier to interpret.
+Staying simple when we can is the point that I think we, as researchers,
+should consider in our work. Thank you very much for reading this. Happy
+new year 2023!&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>74aa2936e1f3e576ef5639e3dbd7a2c5</distill:md5>
+      <category>R</category>
+      <category>Statistics</category>
+      <guid>https://taridwong.github.io/posts/2022-12-31-ggstat</guid>
+      <pubDate>Sat, 31 Dec 2022 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2022-12-31-ggstat/ggstat_files/figure-html5/unnamed-chunk-15-1.png" medium="image" type="image/png" width="1248" height="768"/>
+    </item>
     <item>
       <title>Test Shortening with Genetic Algorithm and Ant Colony Optimization</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -93,7 +489,7 @@ head(df_survey)&lt;/code&gt;&lt;/pre&gt;
 5:     5    5    1    5    1    5    1    5    3    5     5
 6:     3    5    1    5    1    3    1    5    4    5     2&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="r"&gt;&lt;code&gt;DataExplorer::plot_correlation(df_survey)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file23c4771bf62_files/figure-html/unnamed-chunk-3-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34908957537_files/figure-html/unnamed-chunk-3-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The test has 10 items (or questions) in each domain, totalling 50
 test items. This number seems reasonable, but we could further reduce
@@ -314,7 +710,7 @@ href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4205511/"&gt;Tavakol
 &amp;amp; Dennick, 2011&lt;/a&gt;).&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;ipip_ga$measure$alpha&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;              A1        A2        A3         A4        A5
+&lt;pre&gt;&lt;code&gt;          Scale1    Scale2    Scale3     Scale4    Scale5
 alpha -0.2131873 0.8071732 0.7320936 -0.3923633 0.6721945&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also request for the list of items in each dimension as
@@ -348,7 +744,7 @@ explained variance, explained variance in each dimension, and pattern of
 items included in each iteration.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(ipip_ga)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file23c4771bf62_files/figure-html/unnamed-chunk-11-1.png" width="672" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34908957537_files/figure-html/unnamed-chunk-11-1.png" width="672" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2 id="ant-colony-algorithm"&gt;Ant Colony Algorithm&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;One more way we can shorten our test is using the Ant Colony
@@ -382,9 +778,20 @@ feasibility. ACO is quite computationally expensive with a large data
 set. To save time, I subsetted only the first 100 cases of IPIP response
 data.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class="r"&gt;&lt;code&gt;library(ShortForm)
-
-df_survey_aco &amp;lt;- df[1:100, 1:50] #ACO uses dataframe format&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;library(ShortForm)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;  #####                             #######                      
+ #     # #    #  ####  #####  ##### #        ####  #####  #    # 
+ #       #    # #    # #    #   #   #       #    # #    # ##  ## 
+  #####  ###### #    # #    #   #   #####   #    # #    # # ## # 
+       # #    # #    # #####    #   #       #    # #####  #    # 
+ #     # #    # #    # #   #    #   #       #    # #   #  #    # 
+  #####  #    #  ####  #    #   #   #        ####  #    # #    # 
+ 
+         Version 0.4.6
+             (o&amp;lt;
+             //\
+             V_/_ &lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;df_survey_aco &amp;lt;- df[1:100, 1:50] #ACO uses dataframe format&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;We will also define model structure of the measurement with
 &lt;code&gt;lavaan&lt;/code&gt; syntax. Here, I defined five dimensions that are
@@ -495,14 +902,14 @@ selected by the algorithm.&lt;/li&gt;
 extracted by ACO.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;ipip_ACO$best.model&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;lavaan 0.6-11 ended normally after 71 iterations
+&lt;pre&gt;&lt;code&gt;lavaan 0.6-12 ended normally after 71 iterations
 
   Estimator                                       DWLS
   Optimization method                           NLMINB
   Number of model parameters                        60
-                                                      
+
   Number of observations                           100
-                                                      
+
 Model Test User Model:
                                               Standard      Robust
   Test Statistic                               283.962     324.326
@@ -510,7 +917,7 @@ Model Test User Model:
   P-value (Chi-square)                           0.202       0.007
   Scaling correction factor                                  1.883
   Shift parameter                                          173.490
-       simple second-order correction                             &lt;/code&gt;&lt;/pre&gt;
+    simple second-order correction                                &lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;Next, we can also request for an output of which item is loaded onto
 which dimension in the new model.&lt;/li&gt;
@@ -575,7 +982,7 @@ $Beta
 NULL
 
 $Variance&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file23c4771bf62_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34908957537_files/figure-html/unnamed-chunk-19-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also request for the pheromone plot with the argument
 &lt;code&gt;type=""pheromone&lt;/code&gt;. This will allow us to see the amount of
@@ -583,7 +990,7 @@ pheromone used by our virtual ants.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(ipip_ACO, type = &amp;quot;pheromone&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;$Pheromone&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file23c4771bf62_files/figure-html/unnamed-chunk-20-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34908957537_files/figure-html/unnamed-chunk-20-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;
 $Gamma
 NULL
@@ -807,12 +1214,12 @@ plt.figure(figsize=(12,8))
 sns.scatterplot(TSNE_result[:,0], TSNE_result[:,1], hue=y_extreme, legend=&amp;#39;full&amp;#39;, palette=&amp;quot;hls&amp;quot;)
 
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file23c43e83640f_files/figure-html/unnamed-chunk-10-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file349051826594_files/figure-html/unnamed-chunk-10-1.png" width="1152" /&gt;&lt;/p&gt;
 &lt;pre class="python"&gt;&lt;code&gt;
 sns.set_theme(style=&amp;quot;darkgrid&amp;quot;)
 sns.countplot(x=&amp;quot;X4EVERDROP&amp;quot;, data = df)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file23c43e83640f_files/figure-html/unnamed-chunk-11-3.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file349051826594_files/figure-html/unnamed-chunk-11-3.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;In &lt;a href="https://taridwong.github.io/posts/2022-04-28-xai/"&gt;my
 previous post&lt;/a&gt;, I used the combination of Synthetic Minority
@@ -853,11 +1260,11 @@ plt.figure(figsize=(12,8))
 sns.scatterplot(TSNE_result[:,0], TSNE_result[:,1], hue=y_hybrid_extreme, legend=&amp;#39;full&amp;#39;, palette=&amp;quot;hls&amp;quot;)
 
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file23c43e83640f_files/figure-html/unnamed-chunk-13-5.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file349051826594_files/figure-html/unnamed-chunk-13-5.png" width="1152" /&gt;&lt;/p&gt;
 &lt;pre class="python"&gt;&lt;code&gt;sns.set_theme(style=&amp;quot;darkgrid&amp;quot;)
 sns.countplot(y_hybrid_extreme)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file23c43e83640f_files/figure-html/unnamed-chunk-14-7.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file349051826594_files/figure-html/unnamed-chunk-14-7.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Next, we will proceed to the classification stage. For many
 classification algorithms such as XGBoost or Random Forest, you need to
@@ -897,20 +1304,20 @@ Cat_random = RandomizedSearchCV(estimator = CBC,
 Cat_random.fit(X_train_hybrid_ext, y_train_hybrid_ext, cat_features = cat_features)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;style&gt;#sk-container-id-1 {color: black;background-color: white;}#sk-container-id-1 pre{padding: 0;}#sk-container-id-1 div.sk-toggleable {background-color: white;}#sk-container-id-1 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-1 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-1 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-1 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-1 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-1 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-1 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-1 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-container-id-1 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-1 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-1 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-1 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-1 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-1 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-1 div.sk-item {position: relative;z-index: 1;}#sk-container-id-1 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-1 div.sk-item::before, #sk-container-id-1 div.sk-parallel-item::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-1 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-1 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-1 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-1 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-1 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-1 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-1 div.sk-label-container {text-align: center;}#sk-container-id-1 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-1 div.sk-text-repr-fallback {display: none;}&lt;/style&gt;&lt;div id="sk-container-id-1" class="sk-top-container"&gt;&lt;div class="sk-text-repr-fallback"&gt;&lt;pre&gt;RandomizedSearchCV(cv=3, error_score=&amp;#x27;raise&amp;#x27;,
-                   estimator=&amp;lt;catboost.core.CatBoostClassifier object at 0x000002A88EDE30D0&amp;gt;,
+                   estimator=&amp;lt;catboost.core.CatBoostClassifier object at 0x0000017E09E4C130&amp;gt;,
                    param_distributions={&amp;#x27;depth&amp;#x27;: [4, 5, 6, 7, 8, 9, 10],
                                         &amp;#x27;iterations&amp;#x27;: [10, 20, 30, 40, 50, 60,
                                                        70, 80, 90, 100],
                                         &amp;#x27;learning_rate&amp;#x27;: [0.01, 0.02, 0.03,
                                                           0.04, 0.05]},
                    random_state=123)&lt;/pre&gt;&lt;b&gt;In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. &lt;br /&gt;On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.&lt;/b&gt;&lt;/div&gt;&lt;div class="sk-container" hidden&gt;&lt;div class="sk-item sk-dashed-wrapped"&gt;&lt;div class="sk-label-container"&gt;&lt;div class="sk-label sk-toggleable"&gt;&lt;input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-1" type="checkbox" &gt;&lt;label for="sk-estimator-id-1" class="sk-toggleable__label sk-toggleable__label-arrow"&gt;RandomizedSearchCV&lt;/label&gt;&lt;div class="sk-toggleable__content"&gt;&lt;pre&gt;RandomizedSearchCV(cv=3, error_score=&amp;#x27;raise&amp;#x27;,
-                   estimator=&amp;lt;catboost.core.CatBoostClassifier object at 0x000002A88EDE30D0&amp;gt;,
+                   estimator=&amp;lt;catboost.core.CatBoostClassifier object at 0x0000017E09E4C130&amp;gt;,
                    param_distributions={&amp;#x27;depth&amp;#x27;: [4, 5, 6, 7, 8, 9, 10],
                                         &amp;#x27;iterations&amp;#x27;: [10, 20, 30, 40, 50, 60,
                                                        70, 80, 90, 100],
                                         &amp;#x27;learning_rate&amp;#x27;: [0.01, 0.02, 0.03,
                                                           0.04, 0.05]},
-                   random_state=123)&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="sk-parallel"&gt;&lt;div class="sk-parallel-item"&gt;&lt;div class="sk-item"&gt;&lt;div class="sk-label-container"&gt;&lt;div class="sk-label sk-toggleable"&gt;&lt;input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-2" type="checkbox" &gt;&lt;label for="sk-estimator-id-2" class="sk-toggleable__label sk-toggleable__label-arrow"&gt;estimator: CatBoostClassifier&lt;/label&gt;&lt;div class="sk-toggleable__content"&gt;&lt;pre&gt;&amp;lt;catboost.core.CatBoostClassifier object at 0x000002A88EDE30D0&amp;gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="sk-serial"&gt;&lt;div class="sk-item"&gt;&lt;div class="sk-estimator sk-toggleable"&gt;&lt;input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-3" type="checkbox" &gt;&lt;label for="sk-estimator-id-3" class="sk-toggleable__label sk-toggleable__label-arrow"&gt;CatBoostClassifier&lt;/label&gt;&lt;div class="sk-toggleable__content"&gt;&lt;pre&gt;&amp;lt;catboost.core.CatBoostClassifier object at 0x000002A88EDE30D0&amp;gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+                   random_state=123)&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="sk-parallel"&gt;&lt;div class="sk-parallel-item"&gt;&lt;div class="sk-item"&gt;&lt;div class="sk-label-container"&gt;&lt;div class="sk-label sk-toggleable"&gt;&lt;input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-2" type="checkbox" &gt;&lt;label for="sk-estimator-id-2" class="sk-toggleable__label sk-toggleable__label-arrow"&gt;estimator: CatBoostClassifier&lt;/label&gt;&lt;div class="sk-toggleable__content"&gt;&lt;pre&gt;&amp;lt;catboost.core.CatBoostClassifier object at 0x0000017E09E4C130&amp;gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="sk-serial"&gt;&lt;div class="sk-item"&gt;&lt;div class="sk-estimator sk-toggleable"&gt;&lt;input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-3" type="checkbox" &gt;&lt;label for="sk-estimator-id-3" class="sk-toggleable__label sk-toggleable__label-arrow"&gt;CatBoostClassifier&lt;/label&gt;&lt;div class="sk-toggleable__content"&gt;&lt;pre&gt;&amp;lt;catboost.core.CatBoostClassifier object at 0x0000017E09E4C130&amp;gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;ul&gt;
 &lt;li&gt;After the tuning, I will print out the grid search result. The best
 hyperparameter values we have are learning_rate = 0.05, iterations = 80,
@@ -922,7 +1329,7 @@ fitting the model.&lt;/li&gt;
 &lt;pre class="python"&gt;&lt;code&gt;print(&amp;quot;\n The best estimator across ALL searched params:\n&amp;quot;,Cat_random.best_estimator_)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;
  The best estimator across ALL searched params:
- &amp;lt;catboost.core.CatBoostClassifier object at 0x000002A88B6BDFA0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+ &amp;lt;catboost.core.CatBoostClassifier object at 0x0000017E018FE5B0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;print(&amp;quot;\n The best score across ALL searched params:\n&amp;quot;,Cat_random.best_score_)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;
  The best score across ALL searched params:
@@ -934,87 +1341,87 @@ fitting the model.&lt;/li&gt;
 &lt;pre class="python"&gt;&lt;code&gt;CBC_tuned = CatBoostClassifier(learning_rate = 0.05, iterations = 80, depth = 8, random_state=RANDOM_STATE)
 
 CBC_tuned.fit(X_train_hybrid_ext, y_train_hybrid_ext, cat_features = cat_features)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;0:  learn: 0.6665327    total: 79.3ms   remaining: 6.26s
+&lt;pre&gt;&lt;code&gt;0:  learn: 0.6665327    total: 70.3ms   remaining: 5.55s
 1:  learn: 0.6464428    total: 145ms    remaining: 5.66s
-2:  learn: 0.6274255    total: 209ms    remaining: 5.35s
-3:  learn: 0.6038900    total: 269ms    remaining: 5.1s
-4:  learn: 0.5853056    total: 331ms    remaining: 4.96s
-5:  learn: 0.5711453    total: 446ms    remaining: 5.5s
-6:  learn: 0.5518932    total: 551ms    remaining: 5.75s
-7:  learn: 0.5371312    total: 655ms    remaining: 5.9s
-8:  learn: 0.5246082    total: 715ms    remaining: 5.64s
-9:  learn: 0.5108871    total: 776ms    remaining: 5.43s
-10: learn: 0.5017540    total: 841ms    remaining: 5.27s
-11: learn: 0.4914030    total: 925ms    remaining: 5.24s
-12: learn: 0.4829017    total: 989ms    remaining: 5.09s
-13: learn: 0.4753740    total: 1.06s    remaining: 4.98s
-14: learn: 0.4684517    total: 1.13s    remaining: 4.91s
-15: learn: 0.4595894    total: 1.22s    remaining: 4.88s
-16: learn: 0.4516042    total: 1.3s remaining: 4.81s
-17: learn: 0.4452736    total: 1.39s    remaining: 4.78s
-18: learn: 0.4382162    total: 1.49s    remaining: 4.79s
-19: learn: 0.4326054    total: 1.56s    remaining: 4.69s
-20: learn: 0.4268372    total: 1.63s    remaining: 4.58s
-21: learn: 0.4202041    total: 1.69s    remaining: 4.47s
-22: learn: 0.4167642    total: 1.76s    remaining: 4.37s
-23: learn: 0.4122437    total: 1.84s    remaining: 4.29s
-24: learn: 0.4093793    total: 1.91s    remaining: 4.2s
-25: learn: 0.4039919    total: 1.99s    remaining: 4.13s
-26: learn: 0.4004563    total: 2.06s    remaining: 4.05s
-27: learn: 0.3975197    total: 2.18s    remaining: 4.05s
-28: learn: 0.3932144    total: 2.31s    remaining: 4.07s
-29: learn: 0.3904852    total: 2.49s    remaining: 4.15s
-30: learn: 0.3880708    total: 2.57s    remaining: 4.06s
-31: learn: 0.3859222    total: 2.63s    remaining: 3.95s
-32: learn: 0.3831005    total: 2.7s remaining: 3.84s
-33: learn: 0.3810144    total: 2.77s    remaining: 3.75s
-34: learn: 0.3785504    total: 2.84s    remaining: 3.65s
-35: learn: 0.3761624    total: 2.91s    remaining: 3.56s
-36: learn: 0.3737088    total: 2.98s    remaining: 3.47s
-37: learn: 0.3712488    total: 3.09s    remaining: 3.42s
-38: learn: 0.3685311    total: 3.18s    remaining: 3.34s
-39: learn: 0.3662991    total: 3.25s    remaining: 3.25s
-40: learn: 0.3634880    total: 3.36s    remaining: 3.19s
-41: learn: 0.3606838    total: 3.44s    remaining: 3.11s
-42: learn: 0.3587348    total: 3.52s    remaining: 3.03s
-43: learn: 0.3567398    total: 3.61s    remaining: 2.96s
-44: learn: 0.3548707    total: 3.69s    remaining: 2.87s
-45: learn: 0.3520839    total: 3.76s    remaining: 2.78s
-46: learn: 0.3492787    total: 3.83s    remaining: 2.69s
-47: learn: 0.3467724    total: 3.91s    remaining: 2.61s
-48: learn: 0.3430803    total: 3.98s    remaining: 2.52s
-49: learn: 0.3411632    total: 4.06s    remaining: 2.43s
-50: learn: 0.3396453    total: 4.13s    remaining: 2.35s
-51: learn: 0.3377685    total: 4.3s remaining: 2.32s
-52: learn: 0.3362602    total: 4.39s    remaining: 2.24s
-53: learn: 0.3349568    total: 4.47s    remaining: 2.15s
-54: learn: 0.3336092    total: 4.54s    remaining: 2.06s
-55: learn: 0.3318186    total: 4.62s    remaining: 1.98s
-56: learn: 0.3287766    total: 4.79s    remaining: 1.93s
-57: learn: 0.3268753    total: 4.86s    remaining: 1.84s
-58: learn: 0.3251920    total: 4.93s    remaining: 1.75s
-59: learn: 0.3227292    total: 5s   remaining: 1.67s
-60: learn: 0.3213152    total: 5.07s    remaining: 1.58s
-61: learn: 0.3192716    total: 5.14s    remaining: 1.49s
-62: learn: 0.3183261    total: 5.21s    remaining: 1.41s
-63: learn: 0.3171622    total: 5.29s    remaining: 1.32s
-64: learn: 0.3159563    total: 5.36s    remaining: 1.24s
-65: learn: 0.3143367    total: 5.44s    remaining: 1.15s
-66: learn: 0.3133019    total: 5.52s    remaining: 1.07s
-67: learn: 0.3122973    total: 5.6s remaining: 988ms
-68: learn: 0.3103480    total: 5.68s    remaining: 905ms
-69: learn: 0.3093429    total: 5.75s    remaining: 822ms
-70: learn: 0.3081943    total: 5.83s    remaining: 740ms
-71: learn: 0.3067472    total: 5.92s    remaining: 658ms
-72: learn: 0.3058445    total: 6s   remaining: 575ms
-73: learn: 0.3047133    total: 6.07s    remaining: 493ms
-74: learn: 0.3035925    total: 6.15s    remaining: 410ms
-75: learn: 0.3022633    total: 6.33s    remaining: 333ms
-76: learn: 0.3011552    total: 6.41s    remaining: 250ms
-77: learn: 0.2998250    total: 6.59s    remaining: 169ms
-78: learn: 0.2985347    total: 6.67s    remaining: 84.4ms
-79: learn: 0.2977599    total: 6.73s    remaining: 0us
-&amp;lt;catboost.core.CatBoostClassifier object at 0x000002A88EE00FD0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+2:  learn: 0.6274255    total: 232ms    remaining: 5.94s
+3:  learn: 0.6038900    total: 311ms    remaining: 5.91s
+4:  learn: 0.5853056    total: 395ms    remaining: 5.92s
+5:  learn: 0.5711453    total: 477ms    remaining: 5.89s
+6:  learn: 0.5518932    total: 580ms    remaining: 6.05s
+7:  learn: 0.5371312    total: 661ms    remaining: 5.95s
+8:  learn: 0.5246082    total: 773ms    remaining: 6.1s
+9:  learn: 0.5108871    total: 867ms    remaining: 6.07s
+10: learn: 0.5017540    total: 953ms    remaining: 5.98s
+11: learn: 0.4914030    total: 1.04s    remaining: 5.88s
+12: learn: 0.4829017    total: 1.14s    remaining: 5.86s
+13: learn: 0.4753740    total: 1.24s    remaining: 5.85s
+14: learn: 0.4684517    total: 1.33s    remaining: 5.78s
+15: learn: 0.4595894    total: 1.44s    remaining: 5.74s
+16: learn: 0.4516042    total: 1.53s    remaining: 5.68s
+17: learn: 0.4452736    total: 1.63s    remaining: 5.62s
+18: learn: 0.4382162    total: 1.72s    remaining: 5.53s
+19: learn: 0.4326054    total: 1.81s    remaining: 5.44s
+20: learn: 0.4268372    total: 1.9s remaining: 5.35s
+21: learn: 0.4202041    total: 2s   remaining: 5.29s
+22: learn: 0.4167642    total: 2.11s    remaining: 5.23s
+23: learn: 0.4122437    total: 2.2s remaining: 5.14s
+24: learn: 0.4093793    total: 2.31s    remaining: 5.08s
+25: learn: 0.4039919    total: 2.43s    remaining: 5.05s
+26: learn: 0.4004563    total: 2.52s    remaining: 4.95s
+27: learn: 0.3975197    total: 2.65s    remaining: 4.92s
+28: learn: 0.3932144    total: 2.76s    remaining: 4.86s
+29: learn: 0.3904852    total: 2.87s    remaining: 4.79s
+30: learn: 0.3880708    total: 2.98s    remaining: 4.71s
+31: learn: 0.3859222    total: 3.1s remaining: 4.65s
+32: learn: 0.3831005    total: 3.2s remaining: 4.56s
+33: learn: 0.3810144    total: 3.32s    remaining: 4.49s
+34: learn: 0.3785504    total: 3.42s    remaining: 4.39s
+35: learn: 0.3761624    total: 3.51s    remaining: 4.29s
+36: learn: 0.3737088    total: 3.61s    remaining: 4.2s
+37: learn: 0.3712488    total: 3.72s    remaining: 4.11s
+38: learn: 0.3685311    total: 3.85s    remaining: 4.04s
+39: learn: 0.3662991    total: 3.96s    remaining: 3.96s
+40: learn: 0.3634880    total: 4.08s    remaining: 3.88s
+41: learn: 0.3606838    total: 4.19s    remaining: 3.79s
+42: learn: 0.3587348    total: 4.31s    remaining: 3.71s
+43: learn: 0.3567398    total: 4.42s    remaining: 3.62s
+44: learn: 0.3548707    total: 4.54s    remaining: 3.53s
+45: learn: 0.3520839    total: 4.66s    remaining: 3.44s
+46: learn: 0.3492787    total: 4.77s    remaining: 3.35s
+47: learn: 0.3467724    total: 4.87s    remaining: 3.25s
+48: learn: 0.3430803    total: 4.97s    remaining: 3.15s
+49: learn: 0.3411632    total: 5.06s    remaining: 3.04s
+50: learn: 0.3396453    total: 5.16s    remaining: 2.93s
+51: learn: 0.3377685    total: 5.26s    remaining: 2.83s
+52: learn: 0.3362602    total: 5.36s    remaining: 2.73s
+53: learn: 0.3349568    total: 5.45s    remaining: 2.63s
+54: learn: 0.3336092    total: 5.55s    remaining: 2.52s
+55: learn: 0.3318186    total: 5.66s    remaining: 2.42s
+56: learn: 0.3287766    total: 5.75s    remaining: 2.32s
+57: learn: 0.3268753    total: 5.84s    remaining: 2.21s
+58: learn: 0.3251920    total: 5.93s    remaining: 2.11s
+59: learn: 0.3227292    total: 6.03s    remaining: 2.01s
+60: learn: 0.3213152    total: 6.13s    remaining: 1.91s
+61: learn: 0.3192716    total: 6.22s    remaining: 1.81s
+62: learn: 0.3183261    total: 6.32s    remaining: 1.71s
+63: learn: 0.3171622    total: 6.42s    remaining: 1.6s
+64: learn: 0.3159563    total: 6.52s    remaining: 1.5s
+65: learn: 0.3143367    total: 6.61s    remaining: 1.4s
+66: learn: 0.3133019    total: 6.7s remaining: 1.3s
+67: learn: 0.3122973    total: 6.8s remaining: 1.2s
+68: learn: 0.3103480    total: 6.89s    remaining: 1.1s
+69: learn: 0.3093429    total: 7.01s    remaining: 1s
+70: learn: 0.3081943    total: 7.12s    remaining: 902ms
+71: learn: 0.3067472    total: 7.22s    remaining: 802ms
+72: learn: 0.3058445    total: 7.33s    remaining: 703ms
+73: learn: 0.3047133    total: 7.43s    remaining: 603ms
+74: learn: 0.3035925    total: 7.54s    remaining: 502ms
+75: learn: 0.3022633    total: 7.63s    remaining: 402ms
+76: learn: 0.3011552    total: 7.72s    remaining: 301ms
+77: learn: 0.2998250    total: 7.82s    remaining: 200ms
+78: learn: 0.2985347    total: 7.91s    remaining: 100ms
+79: learn: 0.2977599    total: 8.01s    remaining: 0us
+&amp;lt;catboost.core.CatBoostClassifier object at 0x0000017E06ACAD60&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;We have 38 variables. We can use all of them, but we can also
 further reduce them for to look for the most relevant variables to the
@@ -1071,87 +1478,87 @@ data set and use it to predict the testing data set.&lt;/li&gt;
 &lt;pre class="python"&gt;&lt;code&gt;cat_features_post_trim = [0, 1, 7, 12, 13, 14, 15,16, 17, 19]
 
 CBC_tuned.fit(X_train_hybrid_ext, y_train_hybrid_ext, cat_features = cat_features_post_trim)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;0:  learn: 0.6630968    total: 51.9ms   remaining: 4.1s
-1:  learn: 0.6347421    total: 101ms    remaining: 3.96s
-2:  learn: 0.6135360    total: 153ms    remaining: 3.94s
-3:  learn: 0.5958557    total: 212ms    remaining: 4.03s
-4:  learn: 0.5789939    total: 262ms    remaining: 3.92s
-5:  learn: 0.5568907    total: 316ms    remaining: 3.9s
-6:  learn: 0.5378680    total: 373ms    remaining: 3.89s
-7:  learn: 0.5226018    total: 427ms    remaining: 3.84s
-8:  learn: 0.5087498    total: 476ms    remaining: 3.75s
-9:  learn: 0.5009270    total: 569ms    remaining: 3.98s
-10: learn: 0.4841922    total: 658ms    remaining: 4.13s
-11: learn: 0.4746953    total: 713ms    remaining: 4.04s
-12: learn: 0.4681778    total: 764ms    remaining: 3.94s
-13: learn: 0.4612541    total: 823ms    remaining: 3.88s
-14: learn: 0.4532992    total: 875ms    remaining: 3.79s
-15: learn: 0.4450863    total: 1.03s    remaining: 4.11s
-16: learn: 0.4375271    total: 1.16s    remaining: 4.29s
-17: learn: 0.4308885    total: 1.21s    remaining: 4.18s
-18: learn: 0.4254128    total: 1.27s    remaining: 4.07s
-19: learn: 0.4213425    total: 1.32s    remaining: 3.96s
-20: learn: 0.4177958    total: 1.37s    remaining: 3.86s
-21: learn: 0.4131347    total: 1.43s    remaining: 3.77s
-22: learn: 0.4089653    total: 1.49s    remaining: 3.69s
-23: learn: 0.4055672    total: 1.53s    remaining: 3.58s
-24: learn: 0.4030118    total: 1.67s    remaining: 3.67s
-25: learn: 0.3997708    total: 1.73s    remaining: 3.59s
-26: learn: 0.3945504    total: 1.79s    remaining: 3.51s
-27: learn: 0.3909571    total: 1.84s    remaining: 3.42s
-28: learn: 0.3874681    total: 1.89s    remaining: 3.33s
-29: learn: 0.3842159    total: 2.03s    remaining: 3.39s
-30: learn: 0.3817295    total: 2.09s    remaining: 3.3s
-31: learn: 0.3793464    total: 2.15s    remaining: 3.22s
-32: learn: 0.3760956    total: 2.2s remaining: 3.13s
-33: learn: 0.3744325    total: 2.25s    remaining: 3.04s
-34: learn: 0.3711698    total: 2.31s    remaining: 2.97s
-35: learn: 0.3690638    total: 2.36s    remaining: 2.88s
-36: learn: 0.3659461    total: 2.41s    remaining: 2.8s
-37: learn: 0.3637044    total: 2.46s    remaining: 2.72s
-38: learn: 0.3621688    total: 2.51s    remaining: 2.64s
-39: learn: 0.3601269    total: 2.57s    remaining: 2.57s
-40: learn: 0.3580019    total: 2.68s    remaining: 2.55s
-41: learn: 0.3567636    total: 2.73s    remaining: 2.47s
-42: learn: 0.3544761    total: 2.79s    remaining: 2.4s
-43: learn: 0.3505973    total: 2.85s    remaining: 2.33s
-44: learn: 0.3495149    total: 2.9s remaining: 2.26s
-45: learn: 0.3476525    total: 2.96s    remaining: 2.18s
-46: learn: 0.3462577    total: 3.01s    remaining: 2.11s
-47: learn: 0.3445400    total: 3.06s    remaining: 2.04s
-48: learn: 0.3427600    total: 3.12s    remaining: 1.97s
-49: learn: 0.3408402    total: 3.17s    remaining: 1.9s
-50: learn: 0.3381710    total: 3.23s    remaining: 1.84s
-51: learn: 0.3364197    total: 3.29s    remaining: 1.77s
-52: learn: 0.3339518    total: 3.35s    remaining: 1.71s
-53: learn: 0.3311018    total: 3.41s    remaining: 1.64s
-54: learn: 0.3294152    total: 3.47s    remaining: 1.58s
-55: learn: 0.3280687    total: 3.55s    remaining: 1.52s
-56: learn: 0.3269127    total: 3.61s    remaining: 1.46s
-57: learn: 0.3252681    total: 3.67s    remaining: 1.39s
-58: learn: 0.3243089    total: 3.74s    remaining: 1.33s
-59: learn: 0.3212165    total: 3.88s    remaining: 1.29s
-60: learn: 0.3201323    total: 3.94s    remaining: 1.23s
-61: learn: 0.3189120    total: 3.99s    remaining: 1.16s
-62: learn: 0.3178599    total: 4.05s    remaining: 1.09s
-63: learn: 0.3169985    total: 4.12s    remaining: 1.03s
-64: learn: 0.3154376    total: 4.18s    remaining: 964ms
-65: learn: 0.3142858    total: 4.24s    remaining: 900ms
-66: learn: 0.3130732    total: 4.3s remaining: 835ms
-67: learn: 0.3115498    total: 4.36s    remaining: 770ms
-68: learn: 0.3106751    total: 4.43s    remaining: 706ms
-69: learn: 0.3104327    total: 4.46s    remaining: 638ms
-70: learn: 0.3094918    total: 4.48s    remaining: 568ms
-71: learn: 0.3084260    total: 4.55s    remaining: 505ms
-72: learn: 0.3070031    total: 4.62s    remaining: 443ms
-73: learn: 0.3052639    total: 4.68s    remaining: 379ms
-74: learn: 0.3043254    total: 4.74s    remaining: 316ms
-75: learn: 0.3038159    total: 4.78s    remaining: 251ms
-76: learn: 0.3029093    total: 4.84s    remaining: 189ms
-77: learn: 0.3014591    total: 4.99s    remaining: 128ms
-78: learn: 0.2992314    total: 5.12s    remaining: 64.8ms
-79: learn: 0.2984094    total: 5.21s    remaining: 0us
-&amp;lt;catboost.core.CatBoostClassifier object at 0x000002A88EE00FD0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;0:  learn: 0.6630968    total: 60.7ms   remaining: 4.8s
+1:  learn: 0.6347421    total: 128ms    remaining: 5s
+2:  learn: 0.6135360    total: 194ms    remaining: 4.98s
+3:  learn: 0.5958557    total: 263ms    remaining: 5s
+4:  learn: 0.5789939    total: 333ms    remaining: 4.99s
+5:  learn: 0.5568907    total: 411ms    remaining: 5.07s
+6:  learn: 0.5378680    total: 489ms    remaining: 5.1s
+7:  learn: 0.5226018    total: 562ms    remaining: 5.06s
+8:  learn: 0.5087498    total: 632ms    remaining: 4.99s
+9:  learn: 0.5009270    total: 711ms    remaining: 4.98s
+10: learn: 0.4841922    total: 784ms    remaining: 4.92s
+11: learn: 0.4746953    total: 858ms    remaining: 4.86s
+12: learn: 0.4681778    total: 932ms    remaining: 4.8s
+13: learn: 0.4612541    total: 1s   remaining: 4.74s
+14: learn: 0.4532992    total: 1.08s    remaining: 4.68s
+15: learn: 0.4450863    total: 1.18s    remaining: 4.72s
+16: learn: 0.4375271    total: 1.26s    remaining: 4.67s
+17: learn: 0.4308885    total: 1.35s    remaining: 4.67s
+18: learn: 0.4254128    total: 1.46s    remaining: 4.68s
+19: learn: 0.4213425    total: 1.53s    remaining: 4.6s
+20: learn: 0.4177958    total: 1.61s    remaining: 4.53s
+21: learn: 0.4131347    total: 1.69s    remaining: 4.45s
+22: learn: 0.4089653    total: 1.77s    remaining: 4.38s
+23: learn: 0.4055672    total: 1.84s    remaining: 4.3s
+24: learn: 0.4030118    total: 1.94s    remaining: 4.27s
+25: learn: 0.3997708    total: 2.02s    remaining: 4.18s
+26: learn: 0.3945504    total: 2.09s    remaining: 4.11s
+27: learn: 0.3909571    total: 2.17s    remaining: 4.03s
+28: learn: 0.3874681    total: 2.25s    remaining: 3.96s
+29: learn: 0.3842159    total: 2.33s    remaining: 3.88s
+30: learn: 0.3817295    total: 2.41s    remaining: 3.81s
+31: learn: 0.3793464    total: 2.49s    remaining: 3.73s
+32: learn: 0.3760956    total: 2.58s    remaining: 3.68s
+33: learn: 0.3744325    total: 2.67s    remaining: 3.61s
+34: learn: 0.3711698    total: 2.74s    remaining: 3.53s
+35: learn: 0.3690638    total: 2.82s    remaining: 3.45s
+36: learn: 0.3659461    total: 2.9s remaining: 3.37s
+37: learn: 0.3637044    total: 2.97s    remaining: 3.28s
+38: learn: 0.3621688    total: 3.05s    remaining: 3.2s
+39: learn: 0.3601269    total: 3.12s    remaining: 3.12s
+40: learn: 0.3580019    total: 3.2s remaining: 3.04s
+41: learn: 0.3567636    total: 3.3s remaining: 2.99s
+42: learn: 0.3544761    total: 3.39s    remaining: 2.92s
+43: learn: 0.3505973    total: 3.47s    remaining: 2.84s
+44: learn: 0.3495149    total: 3.54s    remaining: 2.76s
+45: learn: 0.3476525    total: 3.62s    remaining: 2.67s
+46: learn: 0.3462577    total: 3.69s    remaining: 2.59s
+47: learn: 0.3445400    total: 3.76s    remaining: 2.51s
+48: learn: 0.3427600    total: 3.84s    remaining: 2.43s
+49: learn: 0.3408402    total: 3.91s    remaining: 2.35s
+50: learn: 0.3381710    total: 3.99s    remaining: 2.27s
+51: learn: 0.3364197    total: 4.06s    remaining: 2.19s
+52: learn: 0.3339518    total: 4.14s    remaining: 2.11s
+53: learn: 0.3311018    total: 4.24s    remaining: 2.04s
+54: learn: 0.3294152    total: 4.33s    remaining: 1.97s
+55: learn: 0.3280687    total: 4.42s    remaining: 1.9s
+56: learn: 0.3269127    total: 4.5s remaining: 1.81s
+57: learn: 0.3252681    total: 4.57s    remaining: 1.73s
+58: learn: 0.3243089    total: 4.65s    remaining: 1.65s
+59: learn: 0.3212165    total: 4.72s    remaining: 1.57s
+60: learn: 0.3201323    total: 4.81s    remaining: 1.5s
+61: learn: 0.3189120    total: 4.88s    remaining: 1.42s
+62: learn: 0.3178599    total: 4.96s    remaining: 1.34s
+63: learn: 0.3169985    total: 5.03s    remaining: 1.26s
+64: learn: 0.3154376    total: 5.14s    remaining: 1.19s
+65: learn: 0.3142858    total: 5.21s    remaining: 1.1s
+66: learn: 0.3130732    total: 5.29s    remaining: 1.03s
+67: learn: 0.3115498    total: 5.37s    remaining: 948ms
+68: learn: 0.3106751    total: 5.45s    remaining: 868ms
+69: learn: 0.3104327    total: 5.49s    remaining: 784ms
+70: learn: 0.3094918    total: 5.54s    remaining: 703ms
+71: learn: 0.3084260    total: 5.62s    remaining: 624ms
+72: learn: 0.3070031    total: 5.69s    remaining: 546ms
+73: learn: 0.3052639    total: 5.76s    remaining: 468ms
+74: learn: 0.3043254    total: 5.84s    remaining: 389ms
+75: learn: 0.3038159    total: 5.88s    remaining: 310ms
+76: learn: 0.3029093    total: 5.95s    remaining: 232ms
+77: learn: 0.3014591    total: 6.06s    remaining: 155ms
+78: learn: 0.2992314    total: 6.13s    remaining: 77.6ms
+79: learn: 0.2984094    total: 6.21s    remaining: 0us
+&amp;lt;catboost.core.CatBoostClassifier object at 0x0000017E06ACAD60&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;Results from classification report are satisfactory as seen from the
 macro average of precision, recall, and f1-score. I also show the
@@ -1182,9 +1589,9 @@ auc_cat = metrics.roc_auc_score(y_test_hybrid_ext, y_pred_proba_cat)
 
 #create ROC curve
 plt.plot(fpr_cat,tpr_cat, label=&amp;quot;ROC_AUC=&amp;quot;+str(auc_cat.round(3)))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x000002A87CF39DC0&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x0000017E0748CA30&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.legend(loc=&amp;quot;lower right&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x000002A87CF397C0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x0000017E0748CA00&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;#39;True Positive Rate&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0, 0.5, &amp;#39;True Positive Rate&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.xlabel(&amp;#39;False Positive Rate&amp;#39;)
@@ -1194,7 +1601,7 @@ plt.plot(fpr_cat,tpr_cat, label=&amp;quot;ROC_AUC=&amp;quot;+str(auc_cat.round(3
 &lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Area Under Curve&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Area Under Curve&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file23c43e83640f_files/figure-html/unnamed-chunk-23-9.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file349051826594_files/figure-html/unnamed-chunk-23-9.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;I also visualize feature importance of the model below. The most
 impactful predictor to students’ high school dropout is their last year
@@ -1217,7 +1624,7 @@ plt.xlabel(&amp;#39;Feature Importance Score&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Visualizing Important Features&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.rcParams[&amp;quot;figure.figsize&amp;quot;] = (8, 4)
 plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file23c43e83640f_files/figure-html/unnamed-chunk-24-11.png" width="1152" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file349051826594_files/figure-html/unnamed-chunk-24-11.png" width="1152" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2 id="conclusion"&gt;Conclusion&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The point of this post is to demonstrate how EDM can be used with
@@ -1590,7 +1997,7 @@ unitest_1pl &amp;lt;- unidimTest(mod_1pl,LSAT)
 plot(unitest_1pl, type = &amp;quot;b&amp;quot;, pch = 1:2, main = &amp;quot;Modified Parallel Analysis Plot&amp;quot;)
 legend(&amp;quot;topright&amp;quot;, c(&amp;quot;Real Data&amp;quot;, &amp;quot;Average Simulated Data&amp;quot;), lty = 1, 
     pch = 1:2, col = 1:2, bty = &amp;quot;n&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file23c42bfa7706_files/figure-html/unnamed-chunk-11-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file349070062f97_files/figure-html/unnamed-chunk-11-1.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The first plot is ICC of out 1PL model. ICC shows the
 relationship between examinee ability (θ) and the probability of
@@ -1868,7 +2275,7 @@ unitest_2pl &amp;lt;- unidimTest(mod_2pl,LSAT)
 plot(unitest_2pl, type = &amp;quot;b&amp;quot;, pch = 1:2)
 legend(&amp;quot;topright&amp;quot;, c(&amp;quot;Real Data&amp;quot;, &amp;quot;Average Simulated Data&amp;quot;), lty = 1, 
     pch = 1:2, col = 1:2, bty = &amp;quot;n&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file23c42bfa7706_files/figure-html/unnamed-chunk-18-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file349070062f97_files/figure-html/unnamed-chunk-18-1.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;ICC and IIC of the two models are different, meaning that when we
 allow item discrimination to vary, characteristics and yielded
@@ -1988,7 +2395,7 @@ unitest_3pl &amp;lt;- unidimTest(mod_3pl,LSAT)
 plot(unitest_3pl, type = &amp;quot;b&amp;quot;, pch = 1:2)
 legend(&amp;quot;topright&amp;quot;, c(&amp;quot;Real Data&amp;quot;, &amp;quot;Average Simulated Data&amp;quot;), lty = 1, 
     pch = 1:2, col = 1:2, bty = &amp;quot;n&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file23c42bfa7706_files/figure-html/unnamed-chunk-21-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file349070062f97_files/figure-html/unnamed-chunk-21-1.png" width="1152" /&gt;&lt;/p&gt;
 &lt;pre class="r"&gt;&lt;code&gt;unitest_3pl&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;
 Unidimensionality Check using Modified Parallel Analysis
@@ -2545,7 +2952,7 @@ text(-1.9, 8, labels = paste(&amp;quot;Information in (-4, 0):&amp;quot;,
                              paste(round(100 * info3$PropRange, 1), &amp;quot;%&amp;quot;, sep = &amp;quot;&amp;quot;),
                              &amp;quot;\n\nInformation in (0, 4):&amp;quot;,
                              paste(round(100 * info4$PropRange, 1), &amp;quot;%&amp;quot;, sep = &amp;quot;&amp;quot;)), cex = 0.5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file23c42bfa7706_files/figure-html/unnamed-chunk-37-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file349070062f97_files/figure-html/unnamed-chunk-37-1.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;From the Item Characteristic Curve, we observe that there is low
 probability of endorsing the the first option, “very concerned”, for
@@ -2596,7 +3003,7 @@ for (ctg in 2:3)
       xlab = &amp;quot;Latent Trait&amp;quot;, cex.main = 0.7, cex.lab = 0.7,
       cex.axis = 1)
   }&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file23c42bfa7706_files/figure-html/unnamed-chunk-40-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file349070062f97_files/figure-html/unnamed-chunk-40-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;From the plot, the response option for RadioWaste and Chemicals have
 nearly identical characteristic curves for all categories, indicating
@@ -2632,14 +3039,14 @@ href="https://d1wqtxts1xzle7.cloudfront.net/47596077/ITEMS_Module_16-with-cover-
 and Jones (1993&lt;/a&gt;) did a really great job in comparing the difference
 between CTT and IRT in their work. I have presented the table below for
 your information.&lt;/p&gt;
-&lt;table&gt;
+&lt;table style="width:99%;"&gt;
 &lt;caption&gt;The Comparison between CTT and IRT Models (&lt;a
 href="https://d1wqtxts1xzle7.cloudfront.net/47596077/ITEMS_Module_16-with-cover-page-v2.pdf?Expires=1652597267&amp;amp;Signature=dRiumBzQzxIiFeQvRCtF3cuBjpeaui-mWZXaskGDaQYlwenB7ZZVx0dBUxSnl47nyQnveBh0ZBHdY3IbzNnPHZqAhAOdIN~QIQVCfSQ11d0ZV3mef~kmo8nEzXj459sakTPeZCeTwZSVxklbbtIE52mzRfFItBw4ZF70kJMT9S3FC9YaI~lDDXN5YUbb4VL7ZgCH-lsBIthNbTSDUXxqGuwgeHgxKfotwPdlQRr5iLEEwlLkea2Fr1zow4uLrNg38yK31MdNg55m73x9iwJZA2s~6wlj9IfsWINVJlwPoIOjT5Zm0bIuyIfzGbUKRk~3AiXLjThGUjIi0wlc1Y6flQ__&amp;amp;Key-Pair-Id=APKAJLOHF5GGSLRBV4ZA"&gt;Hambleton
 &amp;amp; Jones, 1993&lt;/a&gt;, p.43)&lt;/caption&gt;
 &lt;colgroup&gt;
 &lt;col width="24%" /&gt;
 &lt;col width="34%" /&gt;
-&lt;col width="41%" /&gt;
+&lt;col width="40%" /&gt;
 &lt;/colgroup&gt;
 &lt;thead&gt;
 &lt;tr class="header"&gt;
@@ -2966,9 +3373,9 @@ fpr_rf, tpr_rf, _ = metrics.roc_curve(y_test,  y_pred_proba_rf)
 
 auc_rf = metrics.roc_auc_score(y_test, y_pred_proba_rf)
 plt.plot(fpr_rf,tpr_rf, label=&amp;quot;AUC for Random Forest Classifier = &amp;quot;+str(auc_rf.round(3)))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x000002A87D1154C0&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;[&amp;lt;matplotlib.lines.Line2D object at 0x0000017E022C5400&amp;gt;]&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.legend(loc=&amp;quot;lower right&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x000002A87B34AD90&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x0000017E01245490&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;#39;True Positive Rate&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0, 0.5, &amp;#39;True Positive Rate&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.xlabel(&amp;#39;False Positive Rate&amp;#39;)
@@ -2977,7 +3384,7 @@ plt.plot(fpr_rf,tpr_rf, label=&amp;quot;AUC for Random Forest Classifier = &amp;
 &lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Receiver-Operator Curve (ROC)&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Receiver-Operator Curve (ROC)&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file23c45e3d41e9_files/figure-html/unnamed-chunk-10-1.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file3490688e4c33_files/figure-html/unnamed-chunk-10-1.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The results will be evaluated with the Receiver Operator
 Characteristic (ROC) curve, which shows the diagnostic ability of binary
@@ -3028,7 +3435,7 @@ plt.xlabel(&amp;#39;Feature Importance Score&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Visualizing Important Features&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Visualizing Important Features&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file23c45e3d41e9_files/figure-html/unnamed-chunk-11-3.png" width="1152" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file3490688e4c33_files/figure-html/unnamed-chunk-11-3.png" width="1152" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Another way, which we will focus on in this post, is to use the
 permutation importance score from the area of XAI. Permutation
@@ -3117,7 +3524,7 @@ pdp_bullied = pdp.pdp_isolate(model=clf_rfc, dataset=X_test, model_features=FEAT
 pdp.pdp_plot(pdp_bullied, &amp;#39;BEINGBULLIED&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;(&amp;lt;Figure size 1500x950 with 2 Axes&amp;gt;, {&amp;#39;title_ax&amp;#39;: &amp;lt;AxesSubplot:&amp;gt;, &amp;#39;pdp_ax&amp;#39;: &amp;lt;AxesSubplot:xlabel=&amp;#39;BEINGBULLIED&amp;#39;&amp;gt;})&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file23c45e3d41e9_files/figure-html/unnamed-chunk-13-5.png" width="1440" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file3490688e4c33_files/figure-html/unnamed-chunk-13-5.png" width="1440" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Partial Dependence Plots can also be used to examine interactions
 between variables as well. The graph below shows predictions for any
@@ -3141,7 +3548,7 @@ inter1  =  pdp.pdp_interact(model=clf_rfc, dataset=X_test, model_features=FEATUR
 pdp.pdp_interact_plot(pdp_interact_out=inter1, feature_names=features_to_plot, plot_type=&amp;#39;contour&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;(&amp;lt;Figure size 750x950 with 3 Axes&amp;gt;, {&amp;#39;title_ax&amp;#39;: &amp;lt;AxesSubplot:&amp;gt;, &amp;#39;pdp_inter_ax&amp;#39;: &amp;lt;AxesSubplot:xlabel=&amp;#39;BEINGBULLIED&amp;#39;, ylabel=&amp;#39;Parent_emosup&amp;#39;&amp;gt;})&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file23c45e3d41e9_files/figure-html/unnamed-chunk-14-7.png" width="720" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file3490688e4c33_files/figure-html/unnamed-chunk-14-7.png" width="720" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h3 id="shap-values"&gt;SHAP Values&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Finally, SHAP value allows us to interpret the prediction at a
@@ -3619,11 +4026,11 @@ counts = groups.size()
 
 # Vertical lines
 plt.axvline(x = 7.0, color = &amp;#39;forestgreen&amp;#39;, label = &amp;#39;The reopening date&amp;#39;, linestyle=&amp;#39;--&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.lines.Line2D object at 0x000002A8994CEBB0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.lines.Line2D object at 0x0000017E20915C10&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.axvline(x = 8.0, color = &amp;#39;firebrick&amp;#39;, label = &amp;#39;Wave 4 started&amp;#39;, linestyle=&amp;#39;--&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.lines.Line2D object at 0x000002A8994DD190&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.lines.Line2D object at 0x0000017E209251F0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.legend(bbox_to_anchor = (1.0, 1), loc = &amp;#39;upper right&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x000002A8994CEB80&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.legend.Legend object at 0x0000017E20915BE0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.title(&amp;quot;Tweet count across months&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;Text(0.5, 1.0, &amp;#39;Tweet count across months&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.ylabel(&amp;quot;Tweet count&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
@@ -3633,7 +4040,7 @@ plt.axvline(x = 7.0, color = &amp;#39;forestgreen&amp;#39;, label = &amp;#39;The
 &lt;pre class="python"&gt;&lt;code&gt;counts.plot()&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;&amp;lt;AxesSubplot:title={&amp;#39;center&amp;#39;:&amp;#39;Tweet count across months&amp;#39;}, xlabel=&amp;#39;Month&amp;#39;, ylabel=&amp;#39;Tweet count&amp;#39;&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file23c4477d125f_files/figure-html/unnamed-chunk-5-1.png" width="720" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file3490c204dc_files/figure-html/unnamed-chunk-5-1.png" width="720" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The line plot above represents tweet counts across months after the
 provincial reopening date. The x-axis indicates months and the y-axis
@@ -3676,11 +4083,11 @@ wordcloud_tweet = WordCloud(stopwords=stopwords_cloud, background_color=&amp;quo
 plt.figure(figsize=[10,10])&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;&amp;lt;Figure size 1000x1000 with 0 Axes&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.imshow(wordcloud_tweet, interpolation=&amp;#39;bilinear&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.image.AxesImage object at 0x000002A8970F42E0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;matplotlib.image.AxesImage object at 0x0000017E1E4D79A0&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.axis(&amp;quot;off&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;(-0.5, 399.5, 199.5, -0.5)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class="python"&gt;&lt;code&gt;plt.show()&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file23c4477d125f_files/figure-html/unnamed-chunk-6-3.png" width="960" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file3490c204dc_files/figure-html/unnamed-chunk-6-3.png" width="960" style="display: block; margin: auto;" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The thing is, word cloud can only provide a rough visual
 presentation for the characteristics of our textual data. We would need
@@ -3729,7 +4136,7 @@ count_data = tfidf_vectorizer.fit_transform(tweets_df[&amp;#39;Text_processed&am
 
 # Visualise the 10 most common words
 plot_10_most_common_words(count_data, tfidf_vectorizer)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="../file23c4477d125f_files/figure-html/unnamed-chunk-7-5.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../file3490c204dc_files/figure-html/unnamed-chunk-7-5.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The bar plot above gave us a more detailed information of which
 word occurs more frequently than the others based on the term
