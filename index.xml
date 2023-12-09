@@ -7,7 +7,332 @@
     <description>Welcome to my data science blog!
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Sun, 30 Apr 2023 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 08 Dec 2023 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Examining Differences among Psychological Networks with Network Tree</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2023-12-08-networktree</link>
+      <description>
+
+
+&lt;h1 id="setting-up-and-introducing-the-dataset"&gt;Setting up and
+introducing the dataset&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;Hi Everyone. It’s been awhile since my last blog post. Today I want
+to write about a network psychometrics analysis method named “&lt;a
+href="https://www.zeileis.org/news/networktree100/"&gt;Networktree&lt;/a&gt;”.
+This method is a way of visualizing differences between psychological
+networks between population with different characteristics.&lt;/li&gt;
+&lt;li&gt;Have you ever wondered how to measure the connections between
+different items in a survey? For example, how does a question asking
+about sadness relate to a question that asks about whether you have
+laughed today? One way to find out is to use psychometric networks,
+which are graphical models that show the strength and direction of the
+associations between variables.&lt;/li&gt;
+&lt;li&gt;But what if these associations are not the same for everyone? What
+if some factors, such as age, gender, or education, make a difference in
+how variables are related? This is where network trees come in. Network
+tree is a new method that can help you discover subgroups in your data
+that have different structure of psychological networks. By splitting
+your data based on covariates, such as demographic or clinical
+variables, network trees can reveal how the structure of the network
+changes across different groups. This can help you identify sources of
+heterogeneity and tailor your interventions accordingly.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#read a csv file
+df &amp;lt;- read.csv(&amp;quot;riasec.csv&amp;quot;, header = TRUE)
+
+library(networktree)
+library(bootnet)
+library(tidyverse)
+
+df_subsetted &amp;lt;- df[, c(1:48, 78, 81, 84)]
+
+# save(df_subsetted, cor_RIASEC,
+#      tree1, tree2, tree3, 
+#      compare_tree, subtract_tree, 
+#      net_engnat1, net_engnat2,
+#      file = &amp;quot;riasec_tree.RData&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;In this post, we will explore a dataset that measures different
+kinds of vocational interest. This dataset is based on the RIASEC model,
+which was created by &lt;a
+href="https://doi.org/10.1016/j.jvb.2007.12.002"&gt;Liao, Armstrong, and
+Rounds (2008)&lt;/a&gt; to provide an alternative to the commercialized
+Holland RIASEC test for public research and development. RIASEC stands
+for realistic, investigative, artistic, social, enterprising and
+conventional. These are six categories of vocational interest that can
+help people find careers that match their personality and preferences.
+For example, someone who scores high on the realistic type might enjoy
+working with tools, machines or animals, while someone who scores high
+on the artistic type might enjoy creative activities such as writing,
+painting or music.&lt;/li&gt;
+&lt;li&gt;Before we explore how the data set is organized, we should take a
+look at its content. This will help us understand what kind of
+information it contains and how it can be useful for our analysis.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;head(df_subsetted)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;  R1 R2 R3 R4 R5 R6 R7 R8 I1 I2 I3 I4 I5 I6 I7 I8 A1 A2 A3 A4 A5 A6
+1  3  4  3  1  1  4  1  3  5  5  4  3  4  5  4  3  5  4  1  2  4  5
+2  1  1  2  4  1  2  2  1  5  5  5  4  4  4  4  4  2  1  4  2  1  3
+3  2  1  1  1  1  1  1  1  4  1  1  1  1  1  1  1  1  1  1  2  1  1
+4  3  1  1  2  2  2  2  2  4  1  2  4  3  2  3  2  5  2  4  5  1  4
+5  4  1  1  2  1  1  1  2  5  5  5  3  5  5  5  3  3  5  5  5  5  5
+6  3  5  1  3  1  5  3  4  4  5  4  4  4  3  3  5  5  5  4  5  5  5
+  A7 A8 S1 S2 S3 S4 S5 S6 S7 S8 E1 E2 E3 E4 E5 E6 E7 E8 C1 C2 C3 C4
+1  2  4  3  5  5  4  5  5  5  5  2  1  4  1  2  2  1  3  1  3  1  1
+2  4  2  2  3  4  3  4  2  3  1  1  1  1  1  1  1  1  3  1  1  2  1
+3  3  1  3  1  5  3  5  5  4  4  1  3  3  5  1  4  4  3  1  3  2  2
+4  4  2  4  2  3  3  2  1  3  2  5  4  3  2  3  3  2  3  3  2  3  3
+5  1  5  5  4  4  4  5  5  5  5  2  3  2  3  2  4  2  2  4  2  2  4
+6  3  5  3  5  5  4  5  4  4  4  3  1  1  1  2  1  1  3  3  2  1  1
+  C5 C6 C7 C8 education engnat religion
+1  1  3  1  1         2      1        7
+2  1  2  1  1         2      1        7
+3  1  2  4  1         2      1        7
+4  2  2  2  2         1      2        0
+5  5  5  2  2         3      2        4
+6  3  3  1  3         3      2        2&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;var_name &amp;lt;- colnames(df_subsetted)
+
+cor_RIASEC &amp;lt;- cor(df_subsetted[,var_name])
+
+riasec_dim &amp;lt;- list(R = 1:8,
+                I = 9:16,
+                A = 17:24,
+                S = 25:32,
+                E = 33:40,
+                C = 41:48)
+
+q1 &amp;lt;- qgraph::qgraph(cor_RIASEC, layout = &amp;quot;spring&amp;quot;, labels = var_name, groups = riasec_dim,
+                     color=c(&amp;quot;#d73027&amp;quot;, &amp;quot;#fc8d59&amp;quot;, &amp;quot;#fee090&amp;quot;, &amp;quot;#eddfea&amp;quot;, &amp;quot;#91bfdb&amp;quot;, &amp;quot;#7FFFD4&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
+&lt;div class="float"&gt;
+&lt;img src="https://taridwong.github.io//posts/2023-12-08-networktreeriasec_network.png"
+alt="Network structure of the RIASEC dataset" /&gt;
+&lt;div class="figcaption"&gt;Network structure of the RIASEC dataset&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;This is the network structure of the RIASEC dataset. It has six
+dimensions, represented by six clusters of items. There are also three
+categorical indicators of native English status (engnat), religion, and
+educational status.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;qgraph::centralityPlot(q1, include =&amp;quot;all&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;div class="float"&gt;
+&lt;img src="https://taridwong.github.io//posts/2023-12-08-networktreeriasec_centrality_overall.png"
+alt="Centrality indices of the overall RIASEC network structure" /&gt;
+&lt;div class="figcaption"&gt;Centrality indices of the overall RIASEC network
+structure&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;These are centrality indices of the overall RIASEC structure. They
+are numerical values that describe how important or influential a node
+is in a network. There are different ways to calculate centrality
+indices: strength, closeness, betweenness, and expected influence (&lt;a
+href="10.1037/abn0000446"&gt;Bringmann et al., 2019&lt;/a&gt;; &lt;a
+href="10.1037/abn0000181"&gt;Robinaugh et al., 2016&lt;/a&gt;).&lt;/li&gt;
+&lt;li&gt;Strength is the sum of the weights of the edges connected to a node.
+It indicates how much a node is directly connected to other nodes in the
+network. For example, if a node has a strength value of 10, it means
+that it has 10 units of connection with other nodes. A high strength
+value can imply that a node has a dominant or prominent role in the
+network.&lt;/li&gt;
+&lt;li&gt;Closeness is the inverse of the average distance from a node to all
+other nodes in the network. It measures how easily a node can reach
+other nodes through the shortest paths. For example, if a node has a
+closeness value of 0.5, it means that the average distance from it to
+any other node is 2 steps. A high closeness value can indicate that a
+node has a central or accessible position in the network.&lt;/li&gt;
+&lt;li&gt;Betweenness is the number of shortest paths between any two nodes in
+the network that pass through a given node. It reflects how often a node
+acts as a bridge or a mediator between other nodes. For example, if a
+node has a betweenness value of 20, it means that 20 pairs of nodes
+depend on it to communicate with each other. A high betweenness value
+can suggest that a node has a strategic or influential role in the
+network.&lt;/li&gt;
+&lt;li&gt;Expected influence is the product of the strength and the closeness
+of a node. It represents how much impact a node can have on other nodes
+in the network. For example, if a node has an expected influence value
+of 5, it means that it can reach 5 units of connection with other nodes
+in one step. A high expected influence value can imply that a node has a
+powerful or persuasive role in the network.&lt;/li&gt;
+&lt;li&gt;By using these centrality indices, we can analyze the RIASEC
+structure and see which interest types are more central or peripheral in
+the network. This can help us understand how different interest types
+relate to each other and how they influence vocational choices and
+outcomes. For example, we can compare the centrality indices of
+Realistic and Artistic nodes and see how they differ in their network
+positions and roles.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="introducing-networktree"&gt;Introducing Networktree&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;The network tree method is developed by &lt;a
+href="https://doi.org/10.1007/s11336-020-09731-4"&gt;Jones et
+al. (2020)&lt;/a&gt;, using recursive partitioning to reveal significant
+differences among psychological network between subgroups of the
+population such as religion, educational status, and race.&lt;/li&gt;
+&lt;li&gt;Results from this method can be used to identify relationships
+between items (or nodes in network term) are different in psychological
+networks among respondents of diverse characteristics. This way, we can
+know which part of the assessment can be improved to make it stable
+across subgroups.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="network-tree-between-educational-level"&gt;Network tree between
+educational level&lt;/h2&gt;
+&lt;pre class="r"&gt;&lt;code&gt;tree2 &amp;lt;- networktree(R1 + R2 + R3 + R4 + R5 + R6 + R7 + R8 + I1 + I2 + I3 + I4 + I5 + 
+    I6 + I7 + I8 + A1 + A2 + A3 + A4 + A5 + A6 + A7 + A8 + S1 + 
+    S2 + S3 + S4 + S5 + S6 + S7 + S8 + E1 + E2 + E3 + E4 + E5 + 
+    E6 + E7 + E8 + C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 ~ education,
+                         data = df_subsetted)
+
+plot(tree2, labels = var_name, layout = &amp;quot;spring&amp;quot;, groups = riasec_dim,
+                     color=c(&amp;quot;#d73027&amp;quot;, &amp;quot;#fc8d59&amp;quot;, &amp;quot;#fee090&amp;quot;, &amp;quot;#eddfea&amp;quot;, &amp;quot;#91bfdb&amp;quot;, &amp;quot;#7FFFD4&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
+&lt;div class="float"&gt;
+&lt;img src="https://taridwong.github.io//posts/2023-12-08-networktreetree2.png" alt="Network tree X educational level" /&gt;
+&lt;div class="figcaption"&gt;Network tree X educational level&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;We can start by investigating network of the dataset as divided by
+educational level. 1=Less than high school, 2=High school, 3=University
+degree, 4=Graduate degree. It seems high school serves as the higher
+level split (i.e., value &amp;lt;= 2 or &amp;gt; 2). Then, the network branches
+further by Less than high school status and University degree
+(undergraduate) status.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="network-tree-between-native-english-status"&gt;Network tree between
+native English status&lt;/h2&gt;
+&lt;pre class="r"&gt;&lt;code&gt;tree3 &amp;lt;- networktree(R1 + R2 + R3 + R4 + R5 + R6 + R7 + R8 + I1 + I2 + I3 + I4 + I5 + 
+    I6 + I7 + I8 + A1 + A2 + A3 + A4 + A5 + A6 + A7 + A8 + S1 + 
+    S2 + S3 + S4 + S5 + S6 + S7 + S8 + E1 + E2 + E3 + E4 + E5 + 
+    E6 + E7 + E8 + C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 ~ engnat,
+                         data = df_subsetted)
+
+plot(tree3, labels = var_name, layout = &amp;quot;spring&amp;quot;, groups = riasec_dim,
+                     color=c(&amp;quot;#d73027&amp;quot;, &amp;quot;#fc8d59&amp;quot;, &amp;quot;#fee090&amp;quot;, &amp;quot;#eddfea&amp;quot;, &amp;quot;#91bfdb&amp;quot;, &amp;quot;#7FFFD4&amp;quot;))
+
+print(tree3)&lt;/code&gt;&lt;/pre&gt;
+&lt;div class="float"&gt;
+&lt;img src="https://taridwong.github.io//posts/2023-12-08-networktreetree3.png" alt="Network tree X native English status" /&gt;
+&lt;div class="figcaption"&gt;Network tree X native English status&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;We can split the network by using a binary variable such as native
+English status, which indicates whether English is the first language of
+the participants (“Is English your native language?”, 1=Yes, 2=No). This
+variable can help us examine how language proficiency affects the
+network structure and dynamics.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2
+id="network-tree-between-educational-level-and-native-english-status"&gt;Network
+tree between educational level and native English status&lt;/h2&gt;
+&lt;pre class="r"&gt;&lt;code&gt;tree1 &amp;lt;- networktree(R1 + R2 + R3 + R4 + R5 + R6 + R7 + R8 + I1 + I2 + I3 + I4 + I5 + 
+    I6 + I7 + I8 + A1 + A2 + A3 + A4 + A5 + A6 + A7 + A8 + S1 + 
+    S2 + S3 + S4 + S5 + S6 + S7 + S8 + E1 + E2 + E3 + E4 + E5 + 
+    E6 + E7 + E8 + C1 + C2 + C3 + C4 + C5 + C6 + C7 + C8 ~ education + engnat,
+                         data = df_subsetted)
+
+plot(tree1, labels = var_name, layout = &amp;quot;spring&amp;quot;, groups = riasec_dim,
+                     color=c(&amp;quot;#d73027&amp;quot;, &amp;quot;#fc8d59&amp;quot;, &amp;quot;#fee090&amp;quot;, &amp;quot;#eddfea&amp;quot;, &amp;quot;#91bfdb&amp;quot;, &amp;quot;#7FFFD4&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
+&lt;div class="float"&gt;
+&lt;img src="https://taridwong.github.io//posts/2023-12-08-networktreetree1.png"
+alt="Network tree X educational level and native English status" /&gt;
+&lt;div class="figcaption"&gt;Network tree X educational level and native
+English status&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;Another way to partition the network is to use multiple grouping
+variables simultaneously. For example, we can split the network
+according to the educational level and the native English status of the
+nodes. This allows us to see how these two factors affect the network
+structure and dynamics.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="understanding-the-difference-between-trees"&gt;Understanding the
+difference between trees&lt;/h1&gt;
+&lt;pre class="r"&gt;&lt;code&gt;compare_tree &amp;lt;- comparetree(tree_full, id1 = 2, id2 = 3, highlights = 4, plot = TRUE, plot.type = &amp;quot;compare&amp;quot;,
+                            groups = riasec_dim, color=c(&amp;quot;#d73027&amp;quot;, &amp;quot;#fc8d59&amp;quot;, &amp;quot;#fee090&amp;quot;, &amp;quot;#eddfea&amp;quot;, &amp;quot;#91bfdb&amp;quot;, &amp;quot;#7FFFD4&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;compare_tree$highlights&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;  node1 node2          id1        id2 (id1 - id2)
+1    R2    R8  0.708318736 0.58935851   0.1189602
+2    A1    A2  0.560195173 0.44242742   0.1177678
+3    E2    E6  0.591883279 0.47636222   0.1155211
+4    R1    S5 -0.005596371 0.09861601  -0.1042124&lt;/code&gt;&lt;/pre&gt;
+&lt;div class="float"&gt;
+&lt;img src="https://taridwong.github.io//posts/2023-12-08-networktreecomparetree3_additive.png" alt="Compare tree3 additive" /&gt;
+&lt;div class="figcaption"&gt;Compare tree3 additive&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;We can use &lt;code&gt;compare_tree&lt;/code&gt; function to compare network
+within a tree. The &lt;code&gt;compare_tree$highlights&lt;/code&gt; code displays
+information of nodes with significant different between the two
+trees.&lt;/li&gt;
+&lt;li&gt;One way to analyze the network structure within a tree is to use the
+&lt;code&gt;compare_tree&lt;/code&gt; function. This function takes a network tree
+as an input and returns network structures within that tree as an
+output. The &lt;code&gt;compare_tree$highlights&lt;/code&gt; code can be used to
+display the information of nodes with significant different between the
+two networks.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;subtract_tree &amp;lt;- comparetree(tree1, highlights = 4, plot = TRUE, plot.type = &amp;quot;subtract&amp;quot;, groups = riasec_dim, color=c(&amp;quot;#d73027&amp;quot;, &amp;quot;#fc8d59&amp;quot;, &amp;quot;#fee090&amp;quot;, &amp;quot;#eddfea&amp;quot;, &amp;quot;#91bfdb&amp;quot;, &amp;quot;#7FFFD4&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;subtract_tree$highlights&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;  node1 node2          id1        id2 (id1 - id2)
+1    R2    R8  0.708318736 0.58935851   0.1189602
+2    A1    A2  0.560195173 0.44242742   0.1177678
+3    E2    E6  0.591883279 0.47636222   0.1155211
+4    R1    S5 -0.005596371 0.09861601  -0.1042124&lt;/code&gt;&lt;/pre&gt;
+&lt;div class="float"&gt;
+&lt;img src="https://taridwong.github.io//posts/2023-12-08-networktreecomparetree3_subtract.png" alt="Compare tree3 substract" /&gt;
+&lt;div class="figcaption"&gt;Compare tree3 substract&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;Another option for plotting the network is to set plot.type =
+“subtract”, which will highlight the edges that indicate differences
+between nodes in red. This can help us visually identify which node is
+an outlier or dissimilar from the rest, especially for a network with a
+small number of nodes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="compare-centrality-indices-between-two-subgroups"&gt;Compare
+centrality indices between two subgroups&lt;/h1&gt;
+&lt;pre class="r"&gt;&lt;code&gt;engnat1 &amp;lt;- df_subsetted %&amp;gt;% filter(engnat == 1)
+engnat2 &amp;lt;- df_subsetted %&amp;gt;% filter(engnat == 2)
+
+net_engnat1 &amp;lt;- bootnet::estimateNetwork(engnat1[, 1:48], default = &amp;quot;ggmModSelect&amp;quot;, verbose = FALSE)
+net_engnat2 &amp;lt;- bootnet::estimateNetwork(engnat2[, 1:48], default = &amp;quot;ggmModSelect&amp;quot;, verbose = FALSE)
+
+qgraph::centralityPlot(net_engnat1, include =&amp;quot;all&amp;quot;)
+qgraph::centralityPlot(net_engnat2, include =&amp;quot;all&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;div class="float"&gt;
+&lt;img src="https://taridwong.github.io//posts/2023-12-08-networktreecentrality_engnat1.png" alt="Centrality engnat1" /&gt;
+&lt;div class="figcaption"&gt;Centrality engnat1&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="float"&gt;
+&lt;img src="https://taridwong.github.io//posts/2023-12-08-networktreecentrality_engnat2.png" alt="Centrality engnat2" /&gt;
+&lt;div class="figcaption"&gt;Centrality engnat2&lt;/div&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;To investigate further, we can subset the dataset by characteristics
+of the respondent and find differences between networks from their
+centrality indices. I am going to need you to squint your eyes here.
+Node R2, A1, A2 has different strengths (as examined visually) depending
+on whether the respondents are native English speakers or not.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="concluding-remark"&gt;Concluding remark&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;Thank you for reading this far! Network tree is a relatively novel
+data analysis method that could be useful in the development of
+assessments in addition to the existing psychometrics analyses such as
+differential item functioning or factor analysis. I enjoy experimenting
+with new ways of analyzing data, and I will share any results that I
+find on this platform. I appreciate your attention!&lt;br /&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>e0a88954858ff4571319a5f64d097beb</distill:md5>
+      <category>R</category>
+      <category>Psychometric</category>
+      <guid>https://taridwong.github.io/posts/2023-12-08-networktree</guid>
+      <pubDate>Fri, 08 Dec 2023 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2023-12-08-networktree/tree3.png" medium="image" type="image/png" width="864" height="610"/>
+    </item>
     <item>
       <title>Examining Big 5 Personality Inventory Data with Network Psychometrics</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -99,7 +424,7 @@ fit.&lt;/li&gt;
      font = 2,
      label.cex = 1
      ) &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da070c04f0c_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file39f818754971_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will use the &lt;code&gt;prune&lt;/code&gt; function from
 &lt;code&gt;psychonetrics&lt;/code&gt; package to prune edges that do not achieve
@@ -170,7 +495,7 @@ qgraph::qgraph(net_optimized,
                groups = groups,
                negDashed = T, # should negative edges be dashed?
                font = 2)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da070c04f0c_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file39f818754971_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2
 id="exploratory-graph-analysis-for-dimensional-stability"&gt;Exploratory
 Graph Analysis for Dimensional Stability&lt;/h2&gt;
@@ -215,9 +540,9 @@ will stick to 100 to make it computationally feasible.&lt;/p&gt;&lt;/li&gt;
 being tested on different data sets across 100 resampling iterations.
 This means that the 5 dimensions of our test is quite stable.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class="figure"&gt;
-&lt;img src="https://taridwong.github.io//posts/2023-04-30-networkpsychega.png" alt="" /&gt;
-&lt;p class="caption"&gt;Exploratory Graph Analysis Result&lt;/p&gt;
+&lt;div class="float"&gt;
+&lt;img src="https://taridwong.github.io//posts/2023-04-30-networkpsychega.png" alt="Exploratory Graph Analysis Result" /&gt;
+&lt;div class="figcaption"&gt;Exploratory Graph Analysis Result&lt;/div&gt;
 &lt;/div&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also request for written results of EGA. All items are loaded
@@ -226,74 +551,8 @@ are loaded onto the 5th dimension. The same applies to the remaining 40
 items as well.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# View the number of communities
-bootEGA_big5$EGA&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;Number of communities: 5 
-
- E1  E2  E3  E4  E5  E6  E7  E8  E9 E10  N1  N2  N3  N4  N5  N6  N7 
-  5   5   5   5   5   5   5   5   5   5   3   3   3   3   3   3   3 
- N8  N9 N10  A1  A2  A3  A4  A5  A6  A7  A8  A9 A10  C1  C2  C3  C4 
-  3   3   3   2   2   2   2   2   2   2   2   2   2   4   4   4   4 
- C5  C6  C7  C8  C9 C10  O1  O2  O3  O4  O5  O6  O7  O8  O9 O10 
-  4   4   4   4   4   4   1   1   1   1   1   1   1   1   1   1 
-
-Methods:
-                                                         
-Correlations =          auto (from qgraph)               
-Model =                 glasso                           
-Algorithm =             walktrap                         
-Unidimensional Method = louvain with consensus clustering&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="r"&gt;&lt;code&gt;bootEGA_big5$typicalGraph$typical.dim.variables&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;    items dimension
-O1     O1         1
-O2     O2         1
-O3     O3         1
-O4     O4         1
-O5     O5         1
-O6     O6         1
-O7     O7         1
-O8     O8         1
-O9     O9         1
-O10   O10         1
-A1     A1         2
-A2     A2         2
-A3     A3         2
-A4     A4         2
-A5     A5         2
-A6     A6         2
-A7     A7         2
-A8     A8         2
-A9     A9         2
-A10   A10         2
-N1     N1         3
-N2     N2         3
-N3     N3         3
-N4     N4         3
-N5     N5         3
-N6     N6         3
-N7     N7         3
-N8     N8         3
-N9     N9         3
-N10   N10         3
-C1     C1         4
-C2     C2         4
-C3     C3         4
-C4     C4         4
-C5     C5         4
-C6     C6         4
-C7     C7         4
-C8     C8         4
-C9     C9         4
-C10   C10         4
-E1     E1         5
-E2     E2         5
-E3     E3         5
-E4     E4         5
-E5     E5         5
-E6     E6         5
-E7     E7         5
-E8     E8         5
-E9     E9         5
-E10   E10         5&lt;/code&gt;&lt;/pre&gt;
+bootEGA_big5$EGA
+bootEGA_big5$typicalGraph$typical.dim.variables&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also check if all items are stable across 100 iterations. The
 empirical EGA Communities plot below indicates that all items and
@@ -302,664 +561,11 @@ are loaded into the same test community (aka measuring the same
 construct) across different response patterns.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Dimension (i.e., structural) stability results
-dim_big5 &amp;lt;- EGAnet::dimensionStability(bootEGA_big5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da070c04f0c_files/figure-html/unnamed-chunk-11-1.png" width="672" /&gt;&lt;/p&gt;
-&lt;pre class="r"&gt;&lt;code&gt;dim_big5$dimension.stability&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;$structural.consistency
-1 2 3 4 5 
-1 1 1 1 1 
+dim_big5 &amp;lt;- EGAnet::dimensionStability(bootEGA_big5)
+dim_big5$dimension.stability
 
-$average.item.stability
-1 2 3 4 5 
-1 1 1 1 1 &lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="r"&gt;&lt;code&gt;# Item stability results
+# Item stability results
 dim_big5$item.stability&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;$membership
-$membership$empirical
- E1  E2  E3  E4  E5  E6  E7  E8  E9 E10  N1  N2  N3  N4  N5  N6  N7 
-  5   5   5   5   5   5   5   5   5   5   3   3   3   3   3   3   3 
- N8  N9 N10  A1  A2  A3  A4  A5  A6  A7  A8  A9 A10  C1  C2  C3  C4 
-  3   3   3   2   2   2   2   2   2   2   2   2   2   4   4   4   4 
- C5  C6  C7  C8  C9 C10  O1  O2  O3  O4  O5  O6  O7  O8  O9 O10 
-  4   4   4   4   4   4   1   1   1   1   1   1   1   1   1   1 
-
-$membership$unique
-[1] 5 3 2 4 1
-
-$membership$bootstrap
-    [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12]
-E1     5    5    5    5    5    5    5    5    5     5     5     5
-E2     5    5    5    5    5    5    5    5    5     5     5     5
-E3     5    5    5    5    5    5    5    5    5     5     5     5
-E4     5    5    5    5    5    5    5    5    5     5     5     5
-E5     5    5    5    5    5    5    5    5    5     5     5     5
-E6     5    5    5    5    5    5    5    5    5     5     5     5
-E7     5    5    5    5    5    5    5    5    5     5     5     5
-E8     5    5    5    5    5    5    5    5    5     5     5     5
-E9     5    5    5    5    5    5    5    5    5     5     5     5
-E10    5    5    5    5    5    5    5    5    5     5     5     5
-N1     3    3    3    3    3    3    3    3    3     3     3     3
-N2     3    3    3    3    3    3    3    3    3     3     3     3
-N3     3    3    3    3    3    3    3    3    3     3     3     3
-N4     3    3    3    3    3    3    3    3    3     3     3     3
-N5     3    3    3    3    3    3    3    3    3     3     3     3
-N6     3    3    3    3    3    3    3    3    3     3     3     3
-N7     3    3    3    3    3    3    3    3    3     3     3     3
-N8     3    3    3    3    3    3    3    3    3     3     3     3
-N9     3    3    3    3    3    3    3    3    3     3     3     3
-N10    3    3    3    3    3    3    3    3    3     3     3     3
-A1     2    2    2    2    2    2    2    2    2     2     2     2
-A2     2    2    2    2    2    2    2    2    2     2     2     2
-A3     2    2    2    2    2    2    2    2    2     2     2     2
-A4     2    2    2    2    2    2    2    2    2     2     2     2
-A5     2    2    2    2    2    2    2    2    2     2     2     2
-A6     2    2    2    2    2    2    2    2    2     2     2     2
-A7     2    2    2    2    2    2    2    2    2     2     2     2
-A8     2    2    2    2    2    2    2    2    2     2     2     2
-A9     2    2    2    2    2    2    2    2    2     2     2     2
-A10    2    2    2    2    2    2    2    2    2     2     2     2
-C1     4    4    4    4    4    4    4    4    4     4     4     4
-C2     4    4    4    4    4    4    4    4    4     4     4     4
-C3     4    4    4    4    4    4    4    4    4     4     4     4
-C4     4    4    4    4    4    4    4    4    4     4     4     4
-C5     4    4    4    4    4    4    4    4    4     4     4     4
-C6     4    4    4    4    4    4    4    4    4     4     4     4
-C7     4    4    4    4    4    4    4    4    4     4     4     4
-C8     4    4    4    4    4    4    4    4    4     4     4     4
-C9     4    4    4    4    4    4    4    4    4     4     4     4
-C10    4    4    4    4    4    4    4    4    4     4     4     4
-O1     1    1    1    1    1    1    1    1    1     1     1     1
-O2     1    1    1    1    1    1    1    1    1     1     1     1
-O3     1    1    1    1    1    1    1    1    1     1     1     1
-O4     1    1    1    1    1    1    1    1    1     1     1     1
-O5     1    1    1    1    1    1    1    1    1     1     1     1
-O6     1    1    1    1    1    1    1    1    1     1     1     1
-O7     1    1    1    1    1    1    1    1    1     1     1     1
-O8     1    1    1    1    1    1    1    1    1     1     1     1
-O9     1    1    1    1    1    1    1    1    1     1     1     1
-O10    1    1    1    1    1    1    1    1    1     1     1     1
-    [,13] [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23]
-E1      5     5     5     5     5     5     5     5     5     5     5
-E2      5     5     5     5     5     5     5     5     5     5     5
-E3      5     5     5     5     5     5     5     5     5     5     5
-E4      5     5     5     5     5     5     5     5     5     5     5
-E5      5     5     5     5     5     5     5     5     5     5     5
-E6      5     5     5     5     5     5     5     5     5     5     5
-E7      5     5     5     5     5     5     5     5     5     5     5
-E8      5     5     5     5     5     5     5     5     5     5     5
-E9      5     5     5     5     5     5     5     5     5     5     5
-E10     5     5     5     5     5     5     5     5     5     5     5
-N1      3     3     3     3     3     3     3     3     3     3     3
-N2      3     3     3     3     3     3     3     3     3     3     3
-N3      3     3     3     3     3     3     3     3     3     3     3
-N4      3     3     3     3     3     3     3     3     3     3     3
-N5      3     3     3     3     3     3     3     3     3     3     3
-N6      3     3     3     3     3     3     3     3     3     3     3
-N7      3     3     3     3     3     3     3     3     3     3     3
-N8      3     3     3     3     3     3     3     3     3     3     3
-N9      3     3     3     3     3     3     3     3     3     3     3
-N10     3     3     3     3     3     3     3     3     3     3     3
-A1      2     2     2     2     2     2     2     2     2     2     2
-A2      2     2     2     2     2     2     2     2     2     2     2
-A3      2     2     2     2     2     2     2     2     2     2     2
-A4      2     2     2     2     2     2     2     2     2     2     2
-A5      2     2     2     2     2     2     2     2     2     2     2
-A6      2     2     2     2     2     2     2     2     2     2     2
-A7      2     2     2     2     2     2     2     2     2     2     2
-A8      2     2     2     2     2     2     2     2     2     2     2
-A9      2     2     2     2     2     2     2     2     2     2     2
-A10     2     2     2     2     2     2     2     2     2     2     2
-C1      4     4     4     4     4     4     4     4     4     4     4
-C2      4     4     4     4     4     4     4     4     4     4     4
-C3      4     4     4     4     4     4     4     4     4     4     4
-C4      4     4     4     4     4     4     4     4     4     4     4
-C5      4     4     4     4     4     4     4     4     4     4     4
-C6      4     4     4     4     4     4     4     4     4     4     4
-C7      4     4     4     4     4     4     4     4     4     4     4
-C8      4     4     4     4     4     4     4     4     4     4     4
-C9      4     4     4     4     4     4     4     4     4     4     4
-C10     4     4     4     4     4     4     4     4     4     4     4
-O1      1     1     1     1     1     1     1     1     1     1     1
-O2      1     1     1     1     1     1     1     1     1     1     1
-O3      1     1     1     1     1     1     1     1     1     1     1
-O4      1     1     1     1     1     1     1     1     1     1     1
-O5      1     1     1     1     1     1     1     1     1     1     1
-O6      1     1     1     1     1     1     1     1     1     1     1
-O7      1     1     1     1     1     1     1     1     1     1     1
-O8      1     1     1     1     1     1     1     1     1     1     1
-O9      1     1     1     1     1     1     1     1     1     1     1
-O10     1     1     1     1     1     1     1     1     1     1     1
-    [,24] [,25] [,26] [,27] [,28] [,29] [,30] [,31] [,32] [,33] [,34]
-E1      5     5     5     5     5     5     5     5     5     5     5
-E2      5     5     5     5     5     5     5     5     5     5     5
-E3      5     5     5     5     5     5     5     5     5     5     5
-E4      5     5     5     5     5     5     5     5     5     5     5
-E5      5     5     5     5     5     5     5     5     5     5     5
-E6      5     5     5     5     5     5     5     5     5     5     5
-E7      5     5     5     5     5     5     5     5     5     5     5
-E8      5     5     5     5     5     5     5     5     5     5     5
-E9      5     5     5     5     5     5     5     5     5     5     5
-E10     5     5     5     5     5     5     5     5     5     5     5
-N1      3     3     3     3     3     3     3     3     3     3     3
-N2      3     3     3     3     3     3     3     3     3     3     3
-N3      3     3     3     3     3     3     3     3     3     3     3
-N4      3     3     3     3     3     3     3     3     3     3     3
-N5      3     3     3     3     3     3     3     3     3     3     3
-N6      3     3     3     3     3     3     3     3     3     3     3
-N7      3     3     3     3     3     3     3     3     3     3     3
-N8      3     3     3     3     3     3     3     3     3     3     3
-N9      3     3     3     3     3     3     3     3     3     3     3
-N10     3     3     3     3     3     3     3     3     3     3     3
-A1      2     2     2     2     2     2     2     2     2     2     2
-A2      2     2     2     2     2     2     2     2     2     2     2
-A3      2     2     2     2     2     2     2     2     2     2     2
-A4      2     2     2     2     2     2     2     2     2     2     2
-A5      2     2     2     2     2     2     2     2     2     2     2
-A6      2     2     2     2     2     2     2     2     2     2     2
-A7      2     2     2     2     2     2     2     2     2     2     2
-A8      2     2     2     2     2     2     2     2     2     2     2
-A9      2     2     2     2     2     2     2     2     2     2     2
-A10     2     2     2     2     2     2     2     2     2     2     2
-C1      4     4     4     4     4     4     4     4     4     4     4
-C2      4     4     4     4     4     4     4     4     4     4     4
-C3      4     4     4     4     4     4     4     4     4     4     4
-C4      4     4     4     4     4     4     4     4     4     4     4
-C5      4     4     4     4     4     4     4     4     4     4     4
-C6      4     4     4     4     4     4     4     4     4     4     4
-C7      4     4     4     4     4     4     4     4     4     4     4
-C8      4     4     4     4     4     4     4     4     4     4     4
-C9      4     4     4     4     4     4     4     4     4     4     4
-C10     4     4     4     4     4     4     4     4     4     4     4
-O1      1     1     1     1     1     1     1     1     1     1     1
-O2      1     1     1     1     1     1     1     1     1     1     1
-O3      1     1     1     1     1     1     1     1     1     1     1
-O4      1     1     1     1     1     1     1     1     1     1     1
-O5      1     1     1     1     1     1     1     1     1     1     1
-O6      1     1     1     1     1     1     1     1     1     1     1
-O7      1     1     1     1     1     1     1     1     1     1     1
-O8      1     1     1     1     1     1     1     1     1     1     1
-O9      1     1     1     1     1     1     1     1     1     1     1
-O10     1     1     1     1     1     1     1     1     1     1     1
-    [,35] [,36] [,37] [,38] [,39] [,40] [,41] [,42] [,43] [,44] [,45]
-E1      5     5     5     5     5     5     5     5     5     5     5
-E2      5     5     5     5     5     5     5     5     5     5     5
-E3      5     5     5     5     5     5     5     5     5     5     5
-E4      5     5     5     5     5     5     5     5     5     5     5
-E5      5     5     5     5     5     5     5     5     5     5     5
-E6      5     5     5     5     5     5     5     5     5     5     5
-E7      5     5     5     5     5     5     5     5     5     5     5
-E8      5     5     5     5     5     5     5     5     5     5     5
-E9      5     5     5     5     5     5     5     5     5     5     5
-E10     5     5     5     5     5     5     5     5     5     5     5
-N1      3     3     3     3     3     3     3     3     3     3     3
-N2      3     3     3     3     3     3     3     3     3     3     3
-N3      3     3     3     3     3     3     3     3     3     3     3
-N4      3     3     3     3     3     3     3     3     3     3     3
-N5      3     3     3     3     3     3     3     3     3     3     3
-N6      3     3     3     3     3     3     3     3     3     3     3
-N7      3     3     3     3     3     3     3     3     3     3     3
-N8      3     3     3     3     3     3     3     3     3     3     3
-N9      3     3     3     3     3     3     3     3     3     3     3
-N10     3     3     3     3     3     3     3     3     3     3     3
-A1      2     2     2     2     2     2     2     2     2     2     2
-A2      2     2     2     2     2     2     2     2     2     2     2
-A3      2     2     2     2     2     2     2     2     2     2     2
-A4      2     2     2     2     2     2     2     2     2     2     2
-A5      2     2     2     2     2     2     2     2     2     2     2
-A6      2     2     2     2     2     2     2     2     2     2     2
-A7      2     2     2     2     2     2     2     2     2     2     2
-A8      2     2     2     2     2     2     2     2     2     2     2
-A9      2     2     2     2     2     2     2     2     2     2     2
-A10     2     2     2     2     2     2     2     2     2     2     2
-C1      4     4     4     4     4     4     4     4     4     4     4
-C2      4     4     4     4     4     4     4     4     4     4     4
-C3      4     4     4     4     4     4     4     4     4     4     4
-C4      4     4     4     4     4     4     4     4     4     4     4
-C5      4     4     4     4     4     4     4     4     4     4     4
-C6      4     4     4     4     4     4     4     4     4     4     4
-C7      4     4     4     4     4     4     4     4     4     4     4
-C8      4     4     4     4     4     4     4     4     4     4     4
-C9      4     4     4     4     4     4     4     4     4     4     4
-C10     4     4     4     4     4     4     4     4     4     4     4
-O1      1     1     1     1     1     1     1     1     1     1     1
-O2      1     1     1     1     1     1     1     1     1     1     1
-O3      1     1     1     1     1     1     1     1     1     1     1
-O4      1     1     1     1     1     1     1     1     1     1     1
-O5      1     1     1     1     1     1     1     1     1     1     1
-O6      1     1     1     1     1     1     1     1     1     1     1
-O7      1     1     1     1     1     1     1     1     1     1     1
-O8      1     1     1     1     1     1     1     1     1     1     1
-O9      1     1     1     1     1     1     1     1     1     1     1
-O10     1     1     1     1     1     1     1     1     1     1     1
-    [,46] [,47] [,48] [,49] [,50] [,51] [,52] [,53] [,54] [,55] [,56]
-E1      5     5     5     5     5     5     5     5     5     5     5
-E2      5     5     5     5     5     5     5     5     5     5     5
-E3      5     5     5     5     5     5     5     5     5     5     5
-E4      5     5     5     5     5     5     5     5     5     5     5
-E5      5     5     5     5     5     5     5     5     5     5     5
-E6      5     5     5     5     5     5     5     5     5     5     5
-E7      5     5     5     5     5     5     5     5     5     5     5
-E8      5     5     5     5     5     5     5     5     5     5     5
-E9      5     5     5     5     5     5     5     5     5     5     5
-E10     5     5     5     5     5     5     5     5     5     5     5
-N1      3     3     3     3     3     3     3     3     3     3     3
-N2      3     3     3     3     3     3     3     3     3     3     3
-N3      3     3     3     3     3     3     3     3     3     3     3
-N4      3     3     3     3     3     3     3     3     3     3     3
-N5      3     3     3     3     3     3     3     3     3     3     3
-N6      3     3     3     3     3     3     3     3     3     3     3
-N7      3     3     3     3     3     3     3     3     3     3     3
-N8      3     3     3     3     3     3     3     3     3     3     3
-N9      3     3     3     3     3     3     3     3     3     3     3
-N10     3     3     3     3     3     3     3     3     3     3     3
-A1      2     2     2     2     2     2     2     2     2     2     2
-A2      2     2     2     2     2     2     2     2     2     2     2
-A3      2     2     2     2     2     2     2     2     2     2     2
-A4      2     2     2     2     2     2     2     2     2     2     2
-A5      2     2     2     2     2     2     2     2     2     2     2
-A6      2     2     2     2     2     2     2     2     2     2     2
-A7      2     2     2     2     2     2     2     2     2     2     2
-A8      2     2     2     2     2     2     2     2     2     2     2
-A9      2     2     2     2     2     2     2     2     2     2     2
-A10     2     2     2     2     2     2     2     2     2     2     2
-C1      4     4     4     4     4     4     4     4     4     4     4
-C2      4     4     4     4     4     4     4     4     4     4     4
-C3      4     4     4     4     4     4     4     4     4     4     4
-C4      4     4     4     4     4     4     4     4     4     4     4
-C5      4     4     4     4     4     4     4     4     4     4     4
-C6      4     4     4     4     4     4     4     4     4     4     4
-C7      4     4     4     4     4     4     4     4     4     4     4
-C8      4     4     4     4     4     4     4     4     4     4     4
-C9      4     4     4     4     4     4     4     4     4     4     4
-C10     4     4     4     4     4     4     4     4     4     4     4
-O1      1     1     1     1     1     1     1     1     1     1     1
-O2      1     1     1     1     1     1     1     1     1     1     1
-O3      1     1     1     1     1     1     1     1     1     1     1
-O4      1     1     1     1     1     1     1     1     1     1     1
-O5      1     1     1     1     1     1     1     1     1     1     1
-O6      1     1     1     1     1     1     1     1     1     1     1
-O7      1     1     1     1     1     1     1     1     1     1     1
-O8      1     1     1     1     1     1     1     1     1     1     1
-O9      1     1     1     1     1     1     1     1     1     1     1
-O10     1     1     1     1     1     1     1     1     1     1     1
-    [,57] [,58] [,59] [,60] [,61] [,62] [,63] [,64] [,65] [,66] [,67]
-E1      5     5     5     5     5     5     5     5     5     5     5
-E2      5     5     5     5     5     5     5     5     5     5     5
-E3      5     5     5     5     5     5     5     5     5     5     5
-E4      5     5     5     5     5     5     5     5     5     5     5
-E5      5     5     5     5     5     5     5     5     5     5     5
-E6      5     5     5     5     5     5     5     5     5     5     5
-E7      5     5     5     5     5     5     5     5     5     5     5
-E8      5     5     5     5     5     5     5     5     5     5     5
-E9      5     5     5     5     5     5     5     5     5     5     5
-E10     5     5     5     5     5     5     5     5     5     5     5
-N1      3     3     3     3     3     3     3     3     3     3     3
-N2      3     3     3     3     3     3     3     3     3     3     3
-N3      3     3     3     3     3     3     3     3     3     3     3
-N4      3     3     3     3     3     3     3     3     3     3     3
-N5      3     3     3     3     3     3     3     3     3     3     3
-N6      3     3     3     3     3     3     3     3     3     3     3
-N7      3     3     3     3     3     3     3     3     3     3     3
-N8      3     3     3     3     3     3     3     3     3     3     3
-N9      3     3     3     3     3     3     3     3     3     3     3
-N10     3     3     3     3     3     3     3     3     3     3     3
-A1      2     2     2     2     2     2     2     2     2     2     2
-A2      2     2     2     2     2     2     2     2     2     2     2
-A3      2     2     2     2     2     2     2     2     2     2     2
-A4      2     2     2     2     2     2     2     2     2     2     2
-A5      2     2     2     2     2     2     2     2     2     2     2
-A6      2     2     2     2     2     2     2     2     2     2     2
-A7      2     2     2     2     2     2     2     2     2     2     2
-A8      2     2     2     2     2     2     2     2     2     2     2
-A9      2     2     2     2     2     2     2     2     2     2     2
-A10     2     2     2     2     2     2     2     2     2     2     2
-C1      4     4     4     4     4     4     4     4     4     4     4
-C2      4     4     4     4     4     4     4     4     4     4     4
-C3      4     4     4     4     4     4     4     4     4     4     4
-C4      4     4     4     4     4     4     4     4     4     4     4
-C5      4     4     4     4     4     4     4     4     4     4     4
-C6      4     4     4     4     4     4     4     4     4     4     4
-C7      4     4     4     4     4     4     4     4     4     4     4
-C8      4     4     4     4     4     4     4     4     4     4     4
-C9      4     4     4     4     4     4     4     4     4     4     4
-C10     4     4     4     4     4     4     4     4     4     4     4
-O1      1     1     1     1     1     1     1     1     1     1     1
-O2      1     1     1     1     1     1     1     1     1     1     1
-O3      1     1     1     1     1     1     1     1     1     1     1
-O4      1     1     1     1     1     1     1     1     1     1     1
-O5      1     1     1     1     1     1     1     1     1     1     1
-O6      1     1     1     1     1     1     1     1     1     1     1
-O7      1     1     1     1     1     1     1     1     1     1     1
-O8      1     1     1     1     1     1     1     1     1     1     1
-O9      1     1     1     1     1     1     1     1     1     1     1
-O10     1     1     1     1     1     1     1     1     1     1     1
-    [,68] [,69] [,70] [,71] [,72] [,73] [,74] [,75] [,76] [,77] [,78]
-E1      5     5     5     5     5     5     5     5     5     5     5
-E2      5     5     5     5     5     5     5     5     5     5     5
-E3      5     5     5     5     5     5     5     5     5     5     5
-E4      5     5     5     5     5     5     5     5     5     5     5
-E5      5     5     5     5     5     5     5     5     5     5     5
-E6      5     5     5     5     5     5     5     5     5     5     5
-E7      5     5     5     5     5     5     5     5     5     5     5
-E8      5     5     5     5     5     5     5     5     5     5     5
-E9      5     5     5     5     5     5     5     5     5     5     5
-E10     5     5     5     5     5     5     5     5     5     5     5
-N1      3     3     3     3     3     3     3     3     3     3     3
-N2      3     3     3     3     3     3     3     3     3     3     3
-N3      3     3     3     3     3     3     3     3     3     3     3
-N4      3     3     3     3     3     3     3     3     3     3     3
-N5      3     3     3     3     3     3     3     3     3     3     3
-N6      3     3     3     3     3     3     3     3     3     3     3
-N7      3     3     3     3     3     3     3     3     3     3     3
-N8      3     3     3     3     3     3     3     3     3     3     3
-N9      3     3     3     3     3     3     3     3     3     3     3
-N10     3     3     3     3     3     3     3     3     3     3     3
-A1      2     2     2     2     2     2     2     2     2     2     2
-A2      2     2     2     2     2     2     2     2     2     2     2
-A3      2     2     2     2     2     2     2     2     2     2     2
-A4      2     2     2     2     2     2     2     2     2     2     2
-A5      2     2     2     2     2     2     2     2     2     2     2
-A6      2     2     2     2     2     2     2     2     2     2     2
-A7      2     2     2     2     2     2     2     2     2     2     2
-A8      2     2     2     2     2     2     2     2     2     2     2
-A9      2     2     2     2     2     2     2     2     2     2     2
-A10     2     2     2     2     2     2     2     2     2     2     2
-C1      4     4     4     4     4     4     4     4     4     4     4
-C2      4     4     4     4     4     4     4     4     4     4     4
-C3      4     4     4     4     4     4     4     4     4     4     4
-C4      4     4     4     4     4     4     4     4     4     4     4
-C5      4     4     4     4     4     4     4     4     4     4     4
-C6      4     4     4     4     4     4     4     4     4     4     4
-C7      4     4     4     4     4     4     4     4     4     4     4
-C8      4     4     4     4     4     4     4     4     4     4     4
-C9      4     4     4     4     4     4     4     4     4     4     4
-C10     4     4     4     4     4     4     4     4     4     4     4
-O1      1     1     1     1     1     1     1     1     1     1     1
-O2      1     1     1     1     1     1     1     1     1     1     1
-O3      1     1     1     1     1     1     1     1     1     1     1
-O4      1     1     1     1     1     1     1     1     1     1     1
-O5      1     1     1     1     1     1     1     1     1     1     1
-O6      1     1     1     1     1     1     1     1     1     1     1
-O7      1     1     1     1     1     1     1     1     1     1     1
-O8      1     1     1     1     1     1     1     1     1     1     1
-O9      1     1     1     1     1     1     1     1     1     1     1
-O10     1     1     1     1     1     1     1     1     1     1     1
-    [,79] [,80] [,81] [,82] [,83] [,84] [,85] [,86] [,87] [,88] [,89]
-E1      5     5     5     5     5     5     5     5     5     5     5
-E2      5     5     5     5     5     5     5     5     5     5     5
-E3      5     5     5     5     5     5     5     5     5     5     5
-E4      5     5     5     5     5     5     5     5     5     5     5
-E5      5     5     5     5     5     5     5     5     5     5     5
-E6      5     5     5     5     5     5     5     5     5     5     5
-E7      5     5     5     5     5     5     5     5     5     5     5
-E8      5     5     5     5     5     5     5     5     5     5     5
-E9      5     5     5     5     5     5     5     5     5     5     5
-E10     5     5     5     5     5     5     5     5     5     5     5
-N1      3     3     3     3     3     3     3     3     3     3     3
-N2      3     3     3     3     3     3     3     3     3     3     3
-N3      3     3     3     3     3     3     3     3     3     3     3
-N4      3     3     3     3     3     3     3     3     3     3     3
-N5      3     3     3     3     3     3     3     3     3     3     3
-N6      3     3     3     3     3     3     3     3     3     3     3
-N7      3     3     3     3     3     3     3     3     3     3     3
-N8      3     3     3     3     3     3     3     3     3     3     3
-N9      3     3     3     3     3     3     3     3     3     3     3
-N10     3     3     3     3     3     3     3     3     3     3     3
-A1      2     2     2     2     2     2     2     2     2     2     2
-A2      2     2     2     2     2     2     2     2     2     2     2
-A3      2     2     2     2     2     2     2     2     2     2     2
-A4      2     2     2     2     2     2     2     2     2     2     2
-A5      2     2     2     2     2     2     2     2     2     2     2
-A6      2     2     2     2     2     2     2     2     2     2     2
-A7      2     2     2     2     2     2     2     2     2     2     2
-A8      2     2     2     2     2     2     2     2     2     2     2
-A9      2     2     2     2     2     2     2     2     2     2     2
-A10     2     2     2     2     2     2     2     2     2     2     2
-C1      4     4     4     4     4     4     4     4     4     4     4
-C2      4     4     4     4     4     4     4     4     4     4     4
-C3      4     4     4     4     4     4     4     4     4     4     4
-C4      4     4     4     4     4     4     4     4     4     4     4
-C5      4     4     4     4     4     4     4     4     4     4     4
-C6      4     4     4     4     4     4     4     4     4     4     4
-C7      4     4     4     4     4     4     4     4     4     4     4
-C8      4     4     4     4     4     4     4     4     4     4     4
-C9      4     4     4     4     4     4     4     4     4     4     4
-C10     4     4     4     4     4     4     4     4     4     4     4
-O1      1     1     1     1     1     1     1     1     1     1     1
-O2      1     1     1     1     1     1     1     1     1     1     1
-O3      1     1     1     1     1     1     1     1     1     1     1
-O4      1     1     1     1     1     1     1     1     1     1     1
-O5      1     1     1     1     1     1     1     1     1     1     1
-O6      1     1     1     1     1     1     1     1     1     1     1
-O7      1     1     1     1     1     1     1     1     1     1     1
-O8      1     1     1     1     1     1     1     1     1     1     1
-O9      1     1     1     1     1     1     1     1     1     1     1
-O10     1     1     1     1     1     1     1     1     1     1     1
-    [,90] [,91] [,92] [,93] [,94] [,95] [,96] [,97] [,98] [,99]
-E1      5     5     5     5     5     5     5     5     5     5
-E2      5     5     5     5     5     5     5     5     5     5
-E3      5     5     5     5     5     5     5     5     5     5
-E4      5     5     5     5     5     5     5     5     5     5
-E5      5     5     5     5     5     5     5     5     5     5
-E6      5     5     5     5     5     5     5     5     5     5
-E7      5     5     5     5     5     5     5     5     5     5
-E8      5     5     5     5     5     5     5     5     5     5
-E9      5     5     5     5     5     5     5     5     5     5
-E10     5     5     5     5     5     5     5     5     5     5
-N1      3     3     3     3     3     3     3     3     3     3
-N2      3     3     3     3     3     3     3     3     3     3
-N3      3     3     3     3     3     3     3     3     3     3
-N4      3     3     3     3     3     3     3     3     3     3
-N5      3     3     3     3     3     3     3     3     3     3
-N6      3     3     3     3     3     3     3     3     3     3
-N7      3     3     3     3     3     3     3     3     3     3
-N8      3     3     3     3     3     3     3     3     3     3
-N9      3     3     3     3     3     3     3     3     3     3
-N10     3     3     3     3     3     3     3     3     3     3
-A1      2     2     2     2     2     2     2     2     2     2
-A2      2     2     2     2     2     2     2     2     2     2
-A3      2     2     2     2     2     2     2     2     2     2
-A4      2     2     2     2     2     2     2     2     2     2
-A5      2     2     2     2     2     2     2     2     2     2
-A6      2     2     2     2     2     2     2     2     2     2
-A7      2     2     2     2     2     2     2     2     2     2
-A8      2     2     2     2     2     2     2     2     2     2
-A9      2     2     2     2     2     2     2     2     2     2
-A10     2     2     2     2     2     2     2     2     2     2
-C1      4     4     4     4     4     4     4     4     4     4
-C2      4     4     4     4     4     4     4     4     4     4
-C3      4     4     4     4     4     4     4     4     4     4
-C4      4     4     4     4     4     4     4     4     4     4
-C5      4     4     4     4     4     4     4     4     4     4
-C6      4     4     4     4     4     4     4     4     4     4
-C7      4     4     4     4     4     4     4     4     4     4
-C8      4     4     4     4     4     4     4     4     4     4
-C9      4     4     4     4     4     4     4     4     4     4
-C10     4     4     4     4     4     4     4     4     4     4
-O1      1     1     1     1     1     1     1     1     1     1
-O2      1     1     1     1     1     1     1     1     1     1
-O3      1     1     1     1     1     1     1     1     1     1
-O4      1     1     1     1     1     1     1     1     1     1
-O5      1     1     1     1     1     1     1     1     1     1
-O6      1     1     1     1     1     1     1     1     1     1
-O7      1     1     1     1     1     1     1     1     1     1
-O8      1     1     1     1     1     1     1     1     1     1
-O9      1     1     1     1     1     1     1     1     1     1
-O10     1     1     1     1     1     1     1     1     1     1
-    [,100]
-E1       5
-E2       5
-E3       5
-E4       5
-E5       5
-E6       5
-E7       5
-E8       5
-E9       5
-E10      5
-N1       3
-N2       3
-N3       3
-N4       3
-N5       3
-N6       3
-N7       3
-N8       3
-N9       3
-N10      3
-A1       2
-A2       2
-A3       2
-A4       2
-A5       2
-A6       2
-A7       2
-A8       2
-A9       2
-A10      2
-C1       4
-C2       4
-C3       4
-C4       4
-C5       4
-C6       4
-C7       4
-C8       4
-C9       4
-C10      4
-O1       1
-O2       1
-O3       1
-O4       1
-O5       1
-O6       1
-O7       1
-O8       1
-O9       1
-O10      1
-
-
-$item.stability
-$item.stability$empirical.dimensions
- O1  O2  O3  O4  O5  O6  O7  O8  O9 O10  A1  A2  A3  A4  A5  A6  A7 
-  1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1 
- A8  A9 A10  N1  N2  N3  N4  N5  N6  N7  N8  N9 N10  C1  C2  C3  C4 
-  1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1 
- C5  C6  C7  C8  C9 C10  E1  E2  E3  E4  E5  E6  E7  E8  E9 E10 
-  1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1 
-
-$item.stability$all.dimensions
-    1 2 3 4 5
-O1  1 0 0 0 0
-O2  1 0 0 0 0
-O3  1 0 0 0 0
-O4  1 0 0 0 0
-O5  1 0 0 0 0
-O6  1 0 0 0 0
-O7  1 0 0 0 0
-O8  1 0 0 0 0
-O9  1 0 0 0 0
-O10 1 0 0 0 0
-A1  0 1 0 0 0
-A2  0 1 0 0 0
-A3  0 1 0 0 0
-A4  0 1 0 0 0
-A5  0 1 0 0 0
-A6  0 1 0 0 0
-A7  0 1 0 0 0
-A8  0 1 0 0 0
-A9  0 1 0 0 0
-A10 0 1 0 0 0
-N1  0 0 1 0 0
-N2  0 0 1 0 0
-N3  0 0 1 0 0
-N4  0 0 1 0 0
-N5  0 0 1 0 0
-N6  0 0 1 0 0
-N7  0 0 1 0 0
-N8  0 0 1 0 0
-N9  0 0 1 0 0
-N10 0 0 1 0 0
-C1  0 0 0 1 0
-C2  0 0 0 1 0
-C3  0 0 0 1 0
-C4  0 0 0 1 0
-C5  0 0 0 1 0
-C6  0 0 0 1 0
-C7  0 0 0 1 0
-C8  0 0 0 1 0
-C9  0 0 0 1 0
-C10 0 0 0 1 0
-E1  0 0 0 0 1
-E2  0 0 0 0 1
-E3  0 0 0 0 1
-E4  0 0 0 0 1
-E5  0 0 0 0 1
-E6  0 0 0 0 1
-E7  0 0 0 0 1
-E8  0 0 0 0 1
-E9  0 0 0 0 1
-E10 0 0 0 0 1
-
-
-$plot&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da070c04f0c_files/figure-html/unnamed-chunk-11-2.png" width="672" /&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;
-$mean.loadings
-           1        2        3        4        5
-O1   0.30720 -0.00221 -0.00160  0.00456 -0.01138
-O2  -0.29093  0.00492  0.04399  0.00098  0.00649
-O3   0.25147  0.00162  0.00959 -0.02048 -0.00347
-O4  -0.23413 -0.01246 -0.00031  0.00609  0.00063
-O5   0.25141  0.01206 -0.00408  0.04092  0.02301
-O6  -0.26856 -0.00680  0.00000  0.00000  0.01373
-O7   0.18369  0.00716 -0.01910  0.08451  0.00000
-O8   0.24276  0.03165  0.00532 -0.01625 -0.00529
-O9   0.10796  0.03400  0.04442  0.02276 -0.00433
-O10  0.34513  0.00150  0.00000  0.00780  0.02958
-A1  -0.01025  0.14071  0.00551 -0.01950  0.01227
-A2   0.00160  0.19575  0.00000 -0.01028  0.07268
-A3   0.02445  0.11329  0.06184 -0.06368  0.03116
-A4   0.00985  0.40845  0.01414  0.00000  0.00002
-A5  -0.00415 -0.28542 -0.00007 -0.00001  0.00073
-A6  -0.01330  0.22036  0.04996  0.00000  0.00014
-A7  -0.00937 -0.30437  0.00907 -0.00492 -0.00137
-A8   0.00252  0.22963 -0.00030  0.00958  0.00943
-A9   0.02002  0.31385  0.00795  0.00829  0.00000
-A10  0.02088  0.12357 -0.01261  0.02884  0.09563
-N1  -0.01954  0.00033  0.31789 -0.00424 -0.00012
-N2   0.00568  0.00702 -0.18227 -0.00387  0.02775
-N3   0.03103  0.03924  0.24779  0.04157  0.01181
-N4  -0.00130  0.00480 -0.12695  0.01135  0.00284
-N5  -0.02750  0.00220  0.15908 -0.02181  0.00023
-N6  -0.01337  0.03106  0.32793 -0.01479  0.00000
-N7   0.00457  0.00432  0.27570 -0.01549  0.00000
-N8   0.00001  0.00201  0.34925 -0.03390  0.00000
-N9  -0.00086 -0.07244  0.25831  0.00091  0.00575
-N10  0.02728 -0.00005  0.25664 -0.03733 -0.05148
-C1   0.02873  0.00000 -0.00310  0.27463  0.00220
-C2   0.01296  0.01085 -0.00389 -0.22476 -0.00018
-C3   0.06676  0.00850  0.01771  0.16283  0.00213
-C4   0.00748  0.03473  0.08806 -0.24955 -0.00499
-C5  -0.00905  0.01259 -0.01097  0.28608  0.00661
-C6   0.00438  0.00000  0.00755 -0.31143  0.00000
-C7   0.00435  0.00000  0.01701  0.23044  0.00832
-C8   0.00000 -0.00894  0.03057 -0.19143  0.00135
-C9  -0.00687  0.00684  0.00180  0.28896  0.00155
-C10  0.05659  0.02013  0.00000  0.20565  0.00000
-E1   0.00301  0.03257 -0.00035  0.00000  0.23667
-E2   0.00000 -0.01167 -0.00103  0.00013  0.26156
-E3  -0.00591  0.09845 -0.07217  0.01457  0.21283
-E4   0.01271 -0.00009  0.01909 -0.00082 -0.30472
-E5   0.00311  0.06126  0.00000  0.00122  0.30649
-E6  -0.05808 -0.01897  0.00038 -0.00121  0.20654
-E7   0.00000  0.03499  0.00000  0.00000  0.31879
-E8   0.00067  0.00474  0.00000  0.01106  0.21917
-E9   0.02462  0.01562  0.00000 -0.00006  0.24571
-E10  0.01618  0.00024  0.02189  0.00000  0.17401
-
-attr(,&amp;quot;class&amp;quot;)
-[1] &amp;quot;itemStability&amp;quot;&lt;/code&gt;&lt;/pre&gt;
 &lt;h2 id="measurement-invariance-with-network-model"&gt;Measurement
 Invariance with Network Model&lt;/h2&gt;
 &lt;ul&gt;
@@ -1044,9 +650,10 @@ qgraph::qgraph(net_female,
                layout = Layout, 
                theme = &amp;quot;colorblind&amp;quot;, 
                title = &amp;quot;Female&amp;quot;,
-               labels = obsvars)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da070c04f0c_files/figure-html/unnamed-chunk-15-1.png" width="672" /&gt;&lt;/p&gt;
-&lt;pre class="r"&gt;&lt;code&gt;# Reset the layout to 1:1 again
+               labels = obsvars)
+
+
+# Reset the layout to 1:1 again
 layout(t(1:1)) &lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;We can further test the invariance of our model across levels like
@@ -1385,7 +992,7 @@ DF&lt;/code&gt;&lt;/pre&gt;
 glance with the regular &lt;code&gt;plot&lt;/code&gt; function.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(x=results, k=10, pause=FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-6-3.png" width="672" /&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-6-4.png" width="672" /&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-6-5.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-6-3.png" width="672" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-6-4.png" width="672" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-6-5.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-relationships-between-authors-with-co-citation-analysis"&gt;Examining
 relationships between authors with co-citation Analysis&lt;/h2&gt;
@@ -1400,7 +1007,7 @@ papers within a cluster cited each other the most.&lt;/li&gt;
 net=networkPlot(NetMatrix, weighted=NULL, n = 50, 
                 Title = &amp;quot;Co-Citation Network&amp;quot;, type = &amp;quot;fruchterman&amp;quot;, 
                 size=4, size.cex=TRUE, remove.multiple=FALSE, labelsize=1, label.n=10, label.cex=F, edgesize = 10)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-7-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-7-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also perform co-citation analysis at the source level (i.e.,
 journals and conferences) to examine how sources in our data set cited
@@ -1411,7 +1018,7 @@ each other.&lt;/li&gt;
 NetMatrix &amp;lt;- biblioNetwork(Source, analysis = &amp;quot;co-citation&amp;quot;, network = &amp;quot;sources&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix, n = 50, Title = &amp;quot;Co-Citation Network-Journal&amp;quot;, type = &amp;quot;auto&amp;quot;, size.cex=TRUE, size=3, remove.multiple=FALSE, labelsize=1,edgesize = 10, edges.min=5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-8-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-8-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also examine top 5 keywords used by publication authors in
 our data set with the code below. We can see popular topics based on
@@ -1436,7 +1043,7 @@ of our bibliographic records to examine their work.&lt;/li&gt;
 minfreq = 3, size = 0.5, repel = TRUE)
 
 plot(res$map)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Finally, we can use a three fields plot to see the relationship
 between authors (AU), keywords that they used (DE), and
@@ -1464,7 +1071,7 @@ NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;co-occurrences&amp;quo
 net = networkPlot(NetMatrix, normalize=&amp;quot;association&amp;quot;, weighted=T, n = 30, 
                   Title = &amp;quot;Keyword Co-occurrences&amp;quot;, type = &amp;quot;fruchterman&amp;quot;, 
                   size=TRUE, edgesize = 5, labelsize=0.7, remove.multiple=FALSE, label.cex=TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-12-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-12-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also perform correspondence analysis to see relationship
 between topics with multiple correspondence analysis (MCA) or
@@ -1474,7 +1081,7 @@ output.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Conceptual Structure using keywords (method=&amp;quot;MCA&amp;quot;)
 CS &amp;lt;- conceptualStructure(M, field=&amp;quot;ID&amp;quot;, method=&amp;quot;MCA&amp;quot;, minDegree=4, clust=5, stemming=FALSE, labelsize=15, documents=20)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-13-1.png" width="1440" /&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-13-2.png" width="1440" /&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-13-3.png" width="1440" /&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-13-4.png" width="1440" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-13-1.png" width="1440" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-13-2.png" width="1440" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-13-3.png" width="1440" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-13-4.png" width="1440" /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-keyword-usage-across-time-with-historiograph"&gt;Examining
 keyword usage across time with historiograph&lt;/h2&gt;
@@ -1503,7 +1110,7 @@ ggplot(DF,aes(x=Year,y=value, group=variable, shape=variable, colour=variable))+
   labs(y=&amp;quot;Count&amp;quot;, variable=&amp;quot;Author Keywords&amp;quot;, title = &amp;quot;Author&amp;#39;s Keywords Usage Evolution Over Time&amp;quot;)+
   theme(text = element_text(size = 10))+
   facet_grid(variable ~ .)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-14-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-14-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="examining-trends-of-the-field-with-thematic-map"&gt;Examining
 trends of the field with thematic map&lt;/h2&gt;
 &lt;ul&gt;
@@ -1528,7 +1135,7 @@ pane are usually studied for general knowledge of the field.&lt;/p&gt;&lt;/li&gt
 &lt;pre class="r"&gt;&lt;code&gt;Map=thematicMap(M, field = &amp;quot;ID&amp;quot;, n = 250, minfreq = 4,
   stemming = FALSE, size = 0.7, n.labels=5, repel = TRUE)
 plot(Map$map)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-15-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-15-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-collaboration-with-social-structure-analysis"&gt;Examining
 collaboration with social structure analysis&lt;/h2&gt;
@@ -1540,14 +1147,14 @@ shows who collaborated with whom at the author level.&lt;/li&gt;
 &lt;pre class="r"&gt;&lt;code&gt;NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;authors&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix,  n = 50, Title = &amp;quot;Author collaboration&amp;quot;,type = &amp;quot;auto&amp;quot;, size=5,size.cex=T,edgesize = 5,labelsize=1, community.repulsion = 0.1)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-16-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-16-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also plot an institution collaboration network to examine
 collaboration pattern between institutions as well.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;universities&amp;quot;, sep = &amp;quot;;&amp;quot;)
 net=networkPlot(NetMatrix,  n = 50, Title = &amp;quot;Institution collaboration&amp;quot;,type = &amp;quot;auto&amp;quot;, size=4,size.cex=F,edgesize = 3,labelsize=1, community.repulsion = 0.05)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-17-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-17-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Lastly, we can examine collaboration pattern at international level
 with country collaboration network. This analysis shows countries that
@@ -1559,7 +1166,7 @@ the plot.&lt;/li&gt;
 NetMatrix &amp;lt;- biblioNetwork(country, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;countries&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix,  n = dim(NetMatrix)[1], Title = &amp;quot;Country collaboration&amp;quot;,type = &amp;quot;circle&amp;quot;, size=10,size.cex=T,edgesize = 1,labelsize=0.6, cluster=&amp;quot;none&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file3da016543ce3_files/figure-html/unnamed-chunk-18-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-18-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="concluding-remarks"&gt;Concluding remarks&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;What I like about bibliometric analysis is that it examines the
