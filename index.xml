@@ -7,7 +7,714 @@
     <description>Welcome to my data science blog!
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Fri, 08 Dec 2023 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 15 Dec 2023 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Exploring Nature's 2023 postdoc survey with predictive modeling and NLP</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2023-12-10-naturepostdoc</link>
+      <description>
+
+
+&lt;h1 id="introduction"&gt;Introduction&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Hi Everyone. I have got some time during the winter break to
+write another post. I came across Nature’s postdoc 2023 survey, which is
+a series of articles published by Nature to examine the situation of
+postdoctoral researchers such as their &lt;a
+href="https://www.nature.com/articles/d41586-023-03163-7"&gt;post-pandemic
+well being&lt;/a&gt;, their &lt;a
+href="https://www.nature.com/articles/d41586-023-03235-8"&gt;use of
+artificial intelligence chatbot&lt;/a&gt; such as ChatGPT, and their &lt;a
+href="https://www.nature.com/articles/d41586-023-03296-9"&gt;career
+outlook&lt;/a&gt;. The general impression I got is that postdoc researchers
+are pressured to secure fundings and stable jobs, despite their high
+educational level. &lt;a
+href="https://www.nature.com/articles/d41586-023-02848-3"&gt;Some of them
+event went on strike&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Aside from postdoc, I also came across some articles discussing
+the prospect of early career researchers who earned their Ph.D and got
+into a faculty position, &lt;a
+href="10.1080/02680939.2023.2288339"&gt;'Academics without publications are
+just like imperial concubines without sons': the 'new times' of Chinese
+higher education&lt;/a&gt;. The paper highlights how the publish or perish
+culture drives researchers to produce as much research works as possible
+to earn job security as a tenure professor; This status quo reflects the
+state of perpetual competition (dubbed as “academic hunger games”) that
+threatens mental health and work-life balance or early career
+researchers.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;As discussed in van Dalen (2020)‘s paper titled “&lt;a
+href="https://doi.org/10.1007/s11192-020-03786-x"&gt;How the
+publish-or-perish principle divides a science: the case of
+economists&lt;/a&gt;”, while the publish or perish culture promotes academics’
+rank and position, its serious drawbacks include the excessive number of
+papers that are hardly read, makes researchers turn their back on
+national issues as they focus on publishing, and increases the
+probability of unethical behavior like fraud or data
+manipulation.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;It is interesting how Nature &lt;a
+href="https://figshare.com/articles/dataset/Nature_Post-Doctoral_Survey_2023/24236875"&gt;made
+available their dataset from their 2023 postdoc survey&lt;/a&gt;. Taking what
+I learned from Nature’s postdoc 2023 survey and articles around the
+publish or perish culture, I think it could be interesting to explore
+factors that influence postdoctoral researchers’ perspective to career
+in scientific research with predictive modeling and natural language
+processing. The data set as 89 variables, including both numerical and
+textual data. I divided the dataset into a numerical dataset for
+predictive machine learning model, and a textual dataset for the
+follow-up natural language processing analysis. The data was cleaned in
+R, but I will be using Python in this post.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;import pandas as pd
+import numpy as np
+import sweetviz
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+#Read the data set
+df = pd.read_csv(&amp;quot;postdoc_processed.csv&amp;quot;, encoding = &amp;quot;ISO-8859-1&amp;quot;) #For prediction task
+
+df_text = df[[&amp;#39;HOWEMPLOYED&amp;#39;, &amp;#39;EMPLOYSTATUS&amp;#39;, &amp;#39;WHYMOVE&amp;#39;, &amp;#39;WHYEXPCT&amp;#39;,
+                     &amp;#39;WHYINCREASE&amp;#39;, &amp;#39;WHYDECREASE&amp;#39;, &amp;#39;WHYSECONDJOB&amp;#39;, &amp;#39;DISCRIMCAT&amp;#39;,
+                     &amp;#39;DISCRIMPER&amp;#39;, &amp;#39;DISCRIMOBSCAT&amp;#39;, &amp;#39;CHALLENGE&amp;#39;, &amp;#39;LACKEDSKILLS&amp;#39;,
+                     &amp;#39;REFLECT&amp;#39;, &amp;#39;CONTINENT&amp;#39;, &amp;#39;COUNTRY&amp;#39;, &amp;#39;AGE&amp;#39;,
+                     &amp;#39;GENDER&amp;#39;, &amp;#39;RACE&amp;#39;]]
+                     
+df_reflect = df_text.dropna(subset=[&amp;#39;REFLECT&amp;#39;]) #For NLP&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;As always, we need to import packages and dataset into the
+environment.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="data-exploration"&gt;Data exploration&lt;/h1&gt;
+&lt;pre class="python"&gt;&lt;code&gt;#Read the data set
+df = pd.read_csv(&amp;quot;postdoc_prediction_cleaned.csv&amp;quot;, encoding = &amp;quot;ISO-8859-1&amp;quot;)
+
+# Use the analyze function to perform EDA
+analyze_df = sweetviz.analyze(df, target_feat = &amp;quot;REGRET&amp;quot;)
+
+# Render and show the results of EDA
+analyze_df.show_html(&amp;quot;analyze.html&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocsweetviz.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;I used the &lt;a
+href="https://pypi.org/project/sweetviz/"&gt;&lt;code&gt;sweetviz&lt;/code&gt;&lt;/a&gt;
+package in Python to generate a report on exploratory data analysis as
+seen above. The targeted variable is named &lt;code&gt;REGRET&lt;/code&gt;, which is
+respondents’ answer to a question of “Would you recommend to your
+younger self that you pursue a career in scientific research?”. The
+answer are either 1 (Yes) or 0 (No). As seen from the data exploration
+report, both yes and no have similar proportion.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="predicting-regret-in-postdoc"&gt;Predicting regret in postdoc&lt;/h1&gt;
+&lt;h2 id="feature-selection"&gt;Feature selection&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Given that we have 66 variables (65 predictors and 1 targeted
+variable), it could be useful to perform feature selection to filter out
+variables that may not be useful for the predictive analysis. We will be
+using recursive feature elimination with cross validation to fit a model
+and remove weakest predictors until the optimal performance score is
+reached. I am setting the &lt;code&gt;RFECV&lt;/code&gt; with a default Random
+forest classification model, with minimum feature number == 20, and
+using “roc_auc” as the performance metric.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import RFECV
+from sklearn.model_selection import train_test_split, RandomizedSearchCV, StratifiedKFold
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import cross_val_score&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;X = df.drop(&amp;#39;REGRET&amp;#39;, axis=1)
+y = df[&amp;#39;REGRET&amp;#39;]
+
+# Perform train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize the RandomForestClassifier
+rf_classifier = RandomForestClassifier(random_state=123)
+
+# Initialize the RFECV
+rfecv_model = RFECV(estimator=rf_classifier, 
+                    step=1, cv=5, 
+                    scoring=&amp;#39;roc_auc&amp;#39;, 
+                    min_features_to_select=20)
+
+rfecv = rfecv_model.fit(X_train, y_train)
+
+print(&amp;#39;Optimal number of features :&amp;#39;, rfecv.n_features_)
+print(&amp;#39;Best features by RFECV with random forest:&amp;#39;, X_train.columns[rfecv.support_])&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocRFECV.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;As shown above, the algorithm selected 63 features to be used as
+predictors. Next, we will tune the model for optimal prediction
+result.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;X_train_reduced = X_train[[&amp;#39;POSTDOCNATIVE&amp;#39;, &amp;#39;POSTDOCMOVE&amp;#39;, &amp;#39;FIRSTPOSTDOC&amp;#39;, &amp;#39;PREVPOSTDOC&amp;#39;,
+       &amp;#39;POSTDOCEXPCT&amp;#39;, &amp;#39;CAREERSECTOR&amp;#39;, &amp;#39;SALARY&amp;#39;, &amp;#39;SALARYCHANGE&amp;#39;, &amp;#39;PAIDVACAY&amp;#39;,
+       &amp;#39;PAIDSICK&amp;#39;, &amp;#39;INSURANCE&amp;#39;, &amp;#39;PENSION&amp;#39;, &amp;#39;PARENTLEAVE&amp;#39;, &amp;#39;CHILDCARE&amp;#39;,
+       &amp;#39;BECOMEPARENT&amp;#39;, &amp;#39;DEBT&amp;#39;, &amp;#39;SAVING&amp;#39;, &amp;#39;SAVINGPROBLEM&amp;#39;, &amp;#39;WKHOURS&amp;#39;,
+       &amp;#39;OVERTIME&amp;#39;, &amp;#39;OVERNIGHT&amp;#39;, &amp;#39;WEEKENDWK&amp;#39;, &amp;#39;POSTDOCVACANCY&amp;#39;, &amp;#39;SATCHANGE&amp;#39;,
+       &amp;#39;SATSALARY&amp;#39;, &amp;#39;SATWELLNESS&amp;#39;, &amp;#39;SATFUNDING&amp;#39;, &amp;#39;SATTIME&amp;#39;, &amp;#39;SATCAREER&amp;#39;,
+       &amp;#39;SATTRAINING&amp;#39;, &amp;#39;SATJOBSCURITY&amp;#39;, &amp;#39;SATOPT&amp;#39;, &amp;#39;SATSUPERVISE&amp;#39;, &amp;#39;SATORG&amp;#39;,
+       &amp;#39;SATDECISION&amp;#39;, &amp;#39;SATWLB&amp;#39;, &amp;#39;SATWKHOURS&amp;#39;, &amp;#39;SATINTEREST&amp;#39;, &amp;#39;SATACCOM&amp;#39;,
+       &amp;#39;SATRELATION&amp;#39;, &amp;#39;SATINDE&amp;#39;, &amp;#39;SATRECOG&amp;#39;, &amp;#39;SATSAFETY&amp;#39;, &amp;#39;SATDIVERSE&amp;#39;,
+       &amp;#39;SUPERVISETIME&amp;#39;, &amp;#39;DISCRIMEXP&amp;#39;, &amp;#39;DISCRIMOBS&amp;#39;, &amp;#39;NEEDMHHELP&amp;#39;,
+       &amp;#39;AGREEMHSUPP&amp;#39;, &amp;#39;AGREEDIRECTSUPP&amp;#39;, &amp;#39;AGREEWKSUPP&amp;#39;, &amp;#39;AGREEWLB&amp;#39;,
+       &amp;#39;AGREELNGWK&amp;#39;, &amp;#39;MHLEAVESCI&amp;#39;, &amp;#39;BLIVGENDEREQ&amp;#39;, &amp;#39;BLIVETHEQ&amp;#39;, &amp;#39;BLIVSAFETY&amp;#39;,
+       &amp;#39;BLIVDIGNITY&amp;#39;, &amp;#39;JOBPRSPCT&amp;#39;, &amp;#39;PRSPCTCHNGE&amp;#39;, &amp;#39;POSTDOCLEAVE&amp;#39;, &amp;#39;MINORITY&amp;#39;,
+       &amp;#39;LTHEALTHPROB&amp;#39;]]
+
+X_test_reduced = X_test[[&amp;#39;POSTDOCNATIVE&amp;#39;, &amp;#39;POSTDOCMOVE&amp;#39;, &amp;#39;FIRSTPOSTDOC&amp;#39;, &amp;#39;PREVPOSTDOC&amp;#39;,
+       &amp;#39;POSTDOCEXPCT&amp;#39;, &amp;#39;CAREERSECTOR&amp;#39;, &amp;#39;SALARY&amp;#39;, &amp;#39;SALARYCHANGE&amp;#39;, &amp;#39;PAIDVACAY&amp;#39;,
+       &amp;#39;PAIDSICK&amp;#39;, &amp;#39;INSURANCE&amp;#39;, &amp;#39;PENSION&amp;#39;, &amp;#39;PARENTLEAVE&amp;#39;, &amp;#39;CHILDCARE&amp;#39;,
+       &amp;#39;BECOMEPARENT&amp;#39;, &amp;#39;DEBT&amp;#39;, &amp;#39;SAVING&amp;#39;, &amp;#39;SAVINGPROBLEM&amp;#39;, &amp;#39;WKHOURS&amp;#39;,
+       &amp;#39;OVERTIME&amp;#39;, &amp;#39;OVERNIGHT&amp;#39;, &amp;#39;WEEKENDWK&amp;#39;, &amp;#39;POSTDOCVACANCY&amp;#39;, &amp;#39;SATCHANGE&amp;#39;,
+       &amp;#39;SATSALARY&amp;#39;, &amp;#39;SATWELLNESS&amp;#39;, &amp;#39;SATFUNDING&amp;#39;, &amp;#39;SATTIME&amp;#39;, &amp;#39;SATCAREER&amp;#39;,
+       &amp;#39;SATTRAINING&amp;#39;, &amp;#39;SATJOBSCURITY&amp;#39;, &amp;#39;SATOPT&amp;#39;, &amp;#39;SATSUPERVISE&amp;#39;, &amp;#39;SATORG&amp;#39;,
+       &amp;#39;SATDECISION&amp;#39;, &amp;#39;SATWLB&amp;#39;, &amp;#39;SATWKHOURS&amp;#39;, &amp;#39;SATINTEREST&amp;#39;, &amp;#39;SATACCOM&amp;#39;,
+       &amp;#39;SATRELATION&amp;#39;, &amp;#39;SATINDE&amp;#39;, &amp;#39;SATRECOG&amp;#39;, &amp;#39;SATSAFETY&amp;#39;, &amp;#39;SATDIVERSE&amp;#39;,
+       &amp;#39;SUPERVISETIME&amp;#39;, &amp;#39;DISCRIMEXP&amp;#39;, &amp;#39;DISCRIMOBS&amp;#39;, &amp;#39;NEEDMHHELP&amp;#39;,
+       &amp;#39;AGREEMHSUPP&amp;#39;, &amp;#39;AGREEDIRECTSUPP&amp;#39;, &amp;#39;AGREEWKSUPP&amp;#39;, &amp;#39;AGREEWLB&amp;#39;,
+       &amp;#39;AGREELNGWK&amp;#39;, &amp;#39;MHLEAVESCI&amp;#39;, &amp;#39;BLIVGENDEREQ&amp;#39;, &amp;#39;BLIVETHEQ&amp;#39;, &amp;#39;BLIVSAFETY&amp;#39;,
+       &amp;#39;BLIVDIGNITY&amp;#39;, &amp;#39;JOBPRSPCT&amp;#39;, &amp;#39;PRSPCTCHNGE&amp;#39;, &amp;#39;POSTDOCLEAVE&amp;#39;, &amp;#39;MINORITY&amp;#39;,
+       &amp;#39;LTHEALTHPROB&amp;#39;]]&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="hyperparameter-tuning"&gt;Hyperparameter Tuning&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;I tuned the model with &lt;code&gt;RandomizedSearchCV&lt;/code&gt; to randomly
+search the search space of hyperparameter value for the combinnation of
+hyperparameter that yields the best result. I am tuning n_estimators,
+max_depth, min_samples_leaf, and min_samples_split with five folds
+cross-validation, using accuracy as the performance metric.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Define the hyperparameter grid to search
+param_grid = {
+    &amp;#39;n_estimators&amp;#39;: [50, 100, 200],
+    &amp;#39;max_depth&amp;#39;: [None, 10, 20, 30],
+    &amp;#39;min_samples_split&amp;#39;: [2, 5, 10],
+    &amp;#39;min_samples_leaf&amp;#39;: [1, 2, 4]
+}
+
+# Initialize RandomizedSearchCV with the classifier, hyperparameter grid, and cross-validation
+random_search = RandomizedSearchCV(
+    rf_classifier,
+    param_distributions=param_grid,
+    n_iter=10,  # Adjust the number of iterations as needed
+    scoring=&amp;#39;accuracy&amp;#39;,
+    cv=5,
+    random_state=42
+)
+
+# Fit the randomized search on the selected features
+random_search.fit(X_train_reduced, y_train)
+
+# Get the best hyperparameters
+best_params = random_search.best_params_
+print(&amp;quot;Best Hyperparameters:&amp;quot;, best_params)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocBestparam.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;As shown above, the best hyperparameter values are: n_estimators =
+100, min_samples_split = 5, min_samples_leaf = 2, max_depth = 20. Let’s
+plug the number in and evaluate the model performance.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="model-evaluation"&gt;Model evaluation&lt;/h2&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Initialize the RandomForestClassifier
+rf_classifier_tuned = RandomForestClassifier(n_estimators = 100, min_samples_split = 5, min_samples_leaf = 2, max_depth = 20, random_state=123)
+
+rf_classifier_tuned.fit(X_train_reduced, y_train)
+rfc_tuned_predict = rf_classifier_tuned.predict(X_test_reduced)
+rfc_tuned_cv_score = cross_val_score(rf_classifier_tuned, X_test_reduced, y_test, cv=5, scoring=&amp;#39;roc_auc&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+from sklearn.metrics import mean_squared_error
+from math import sqrt
+from sklearn import metrics
+
+#%% Evaluate the tuned RF
+
+print(&amp;quot;=== Confusion Matrix ===&amp;quot;)
+print(confusion_matrix(y_test, rfc_tuned_predict))
+print(&amp;#39;\n&amp;#39;)
+
+print(&amp;quot;=== Classification Report ===&amp;quot;)
+print(classification_report(y_test, rfc_tuned_predict))
+print(&amp;#39;\n&amp;#39;)
+
+print(&amp;quot;=== All AUC Scores ===&amp;quot;)
+print(rfc_tuned_cv_score)
+print(&amp;#39;\n&amp;#39;)
+
+print(&amp;quot;=== Mean AUC Score ===&amp;quot;)
+print(&amp;quot;Mean AUC Score - Random Forest: &amp;quot;, rfc_tuned_cv_score.mean())
+
+
+#Accuracy of the tuned RF: test data
+print(&amp;quot;accuracy score of the test set for tuned RF&amp;quot;, rf_classifier_tuned.score(X_test_reduced, y_test))
+
+#Root mean square error
+mse_rfc_tuned = mean_squared_error(y_test, rfc_tuned_predict)
+rmse_rfc_tuned = sqrt(mse_rfc_tuned)
+
+
+print(&amp;#39;RMSE of tuned RF = &amp;#39;, rmse_rfc_tuned)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocModel_eval.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Based on five-fold cross validation, the mean AUC score is 0.74,
+accuracy of the test dataset = 0.70, and RMSE = 0.54. Not ideal, but not
+too bad. Let’s generate an ROC curve based on the prediction
+result.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;#define metrics for tuned RFC
+y_pred_proba_tuned_rf = rf_classifier_tuned.predict_proba(X_test_reduced)[::,1]
+fpr_tuned_rf, tpr_tuned_rf, _ = metrics.roc_curve(y_test,  y_pred_proba_tuned_rf)
+
+auc_tuned_rf = metrics.roc_auc_score(y_test, y_pred_proba_tuned_rf)
+
+#create ROC curve
+plt.plot(fpr_tuned_rf, tpr_tuned_rf, label=&amp;quot;Tuned AUC for RF=&amp;quot;+str(auc_tuned_rf.round(3)))
+
+plt.legend(loc=&amp;quot;lower right&amp;quot;)
+
+plt.ylabel(&amp;#39;True Positive Rate&amp;#39;)
+plt.xlabel(&amp;#39;False Positive Rate&amp;#39;)
+
+# displaying the title
+plt.title(&amp;quot;ROC of Tuned RF&amp;quot;)
+
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocroc_auc.png" /&gt;&lt;/p&gt;
+&lt;h2 id="explaining-the-classification-results-with-xai"&gt;Explaining the
+classification results with XAI&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;It is one thing to develop a classification model, but it is another
+thing to try to explain it. Let’s produce feature importance plot of the
+model to examine for influential predictors.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;#%% Feature importance report of the tuned RF
+
+# Create a pd.Series of features importances
+importances_rf = pd.Series(rf_classifier_tuned.feature_importances_, index = X_test_reduced.columns)
+
+# Sort importances_rf
+sorted_importance_rf = importances_rf.sort_values()
+
+#Horizontal bar plot
+plt.figure(figsize=(8, 20))
+
+sorted_importance_rf.plot(kind=&amp;#39;barh&amp;#39;, color=&amp;#39;lightgreen&amp;#39;);
+plt.xlabel(&amp;#39;Feature Importance Score&amp;#39;)
+plt.ylabel(&amp;#39;Features&amp;#39;)
+plt.title(&amp;quot;Visualizing Important Features&amp;quot;)
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocfeature_importance.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;From the plot above, the four most influential predictors are as
+follows:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;MHLEAVESCI&lt;/strong&gt;: Have you considered leaving science
+because of depression, anxiety, or other mental health concerns related
+to your work? (0 = No 1 = Yes).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;JOBPRSPCT&lt;/strong&gt;: How do you feel about your future job
+prospects? (1 = Extremely negative 2 = Somewhat negative 3 = Neither
+positive nor negative&lt;br /&gt;
+4 = Somewhat positive 5 = Extremely positive)&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;SATCAREER&lt;/strong&gt;: Thinking about your current postdoc,
+how satisfied are you with the following? -Career advancement
+opportunities. (1 = extremely dissatisfied 4 = neither satisfied nor
+dissatisfied 7 = extremely satisfied).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;SATCHANGE&lt;/strong&gt;: In the past year would you say your
+level of satisfaction has… (1 = Significantly worsened 2 = Worsened a
+little 3 = Stayed the same 4 = Improved a little 5 = Significantly
+improved).&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Let’s try explaining it further with &lt;a
+href="https://dalex.drwhy.ai/"&gt;DALEX&lt;/a&gt;: moDel Agnostic Language for
+Exploration and eXplanation (&lt;a
+href="http://jmlr.org/papers/v22/20-1473.html"&gt;Baniecki et al.,
+2021&lt;/a&gt;). We will use partial dependence plot (PDP), breakdown plot,
+and SHapley Additive exPlanations (SHAP) plot to explain the
+prediction.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;import dalex as dx
+
+#we created an explainer with dalex package
+exp = dx.Explainer(rf_classifier_tuned, X_test_reduced, y_test)
+
+# PDP profile for surface and construction.year variable
+RF_mprofile = exp.model_profile(variables = [&amp;quot;MHLEAVESCI&amp;quot;, &amp;quot;JOBPRSPCT&amp;quot;, &amp;quot;SATCAREER&amp;quot;, &amp;quot;SATCHANGE&amp;quot;] , type = &amp;quot;partial&amp;quot;)
+
+# comparison for random forest and linear regression model
+RF_mprofile.plot()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocpartial_dep_plot.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a
+href="https://medium.com/responsibleml/basic-xai-with-dalex-part-3-partial-dependence-profile-caf8b2ad1c9d"&gt;The
+PDP plot&lt;/a&gt; above shows that MHLEAVESCI has negative influence to the
+prediction, meaning that individuals who respond 1 (considered leaving
+science because of mental health concerns) are more likely to have the
+negative outcome (not recommend their younger self to pursue a career in
+scientific research).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The other three predictors show positive influence to the
+prediction, meaning that the more positive the individual feels about
+their job prospect, their career advancement opportunities, and their
+overall level of satisfaction in the past year, the more likely for them
+to have the positive outcome (recommend their younger self to pursue a
+career in scientific research).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;We can further explore the prediction in instances of positive
+and negative cases. Positive case means post doctoral researchers who
+answered 1 in their targeted variable (recommend their younger self to
+pursue a career in scientific research) while the negative case answered
+the targeted variable otherwise. We will use &lt;a
+href="https://medium.com/responsibleml/basic-xai-with-dalex-part-4-break-down-method-2cd4de43abdd"&gt;breakdown
+plot&lt;/a&gt; and &lt;a
+href="https://medium.com/responsibleml/basic-xai-with-dalex-part-5-shapley-values-85ceb4b58c99"&gt;SHAP
+plot&lt;/a&gt; to explore the prediction of each individual case.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3
+id="negative-case-not-recommend-younger-self-for-research-career"&gt;Negative
+case: Not recommend younger self for research career&lt;/h3&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Break Down for apartment observation
+rf_pparts = exp.predict_parts(new_observation = X_test_reduced.iloc[202], type = &amp;quot;break_down&amp;quot;)
+
+# plot Break Down
+rf_pparts.plot()&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Case No: 1176. This person regrets going into postdoc.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocnegative_breakdown.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We can see that factors such as SATSOBSECURITY (Thinking about your
+current postdoc, how satisfied are you with the following? -Job
+security) and POSTDOCEXPCT (How does being a postdoc meet your original
+expectations?) pushed the prediction to the positive side. However,
+other predictors were dragging the prediction down. Let’s explore it
+further with the SHAP plot.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Break Down for apartment observation
+rf_pparts_shap = exp.predict_parts(new_observation = X_test_reduced.iloc[202], type = &amp;quot;shap&amp;quot;)
+
+# plot Break Down
+rf_pparts_shap.plot()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocnegative_shap.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;This person considered leaving science because of mental health
+concerns (MHLEAVESCI == 1), as well as considering the overall level of
+satisfaction in the past year as significantly worsened. Other factors
+such as feeling about job prospect (JOBPRSPCT) and career satisfaction
+(SATCAREER) also contributed negatively to the prediction outcome as
+well.&lt;/li&gt;
+&lt;li&gt;To investigate further into the case, there is a question that asked
+the respondent to reflect on themselves about their postdoctoral
+researcher career (With the benefit of hindsight, what one thing do you
+know now which you wish you’d known about before starting work as a when
+you started postdoc?). This is their response:
+&lt;ul&gt;
+&lt;li&gt;“I wish I’d known that I will, in any case, need to basically invent
+my own career path. Creativity, entrepreneurship, research, writing.
+That I’m not satisfied being an employee and that academic jobs
+basically don’t exist. I might have advised myself to make a different,
+more self-directed plan”&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Now that we have learned about a negative case. Let’s explore a
+positive case.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3
+id="positive-case-still-recommend-younger-self-for-research-career"&gt;Positive
+case: Still recommend younger self for research career&lt;/h3&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Break Down for apartment observation
+rf_pparts = exp.predict_parts(new_observation = X_test_reduced.iloc[6], type = &amp;quot;break_down&amp;quot;)
+
+# plot Break Down
+rf_pparts.plot()&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Case No: 219. This person does not regret going into postdoc&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocpositive_breakdown.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We can see that factors such as MHLEAVESCI (considered leaving
+science because of mental health concerns) and SATCAREER (Satisfaction
+about career advancement) pushed the prediction to the positive side
+despite having some other predictors dragging the outcome variable
+down.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Break Down for apartment observation
+rf_pparts_shap = exp.predict_parts(new_observation = X_test_reduced.iloc[6], type = &amp;quot;shap&amp;quot;)
+
+# plot Break Down
+rf_pparts_shap.plot()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocpositive_shap.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The SHAP plot reveals that variables that negatively influence the
+prediction are SATSALARY (satisfaction with one’s salary/compensation)
+and JOBPRSPCT (feeling about future job prospect). However, there is a
+lot of predictors that push the prediction to the positive side. Some of
+them are satisfaction on work-life-balance (SATWLB) and satisfaction on
+one’s total work hour (SATWKHOURS). This is their reflection on their
+postdoc career:
+&lt;ul&gt;
+&lt;li&gt;“Amount of work will not correspond to new findings - so you need to
+learn to choose which ideas to pursue.”&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;The reflection on this case seems to be more neutral compared to
+that of the negative case. If we explore further into this variable, we
+may be able to learn something. We will use NLP to explore themes and
+topics of respondents’ reflection on their postdoctoral researcher
+career.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="examining-written-response-with-nlp"&gt;Examining written response
+with NLP&lt;/h1&gt;
+&lt;h2 id="exploring-textual-data"&gt;Exploring textual data&lt;/h2&gt;
+&lt;pre class="python"&gt;&lt;code&gt;df_text[&amp;#39;REFLECT&amp;#39;]&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocdf_text_reflect.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We already extracted the variable earlier in the post. Not everybody
+wrote a reflection. The missing response is coded as &lt;em&gt;NaN&lt;/em&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="wordcloud"&gt;Wordcloud&lt;/h2&gt;
+&lt;pre class="python"&gt;&lt;code&gt;from wordcloud import WordCloud, STOPWORDS
+
+# Custom stopwords
+custom_stopwords = [&amp;quot;post doc&amp;quot;, &amp;quot;doc&amp;quot;, &amp;quot;nan&amp;quot;, &amp;quot;don&amp;quot;, &amp;quot;phd&amp;quot;, &amp;quot;postdoc&amp;quot;]
+
+# Concatenate all text data in the &amp;#39;REFLECT&amp;#39; column
+text_data = &amp;#39; &amp;#39;.join(df_reflect[&amp;#39;REFLECT&amp;#39;])
+
+# Remove English stopwords and custom stopwords
+stopwords = set(STOPWORDS)
+stopwords.update(custom_stopwords)
+
+# Create a WordCloud object with specified stopwords
+wordcloud = WordCloud(width=800, height=400, background_color=&amp;#39;white&amp;#39;, stopwords=stopwords).generate(text_data)
+
+# Display the word cloud using matplotlib
+plt.figure(figsize=(10, 5))
+plt.imshow(wordcloud, interpolation=&amp;#39;bilinear&amp;#39;)
+plt.axis(&amp;#39;off&amp;#39;)  # Turn off axis numbers and ticks
+plt.show()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdoccloud_overall.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Here is the frequency-based visualization of word cloud. Some of the
+prominent words are “Research”, “work”, “time”. Let’s explore it further
+with Term Frequency - Inverse Document Frequency (TF-IDF), which
+measures word importance based on its relative frequency.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="common-word"&gt;Common word&lt;/h2&gt;
+&lt;pre class="python"&gt;&lt;code&gt;def plot_10_most_common_words(count_data, tfidf_vectorizer):
+    import matplotlib.pyplot as plt
+    words = tfidf_vectorizer.get_feature_names()
+    total_counts = np.zeros(len(words))
+    for t in count_data:
+        total_counts += t.toarray()[0]
+    
+    count_dict = (zip(words, total_counts))
+    count_dict = sorted(count_dict, key=lambda x: x[1], reverse=True)[0:10]
+    words = [w[0] for w in count_dict]
+    counts = [w[1] for w in count_dict]
+    x_pos = np.arange(len(words)) 
+
+    plt.bar(x_pos, counts, align=&amp;#39;center&amp;#39;)
+    plt.xticks(x_pos, words, rotation=90) 
+    plt.xlabel(&amp;#39;Words&amp;#39;)
+    plt.ylabel(&amp;#39;Counts&amp;#39;)
+    plt.title(&amp;#39;10 Most Common Words&amp;#39;)
+    plt.show()
+    
+# Custom stopwords, including your own stopwords
+custom_stopwords = set([&amp;quot;post doc&amp;quot;, &amp;quot;doc&amp;quot;, &amp;quot;nan&amp;quot;, &amp;quot;don&amp;quot;, &amp;quot;phd&amp;quot;, &amp;quot;postdoc&amp;quot;])
+
+# Combine standard English stopwords with custom stopwords
+stopwords = set(text.ENGLISH_STOP_WORDS).union(custom_stopwords)
+
+# Handle NaN values by filling them with an empty string
+df_text[&amp;#39;REFLECT&amp;#39;] = df_text[&amp;#39;REFLECT&amp;#39;].fillna(&amp;#39;&amp;#39;)
+
+# Initialize the count vectorizer with the English stop words
+tfidf_vectorizer = TfidfVectorizer(stop_words=stopwords)
+
+# Fit and transform the processed titles
+count_data = tfidf_vectorizer.fit_transform(df_text[&amp;#39;REFLECT&amp;#39;])
+
+# Visualize the 10 most common words
+plot_10_most_common_words(count_data, tfidf_vectorizer)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdoc10_most_common_words.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;These are the 10 most common words from the respondents’ reflection.
+Postdoc research position is a job, so it is not surprising to see words
+such as “work”, “academic”, and “lab”. I want to see what the topic will
+be like if I divided the dataset by positive and negative cases. Next, I
+will use Latent Dirichlet allocation (LDA) topic modeling to extract
+themes from respondents’ reflection.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="topic-modeling"&gt;Topic modeling&lt;/h2&gt;
+&lt;h3
+id="negative-case-not-recommend-younger-self-for-research-career-1"&gt;Negative
+case: Not recommend younger self for research career&lt;/h3&gt;
+&lt;pre class="python"&gt;&lt;code&gt;from sklearn.feature_extraction import text
+import pyLDAvis
+import pyLDAvis.sklearn
+pyLDAvis.enable_notebook()
+
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.decomposition import LatentDirichletAllocation
+
+custom_stopwords = [&amp;quot;post doc&amp;quot;, &amp;quot;doc&amp;quot;, &amp;quot;nan&amp;quot;, &amp;quot;don&amp;quot;, &amp;quot;phd&amp;quot;, &amp;quot;postdoc&amp;quot;]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# Custom stopwords, including your own stopwords
+custom_stopwords = set([&amp;quot;post doc&amp;quot;, &amp;quot;doc&amp;quot;, &amp;quot;nan&amp;quot;, &amp;quot;don&amp;quot;, &amp;quot;phd&amp;quot;])
+
+# Combine standard English stopwords with custom stopwords
+stopwords = set(text.ENGLISH_STOP_WORDS).union(custom_stopwords)
+
+tf_vectorizer = CountVectorizer(strip_accents=&amp;#39;unicode&amp;#39;,
+                                stop_words=stopwords,
+                                lowercase=True,
+                                token_pattern=r&amp;#39;\b[a-zA-Z]{3,}\b&amp;#39;,
+                                ngram_range=(1, 2),
+                                max_df=0.5,
+                                min_df=10)
+
+dtm_tf = tf_vectorizer.fit_transform(df_text[&amp;#39;REFLECT&amp;#39;].values.astype(&amp;#39;U&amp;#39;))
+
+tfidf_vectorizer = TfidfVectorizer(**tf_vectorizer.get_params())
+dtm_tfidf = tfidf_vectorizer.fit_transform(df_text[&amp;#39;REFLECT&amp;#39;].values.astype(&amp;#39;U&amp;#39;))
+
+# for TF DTM
+lda_tf = LatentDirichletAllocation(n_components=5, random_state=0)
+lda_tf.fit(dtm_tf)
+
+# for TFIDF DTM
+lda_tfidf = LatentDirichletAllocation(n_components=5, random_state=0)
+lda_tfidf.fit(dtm_tfidf)
+
+pyLDAvis.sklearn.prepare(lda_tf, dtm_tf, tf_vectorizer)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdoclda_regret0.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;From visual inspection,there are two topics that seem to be close.
+Other topics seem distinct on their own. Let’s extract the word from the
+LDA results.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="python"&gt;&lt;code&gt;for i,topic in enumerate(lda_tf.components_):
+    print(f&amp;#39;Top 10 words for topic #{i}:&amp;#39;)
+    print([tf_vectorizer.get_feature_names_out()[i] for i in topic.argsort()[-10:]])
+    print(&amp;#39;\n&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdoclda_regret0_words.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Most topics are about work in academia and research, with topic 0
+and 2 that are different. Topic 0 seems to be about concerns for
+resources such as time and funding. Topic 2 seems to be about financial
+matter such as cost of living and salary. Some excerpts from
+respondents’ reflection are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;“Mostly, I would advise my past self to choose a different PI and
+lab for my postdoc. Beyond that, I wish had known about the cost of
+doing a postdoc in terms of lost income potential relative to other
+careers, and the reality of how few academic jobs there are in my
+field.”&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;“High degree of competitiveness, low salaries, strenuous hours,
+publish or perish, excessive stress, no psychological support, salary
+relationship with respect to the degree of studies/specialization with
+respect to other jobs”&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;“Wish I was aware of lack of support system for Postdocs. Beyond
+publishing our work, there is no other way of measuring ones caliber in
+science. It also depends of how well known the PI is. I also wish I had
+a better insight into how low the salary and other benefits are. Above
+all I wish I had known the difficulty and lack of available positions in
+academia to be pursued.”&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;“I wish that they were teaching us more that working in academia
+means never having job security. I wish that I knew that there is not
+enough jobs and that only way to land a permanent job in academia is to
+become a professor.”&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;“Science is not valued as it should be. Job prospects and
+opportunities have gotten worse. And most importantly the salary as post
+doc doesn’t help you make the ends meet at all. Post doc and academia
+only work for those who have lots of savings and strong financial
+ability to be underpaid for years of post doc until they build up their
+resume and publish sufficient amount of papers without having to think
+about financial problems.”&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;“There is a wealth of research possible in industry, that pays
+better, is organized better, and allows you to do MORE research, less
+beauracracy and teaching, working with real professionals, is goal
+oriented, not article oriented, and allows you to maintain a work life
+balance, have time for a partner, family, a house, and
+retirement.”&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3
+id="positive-case-still-recommend-younger-self-for-research-career-1"&gt;Positive
+case: Still recommend younger self for research career&lt;/h3&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdoclda_regret1.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Visual inspection of reflections from positive respondent cases show
+similar results to those from negative cases. There are five topics, but
+two of them (3 and 1) seem to considerably overlap.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdoclda_regret1_words.png" /&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Wordings of the topics seem to be similar to the negative case
+results as well. However, topic 4 is different from results from
+negative cases as it discusses about balancing the task and
+responsibility (e.g., work, project, writing). This is not shown from
+the negative case dataset. Some excerpts from respondents’ reflection
+are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;“Personal enthusiasm and expectations for academic research will
+decline rapidly at a certain time, and good habits need to be developed
+to resist the frustration brought about by the decline in enthusiasm and
+physical strength; to exercise writing skills; to balance family and
+research, and to Research can always help yourself, but family doesn’t
+necessarily”&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;“Although I would still pursue a career in science, I would
+definitely not waste the years I have spent in my postdoc and rather
+head straight for industry job after my PhD. I am already miles behind
+in terms of salary and growth compared to my peers who went straight to
+industry after their degrees.”&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;“Having a better saving culture, work/family time balance, and
+having participated more in financing processes or acquiring
+scholarships, etc.”&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;“Everyone is going to be working just as hard as you, the best
+you can do is to do good science, follow your interests, and pursue
+every potential opportunity for funding and development.”&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;“Publishing in high impact journals is not as awarding as having
+a great life-work balance. Reach out and accept help and initiate
+collaborations.”&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;“You will have way less time for bench research because you will
+be writing fellowships/grants, spending time for committee service, and
+mentoring compared to when in grad school.”&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="concluding-remark"&gt;Concluding remark&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;In concluding, the data analysis methods discussed in this post,
+while not novel (as I’ve previously posted about them), reveal an
+intriguing aspect—how their combination can offer insights into a
+subject. The findings consistently align with existing literature,
+emphasizing the pivotal role of mental health in individual resilience
+in academia.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Navigating a postdoctoral research role naturally prompts
+considerations of job prospects, salary, and work-life balance, all
+crucial factors influencing one’s professional satisfaction. In
+academia, where competition is constant, elements such as maintaining
+work-life balance, coping with the pressure to publish, and confronting
+job insecurity can significantly impact mental well-being.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;While van Dalen’s (2020) study suggests that full professors
+predominantly perceive the publish-or-perish principle positively, it’s
+essential to recognize their privileged perspective. Having already
+weathered the academic storm, they may not fully grasp the challenges
+faced by those still striving. The ability to consistently publish and
+attain success in academia is, indeed, a privilege. Such individuals may
+inadvertently overlook the struggles of those contending with an
+inherently flawed system.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;This analysis underscores the importance of prioritizing personal
+well-being over professional pursuits when faced with such choices.
+Although academia boasts merits, uncertainties regarding financial
+stability, job security, and work-life balance still exist. Choosing a
+career in academia demands thoughtful consideration of these
+complexities. Anyway, thank you so much for reading!&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>67bf1b7a6e09037f24ce8fb3d4fdd4ab</distill:md5>
+      <category>Python</category>
+      <category>Supervised Machine Learning</category>
+      <category>Unsupervised Machine Learning</category>
+      <guid>https://taridwong.github.io/posts/2023-12-10-naturepostdoc</guid>
+      <pubDate>Fri, 15 Dec 2023 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2023-12-10-naturepostdoc/Thumbnail cloud.png" medium="image" type="image/png" width="790" height="405"/>
+    </item>
     <item>
       <title>Examining Differences among Psychological Networks with Network Tree</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -424,7 +1131,7 @@ fit.&lt;/li&gt;
      font = 2,
      label.cex = 1
      ) &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file39f818754971_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file36b034c74148_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will use the &lt;code&gt;prune&lt;/code&gt; function from
 &lt;code&gt;psychonetrics&lt;/code&gt; package to prune edges that do not achieve
@@ -495,7 +1202,7 @@ qgraph::qgraph(net_optimized,
                groups = groups,
                negDashed = T, # should negative edges be dashed?
                font = 2)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file39f818754971_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file36b034c74148_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2
 id="exploratory-graph-analysis-for-dimensional-stability"&gt;Exploratory
 Graph Analysis for Dimensional Stability&lt;/h2&gt;
@@ -992,7 +1699,7 @@ DF&lt;/code&gt;&lt;/pre&gt;
 glance with the regular &lt;code&gt;plot&lt;/code&gt; function.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(x=results, k=10, pause=FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-6-3.png" width="672" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-6-4.png" width="672" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-6-5.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-6-3.png" width="672" /&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-6-4.png" width="672" /&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-6-5.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-relationships-between-authors-with-co-citation-analysis"&gt;Examining
 relationships between authors with co-citation Analysis&lt;/h2&gt;
@@ -1007,7 +1714,7 @@ papers within a cluster cited each other the most.&lt;/li&gt;
 net=networkPlot(NetMatrix, weighted=NULL, n = 50, 
                 Title = &amp;quot;Co-Citation Network&amp;quot;, type = &amp;quot;fruchterman&amp;quot;, 
                 size=4, size.cex=TRUE, remove.multiple=FALSE, labelsize=1, label.n=10, label.cex=F, edgesize = 10)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-7-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-7-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also perform co-citation analysis at the source level (i.e.,
 journals and conferences) to examine how sources in our data set cited
@@ -1018,7 +1725,7 @@ each other.&lt;/li&gt;
 NetMatrix &amp;lt;- biblioNetwork(Source, analysis = &amp;quot;co-citation&amp;quot;, network = &amp;quot;sources&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix, n = 50, Title = &amp;quot;Co-Citation Network-Journal&amp;quot;, type = &amp;quot;auto&amp;quot;, size.cex=TRUE, size=3, remove.multiple=FALSE, labelsize=1,edgesize = 10, edges.min=5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-8-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-8-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also examine top 5 keywords used by publication authors in
 our data set with the code below. We can see popular topics based on
@@ -1043,7 +1750,7 @@ of our bibliographic records to examine their work.&lt;/li&gt;
 minfreq = 3, size = 0.5, repel = TRUE)
 
 plot(res$map)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Finally, we can use a three fields plot to see the relationship
 between authors (AU), keywords that they used (DE), and
@@ -1071,7 +1778,7 @@ NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;co-occurrences&amp;quo
 net = networkPlot(NetMatrix, normalize=&amp;quot;association&amp;quot;, weighted=T, n = 30, 
                   Title = &amp;quot;Keyword Co-occurrences&amp;quot;, type = &amp;quot;fruchterman&amp;quot;, 
                   size=TRUE, edgesize = 5, labelsize=0.7, remove.multiple=FALSE, label.cex=TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-12-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-12-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also perform correspondence analysis to see relationship
 between topics with multiple correspondence analysis (MCA) or
@@ -1081,7 +1788,7 @@ output.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Conceptual Structure using keywords (method=&amp;quot;MCA&amp;quot;)
 CS &amp;lt;- conceptualStructure(M, field=&amp;quot;ID&amp;quot;, method=&amp;quot;MCA&amp;quot;, minDegree=4, clust=5, stemming=FALSE, labelsize=15, documents=20)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-13-1.png" width="1440" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-13-2.png" width="1440" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-13-3.png" width="1440" /&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-13-4.png" width="1440" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-13-1.png" width="1440" /&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-13-2.png" width="1440" /&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-13-3.png" width="1440" /&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-13-4.png" width="1440" /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-keyword-usage-across-time-with-historiograph"&gt;Examining
 keyword usage across time with historiograph&lt;/h2&gt;
@@ -1110,7 +1817,7 @@ ggplot(DF,aes(x=Year,y=value, group=variable, shape=variable, colour=variable))+
   labs(y=&amp;quot;Count&amp;quot;, variable=&amp;quot;Author Keywords&amp;quot;, title = &amp;quot;Author&amp;#39;s Keywords Usage Evolution Over Time&amp;quot;)+
   theme(text = element_text(size = 10))+
   facet_grid(variable ~ .)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-14-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-14-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="examining-trends-of-the-field-with-thematic-map"&gt;Examining
 trends of the field with thematic map&lt;/h2&gt;
 &lt;ul&gt;
@@ -1135,7 +1842,7 @@ pane are usually studied for general knowledge of the field.&lt;/p&gt;&lt;/li&gt
 &lt;pre class="r"&gt;&lt;code&gt;Map=thematicMap(M, field = &amp;quot;ID&amp;quot;, n = 250, minfreq = 4,
   stemming = FALSE, size = 0.7, n.labels=5, repel = TRUE)
 plot(Map$map)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-15-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-15-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-collaboration-with-social-structure-analysis"&gt;Examining
 collaboration with social structure analysis&lt;/h2&gt;
@@ -1147,14 +1854,14 @@ shows who collaborated with whom at the author level.&lt;/li&gt;
 &lt;pre class="r"&gt;&lt;code&gt;NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;authors&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix,  n = 50, Title = &amp;quot;Author collaboration&amp;quot;,type = &amp;quot;auto&amp;quot;, size=5,size.cex=T,edgesize = 5,labelsize=1, community.repulsion = 0.1)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-16-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-16-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also plot an institution collaboration network to examine
 collaboration pattern between institutions as well.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;universities&amp;quot;, sep = &amp;quot;;&amp;quot;)
 net=networkPlot(NetMatrix,  n = 50, Title = &amp;quot;Institution collaboration&amp;quot;,type = &amp;quot;auto&amp;quot;, size=4,size.cex=F,edgesize = 3,labelsize=1, community.repulsion = 0.05)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-17-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-17-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Lastly, we can examine collaboration pattern at international level
 with country collaboration network. This analysis shows countries that
@@ -1166,7 +1873,7 @@ the plot.&lt;/li&gt;
 NetMatrix &amp;lt;- biblioNetwork(country, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;countries&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix,  n = dim(NetMatrix)[1], Title = &amp;quot;Country collaboration&amp;quot;,type = &amp;quot;circle&amp;quot;, size=10,size.cex=T,edgesize = 1,labelsize=0.6, cluster=&amp;quot;none&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file39f8dc971ec_files/figure-html/unnamed-chunk-18-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file36b07d1c43db_files/figure-html/unnamed-chunk-18-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="concluding-remarks"&gt;Concluding remarks&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;What I like about bibliometric analysis is that it examines the
