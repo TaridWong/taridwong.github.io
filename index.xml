@@ -392,6 +392,12 @@ rf_pparts_shap = exp.predict_parts(new_observation = X_test_reduced.iloc[202], t
 # plot Break Down
 rf_pparts_shap.plot()&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocnegative_shap.png" /&gt;&lt;/p&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# lime explanation
+rf_pparts_lime = exp.predict_surrogate(new_observation = X_test_reduced.iloc[202])
+
+# plot LIME
+rf_pparts_lime.show_in_notebook()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocnegative_lime.png" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;This person considered leaving science because of mental health
 concerns (MHLEAVESCI == 1), as well as considering the overall level of
@@ -439,6 +445,12 @@ rf_pparts_shap = exp.predict_parts(new_observation = X_test_reduced.iloc[6], typ
 # plot Break Down
 rf_pparts_shap.plot()&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocpositive_shap.png" /&gt;&lt;/p&gt;
+&lt;pre class="python"&gt;&lt;code&gt;# lime explanation
+rf_pparts_lime = exp.predict_surrogate(new_observation = X_test_reduced.iloc[6])
+
+# plot LIME
+rf_pparts_lime.show_in_notebook()&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2023-12-10-naturepostdocpositive_lime.png" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The SHAP plot reveals that variables that negatively influence the
 prediction are SATSALARY (satisfaction with one’s salary/compensation)
@@ -1123,7 +1135,7 @@ fit.&lt;/li&gt;
      font = 2,
      label.cex = 1
      ) &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2454646425b_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file56411e158fe_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will use the &lt;code&gt;prune&lt;/code&gt; function from
 &lt;code&gt;psychonetrics&lt;/code&gt; package to prune edges that do not achieve
@@ -1194,7 +1206,7 @@ qgraph::qgraph(net_optimized,
                groups = groups,
                negDashed = T, # should negative edges be dashed?
                font = 2)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file2454646425b_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file56411e158fe_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2
 id="exploratory-graph-analysis-for-dimensional-stability"&gt;Exploratory
 Graph Analysis for Dimensional Stability&lt;/h2&gt;
@@ -1691,7 +1703,7 @@ DF&lt;/code&gt;&lt;/pre&gt;
 glance with the regular &lt;code&gt;plot&lt;/code&gt; function.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(x=results, k=10, pause=FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-6-3.png" width="672" /&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-6-4.png" width="672" /&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-6-5.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-6-3.png" width="672" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-6-4.png" width="672" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-6-5.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-relationships-between-authors-with-co-citation-analysis"&gt;Examining
 relationships between authors with co-citation Analysis&lt;/h2&gt;
@@ -1706,7 +1718,7 @@ papers within a cluster cited each other the most.&lt;/li&gt;
 net=networkPlot(NetMatrix, weighted=NULL, n = 50, 
                 Title = &amp;quot;Co-Citation Network&amp;quot;, type = &amp;quot;fruchterman&amp;quot;, 
                 size=4, size.cex=TRUE, remove.multiple=FALSE, labelsize=1, label.n=10, label.cex=F, edgesize = 10)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-7-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-7-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also perform co-citation analysis at the source level (i.e.,
 journals and conferences) to examine how sources in our data set cited
@@ -1717,7 +1729,7 @@ each other.&lt;/li&gt;
 NetMatrix &amp;lt;- biblioNetwork(Source, analysis = &amp;quot;co-citation&amp;quot;, network = &amp;quot;sources&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix, n = 50, Title = &amp;quot;Co-Citation Network-Journal&amp;quot;, type = &amp;quot;auto&amp;quot;, size.cex=TRUE, size=3, remove.multiple=FALSE, labelsize=1,edgesize = 10, edges.min=5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-8-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-8-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also examine top 5 keywords used by publication authors in
 our data set with the code below. We can see popular topics based on
@@ -1742,7 +1754,7 @@ of our bibliographic records to examine their work.&lt;/li&gt;
 minfreq = 3, size = 0.5, repel = TRUE)
 
 plot(res$map)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Finally, we can use a three fields plot to see the relationship
 between authors (AU), keywords that they used (DE), and
@@ -1770,7 +1782,7 @@ NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;co-occurrences&amp;quo
 net = networkPlot(NetMatrix, normalize=&amp;quot;association&amp;quot;, weighted=T, n = 30, 
                   Title = &amp;quot;Keyword Co-occurrences&amp;quot;, type = &amp;quot;fruchterman&amp;quot;, 
                   size=TRUE, edgesize = 5, labelsize=0.7, remove.multiple=FALSE, label.cex=TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-12-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-12-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also perform correspondence analysis to see relationship
 between topics with multiple correspondence analysis (MCA) or
@@ -1780,7 +1792,7 @@ output.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Conceptual Structure using keywords (method=&amp;quot;MCA&amp;quot;)
 CS &amp;lt;- conceptualStructure(M, field=&amp;quot;ID&amp;quot;, method=&amp;quot;MCA&amp;quot;, minDegree=4, clust=5, stemming=FALSE, labelsize=15, documents=20)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-13-1.png" width="1440" /&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-13-2.png" width="1440" /&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-13-3.png" width="1440" /&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-13-4.png" width="1440" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-13-1.png" width="1440" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-13-2.png" width="1440" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-13-3.png" width="1440" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-13-4.png" width="1440" /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-keyword-usage-across-time-with-historiograph"&gt;Examining
 keyword usage across time with historiograph&lt;/h2&gt;
@@ -1809,7 +1821,7 @@ ggplot(DF,aes(x=Year,y=value, group=variable, shape=variable, colour=variable))+
   labs(y=&amp;quot;Count&amp;quot;, variable=&amp;quot;Author Keywords&amp;quot;, title = &amp;quot;Author&amp;#39;s Keywords Usage Evolution Over Time&amp;quot;)+
   theme(text = element_text(size = 10))+
   facet_grid(variable ~ .)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-14-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-14-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="examining-trends-of-the-field-with-thematic-map"&gt;Examining
 trends of the field with thematic map&lt;/h2&gt;
 &lt;ul&gt;
@@ -1834,7 +1846,7 @@ pane are usually studied for general knowledge of the field.&lt;/p&gt;&lt;/li&gt
 &lt;pre class="r"&gt;&lt;code&gt;Map=thematicMap(M, field = &amp;quot;ID&amp;quot;, n = 250, minfreq = 4,
   stemming = FALSE, size = 0.7, n.labels=5, repel = TRUE)
 plot(Map$map)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-15-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-15-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-collaboration-with-social-structure-analysis"&gt;Examining
 collaboration with social structure analysis&lt;/h2&gt;
@@ -1846,14 +1858,14 @@ shows who collaborated with whom at the author level.&lt;/li&gt;
 &lt;pre class="r"&gt;&lt;code&gt;NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;authors&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix,  n = 50, Title = &amp;quot;Author collaboration&amp;quot;,type = &amp;quot;auto&amp;quot;, size=5,size.cex=T,edgesize = 5,labelsize=1, community.repulsion = 0.1)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-16-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-16-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also plot an institution collaboration network to examine
 collaboration pattern between institutions as well.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;universities&amp;quot;, sep = &amp;quot;;&amp;quot;)
 net=networkPlot(NetMatrix,  n = 50, Title = &amp;quot;Institution collaboration&amp;quot;,type = &amp;quot;auto&amp;quot;, size=4,size.cex=F,edgesize = 3,labelsize=1, community.repulsion = 0.05)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-17-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-17-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Lastly, we can examine collaboration pattern at international level
 with country collaboration network. This analysis shows countries that
@@ -1865,7 +1877,7 @@ the plot.&lt;/li&gt;
 NetMatrix &amp;lt;- biblioNetwork(country, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;countries&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix,  n = dim(NetMatrix)[1], Title = &amp;quot;Country collaboration&amp;quot;,type = &amp;quot;circle&amp;quot;, size=10,size.cex=T,edgesize = 1,labelsize=0.6, cluster=&amp;quot;none&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file245473ff5468_files/figure-html/unnamed-chunk-18-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-18-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="concluding-remarks"&gt;Concluding remarks&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;What I like about bibliometric analysis is that it examines the
