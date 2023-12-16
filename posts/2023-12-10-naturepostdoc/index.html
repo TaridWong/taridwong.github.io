@@ -137,7 +137,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--/radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-resource-manifest">
-  {"type":"character","attributes":{},"value":["10_most_common_words.png","Bestparam.png","cloud_overall.png","df_text_reflect.png","feature_importance.png","lda_regret0.png","lda_regret0_words.png","lda_regret1.png","lda_regret1_words.png","Model_eval.png","naturepostdoc_files/anchor-4.2.2/anchor.min.js","naturepostdoc_files/bowser-1.9.3/bowser.min.js","naturepostdoc_files/distill-2.2.21/template.v2.js","naturepostdoc_files/header-attrs-2.25/header-attrs.js","naturepostdoc_files/jquery-3.6.0/jquery-3.6.0.js","naturepostdoc_files/jquery-3.6.0/jquery-3.6.0.min.js","naturepostdoc_files/jquery-3.6.0/jquery-3.6.0.min.map","naturepostdoc_files/popper-2.6.0/popper.min.js","naturepostdoc_files/tippy-6.2.7/tippy-bundle.umd.min.js","naturepostdoc_files/tippy-6.2.7/tippy-light-border.css","naturepostdoc_files/tippy-6.2.7/tippy.css","naturepostdoc_files/tippy-6.2.7/tippy.umd.min.js","naturepostdoc_files/webcomponents-2.0.0/webcomponents.js","negative_breakdown.png","negative_shap.png","partial_dep_plot.png","positive_breakdown.png","positive_shap.png","RFECV.png","roc_auc.png","sweetviz.png","Thumbnail cloud.png"]}
+  {"type":"character","attributes":{},"value":["10_most_common_words.png","Bestparam.png","cloud_overall.png","df_text_reflect.png","feature_importance.png","lda_regret0.png","lda_regret0_words.png","lda_regret1.png","lda_regret1_words.png","Model_eval.png","naturepostdoc_files/anchor-4.2.2/anchor.min.js","naturepostdoc_files/bowser-1.9.3/bowser.min.js","naturepostdoc_files/distill-2.2.21/template.v2.js","naturepostdoc_files/header-attrs-2.25/header-attrs.js","naturepostdoc_files/jquery-3.6.0/jquery-3.6.0.js","naturepostdoc_files/jquery-3.6.0/jquery-3.6.0.min.js","naturepostdoc_files/jquery-3.6.0/jquery-3.6.0.min.map","naturepostdoc_files/popper-2.6.0/popper.min.js","naturepostdoc_files/tippy-6.2.7/tippy-bundle.umd.min.js","naturepostdoc_files/tippy-6.2.7/tippy-light-border.css","naturepostdoc_files/tippy-6.2.7/tippy.css","naturepostdoc_files/tippy-6.2.7/tippy.umd.min.js","naturepostdoc_files/webcomponents-2.0.0/webcomponents.js","negative_breakdown.png","negative_lime.png","negative_shap.png","partial_dep_plot.png","positive_breakdown.png","positive_lime.png","positive_shap.png","RFECV.png","roc_auc.png","sweetviz.png","Thumbnail cloud.png"]}
   </script>
   <!--radix_placeholder_navigation_in_header-->
 <meta name="distill:offset" content="../.."/>
@@ -2913,6 +2913,19 @@ Show code
 </details>
 </div>
 <p><img src="negative_shap.png" /></p>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># lime explanation</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>rf_pparts_lime <span class="op">=</span> exp.predict_surrogate(new_observation <span class="op">=</span> X_test_reduced.iloc[<span class="dv">202</span>])</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># plot LIME</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>rf_pparts_lime.show_in_notebook()</span></code></pre></div>
+</details>
+</div>
+<p><img src="negative_lime.png" /></p>
 <ul>
 <li>This person considered leaving science because of mental health concerns (MHLEAVESCI == 1), as well as considering the overall level of satisfaction in the past year as significantly worsened. Other factors such as feeling about job prospect (JOBPRSPCT) and career satisfaction (SATCAREER) also contributed negatively to the prediction outcome as well.</li>
 <li>To investigate further into the case, there is a question that asked the respondent to reflect on themselves about their postdoctoral researcher career (With the benefit of hindsight, what one thing do you know now which you wish you’d known about before starting work as a when you started postdoc?). This is their response:
@@ -2927,11 +2940,11 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Break Down for apartment observation</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>rf_pparts <span class="op">=</span> exp.predict_parts(new_observation <span class="op">=</span> X_test_reduced.iloc[<span class="dv">6</span>], <span class="bu">type</span> <span class="op">=</span> <span class="st">&quot;break_down&quot;</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># plot Break Down</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>rf_pparts.plot()</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Break Down for apartment observation</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>rf_pparts <span class="op">=</span> exp.predict_parts(new_observation <span class="op">=</span> X_test_reduced.iloc[<span class="dv">6</span>], <span class="bu">type</span> <span class="op">=</span> <span class="st">&quot;break_down&quot;</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># plot Break Down</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>rf_pparts.plot()</span></code></pre></div>
 </details>
 </div>
 <ul>
@@ -2946,14 +2959,27 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Break Down for apartment observation</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>rf_pparts_shap <span class="op">=</span> exp.predict_parts(new_observation <span class="op">=</span> X_test_reduced.iloc[<span class="dv">6</span>], <span class="bu">type</span> <span class="op">=</span> <span class="st">&quot;shap&quot;</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># plot Break Down</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>rf_pparts_shap.plot()</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Break Down for apartment observation</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>rf_pparts_shap <span class="op">=</span> exp.predict_parts(new_observation <span class="op">=</span> X_test_reduced.iloc[<span class="dv">6</span>], <span class="bu">type</span> <span class="op">=</span> <span class="st">&quot;shap&quot;</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># plot Break Down</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>rf_pparts_shap.plot()</span></code></pre></div>
 </details>
 </div>
 <p><img src="positive_shap.png" /></p>
+<div class="layout-chunk" data-layout="l-body">
+<details>
+<summary>
+Show code
+</summary>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># lime explanation</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>rf_pparts_lime <span class="op">=</span> exp.predict_surrogate(new_observation <span class="op">=</span> X_test_reduced.iloc[<span class="dv">6</span>])</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># plot LIME</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>rf_pparts_lime.show_in_notebook()</span></code></pre></div>
+</details>
+</div>
+<p><img src="positive_lime.png" /></p>
 <ul>
 <li>The SHAP plot reveals that variables that negatively influence the prediction are SATSALARY (satisfaction with one’s salary/compensation) and JOBPRSPCT (feeling about future job prospect). However, there is a lot of predictors that push the prediction to the positive side. Some of them are satisfaction on work-life-balance (SATWLB) and satisfaction on one’s total work hour (SATWKHOURS). This is their reflection on their postdoc career:
 <ul>
@@ -2968,7 +2994,7 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>df_text[<span class="st">&#39;REFLECT&#39;</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>df_text[<span class="st">&#39;REFLECT&#39;</span>]</span></code></pre></div>
 </details>
 </div>
 <p><img src="df_text_reflect.png" /></p>
@@ -2981,26 +3007,26 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> wordcloud <span class="im">import</span> WordCloud, STOPWORDS</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Custom stopwords</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>custom_stopwords <span class="op">=</span> [<span class="st">&quot;post doc&quot;</span>, <span class="st">&quot;doc&quot;</span>, <span class="st">&quot;nan&quot;</span>, <span class="st">&quot;don&quot;</span>, <span class="st">&quot;phd&quot;</span>, <span class="st">&quot;postdoc&quot;</span>]</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Concatenate all text data in the &#39;REFLECT&#39; column</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>text_data <span class="op">=</span> <span class="st">&#39; &#39;</span>.join(df_reflect[<span class="st">&#39;REFLECT&#39;</span>])</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove English stopwords and custom stopwords</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>stopwords <span class="op">=</span> <span class="bu">set</span>(STOPWORDS)</span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>stopwords.update(custom_stopwords)</span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a WordCloud object with specified stopwords</span></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>wordcloud <span class="op">=</span> WordCloud(width<span class="op">=</span><span class="dv">800</span>, height<span class="op">=</span><span class="dv">400</span>, background_color<span class="op">=</span><span class="st">&#39;white&#39;</span>, stopwords<span class="op">=</span>stopwords).generate(text_data)</span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the word cloud using matplotlib</span></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>plt.imshow(wordcloud, interpolation<span class="op">=</span><span class="st">&#39;bilinear&#39;</span>)</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">&#39;off&#39;</span>)  <span class="co"># Turn off axis numbers and ticks</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> wordcloud <span class="im">import</span> WordCloud, STOPWORDS</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Custom stopwords</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>custom_stopwords <span class="op">=</span> [<span class="st">&quot;post doc&quot;</span>, <span class="st">&quot;doc&quot;</span>, <span class="st">&quot;nan&quot;</span>, <span class="st">&quot;don&quot;</span>, <span class="st">&quot;phd&quot;</span>, <span class="st">&quot;postdoc&quot;</span>]</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Concatenate all text data in the &#39;REFLECT&#39; column</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>text_data <span class="op">=</span> <span class="st">&#39; &#39;</span>.join(df_reflect[<span class="st">&#39;REFLECT&#39;</span>])</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove English stopwords and custom stopwords</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>stopwords <span class="op">=</span> <span class="bu">set</span>(STOPWORDS)</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>stopwords.update(custom_stopwords)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a WordCloud object with specified stopwords</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>wordcloud <span class="op">=</span> WordCloud(width<span class="op">=</span><span class="dv">800</span>, height<span class="op">=</span><span class="dv">400</span>, background_color<span class="op">=</span><span class="st">&#39;white&#39;</span>, stopwords<span class="op">=</span>stopwords).generate(text_data)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the word cloud using matplotlib</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>plt.imshow(wordcloud, interpolation<span class="op">=</span><span class="st">&#39;bilinear&#39;</span>)</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">&#39;off&#39;</span>)  <span class="co"># Turn off axis numbers and ticks</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div>
 </details>
 </div>
 <p><img src="cloud_overall.png" /></p>
@@ -3013,43 +3039,43 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_10_most_common_words(count_data, tfidf_vectorizer):</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    words <span class="op">=</span> tfidf_vectorizer.get_feature_names()</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    total_counts <span class="op">=</span> np.zeros(<span class="bu">len</span>(words))</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> t <span class="kw">in</span> count_data:</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>        total_counts <span class="op">+=</span> t.toarray()[<span class="dv">0</span>]</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    count_dict <span class="op">=</span> (<span class="bu">zip</span>(words, total_counts))</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    count_dict <span class="op">=</span> <span class="bu">sorted</span>(count_dict, key<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="dv">1</span>], reverse<span class="op">=</span><span class="va">True</span>)[<span class="dv">0</span>:<span class="dv">10</span>]</span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    words <span class="op">=</span> [w[<span class="dv">0</span>] <span class="cf">for</span> w <span class="kw">in</span> count_dict]</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    counts <span class="op">=</span> [w[<span class="dv">1</span>] <span class="cf">for</span> w <span class="kw">in</span> count_dict]</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    x_pos <span class="op">=</span> np.arange(<span class="bu">len</span>(words)) </span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    plt.bar(x_pos, counts, align<span class="op">=</span><span class="st">&#39;center&#39;</span>)</span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    plt.xticks(x_pos, words, rotation<span class="op">=</span><span class="dv">90</span>) </span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">&#39;Words&#39;</span>)</span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">&#39;Counts&#39;</span>)</span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="st">&#39;10 Most Common Words&#39;</span>)</span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
-<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Custom stopwords, including your own stopwords</span></span>
-<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>custom_stopwords <span class="op">=</span> <span class="bu">set</span>([<span class="st">&quot;post doc&quot;</span>, <span class="st">&quot;doc&quot;</span>, <span class="st">&quot;nan&quot;</span>, <span class="st">&quot;don&quot;</span>, <span class="st">&quot;phd&quot;</span>, <span class="st">&quot;postdoc&quot;</span>])</span>
-<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine standard English stopwords with custom stopwords</span></span>
-<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>stopwords <span class="op">=</span> <span class="bu">set</span>(text.ENGLISH_STOP_WORDS).union(custom_stopwords)</span>
-<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Handle NaN values by filling them with an empty string</span></span>
-<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>df_text[<span class="st">&#39;REFLECT&#39;</span>] <span class="op">=</span> df_text[<span class="st">&#39;REFLECT&#39;</span>].fillna(<span class="st">&#39;&#39;</span>)</span>
-<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the count vectorizer with the English stop words</span></span>
-<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>tfidf_vectorizer <span class="op">=</span> TfidfVectorizer(stop_words<span class="op">=</span>stopwords)</span>
-<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit and transform the processed titles</span></span>
-<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>count_data <span class="op">=</span> tfidf_vectorizer.fit_transform(df_text[<span class="st">&#39;REFLECT&#39;</span>])</span>
-<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize the 10 most common words</span></span>
-<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>plot_10_most_common_words(count_data, tfidf_vectorizer)</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_10_most_common_words(count_data, tfidf_vectorizer):</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    words <span class="op">=</span> tfidf_vectorizer.get_feature_names()</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    total_counts <span class="op">=</span> np.zeros(<span class="bu">len</span>(words))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> t <span class="kw">in</span> count_data:</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        total_counts <span class="op">+=</span> t.toarray()[<span class="dv">0</span>]</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    count_dict <span class="op">=</span> (<span class="bu">zip</span>(words, total_counts))</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    count_dict <span class="op">=</span> <span class="bu">sorted</span>(count_dict, key<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="dv">1</span>], reverse<span class="op">=</span><span class="va">True</span>)[<span class="dv">0</span>:<span class="dv">10</span>]</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    words <span class="op">=</span> [w[<span class="dv">0</span>] <span class="cf">for</span> w <span class="kw">in</span> count_dict]</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    counts <span class="op">=</span> [w[<span class="dv">1</span>] <span class="cf">for</span> w <span class="kw">in</span> count_dict]</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    x_pos <span class="op">=</span> np.arange(<span class="bu">len</span>(words)) </span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    plt.bar(x_pos, counts, align<span class="op">=</span><span class="st">&#39;center&#39;</span>)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    plt.xticks(x_pos, words, rotation<span class="op">=</span><span class="dv">90</span>) </span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    plt.xlabel(<span class="st">&#39;Words&#39;</span>)</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    plt.ylabel(<span class="st">&#39;Counts&#39;</span>)</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="st">&#39;10 Most Common Words&#39;</span>)</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Custom stopwords, including your own stopwords</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>custom_stopwords <span class="op">=</span> <span class="bu">set</span>([<span class="st">&quot;post doc&quot;</span>, <span class="st">&quot;doc&quot;</span>, <span class="st">&quot;nan&quot;</span>, <span class="st">&quot;don&quot;</span>, <span class="st">&quot;phd&quot;</span>, <span class="st">&quot;postdoc&quot;</span>])</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine standard English stopwords with custom stopwords</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>stopwords <span class="op">=</span> <span class="bu">set</span>(text.ENGLISH_STOP_WORDS).union(custom_stopwords)</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Handle NaN values by filling them with an empty string</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>df_text[<span class="st">&#39;REFLECT&#39;</span>] <span class="op">=</span> df_text[<span class="st">&#39;REFLECT&#39;</span>].fillna(<span class="st">&#39;&#39;</span>)</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the count vectorizer with the English stop words</span></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>tfidf_vectorizer <span class="op">=</span> TfidfVectorizer(stop_words<span class="op">=</span>stopwords)</span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit and transform the processed titles</span></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>count_data <span class="op">=</span> tfidf_vectorizer.fit_transform(df_text[<span class="st">&#39;REFLECT&#39;</span>])</span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize the 10 most common words</span></span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>plot_10_most_common_words(count_data, tfidf_vectorizer)</span></code></pre></div>
 </details>
 </div>
 <p><img src="10_most_common_words.png" /></p>
@@ -3063,15 +3089,15 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_extraction <span class="im">import</span> text</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pyLDAvis</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pyLDAvis.sklearn</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>pyLDAvis.enable_notebook()</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_extraction.text <span class="im">import</span> CountVectorizer, TfidfVectorizer</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.decomposition <span class="im">import</span> LatentDirichletAllocation</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>custom_stopwords <span class="op">=</span> [<span class="st">&quot;post doc&quot;</span>, <span class="st">&quot;doc&quot;</span>, <span class="st">&quot;nan&quot;</span>, <span class="st">&quot;don&quot;</span>, <span class="st">&quot;phd&quot;</span>, <span class="st">&quot;postdoc&quot;</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_extraction <span class="im">import</span> text</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pyLDAvis</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pyLDAvis.sklearn</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>pyLDAvis.enable_notebook()</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_extraction.text <span class="im">import</span> CountVectorizer, TfidfVectorizer</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.decomposition <span class="im">import</span> LatentDirichletAllocation</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>custom_stopwords <span class="op">=</span> [<span class="st">&quot;post doc&quot;</span>, <span class="st">&quot;doc&quot;</span>, <span class="st">&quot;nan&quot;</span>, <span class="st">&quot;don&quot;</span>, <span class="st">&quot;phd&quot;</span>, <span class="st">&quot;postdoc&quot;</span>]</span></code></pre></div>
 </details>
 </div>
 <div class="layout-chunk" data-layout="l-body">
@@ -3079,34 +3105,34 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Custom stopwords, including your own stopwords</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>custom_stopwords <span class="op">=</span> <span class="bu">set</span>([<span class="st">&quot;post doc&quot;</span>, <span class="st">&quot;doc&quot;</span>, <span class="st">&quot;nan&quot;</span>, <span class="st">&quot;don&quot;</span>, <span class="st">&quot;phd&quot;</span>])</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine standard English stopwords with custom stopwords</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>stopwords <span class="op">=</span> <span class="bu">set</span>(text.ENGLISH_STOP_WORDS).union(custom_stopwords)</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>tf_vectorizer <span class="op">=</span> CountVectorizer(strip_accents<span class="op">=</span><span class="st">&#39;unicode&#39;</span>,</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>                                stop_words<span class="op">=</span>stopwords,</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>                                lowercase<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>                                token_pattern<span class="op">=</span><span class="vs">r&#39;\b[a-zA-Z]{3,}\b&#39;</span>,</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>                                ngram_range<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">2</span>),</span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>                                max_df<span class="op">=</span><span class="fl">0.5</span>,</span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>                                min_df<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>dtm_tf <span class="op">=</span> tf_vectorizer.fit_transform(df_text[<span class="st">&#39;REFLECT&#39;</span>].values.astype(<span class="st">&#39;U&#39;</span>))</span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>tfidf_vectorizer <span class="op">=</span> TfidfVectorizer(<span class="op">**</span>tf_vectorizer.get_params())</span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>dtm_tfidf <span class="op">=</span> tfidf_vectorizer.fit_transform(df_text[<span class="st">&#39;REFLECT&#39;</span>].values.astype(<span class="st">&#39;U&#39;</span>))</span>
-<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="co"># for TF DTM</span></span>
-<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>lda_tf <span class="op">=</span> LatentDirichletAllocation(n_components<span class="op">=</span><span class="dv">5</span>, random_state<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>lda_tf.fit(dtm_tf)</span>
-<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="co"># for TFIDF DTM</span></span>
-<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>lda_tfidf <span class="op">=</span> LatentDirichletAllocation(n_components<span class="op">=</span><span class="dv">5</span>, random_state<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>lda_tfidf.fit(dtm_tfidf)</span>
-<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>pyLDAvis.sklearn.prepare(lda_tf, dtm_tf, tf_vectorizer)</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Custom stopwords, including your own stopwords</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>custom_stopwords <span class="op">=</span> <span class="bu">set</span>([<span class="st">&quot;post doc&quot;</span>, <span class="st">&quot;doc&quot;</span>, <span class="st">&quot;nan&quot;</span>, <span class="st">&quot;don&quot;</span>, <span class="st">&quot;phd&quot;</span>])</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine standard English stopwords with custom stopwords</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>stopwords <span class="op">=</span> <span class="bu">set</span>(text.ENGLISH_STOP_WORDS).union(custom_stopwords)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>tf_vectorizer <span class="op">=</span> CountVectorizer(strip_accents<span class="op">=</span><span class="st">&#39;unicode&#39;</span>,</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                                stop_words<span class="op">=</span>stopwords,</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>                                lowercase<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>                                token_pattern<span class="op">=</span><span class="vs">r&#39;\b[a-zA-Z]{3,}\b&#39;</span>,</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>                                ngram_range<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">2</span>),</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>                                max_df<span class="op">=</span><span class="fl">0.5</span>,</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>                                min_df<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>dtm_tf <span class="op">=</span> tf_vectorizer.fit_transform(df_text[<span class="st">&#39;REFLECT&#39;</span>].values.astype(<span class="st">&#39;U&#39;</span>))</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>tfidf_vectorizer <span class="op">=</span> TfidfVectorizer(<span class="op">**</span>tf_vectorizer.get_params())</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>dtm_tfidf <span class="op">=</span> tfidf_vectorizer.fit_transform(df_text[<span class="st">&#39;REFLECT&#39;</span>].values.astype(<span class="st">&#39;U&#39;</span>))</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="co"># for TF DTM</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>lda_tf <span class="op">=</span> LatentDirichletAllocation(n_components<span class="op">=</span><span class="dv">5</span>, random_state<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>lda_tf.fit(dtm_tf)</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="co"># for TFIDF DTM</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>lda_tfidf <span class="op">=</span> LatentDirichletAllocation(n_components<span class="op">=</span><span class="dv">5</span>, random_state<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>lda_tfidf.fit(dtm_tfidf)</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>pyLDAvis.sklearn.prepare(lda_tf, dtm_tf, tf_vectorizer)</span></code></pre></div>
 </details>
 </div>
 <p><img src="lda_regret0.png" /></p>
@@ -3118,10 +3144,10 @@ Show code
 <summary>
 Show code
 </summary>
-<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,topic <span class="kw">in</span> <span class="bu">enumerate</span>(lda_tf.components_):</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&#39;Top 10 words for topic #</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">:&#39;</span>)</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>([tf_vectorizer.get_feature_names_out()[i] <span class="cf">for</span> i <span class="kw">in</span> topic.argsort()[<span class="op">-</span><span class="dv">10</span>:]])</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&#39;</span><span class="ch">\n</span><span class="st">&#39;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,topic <span class="kw">in</span> <span class="bu">enumerate</span>(lda_tf.components_):</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&#39;Top 10 words for topic #</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">:&#39;</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>([tf_vectorizer.get_feature_names_out()[i] <span class="cf">for</span> i <span class="kw">in</span> topic.argsort()[<span class="op">-</span><span class="dv">10</span>:]])</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&#39;</span><span class="ch">\n</span><span class="st">&#39;</span>)</span></code></pre></div>
 </details>
 </div>
 <p><img src="lda_regret0_words.png" /></p>
@@ -3159,7 +3185,7 @@ Show code
 <li><p>Navigating a postdoctoral research role naturally prompts considerations of job prospects, salary, and work-life balance, all crucial factors influencing one’s professional satisfaction. In academia, where competition is constant, elements such as maintaining work-life balance, coping with the pressure to publish, and confronting job insecurity can significantly impact mental well-being.</p></li>
 <li><p>This analysis underscores the importance of prioritizing personal well-being over professional pursuits when faced with such choices. Although academia boasts merits, uncertainties regarding financial stability, job security, and work-life balance still exist. Choosing a career in academia demands thoughtful consideration of these complexities. Anyway, thank you so much for reading!</p></li>
 </ul>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <div class="article-footer">
   <p class="social_footer">
