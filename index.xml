@@ -16,6 +16,10 @@
 
 
 &lt;h1 id="introduction"&gt;Introduction&lt;/h1&gt;
+&lt;pre class="r"&gt;&lt;code&gt;library(synthpop)
+library(tidyverse)
+library(CTT)
+library(mirt)&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;Hi Everyone. It’s been a while since my last blog post. I have
 some time while finishing up my semester to try out new research methods
@@ -58,10 +62,8 @@ href="https://synthpop.org.uk/about-synthpop.html"&gt;here&lt;/a&gt;.&lt;/p&gt;&
 designed to mirror the statistical properties of
 &lt;code&gt;data_org&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class="r"&gt;&lt;code&gt;library(synthpop)
-
-synth.obj &amp;lt;- syn(data_org, method = &amp;quot;cart&amp;quot;, seed = 12345)
-data_synth &amp;lt;- synth.obj$syn&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;synth.obj &amp;lt;- syn(data_org, method = &amp;quot;cart&amp;quot;, seed = 12345)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;data_synth &amp;lt;- synth.obj$syn&lt;/code&gt;&lt;/pre&gt;
 &lt;h1 id="comparing-original-and-synthetic-data"&gt;Comparing Original and
 Synthetic Data&lt;/h1&gt;
 &lt;h2 id="visualizing-differences"&gt;Visualizing Differences&lt;/h2&gt;
@@ -73,13 +75,13 @@ datasets:&lt;/li&gt;
 &lt;pre class="r"&gt;&lt;code&gt;mycols &amp;lt;- c(&amp;quot;darkmagenta&amp;quot;, &amp;quot;turquoise&amp;quot;)
 object &amp;lt;- compare(synth.obj, data_org, nrow = 3, ncol = 4, cols = mycols)
 object$plots&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34105387243_files/figure-html/unnamed-chunk-7-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Overall, the comparison between the synthetic and original datasets
 shows a high degree of similarity. The bar charts for each question (Q1
 to Q12) indicate that the synthetic data closely mirrors the original
 data in terms of the distribution of responses.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthcompare.png" /&gt;&lt;/p&gt;
 &lt;h2 id="utility-assessment"&gt;Utility Assessment&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;The &lt;code&gt;utility.gen&lt;/code&gt; function quantifies the similarity
@@ -199,8 +201,7 @@ the original and synthetic datasets. The plot serves as a clear and
 intuitive representation of the t-test results, providing stakeholders
 with a quick overview of the dataset’s alignment.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class="r"&gt;&lt;code&gt;library(ggplot2)
-ggplot(t_test_results, aes(x = factor(Item), y = T_Statistic, fill = Significant)) +
+&lt;pre class="r"&gt;&lt;code&gt;ggplot(t_test_results, aes(x = factor(Item), y = T_Statistic, fill = Significant)) +
   geom_bar(stat = &amp;quot;identity&amp;quot;, position = &amp;quot;dodge&amp;quot;, width = 0.7) +
   labs(title = &amp;quot;Independent Sample T-Test: Item-wise Comparison at p &amp;lt; .05&amp;quot;, 
        x = &amp;quot;Item&amp;quot;, y = &amp;quot;T-Statistic&amp;quot;) +
@@ -212,6 +213,7 @@ ggplot(t_test_results, aes(x = factor(Item), y = T_Statistic, fill = Significant
   annotate(&amp;quot;text&amp;quot;, x = 2, y = max(t_test_results$T_Statistic) + 2, 
            label = &amp;quot;Negative t-statistic: Mean of original &amp;lt; Synthesized\nPositive t-statistic: Mean of original &amp;gt; Synthesized&amp;quot;, 
            size = 4, hjust = 0, color = &amp;quot;black&amp;quot;, fontface = &amp;quot;italic&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34105387243_files/figure-html/unnamed-chunk-12-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The T-statistics for each item range from approximately -1 to 2.
 This indicates the degree of difference between the means of the
@@ -221,7 +223,6 @@ legend (all labeled as “FALSE”). This means that the differences between
 the original and synthetic datasets are not statistically significant at
 the &lt;em&gt;p&lt;/em&gt; &amp;lt; .05 level.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-syntht-test.png" /&gt;&lt;/p&gt;
 &lt;h1 id="psychometric-properties-comparison"&gt;Psychometric Properties
 Comparison&lt;/h1&gt;
 &lt;ul&gt;
@@ -249,9 +250,7 @@ differentiate between examinees effectively. These analyses are
 essential for validating the synthetic dataset’s utility for
 psychometric research and educational applications.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class="r"&gt;&lt;code&gt;library(CTT)
-
-# Perform item analysis on original data
+&lt;pre class="r"&gt;&lt;code&gt;# Perform item analysis on original data
 org_item_analysis &amp;lt;- itemAnalysis(data_org, itemReport=TRUE, NA.Delete=TRUE, pBisFlag = T,  bisFlag = T, flagStyle = c(&amp;quot;X&amp;quot;,&amp;quot;&amp;quot;))
 
 # Perform item analysis on synthesized data
@@ -289,7 +288,6 @@ characteristics, ensuring it remains a valid representation for
 educational or research purposes.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;#Plot Side-by-Side Bar Charts for Item Means and Discrimination
-library(tidyverse)
 
 # Extract item mean and discrimination for original and synthetic data
 item_comparison &amp;lt;- data.frame(
@@ -322,21 +320,21 @@ ggplot(item_means_long, aes(x = as.factor(Item), y = Mean, fill = Dataset)) +
   theme_minimal() +
   scale_fill_manual(values = c(&amp;quot;Original_Mean&amp;quot; = &amp;quot;darkmagenta&amp;quot;, &amp;quot;Synthesized_Mean&amp;quot; = &amp;quot;turquoise&amp;quot;)) + 
   theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34105387243_files/figure-html/unnamed-chunk-15-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;For most items, the mean scores of the original and synthesized
+&lt;li&gt;&lt;p&gt;For most items, the mean scores of the original and synthesized
 datasets are quite similar. This indicates that the synthetic data
-closely replicates the central tendencies of the original data.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthitem-mean.png" /&gt; - To assess the ability of items to
-differentiate between respondents based on their trait levels, I created
-a grouped bar chart to compare item discrimination (point biserial
-correlation - pBis) indices from the original and synthetic datasets. A
-solid red horizontal line is added at a discrimination index of 0.2
-using
+closely replicates the central tendencies of the original data.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;To assess the ability of items to differentiate between
+respondents based on their trait levels, I created a grouped bar chart
+to compare item discrimination (point biserial correlation - pBis)
+indices from the original and synthetic datasets. A solid red horizontal
+line is added at a discrimination index of 0.2 using
 &lt;code&gt;geom_hline(yintercept = 0.2, color = "red", linetype = "solid")&lt;/code&gt;.
 This line marks a commonly accepted threshold for minimal acceptable
 discrimination, offering a benchmark against which the indices can be
-evaluated.&lt;/p&gt;
+evaluated.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Plot item discrimination
 ggplot(item_discrimination_long, aes(x = as.factor(Item), y = Discrimination, fill = Dataset)) +
   geom_bar(stat = &amp;quot;identity&amp;quot;, position = &amp;quot;dodge&amp;quot;) +
@@ -345,6 +343,7 @@ ggplot(item_discrimination_long, aes(x = as.factor(Item), y = Discrimination, fi
   scale_fill_manual(values = c(&amp;quot;Original_Discrimination&amp;quot; = &amp;quot;darkmagenta&amp;quot;, &amp;quot;Synthesized_Discrimination&amp;quot; = &amp;quot;turquoise&amp;quot;)) + 
   geom_hline(yintercept = 0.2, color = &amp;quot;red&amp;quot;, linetype = &amp;quot;solid&amp;quot;) + 
   theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34105387243_files/figure-html/unnamed-chunk-16-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;For most items, the discrimination indices of the original and
 synthesized datasets are quite similar, with both datasets meeting or
@@ -355,7 +354,7 @@ differentiate between high and low performers. This suggests that the
 synthetic data retains the psychometric properties of the original data,
 making it a somewhat reliable substitute for analysis purposes.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthitem-pbis.png" /&gt; ## Reliability Analysis&lt;/p&gt;
+&lt;h2 id="reliability-analysis"&gt;Reliability Analysis&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;To compare the reliability of the original and synthetic
 datasets, I constructed a bar chart that visualizes the coefficient
@@ -385,6 +384,7 @@ ggplot(alpha_comparison, aes(x = Dataset, y = Alpha, fill = Dataset)) +
   theme_minimal() +
   scale_fill_manual(values = c(&amp;quot;Original&amp;quot; = &amp;quot;darkmagenta&amp;quot;, &amp;quot;Synthesized&amp;quot; = &amp;quot;turquoise&amp;quot;)) +
   theme(plot.title = element_text(hjust = 0.5)) # Center the title&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34105387243_files/figure-html/unnamed-chunk-17-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The chart indicates that the synthetic dataset maintains a somewhat
 high level of internal consistency (higher than .70), comparable to the
@@ -392,7 +392,6 @@ original dataset. This suggests that the synthetic data is a reliable
 representation of the original data in terms of internal
 consistency.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthalpha.png" /&gt;&lt;/p&gt;
 &lt;h2 id="item-response-theory-test-information-function"&gt;Item Response
 Theory Test Information Function&lt;/h2&gt;
 &lt;ul&gt;
@@ -411,9 +410,7 @@ IRT model. The outputs are stored in &lt;code&gt;model_org&lt;/code&gt; and
 &lt;code&gt;model_synth&lt;/code&gt; for the original and synthesized data,
 respectively.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class="r"&gt;&lt;code&gt;library(mirt)
-
-# Fit a Graded Response Model (GRM) for original data
+&lt;pre class="r"&gt;&lt;code&gt;# Fit a Graded Response Model (GRM) for original data
 model_org &amp;lt;- mirt(data_org, model = 1, itemtype = &amp;quot;graded&amp;quot;)
 
 # Fit a Graded Response Model (GRM) for synthesized data
@@ -517,6 +514,7 @@ lines(theta_values, TIF_synth, col = &amp;quot;turquoise&amp;quot;, lwd = 2)
 # Add a legend
 legend(&amp;quot;topright&amp;quot;, legend = c(&amp;quot;Original Data&amp;quot;, &amp;quot;Synthesized Data&amp;quot;), 
        col = c(&amp;quot;darkmagenta&amp;quot;, &amp;quot;turquoise&amp;quot;), lwd = 2)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src="file34105387243_files/figure-html/unnamed-chunk-23-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;The purple line represents the original data, while the cyan line
 represents the synthesized data. The graph shows that the synthesized
@@ -529,7 +527,6 @@ datasets are not statistically different as indicated by t-test results,
 we could infer that the different in test information between the two
 datasets are also somewhat comparable.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthTIF.png" /&gt;&lt;/p&gt;
 &lt;h1 id="concluding-remark-and-practical-implications"&gt;Concluding Remark
 and Practical Implications&lt;/h1&gt;
 &lt;ul&gt;
@@ -600,6 +597,7 @@ work!&lt;br /&gt;
       <category>Psychometric</category>
       <guid>https://taridwong.github.io/posts/2024-11-15-synth</guid>
       <pubDate>Sun, 17 Nov 2024 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2024-11-15-synth/synth_files/figure-html5/unnamed-chunk-7-1.png" medium="image" type="image/png" width="1248" height="768"/>
     </item>
     <item>
       <title>Exploring Nature's 2023 postdoc survey with predictive modeling and NLP</title>
@@ -2264,7 +2262,7 @@ DF&lt;/code&gt;&lt;/pre&gt;
 glance with the regular &lt;code&gt;plot&lt;/code&gt; function.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(x=results, k=10, pause=FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-6-3.png" width="672" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-6-4.png" width="672" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-6-5.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-6-3.png" width="672" /&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-6-4.png" width="672" /&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-6-5.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-relationships-between-authors-with-co-citation-analysis"&gt;Examining
 relationships between authors with co-citation Analysis&lt;/h2&gt;
@@ -2279,7 +2277,7 @@ papers within a cluster cited each other the most.&lt;/li&gt;
 net=networkPlot(NetMatrix, weighted=NULL, n = 50, 
                 Title = &amp;quot;Co-Citation Network&amp;quot;, type = &amp;quot;fruchterman&amp;quot;, 
                 size=4, size.cex=TRUE, remove.multiple=FALSE, labelsize=1, label.n=10, label.cex=F, edgesize = 10)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-7-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-7-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also perform co-citation analysis at the source level (i.e.,
 journals and conferences) to examine how sources in our data set cited
@@ -2290,7 +2288,7 @@ each other.&lt;/li&gt;
 NetMatrix &amp;lt;- biblioNetwork(Source, analysis = &amp;quot;co-citation&amp;quot;, network = &amp;quot;sources&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix, n = 50, Title = &amp;quot;Co-Citation Network-Journal&amp;quot;, type = &amp;quot;auto&amp;quot;, size.cex=TRUE, size=3, remove.multiple=FALSE, labelsize=1,edgesize = 10, edges.min=5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-8-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-8-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also examine top 5 keywords used by publication authors in
 our data set with the code below. We can see popular topics based on
@@ -2315,7 +2313,7 @@ of our bibliographic records to examine their work.&lt;/li&gt;
 minfreq = 3, size = 0.5, repel = TRUE)
 
 plot(res$map)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Finally, we can use a three fields plot to see the relationship
 between authors (AU), keywords that they used (DE), and
@@ -2343,7 +2341,7 @@ NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;co-occurrences&amp;quo
 net = networkPlot(NetMatrix, normalize=&amp;quot;association&amp;quot;, weighted=T, n = 30, 
                   Title = &amp;quot;Keyword Co-occurrences&amp;quot;, type = &amp;quot;fruchterman&amp;quot;, 
                   size=TRUE, edgesize = 5, labelsize=0.7, remove.multiple=FALSE, label.cex=TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-12-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-12-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also perform correspondence analysis to see relationship
 between topics with multiple correspondence analysis (MCA) or
@@ -2353,7 +2351,7 @@ output.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Conceptual Structure using keywords (method=&amp;quot;MCA&amp;quot;)
 CS &amp;lt;- conceptualStructure(M, field=&amp;quot;ID&amp;quot;, method=&amp;quot;MCA&amp;quot;, minDegree=4, clust=5, stemming=FALSE, labelsize=15, documents=20)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-13-1.png" width="1440" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-13-2.png" width="1440" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-13-3.png" width="1440" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-13-4.png" width="1440" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-13-1.png" width="1440" /&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-13-2.png" width="1440" /&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-13-3.png" width="1440" /&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-13-4.png" width="1440" /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-keyword-usage-across-time-with-historiograph"&gt;Examining
 keyword usage across time with historiograph&lt;/h2&gt;
@@ -2382,7 +2380,7 @@ ggplot(DF,aes(x=Year,y=value, group=variable, shape=variable, colour=variable))+
   labs(y=&amp;quot;Count&amp;quot;, variable=&amp;quot;Author Keywords&amp;quot;, title = &amp;quot;Author&amp;#39;s Keywords Usage Evolution Over Time&amp;quot;)+
   theme(text = element_text(size = 10))+
   facet_grid(variable ~ .)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-14-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-14-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="examining-trends-of-the-field-with-thematic-map"&gt;Examining
 trends of the field with thematic map&lt;/h2&gt;
 &lt;ul&gt;
@@ -2407,7 +2405,7 @@ pane are usually studied for general knowledge of the field.&lt;/p&gt;&lt;/li&gt
 &lt;pre class="r"&gt;&lt;code&gt;Map=thematicMap(M, field = &amp;quot;ID&amp;quot;, n = 250, minfreq = 4,
   stemming = FALSE, size = 0.7, n.labels=5, repel = TRUE)
 plot(Map$map)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-15-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-15-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-collaboration-with-social-structure-analysis"&gt;Examining
 collaboration with social structure analysis&lt;/h2&gt;
@@ -2419,14 +2417,14 @@ shows who collaborated with whom at the author level.&lt;/li&gt;
 &lt;pre class="r"&gt;&lt;code&gt;NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;authors&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix,  n = 50, Title = &amp;quot;Author collaboration&amp;quot;,type = &amp;quot;auto&amp;quot;, size=5,size.cex=T,edgesize = 5,labelsize=1, community.repulsion = 0.1)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-16-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-16-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also plot an institution collaboration network to examine
 collaboration pattern between institutions as well.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;universities&amp;quot;, sep = &amp;quot;;&amp;quot;)
 net=networkPlot(NetMatrix,  n = 50, Title = &amp;quot;Institution collaboration&amp;quot;,type = &amp;quot;auto&amp;quot;, size=4,size.cex=F,edgesize = 3,labelsize=1, community.repulsion = 0.05)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-17-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-17-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Lastly, we can examine collaboration pattern at international level
 with country collaboration network. This analysis shows countries that
@@ -2438,7 +2436,7 @@ the plot.&lt;/li&gt;
 NetMatrix &amp;lt;- biblioNetwork(country, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;countries&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix,  n = dim(NetMatrix)[1], Title = &amp;quot;Country collaboration&amp;quot;,type = &amp;quot;circle&amp;quot;, size=10,size.cex=T,edgesize = 1,labelsize=0.6, cluster=&amp;quot;none&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-18-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file34106c2d70c4_files/figure-html/unnamed-chunk-18-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="concluding-remarks"&gt;Concluding remarks&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;What I like about bibliometric analysis is that it examines the
