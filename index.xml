@@ -79,11 +79,7 @@ shows a high degree of similarity. The bar charts for each question (Q1
 to Q12) indicate that the synthetic data closely mirrors the original
 data in terms of the distribution of responses.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class="float"&gt;
-&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthcompare.png"
-alt="Original and Synthetic Dataset Comparison" /&gt;
-&lt;div class="figcaption"&gt;Original and Synthetic Dataset Comparison&lt;/div&gt;
-&lt;/div&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthcompare.png" /&gt;&lt;/p&gt;
 &lt;h2 id="utility-assessment"&gt;Utility Assessment&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;The &lt;code&gt;utility.gen&lt;/code&gt; function quantifies the similarity
@@ -225,10 +221,7 @@ legend (all labeled as “FALSE”). This means that the differences between
 the original and synthetic datasets are not statistically significant at
 the &lt;em&gt;p&lt;/em&gt; &amp;lt; .05 level.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class="float"&gt;
-&lt;img src="https://taridwong.github.io//posts/2024-11-15-syntht-test.png" alt="Item-Wise Independent Sample T-Test" /&gt;
-&lt;div class="figcaption"&gt;Item-Wise Independent Sample T-Test&lt;/div&gt;
-&lt;/div&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-syntht-test.png" /&gt;&lt;/p&gt;
 &lt;h1 id="psychometric-properties-comparison"&gt;Psychometric Properties
 Comparison&lt;/h1&gt;
 &lt;ul&gt;
@@ -334,12 +327,12 @@ ggplot(item_means_long, aes(x = as.factor(Item), y = Mean, fill = Dataset)) +
 datasets are quite similar. This indicates that the synthetic data
 closely replicates the central tendencies of the original data.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthitem-mean.png" alt="Item Means Comparison" /&gt; - To assess
-the ability of items to differentiate between respondents based on their
-trait levels, I created a grouped bar chart to compare item
-discrimination (point biserial correlation - pBis) indices from the
-original and synthetic datasets. A solid red horizontal line is added at
-a discrimination index of 0.2 using
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthitem-mean.png" /&gt; - To assess the ability of items to
+differentiate between respondents based on their trait levels, I created
+a grouped bar chart to compare item discrimination (point biserial
+correlation - pBis) indices from the original and synthetic datasets. A
+solid red horizontal line is added at a discrimination index of 0.2
+using
 &lt;code&gt;geom_hline(yintercept = 0.2, color = "red", linetype = "solid")&lt;/code&gt;.
 This line marks a commonly accepted threshold for minimal acceptable
 discrimination, offering a benchmark against which the indices can be
@@ -362,8 +355,7 @@ differentiate between high and low performers. This suggests that the
 synthetic data retains the psychometric properties of the original data,
 making it a somewhat reliable substitute for analysis purposes.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthitem-pbis.png" alt="Item Discrimination Comparison" /&gt; ##
-Reliability Analysis&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthitem-pbis.png" /&gt; ## Reliability Analysis&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;To compare the reliability of the original and synthetic
 datasets, I constructed a bar chart that visualizes the coefficient
@@ -400,10 +392,7 @@ original dataset. This suggests that the synthetic data is a reliable
 representation of the original data in terms of internal
 consistency.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;div class="float"&gt;
-&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthalpha.png" alt="Coefficiant Alpha Comparison" /&gt;
-&lt;div class="figcaption"&gt;Coefficiant Alpha Comparison&lt;/div&gt;
-&lt;/div&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthalpha.png" /&gt;&lt;/p&gt;
 &lt;h2 id="item-response-theory-test-information-function"&gt;Item Response
 Theory Test Information Function&lt;/h2&gt;
 &lt;ul&gt;
@@ -445,7 +434,7 @@ mirt(data = data_org, model = 1, itemtype = &amp;quot;graded&amp;quot;)
 
 Full-information item factor analysis with 1 factor(s).
 Converged within 1e-04 tolerance after 31 EM iterations.
-mirt version: 1.41 
+mirt version: 1.43 
 M-step optimizer: BFGS 
 EM acceleration: Ramsay 
 Number of rectangular quadrature: 61
@@ -473,7 +462,7 @@ mirt(data = data_synth, model = 1, itemtype = &amp;quot;graded&amp;quot;)
 
 Full-information item factor analysis with 1 factor(s).
 Converged within 1e-04 tolerance after 22 EM iterations.
-mirt version: 1.41 
+mirt version: 1.43 
 M-step optimizer: BFGS 
 EM acceleration: Ramsay 
 Number of rectangular quadrature: 61
@@ -540,8 +529,9 @@ datasets are not statistically different as indicated by t-test results,
 we could infer that the different in test information between the two
 datasets are also somewhat comparable.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthTIF.png" alt="Test Information Function Comparison" /&gt; #
-Concluding Remark and Practical Implications&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthTIF.png" /&gt;&lt;/p&gt;
+&lt;h1 id="concluding-remark-and-practical-implications"&gt;Concluding Remark
+and Practical Implications&lt;/h1&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;In conclusion, this analysis demonstrates how synthetic data,
 when generated thoughtfully and validated against original data, can
@@ -610,7 +600,6 @@ work!&lt;br /&gt;
       <category>Psychometric</category>
       <guid>https://taridwong.github.io/posts/2024-11-15-synth</guid>
       <pubDate>Sun, 17 Nov 2024 00:00:00 +0000</pubDate>
-      <media:content url="https://taridwong.github.io/posts/2024-11-15-synth/compare.png" medium="image" type="image/png" width="1920" height="1009"/>
     </item>
     <item>
       <title>Exploring Nature's 2023 postdoc survey with predictive modeling and NLP</title>
@@ -1657,13 +1646,13 @@ find on this platform. I appreciate your attention!&lt;br /&gt;
 
 &lt;h2 id="saying-hi"&gt;Saying Hi&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;Hi, everyone. We are heading into spring here in Edmonton. There
-is no class to teach, so I have some more free time to work on projects
+&lt;li&gt;Hi, everyone. We are heading into spring here in Edmonton. There is
+no class to teach, so I have some more free time to work on projects
 that I have on hands. I took an advance psychometric course this past
 winter 2023 semester and learned a lot of useful techniques. One of them
 is Network psychometrics.&lt;br /&gt;
-&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;Network psychometrics is a relatively novel approach to
+&lt;/li&gt;
+&lt;li&gt;Network psychometrics is a relatively novel approach to
 psychometrics research that examines relationships between observed
 variables (assessment items) without relying on the assumption of latent
 variables (&lt;a
@@ -1675,8 +1664,8 @@ of the interpretations and uses of a test in addition to the traditional
 factor analysis method (&lt;a
 href="https://link.springer.com/10.3758/s13428-020-01500-6"&gt;Christensen
 &amp;amp; Golino, 2021&lt;/a&gt;).&lt;br /&gt;
-&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;In this post, I used response data to the Big 5 personality
+&lt;/li&gt;
+&lt;li&gt;In this post, I used response data to the Big 5 personality
 inventory from the &lt;a
 href="http://openpsychometrics.org/_rawdata/"&gt;open-source psychometrics
 project&lt;/a&gt;. Items from the test were put together from the
@@ -1686,8 +1675,13 @@ the presented statements such as “I don’t talk a lot”, “I shirk my
 duties”, or “I am quick to understand things”. Responses were coded as 1
 to, where 1=Disagree, 3=Neutral, 5=Agree. Five personality traits of
 extraversion, neuroticism, agreeableness, conscientiousness, and
-openness to experience are reported as results.&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;We will start by loading packages that we will use.&lt;/p&gt;&lt;/li&gt;
+openness to experience are reported as results.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;setwd(&amp;quot;D:/Program/Private_project/R_private/Network&amp;quot;)
+
+load(&amp;quot;r_obj_big5.RData&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;We will start by loading packages that we will use.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;library(&amp;quot;dplyr&amp;quot;)
 # for network modeling 
@@ -1739,7 +1733,6 @@ fit.&lt;/li&gt;
      font = 2,
      label.cex = 1
      ) &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file152424a61e41_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will use the &lt;code&gt;prune&lt;/code&gt; function from
 &lt;code&gt;psychonetrics&lt;/code&gt; package to prune edges that do not achieve
@@ -1763,44 +1756,9 @@ peers in their respective domain, meaning that structure of the test
 still holds after the optimization.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Look at the model fit
-network_big5_optimized %&amp;gt;% psychonetrics::fit()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;           Measure       Value
-              logl -1373902.53
- unrestricted.logl -1373377.80
-     baseline.logl -1561979.97
-              nvar          50
-              nobs        1325
-              npar         747
-                df         578
-         objective       47.45
-             chisq     1049.45
-            pvalue         ~ 0
-    baseline.chisq   377204.34
-       baseline.df        1225
-   baseline.pvalue         ~ 0
-               nfi         1.0
-              pnfi        0.47
-               tli         1.0
-              nnfi         1.0
-               rfi        0.99
-               ifi         1.0
-               rni         1.0
-               cfi         1.0
-             rmsea      0.0064
-    rmsea.ci.lower      0.0058
-    rmsea.ci.upper      0.0070
-      rmsea.pvalue           1
-            aic.ll  2749299.06
-           aic.ll2  2749357.96
-             aic.x     -106.55
-            aic.x2     2543.45
-               bic  2755192.39
-              bic2  2752818.46
-           ebic.25  2758114.67
-            ebic.5  2761036.96
-           ebic.75  2763374.78
-             ebic1  2766881.52&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class="r"&gt;&lt;code&gt;# Obtain the network plot
+network_big5_optimized %&amp;gt;% psychonetrics::fit()
+
+# Obtain the network plot
 net_optimized &amp;lt;- psychonetrics::getmatrix(network_big5_optimized, &amp;quot;omega&amp;quot;)
 
 qgraph::qgraph(net_optimized, 
@@ -1810,7 +1768,6 @@ qgraph::qgraph(net_optimized,
                groups = groups,
                negDashed = T, # should negative edges be dashed?
                font = 2)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file152424a61e41_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2
 id="exploratory-graph-analysis-for-dimensional-stability"&gt;Exploratory
 Graph Analysis for Dimensional Stability&lt;/h2&gt;
@@ -2307,7 +2264,7 @@ DF&lt;/code&gt;&lt;/pre&gt;
 glance with the regular &lt;code&gt;plot&lt;/code&gt; function.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(x=results, k=10, pause=FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-6-3.png" width="672" /&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-6-4.png" width="672" /&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-6-5.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-6-3.png" width="672" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-6-4.png" width="672" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-6-5.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-relationships-between-authors-with-co-citation-analysis"&gt;Examining
 relationships between authors with co-citation Analysis&lt;/h2&gt;
@@ -2322,7 +2279,7 @@ papers within a cluster cited each other the most.&lt;/li&gt;
 net=networkPlot(NetMatrix, weighted=NULL, n = 50, 
                 Title = &amp;quot;Co-Citation Network&amp;quot;, type = &amp;quot;fruchterman&amp;quot;, 
                 size=4, size.cex=TRUE, remove.multiple=FALSE, labelsize=1, label.n=10, label.cex=F, edgesize = 10)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-7-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-7-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also perform co-citation analysis at the source level (i.e.,
 journals and conferences) to examine how sources in our data set cited
@@ -2333,7 +2290,7 @@ each other.&lt;/li&gt;
 NetMatrix &amp;lt;- biblioNetwork(Source, analysis = &amp;quot;co-citation&amp;quot;, network = &amp;quot;sources&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix, n = 50, Title = &amp;quot;Co-Citation Network-Journal&amp;quot;, type = &amp;quot;auto&amp;quot;, size.cex=TRUE, size=3, remove.multiple=FALSE, labelsize=1,edgesize = 10, edges.min=5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-8-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-8-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also examine top 5 keywords used by publication authors in
 our data set with the code below. We can see popular topics based on
@@ -2358,7 +2315,7 @@ of our bibliographic records to examine their work.&lt;/li&gt;
 minfreq = 3, size = 0.5, repel = TRUE)
 
 plot(res$map)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Finally, we can use a three fields plot to see the relationship
 between authors (AU), keywords that they used (DE), and
@@ -2386,7 +2343,7 @@ NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;co-occurrences&amp;quo
 net = networkPlot(NetMatrix, normalize=&amp;quot;association&amp;quot;, weighted=T, n = 30, 
                   Title = &amp;quot;Keyword Co-occurrences&amp;quot;, type = &amp;quot;fruchterman&amp;quot;, 
                   size=TRUE, edgesize = 5, labelsize=0.7, remove.multiple=FALSE, label.cex=TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-12-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-12-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also perform correspondence analysis to see relationship
 between topics with multiple correspondence analysis (MCA) or
@@ -2396,7 +2353,7 @@ output.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Conceptual Structure using keywords (method=&amp;quot;MCA&amp;quot;)
 CS &amp;lt;- conceptualStructure(M, field=&amp;quot;ID&amp;quot;, method=&amp;quot;MCA&amp;quot;, minDegree=4, clust=5, stemming=FALSE, labelsize=15, documents=20)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-13-1.png" width="1440" /&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-13-2.png" width="1440" /&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-13-3.png" width="1440" /&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-13-4.png" width="1440" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-13-1.png" width="1440" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-13-2.png" width="1440" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-13-3.png" width="1440" /&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-13-4.png" width="1440" /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-keyword-usage-across-time-with-historiograph"&gt;Examining
 keyword usage across time with historiograph&lt;/h2&gt;
@@ -2425,7 +2382,7 @@ ggplot(DF,aes(x=Year,y=value, group=variable, shape=variable, colour=variable))+
   labs(y=&amp;quot;Count&amp;quot;, variable=&amp;quot;Author Keywords&amp;quot;, title = &amp;quot;Author&amp;#39;s Keywords Usage Evolution Over Time&amp;quot;)+
   theme(text = element_text(size = 10))+
   facet_grid(variable ~ .)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-14-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-14-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="examining-trends-of-the-field-with-thematic-map"&gt;Examining
 trends of the field with thematic map&lt;/h2&gt;
 &lt;ul&gt;
@@ -2450,7 +2407,7 @@ pane are usually studied for general knowledge of the field.&lt;/p&gt;&lt;/li&gt
 &lt;pre class="r"&gt;&lt;code&gt;Map=thematicMap(M, field = &amp;quot;ID&amp;quot;, n = 250, minfreq = 4,
   stemming = FALSE, size = 0.7, n.labels=5, repel = TRUE)
 plot(Map$map)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-15-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-15-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-collaboration-with-social-structure-analysis"&gt;Examining
 collaboration with social structure analysis&lt;/h2&gt;
@@ -2462,14 +2419,14 @@ shows who collaborated with whom at the author level.&lt;/li&gt;
 &lt;pre class="r"&gt;&lt;code&gt;NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;authors&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix,  n = 50, Title = &amp;quot;Author collaboration&amp;quot;,type = &amp;quot;auto&amp;quot;, size=5,size.cex=T,edgesize = 5,labelsize=1, community.repulsion = 0.1)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-16-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-16-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also plot an institution collaboration network to examine
 collaboration pattern between institutions as well.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;universities&amp;quot;, sep = &amp;quot;;&amp;quot;)
 net=networkPlot(NetMatrix,  n = 50, Title = &amp;quot;Institution collaboration&amp;quot;,type = &amp;quot;auto&amp;quot;, size=4,size.cex=F,edgesize = 3,labelsize=1, community.repulsion = 0.05)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-17-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-17-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Lastly, we can examine collaboration pattern at international level
 with country collaboration network. This analysis shows countries that
@@ -2481,7 +2438,7 @@ the plot.&lt;/li&gt;
 NetMatrix &amp;lt;- biblioNetwork(country, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;countries&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix,  n = dim(NetMatrix)[1], Title = &amp;quot;Country collaboration&amp;quot;,type = &amp;quot;circle&amp;quot;, size=10,size.cex=T,edgesize = 1,labelsize=0.6, cluster=&amp;quot;none&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file15242ad573c_files/figure-html/unnamed-chunk-18-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file24fc24475782_files/figure-html/unnamed-chunk-18-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="concluding-remarks"&gt;Concluding remarks&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;What I like about bibliometric analysis is that it examines the
