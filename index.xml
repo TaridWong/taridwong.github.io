@@ -7,7 +7,611 @@
     <description>Welcome to my data science blog!
 </description>
     <generator>Distill</generator>
-    <lastBuildDate>Fri, 15 Dec 2023 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 17 Nov 2024 00:00:00 +0000</lastBuildDate>
+    <item>
+      <title>Evaluating Synthetic Data with A Psychometric Approach</title>
+      <dc:creator>Tarid Wongvorachan</dc:creator>
+      <link>https://taridwong.github.io/posts/2024-11-15-synth</link>
+      <description>
+
+
+&lt;h1 id="introduction"&gt;Introduction&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Hi Everyone. It’s been a while since my last blog post. I have
+some time while finishing up my semester to try out new research methods
+and document what I learned. As a researcher or a data scientist, I
+often have urges to try my hands on several datasets and, if possible,
+share my findings to the public.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;However, handling sensitive datasets, particularly in
+psychological research, can pose challenges related to confidentiality
+and ethics. Psychological studies frequently involve surveys that ask
+participants about their personal experiences, thoughts, and feelings.
+These responses can include sensitive topics like trauma, substance
+abuse, or mental health issues. Researchers must handle this data with
+care to maintain participant confidentiality and trust.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Synthetic data offers a practical alternative, allowing
+researchers to analyze or teach using synthetic datasets while
+preserving the statistical properties of the original data. This blog
+demonstrates synthesizing a dataset of examinees’ responses to a 12-item
+psychological scale using R’s synthpop package and evaluating the
+psychometric properties of the synthetic data.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="preparing-the-dataset"&gt;Preparing the Dataset&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The dataset (&lt;code&gt;data_org&lt;/code&gt;) contains real examinee
+responses to a 12-item scale measuring a psychological construct. Each
+question is responded using a seven-point Likert scale, with 7 means
+“definitely true” to 1 means “mostly false” to examinees’ agreement to
+statements presented to them.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Before synthesizing the data, missing data is removed using
+&lt;code&gt;na.omit()&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;data_org &amp;lt;- read.csv(&amp;quot;df.csv&amp;quot;, header = TRUE)
+data_org &amp;lt;- na.omit(data_org)&lt;/code&gt;&lt;/pre&gt;
+&lt;h1 id="generating-synthetic-data"&gt;Generating Synthetic Data&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The syn function from the &lt;code&gt;synthpop&lt;/code&gt; package
+synthesizes data using the CART (Classification and Regression Trees)
+method. The documenttation of the package can be viewed &lt;a
+href="https://synthpop.org.uk/about-synthpop.html"&gt;here&lt;/a&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;This step generates a synthetic dataset (&lt;code&gt;data_synth&lt;/code&gt;)
+designed to mirror the statistical properties of
+&lt;code&gt;data_org&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;library(synthpop)
+
+synth.obj &amp;lt;- syn(data_org, method = &amp;quot;cart&amp;quot;, seed = 12345)
+data_synth &amp;lt;- synth.obj$syn&lt;/code&gt;&lt;/pre&gt;
+&lt;h1 id="comparing-original-and-synthetic-data"&gt;Comparing Original and
+Synthetic Data&lt;/h1&gt;
+&lt;h2 id="visualizing-differences"&gt;Visualizing Differences&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;The &lt;code&gt;compare&lt;/code&gt; function visually compares the
+distributions of selected variables between the original and synthetic
+datasets:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;mycols &amp;lt;- c(&amp;quot;darkmagenta&amp;quot;, &amp;quot;turquoise&amp;quot;)
+object &amp;lt;- compare(synth.obj, data_org, nrow = 3, ncol = 4, cols = mycols)
+object$plots&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Overall, the comparison between the synthetic and original datasets
+shows a high degree of similarity. The bar charts for each question (Q1
+to Q12) indicate that the synthetic data closely mirrors the original
+data in terms of the distribution of responses.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="float"&gt;
+&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthcompare.png"
+alt="Original and Synthetic Dataset Comparison" /&gt;
+&lt;div class="figcaption"&gt;Original and Synthetic Dataset Comparison&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2 id="utility-assessment"&gt;Utility Assessment&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;The &lt;code&gt;utility.gen&lt;/code&gt; function quantifies the similarity
+between datasets using utility measures.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;util_gen &amp;lt;- utility.gen(synth.obj, data_org)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Ideally, we would want the propensity score standardized
+mean-squared error (S_pMSE) to be closer to 1.0, meaning that the
+synthetic data has perfect semblance to the original dataset. However,
+we can use other methods to assess quality of the synthetic data as well
+&lt;a href="https://blogs.ed.ac.uk/graab/workshop/idpln/"&gt;Raab &amp;amp; Nowok,
+2022&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;util_gen&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Utility score calculated by method: cart
+
+Call:
+utility.gen.synds(object = synth.obj, data = data_org)
+
+Null utilities simulated from a permutation test with 50 replications.
+
+Selected utility measures
+    pMSE   S_pMSE 
+0.063602 1.691113 &lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Since creating a perfect, 100% replica of a dataset is inherently
+challenging, I validated the synthetic data using conventional
+statistical analyses and psychometric evaluation methods. This approach
+ensures that the synthetic dataset maintains its integrity and produces
+results aligned with the dataset’s intended purpose as a measurement
+tool.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="statistical-testing"&gt;Statistical Testing&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;To assess whether the synthetic data aligns with the original
+dataset at the item level, I conducted independent sample t-tests for
+each of the 12 items in the scale. This statistical test evaluates
+whether there are significant differences in the mean responses between
+the original (&lt;code&gt;data_org&lt;/code&gt;) and synthetic
+(&lt;code&gt;data_synth&lt;/code&gt;) datasets.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;First, I initialized a data frame, &lt;code&gt;t_test_results&lt;/code&gt;,
+to store the outcomes of the t-tests. This data frame included columns
+for the item number (&lt;code&gt;Item&lt;/code&gt;), the calculated t-value
+(&lt;code&gt;T_Statistic&lt;/code&gt;), the corresponding p-value
+(&lt;code&gt;P_Value&lt;/code&gt;), and a logical indicator
+(&lt;code&gt;Significant&lt;/code&gt;) that flagged whether the difference was
+statistically significant at the 5% level (p &amp;lt; 0.05). This setup
+provided a structured way to systematically record and interpret the
+results.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Next, I used a loop to iterate through all 12 items in the
+dataset. For each item, the responses from the original and synthetic
+datasets were extracted. An independent sample t-test was performed to
+compare their means, and the results were stored in the
+&lt;code&gt;t_test_results&lt;/code&gt; data frame. Specifically, the t-statistic
+and p-value were recorded, and the &lt;code&gt;Significant&lt;/code&gt; column was
+updated to indicate whether the observed differences were statistically
+significant. This approach ensured a consistent and transparent
+validation process across all items.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Finally, the completed &lt;code&gt;t_test_results&lt;/code&gt; data frame
+offered a comprehensive summary of the t-test results for all items.
+Items with significant differences (p &amp;lt; 0.05) were flagged,
+highlighting variables where the synthetic data deviated notably from
+the original. Conversely, non-significant results confirmed that the
+synthetic data closely replicated the original for those items. These
+findings provided valuable insights into the synthetic dataset’s
+accuracy, identifying potential areas for refinement and reinforcing its
+suitability for statistical and psychometric applications.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# Initialize an empty data frame to store the t-test results
+t_test_results &amp;lt;- data.frame(
+  Item = 1:12,
+  T_Statistic = numeric(12),
+  P_Value = numeric(12),
+  Significant = logical(12)
+)
+
+# Perform independent sample t-test for each item
+for (i in 1:12) {
+  # Extract responses for the current item from both original and synthesized datasets
+  org_responses &amp;lt;- data_org[, i]
+  synth_responses &amp;lt;- data_synth[, i]
+  
+  # Perform the independent t-test
+  t_test &amp;lt;- t.test(org_responses, synth_responses)
+  
+  # Store the results in the data frame
+  t_test_results$T_Statistic[i] &amp;lt;- t_test$statistic
+  t_test_results$P_Value[i] &amp;lt;- t_test$p.value
+  
+  # Check if the p-value is less than 0.05 (significant at the 5% level)
+  t_test_results$Significant[i] &amp;lt;- t_test$p.value &amp;lt; 0.05
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# View the t-test results
+print(t_test_results)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;   Item T_Statistic   P_Value Significant
+1     1  1.24725294 0.2125793       FALSE
+2     2  0.37685436 0.7063567       FALSE
+3     3  0.03819008 0.9695433       FALSE
+4     4  1.04233137 0.2974951       FALSE
+5     5  0.75686676 0.4492967       FALSE
+6     6  0.24844901 0.8038351       FALSE
+7     7 -0.63765775 0.5238332       FALSE
+8     8  0.08628668 0.9312547       FALSE
+9     9  0.56532140 0.5719741       FALSE
+10   10  0.74877731 0.4541563       FALSE
+11   11  0.46332527 0.6432256       FALSE
+12   12  0.65988433 0.5094704       FALSE&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="visualizing-t-test-results"&gt;Visualizing T-Test Results&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;To visually interpret the results of the independent sample t-tests,
+I created a bar plot using the &lt;code&gt;ggplot2&lt;/code&gt; package. This
+visualization illustrates the t-statistic for each item, making it
+easier to identify which items showed significant differences between
+the original and synthetic datasets. The plot serves as a clear and
+intuitive representation of the t-test results, providing stakeholders
+with a quick overview of the dataset’s alignment.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;library(ggplot2)
+ggplot(t_test_results, aes(x = factor(Item), y = T_Statistic, fill = Significant)) +
+  geom_bar(stat = &amp;quot;identity&amp;quot;, position = &amp;quot;dodge&amp;quot;, width = 0.7) +
+  labs(title = &amp;quot;Independent Sample T-Test: Item-wise Comparison at p &amp;lt; .05&amp;quot;, 
+       x = &amp;quot;Item&amp;quot;, y = &amp;quot;T-Statistic&amp;quot;) +
+  scale_fill_manual(values = c(&amp;quot;TRUE&amp;quot; = &amp;quot;turquoise&amp;quot;, &amp;quot;FALSE&amp;quot; = &amp;quot;darkmagenta&amp;quot;)) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  geom_text(aes(label = ifelse(Significant, &amp;quot;*&amp;quot;, &amp;quot;&amp;quot;)), 
+            vjust = -0.5, color = &amp;quot;black&amp;quot;, size = 5) +
+  annotate(&amp;quot;text&amp;quot;, x = 2, y = max(t_test_results$T_Statistic) + 2, 
+           label = &amp;quot;Negative t-statistic: Mean of original &amp;lt; Synthesized\nPositive t-statistic: Mean of original &amp;gt; Synthesized&amp;quot;, 
+           size = 4, hjust = 0, color = &amp;quot;black&amp;quot;, fontface = &amp;quot;italic&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The T-statistics for each item range from approximately -1 to 2.
+This indicates the degree of difference between the means of the
+original and synthetic datasets for each item.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;None of the comparisons are significant, as indicated by the
+legend (all labeled as “FALSE”). This means that the differences between
+the original and synthetic datasets are not statistically significant at
+the &lt;em&gt;p&lt;/em&gt; &amp;lt; .05 level.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="float"&gt;
+&lt;img src="https://taridwong.github.io//posts/2024-11-15-syntht-test.png" alt="Item-Wise Independent Sample T-Test" /&gt;
+&lt;div class="figcaption"&gt;Item-Wise Independent Sample T-Test&lt;/div&gt;
+&lt;/div&gt;
+&lt;h1 id="psychometric-properties-comparison"&gt;Psychometric Properties
+Comparison&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;To evaluate and compare the psychometric properties of the
+original and synthetic datasets, I conducted item analyses using the
+&lt;code&gt;itemAnalysis&lt;/code&gt; function from the &lt;code&gt;CTT&lt;/code&gt; package.
+This step aimed to assess whether the synthetic dataset preserved key
+measurement characteristics, such as item means and discrimination
+indices, ensuring it aligns with the original dataset’s intended purpose
+as a measurement instrument.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;For the original dataset (&lt;code&gt;data_org&lt;/code&gt;), the
+&lt;code&gt;itemAnalysis&lt;/code&gt; function was applied to generate a detailed
+report of psychometric properties. This analysis included calculations
+of item means, item-total correlations (discrimination indices), and
+flagged items based on pre-specified thresholds for performance issues.
+The same analysis was then conducted on the synthetic dataset
+(&lt;code&gt;data_synth&lt;/code&gt;) using identical parameters.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;By comparing the results from both datasets, I could evaluate
+whether the synthetic dataset accurately replicated the original
+dataset’s psychometric properties. Specifically, alignment in item means
+would suggest that the synthetic data preserves the central tendency of
+responses, while similarity in discrimination indices would indicate
+that the synthetic data retains the original dataset’s ability to
+differentiate between examinees effectively. These analyses are
+essential for validating the synthetic dataset’s utility for
+psychometric research and educational applications.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;library(CTT)
+
+# Perform item analysis on original data
+org_item_analysis &amp;lt;- itemAnalysis(data_org, itemReport=TRUE, NA.Delete=TRUE, pBisFlag = T,  bisFlag = T, flagStyle = c(&amp;quot;X&amp;quot;,&amp;quot;&amp;quot;))
+
+# Perform item analysis on synthesized data
+synth_item_analysis &amp;lt;- itemAnalysis(data_synth, itemReport=TRUE, NA.Delete=TRUE, pBisFlag = T,  bisFlag = T, flagStyle = c(&amp;quot;X&amp;quot;,&amp;quot;&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id="visualizing-item-level-properties"&gt;Visualizing Item-Level
+Properties&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;To visually compare the psychometric properties of the original
+and synthetic datasets, I created side-by-side bar charts for two key
+metrics: item means and item discrimination indices. These metrics are
+critical for understanding the central tendency of item responses and
+the items’ ability to differentiate between respondents based on their
+overall performance.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;First, I extracted the item means and discrimination indices from
+the results of the &lt;code&gt;itemAnalysis&lt;/code&gt; for both datasets. This
+involved organizing the data into a data frame that paired each item
+with its corresponding mean and discrimination index values for both the
+original and synthetic datasets. This structure enabled a direct
+comparison of the two datasets’ properties.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;To prepare the data for visualization, I reshaped the data frame
+into a “long” format using the &lt;code&gt;pivot_longer&lt;/code&gt; function from
+the &lt;code&gt;tidyverse&lt;/code&gt; package. For item means, I created a data
+frame where each item was associated with its mean score from both
+datasets, labeled as either “Original_Mean” or “Synthesized_Mean.”
+Similarly, for item discrimination indices, I created another data frame
+with labels “Original_Discrimination” and “Synthesized_Discrimination.”
+This long-format structure is ideal for creating grouped bar charts in
+&lt;code&gt;ggplot2&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;This step laid the groundwork for creating side-by-side bar
+charts that clearly depict how closely the synthetic data aligns with
+the original data. By focusing on item means and discrimination indices,
+these visualizations provide critical insights into whether the
+synthetic dataset faithfully preserves the original data’s psychometric
+characteristics, ensuring it remains a valid representation for
+educational or research purposes.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;#Plot Side-by-Side Bar Charts for Item Means and Discrimination
+library(tidyverse)
+
+# Extract item mean and discrimination for original and synthetic data
+item_comparison &amp;lt;- data.frame(
+  Item = seq_along(org_item_analysis$itemReport$itemMean),
+  Original_Mean = org_item_analysis$itemReport$itemMean,
+  Synthesized_Mean = synth_item_analysis$itemReport$itemMean,
+  Original_Discrimination = org_item_analysis$itemReport$pBis,
+  Synthesized_Discrimination = synth_item_analysis$itemReport$pBis
+)
+
+# Reshape the data for ggplot
+item_means_long &amp;lt;- item_comparison %&amp;gt;%
+  select(Item, Original_Mean, Synthesized_Mean) %&amp;gt;%
+  tidyr::pivot_longer(cols = c(Original_Mean, Synthesized_Mean), names_to = &amp;quot;Dataset&amp;quot;, values_to = &amp;quot;Mean&amp;quot;)
+
+item_discrimination_long &amp;lt;- item_comparison %&amp;gt;%
+  select(Item, Original_Discrimination, Synthesized_Discrimination) %&amp;gt;%
+  tidyr::pivot_longer(cols = c(Original_Discrimination, Synthesized_Discrimination), names_to = &amp;quot;Dataset&amp;quot;, values_to = &amp;quot;Discrimination&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;To visualize the comparison of item means between the original and
+synthetic datasets, I used a grouped bar chart created with the ggplot2
+package. This chart highlights how closely the synthetic dataset
+replicates the central tendency of responses in the original
+dataset.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# Plot item means
+ggplot(item_means_long, aes(x = as.factor(Item), y = Mean, fill = Dataset)) +
+  geom_bar(stat = &amp;quot;identity&amp;quot;, position = &amp;quot;dodge&amp;quot;) +
+  labs(title = &amp;quot;Item Means Comparison&amp;quot;, x = &amp;quot;Item&amp;quot;, y = &amp;quot;Mean Score&amp;quot;) +
+  theme_minimal() +
+  scale_fill_manual(values = c(&amp;quot;Original_Mean&amp;quot; = &amp;quot;darkmagenta&amp;quot;, &amp;quot;Synthesized_Mean&amp;quot; = &amp;quot;turquoise&amp;quot;)) + 
+  theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;For most items, the mean scores of the original and synthesized
+datasets are quite similar. This indicates that the synthetic data
+closely replicates the central tendencies of the original data.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthitem-mean.png" alt="Item Means Comparison" /&gt; - To assess
+the ability of items to differentiate between respondents based on their
+trait levels, I created a grouped bar chart to compare item
+discrimination (point biserial correlation - pBis) indices from the
+original and synthetic datasets. A solid red horizontal line is added at
+a discrimination index of 0.2 using
+&lt;code&gt;geom_hline(yintercept = 0.2, color = "red", linetype = "solid")&lt;/code&gt;.
+This line marks a commonly accepted threshold for minimal acceptable
+discrimination, offering a benchmark against which the indices can be
+evaluated.&lt;/p&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# Plot item discrimination
+ggplot(item_discrimination_long, aes(x = as.factor(Item), y = Discrimination, fill = Dataset)) +
+  geom_bar(stat = &amp;quot;identity&amp;quot;, position = &amp;quot;dodge&amp;quot;) +
+  labs(title = &amp;quot;Item Discrimination Comparison \n The red line represents minimal acceptable value&amp;quot;, x = &amp;quot;Item&amp;quot;, y = &amp;quot;Discrimination Index&amp;quot;) +
+  theme_minimal() +
+  scale_fill_manual(values = c(&amp;quot;Original_Discrimination&amp;quot; = &amp;quot;darkmagenta&amp;quot;, &amp;quot;Synthesized_Discrimination&amp;quot; = &amp;quot;turquoise&amp;quot;)) + 
+  geom_hline(yintercept = 0.2, color = &amp;quot;red&amp;quot;, linetype = &amp;quot;solid&amp;quot;) + 
+  theme(plot.title = element_text(hjust = 0.5))&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;For most items, the discrimination indices of the original and
+synthesized datasets are quite similar, with both datasets meeting or
+exceeding the minimal acceptable value of 0.2 for most items. The chart
+demonstrates that the synthetic dataset closely mirrors the original
+dataset in terms of item discrimination, maintaining the ability to
+differentiate between high and low performers. This suggests that the
+synthetic data retains the psychometric properties of the original data,
+making it a somewhat reliable substitute for analysis purposes.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthitem-pbis.png" alt="Item Discrimination Comparison" /&gt; ##
+Reliability Analysis&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;To compare the reliability of the original and synthetic
+datasets, I constructed a bar chart that visualizes the coefficient
+alpha values for each dataset. Coefficient alpha is a measure of
+internal consistency, indicating the extent to which items in a scale
+measure the same construct. This comparison helps assess whether the
+synthetic data faithfully reproduces the reliability of the original
+data.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The input data for this visualization is encapsulated in the
+alpha_comparison data frame, which contains two rows: one for the
+original dataset and one for the synthesized dataset. Each row includes
+the respective alpha value, calculated during the item analysis
+process.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# Reliability Comparison Data Frame
+alpha_comparison &amp;lt;- data.frame(
+  Dataset = c(&amp;quot;Original&amp;quot;, &amp;quot;Synthesized&amp;quot;),
+  Alpha = c(org_item_analysis$alpha, synth_item_analysis$alpha)
+)
+
+# Bar Plot with Values Displayed Above Bars
+ggplot(alpha_comparison, aes(x = Dataset, y = Alpha, fill = Dataset)) +
+  geom_bar(stat = &amp;quot;identity&amp;quot;, width = 0.5) +
+  geom_text(aes(label = round(Alpha, 3)), vjust = -0.3, color = &amp;quot;black&amp;quot;, size = 5) + # Display values above bars
+  labs(title = &amp;quot;Reliability (Coefficient Alpha) Comparison&amp;quot;,
+       y = &amp;quot;Alpha Reliability Coefficient&amp;quot;) +
+  theme_minimal() +
+  scale_fill_manual(values = c(&amp;quot;Original&amp;quot; = &amp;quot;darkmagenta&amp;quot;, &amp;quot;Synthesized&amp;quot; = &amp;quot;turquoise&amp;quot;)) +
+  theme(plot.title = element_text(hjust = 0.5)) # Center the title&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;The chart indicates that the synthetic dataset maintains a somewhat
+high level of internal consistency (higher than .70), comparable to the
+original dataset. This suggests that the synthetic data is a reliable
+representation of the original data in terms of internal
+consistency.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="float"&gt;
+&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthalpha.png" alt="Coefficiant Alpha Comparison" /&gt;
+&lt;div class="figcaption"&gt;Coefficiant Alpha Comparison&lt;/div&gt;
+&lt;/div&gt;
+&lt;h2 id="item-response-theory-test-information-function"&gt;Item Response
+Theory Test Information Function&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;To evaluate the psychometric properties of the original and
+synthesized datasets under the framework of Item Response Theory (IRT),
+I implemented Graded Response Models (GRM) using the &lt;code&gt;mirt&lt;/code&gt;
+package in R. GRMs are particularly well-suited for analyzing polytomous
+item responses, as they estimate parameters that describe the
+relationship between latent traits (e.g., ability) and the probability
+of item responses across multiple categories.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;The GRM was fitted separately to the original and synthesized
+datasets using the &lt;code&gt;mirt&lt;/code&gt; function. The syntax specifies
+&lt;code&gt;model = 1&lt;/code&gt;, indicating a unidimensional model, and
+&lt;code&gt;itemtype = "graded"&lt;/code&gt;, which defines the GRM as the chosen
+IRT model. The outputs are stored in &lt;code&gt;model_org&lt;/code&gt; and
+&lt;code&gt;model_synth&lt;/code&gt; for the original and synthesized data,
+respectively.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;library(mirt)
+
+# Fit a Graded Response Model (GRM) for original data
+model_org &amp;lt;- mirt(data_org, model = 1, itemtype = &amp;quot;graded&amp;quot;)
+
+# Fit a Graded Response Model (GRM) for synthesized data
+model_synth &amp;lt;- mirt(data_synth, model = 1, itemtype = &amp;quot;graded&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="estimated-irt-model-of-the-original-dataset"&gt;Estimated IRT Model
+of the Original Dataset&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;After fitting the models, I examined their structures and key
+parameters. The object &lt;code&gt;model_org&lt;/code&gt; provides an overview of
+the original dataset’s IRT model, including the number of dimensions and
+items. A detailed summary using &lt;code&gt;summary(model_org)&lt;/code&gt; displays
+item parameters such as discrimination and difficulty thresholds.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;model_org&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+mirt(data = data_org, model = 1, itemtype = &amp;quot;graded&amp;quot;)
+
+Full-information item factor analysis with 1 factor(s).
+Converged within 1e-04 tolerance after 31 EM iterations.
+mirt version: 1.41 
+M-step optimizer: BFGS 
+EM acceleration: Ramsay 
+Number of rectangular quadrature: 61
+Latent density type: Gaussian 
+
+Log-likelihood = -9210.903
+Estimated parameters: 84 
+AIC = 18589.81
+BIC = 18949.52; SABIC = 18682.87
+G2 (1e+10) = 11699.78, p = 1
+RMSEA = 0, CFI = NaN, TLI = NaN&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;summary(model_org)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;          Length            Class             Mode 
+               1 SingleGroupClass               S4 &lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="estimated-irt-model-of-the-synthetic-dataset"&gt;EStimated IRT
+Model of the Synthetic Dataset&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Similarly, &lt;code&gt;model_synth&lt;/code&gt; and its summary provide
+corresponding information for the synthesized dataset.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;model_synth&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;
+Call:
+mirt(data = data_synth, model = 1, itemtype = &amp;quot;graded&amp;quot;)
+
+Full-information item factor analysis with 1 factor(s).
+Converged within 1e-04 tolerance after 22 EM iterations.
+mirt version: 1.41 
+M-step optimizer: BFGS 
+EM acceleration: Ramsay 
+Number of rectangular quadrature: 61
+Latent density type: Gaussian 
+
+Log-likelihood = -9220.621
+Estimated parameters: 83 
+AIC = 18607.24
+BIC = 18962.67; SABIC = 18699.2
+G2 (1e+10) = 11721.99, p = 1
+RMSEA = 0, CFI = NaN, TLI = NaN&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class="r"&gt;&lt;code&gt;summary(model_synth)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;          Length            Class             Mode 
+               1 SingleGroupClass               S4 &lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id="test-information-function-comparison"&gt;Test Information Function
+Comparison&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;To further compare the psychometric properties of the original
+and synthesized datasets, I evaluated the Test Information Function
+(TIF), a crucial aspect in IRT models. The TIF indicates the amount of
+information provided by the test at various levels of the latent trait
+(theta), which reflects the precision with which a test can measure a
+person’s ability at different points on the ability scale.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Comparing the TIFs for the original and synthesized datasets
+allows us to assess if the synthetic data preserves the measurement
+capabilities of the original test, ensuring that the synthesized items
+are psychometrically valid across the latent trait continuum.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;By plotting and comparing the TIFs, we can also identify regions
+where the synthesized data may overestimate or underestimate test
+information, providing valuable insights into its alignment with the
+original dataset’s performance.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r"&gt;&lt;code&gt;# Define a range of theta values (latent trait values) to calculate test information
+theta_values &amp;lt;- seq(-3, 3, by = 0.1)  # Adjust the range and step size as needed
+
+# Extract the Test Information Function (TIF) for original data
+TIF_org &amp;lt;- testinfo(model_org, Theta = theta_values)
+
+# Extract the Test Information Function (TIF) for synthesized data
+TIF_synth &amp;lt;- testinfo(model_synth, Theta = theta_values)
+
+
+# Plot Test Information Function for original and synthesized data
+plot(theta_values, TIF_org, type = &amp;quot;l&amp;quot;, col = &amp;quot;darkmagenta&amp;quot;, lwd = 2, 
+     xlim = c(-3, 3), ylim = c(0, max(TIF_org, TIF_synth)), 
+     xlab = &amp;quot;Theta&amp;quot;, ylab = &amp;quot;Test Information&amp;quot;, 
+     main = &amp;quot;Test Information Function (TIF) Comparison&amp;quot;)
+
+# Add the TIF for synthesized data to the plot
+lines(theta_values, TIF_synth, col = &amp;quot;turquoise&amp;quot;, lwd = 2)
+
+# Add a legend
+legend(&amp;quot;topright&amp;quot;, legend = c(&amp;quot;Original Data&amp;quot;, &amp;quot;Synthesized Data&amp;quot;), 
+       col = c(&amp;quot;darkmagenta&amp;quot;, &amp;quot;turquoise&amp;quot;), lwd = 2)&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The purple line represents the original data, while the cyan line
+represents the synthesized data. The graph shows that the synthesized
+data generally provides higher test information than the original data,
+especially in the theta range from -3 to 2. This means that both dataset
+provide comparable measurement properties in examinees whose latent
+trait at high level (i.e., &amp;gt; 2).&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;However, given that the distribution of item responses in two
+datasets are not statistically different as indicated by t-test results,
+we could infer that the different in test information between the two
+datasets are also somewhat comparable.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://taridwong.github.io//posts/2024-11-15-synthTIF.png" alt="Test Information Function Comparison" /&gt; #
+Concluding Remark and Practical Implications&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;In conclusion, this analysis demonstrates how synthetic data,
+when generated thoughtfully and validated against original data, can
+serve as a valuable alternative for research purposes. By comparing
+metrics such as item means, discrimination, reliability, and the test
+information function (TIF), we were able to ensure that the synthesized
+dataset retains critical psychometric properties of the original
+dataset, providing robust support for further analysis.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;For practical implications, the ability to generate synthetic
+data that closely mirrors the statistical properties of real-world data
+is helpful. This can be particularly beneficial in situations where
+access to original datasets is limited due to privacy concerns or
+logistical constraints. For instance, when working with sensitive data,
+synthetic datasets can serve as a useful substitute for testing
+algorithms, conducting simulations, or performing validation studies,
+all without compromising individual privacy.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Moreover, understanding how synthetic data behaves compared to
+its original counterpart allows researchers and data scientists to
+confidently use synthesized data for a variety of applications, such as
+model development, training machine learning algorithms, or performing
+sensitivity analyses. The ability to validate the quality of synthetic
+data ensures that any decisions or inferences drawn from its use are
+based on reliable, comparable data.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;From a methodological perspective, this analysis also provides a
+valuable framework for evaluating synthetic data across different
+contexts. By applying various psychometric methods like item analysis
+and IRT, or using traditional means like t-test, researchers can
+identify areas of strength and potential improvements in synthetic data,
+tailoring their data generation processes to meet specific research
+needs.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Suppose a researcher is studying a new psychological assessment
+tool. By conducting item analysis on both the original and synthesized
+datasets, they could determine whether the synthesized data maintains
+the same level of item difficulty and discrimination as the original
+data.&lt;br /&gt;
+&lt;/li&gt;
+&lt;li&gt;If a researcher is using synthetic data to simulate different groups
+(e.g., a treatment group vs. a control group), performing t-tests can
+help ensure that the mean differences between groups in the synthetic
+dataset align with those in the original data.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;However, it’s essential to remember that synthetic data is not a
+one-size-fits-all solution. Its effectiveness depends on the quality of
+the generative models and the methods used to validate the data. It’s
+always crucial to perform rigorous checks, as we did in this example, to
+ensure that the synthetic data aligns closely with the original
+dataset’s characteristics. If the synthetic data does not match with the
+original data, researchers could adjust the data generation model to
+better reflect the variability of responses in real-world data.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;In conclusion, the thorough validation of synthesized datasets
+against real-world data offers reassurance that synthetic data can serve
+as a trustworthy tool in many research and practical applications. This
+not only enhances the credibility of synthetic data as an alternative to
+original datasets but also supports its increasing adoption across
+disciplines where data privacy, availability, or ethical concerns may
+otherwise limit the use of actual datasets.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Thank you for following along—hopefully, this post has given you
+some ideas about how you might use synthetic data in your own
+work!&lt;br /&gt;
+&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="r distill-force-highlighting-css"&gt;&lt;code&gt;&lt;/code&gt;&lt;/pre&gt;</description>
+      <distill:md5>76705c73e8af2fb05d59413bfebb9e3a</distill:md5>
+      <category>R</category>
+      <category>Psychometric</category>
+      <guid>https://taridwong.github.io/posts/2024-11-15-synth</guid>
+      <pubDate>Sun, 17 Nov 2024 00:00:00 +0000</pubDate>
+      <media:content url="https://taridwong.github.io/posts/2024-11-15-synth/TIF.png" medium="image" type="image/png" width="632" height="526"/>
+    </item>
     <item>
       <title>Exploring Nature's 2023 postdoc survey with predictive modeling and NLP</title>
       <dc:creator>Tarid Wongvorachan</dc:creator>
@@ -1135,7 +1739,7 @@ fit.&lt;/li&gt;
      font = 2,
      label.cex = 1
      ) &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file56411e158fe_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file21dc68eb5dbf_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We will use the &lt;code&gt;prune&lt;/code&gt; function from
 &lt;code&gt;psychonetrics&lt;/code&gt; package to prune edges that do not achieve
@@ -1206,7 +1810,7 @@ qgraph::qgraph(net_optimized,
                groups = groups,
                negDashed = T, # should negative edges be dashed?
                font = 2)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file56411e158fe_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file21dc68eb5dbf_files/figure-html/unnamed-chunk-8-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2
 id="exploratory-graph-analysis-for-dimensional-stability"&gt;Exploratory
 Graph Analysis for Dimensional Stability&lt;/h2&gt;
@@ -1486,9 +2090,9 @@ MAIN INFORMATION ABOUT DATA
  Sources (Journals, Books, etc)        238 
  Documents                             500 
  Annual Growth Rate %                  11.85 
- Document Average Age                  4.52 
+ Document Average Age                  5.52 
  Average citations per doc             9.354 
- Average citations per year per doc    1.638 
+ Average citations per year per doc    1.367 
  References                            11674 
  
 DOCUMENT TYPES                     
@@ -1567,16 +2171,16 @@ Top manuscripts per citations
 9  JIVET I, 2017, LECT NOTES COMPUT SC                                                                                                               
 10 BODILY R, 2017, SEVENTH INTERNATIONAL LEARNING ANALYTICS &amp;amp; KNOWLEDGE CONFERENCE (LAK&amp;#39;17)                                                          
                              DOI  TC TCperYear   NTC
-1  NA                            374     31.17  2.29
-2  NA                            260     21.67  1.59
-3  NA                            120     20.00 10.39
-4  10.1145/3170358.3170421       118     19.67 10.21
-5  10.1016/j.compedu.2015.08.004 109     12.11  7.92
-6  10.1007/978-3-319-52977-6_1   102     14.57  8.71
-7  10.19173/irrodl.v12i3.883      83      6.38  1.00
-8  10.1145/3027385.3027400        75     10.71  6.40
-9  10.1007/978-3-319-66610-5_7    71     10.14  6.06
-10 10.1145/3027385.3027403        71     10.14  6.06
+1  NA                            374     28.77  2.29
+2  NA                            260     20.00  1.59
+3  NA                            120     17.14 10.39
+4  10.1145/3170358.3170421       118     16.86 10.21
+5  10.1016/j.compedu.2015.08.004 109     10.90  7.92
+6  10.1007/978-3-319-52977-6_1   102     12.75  8.71
+7  10.19173/irrodl.v12i3.883      83      5.93  1.00
+8  10.1145/3027385.3027400        75      9.38  6.40
+9  10.1007/978-3-319-66610-5_7    71      8.88  6.06
+10 10.1145/3027385.3027403        71      8.88  6.06
 
 
 Corresponding Author&amp;#39;s Countries
@@ -1703,7 +2307,7 @@ DF&lt;/code&gt;&lt;/pre&gt;
 glance with the regular &lt;code&gt;plot&lt;/code&gt; function.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;plot(x=results, k=10, pause=FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-6-3.png" width="672" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-6-4.png" width="672" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-6-5.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-6-1.png" width="672" /&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-6-2.png" width="672" /&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-6-3.png" width="672" /&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-6-4.png" width="672" /&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-6-5.png" width="672" /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-relationships-between-authors-with-co-citation-analysis"&gt;Examining
 relationships between authors with co-citation Analysis&lt;/h2&gt;
@@ -1718,7 +2322,7 @@ papers within a cluster cited each other the most.&lt;/li&gt;
 net=networkPlot(NetMatrix, weighted=NULL, n = 50, 
                 Title = &amp;quot;Co-Citation Network&amp;quot;, type = &amp;quot;fruchterman&amp;quot;, 
                 size=4, size.cex=TRUE, remove.multiple=FALSE, labelsize=1, label.n=10, label.cex=F, edgesize = 10)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-7-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-7-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also perform co-citation analysis at the source level (i.e.,
 journals and conferences) to examine how sources in our data set cited
@@ -1729,7 +2333,7 @@ each other.&lt;/li&gt;
 NetMatrix &amp;lt;- biblioNetwork(Source, analysis = &amp;quot;co-citation&amp;quot;, network = &amp;quot;sources&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix, n = 50, Title = &amp;quot;Co-Citation Network-Journal&amp;quot;, type = &amp;quot;auto&amp;quot;, size.cex=TRUE, size=3, remove.multiple=FALSE, labelsize=1,edgesize = 10, edges.min=5)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-8-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-8-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also examine top 5 keywords used by publication authors in
 our data set with the code below. We can see popular topics based on
@@ -1754,7 +2358,7 @@ of our bibliographic records to examine their work.&lt;/li&gt;
 minfreq = 3, size = 0.5, repel = TRUE)
 
 plot(res$map)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-10-1.png" width="672" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Finally, we can use a three fields plot to see the relationship
 between authors (AU), keywords that they used (DE), and
@@ -1782,7 +2386,7 @@ NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;co-occurrences&amp;quo
 net = networkPlot(NetMatrix, normalize=&amp;quot;association&amp;quot;, weighted=T, n = 30, 
                   Title = &amp;quot;Keyword Co-occurrences&amp;quot;, type = &amp;quot;fruchterman&amp;quot;, 
                   size=TRUE, edgesize = 5, labelsize=0.7, remove.multiple=FALSE, label.cex=TRUE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-12-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-12-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also perform correspondence analysis to see relationship
 between topics with multiple correspondence analysis (MCA) or
@@ -1792,7 +2396,7 @@ output.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;# Conceptual Structure using keywords (method=&amp;quot;MCA&amp;quot;)
 CS &amp;lt;- conceptualStructure(M, field=&amp;quot;ID&amp;quot;, method=&amp;quot;MCA&amp;quot;, minDegree=4, clust=5, stemming=FALSE, labelsize=15, documents=20)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-13-1.png" width="1440" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-13-2.png" width="1440" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-13-3.png" width="1440" /&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-13-4.png" width="1440" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-13-1.png" width="1440" /&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-13-2.png" width="1440" /&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-13-3.png" width="1440" /&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-13-4.png" width="1440" /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-keyword-usage-across-time-with-historiograph"&gt;Examining
 keyword usage across time with historiograph&lt;/h2&gt;
@@ -1821,7 +2425,7 @@ ggplot(DF,aes(x=Year,y=value, group=variable, shape=variable, colour=variable))+
   labs(y=&amp;quot;Count&amp;quot;, variable=&amp;quot;Author Keywords&amp;quot;, title = &amp;quot;Author&amp;#39;s Keywords Usage Evolution Over Time&amp;quot;)+
   theme(text = element_text(size = 10))+
   facet_grid(variable ~ .)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-14-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-14-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="examining-trends-of-the-field-with-thematic-map"&gt;Examining
 trends of the field with thematic map&lt;/h2&gt;
 &lt;ul&gt;
@@ -1846,7 +2450,7 @@ pane are usually studied for general knowledge of the field.&lt;/p&gt;&lt;/li&gt
 &lt;pre class="r"&gt;&lt;code&gt;Map=thematicMap(M, field = &amp;quot;ID&amp;quot;, n = 250, minfreq = 4,
   stemming = FALSE, size = 0.7, n.labels=5, repel = TRUE)
 plot(Map$map)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-15-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-15-1.png" width="1440" data-distill-preview=1 /&gt;&lt;/p&gt;
 &lt;h2
 id="examining-collaboration-with-social-structure-analysis"&gt;Examining
 collaboration with social structure analysis&lt;/h2&gt;
@@ -1858,14 +2462,14 @@ shows who collaborated with whom at the author level.&lt;/li&gt;
 &lt;pre class="r"&gt;&lt;code&gt;NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;authors&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix,  n = 50, Title = &amp;quot;Author collaboration&amp;quot;,type = &amp;quot;auto&amp;quot;, size=5,size.cex=T,edgesize = 5,labelsize=1, community.repulsion = 0.1)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-16-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-16-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;We can also plot an institution collaboration network to examine
 collaboration pattern between institutions as well.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class="r"&gt;&lt;code&gt;NetMatrix &amp;lt;- biblioNetwork(M, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;universities&amp;quot;, sep = &amp;quot;;&amp;quot;)
 net=networkPlot(NetMatrix,  n = 50, Title = &amp;quot;Institution collaboration&amp;quot;,type = &amp;quot;auto&amp;quot;, size=4,size.cex=F,edgesize = 3,labelsize=1, community.repulsion = 0.05)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-17-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-17-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Lastly, we can examine collaboration pattern at international level
 with country collaboration network. This analysis shows countries that
@@ -1877,7 +2481,7 @@ the plot.&lt;/li&gt;
 NetMatrix &amp;lt;- biblioNetwork(country, analysis = &amp;quot;collaboration&amp;quot;,  network = &amp;quot;countries&amp;quot;, sep = &amp;quot;;&amp;quot;)
 
 net=networkPlot(NetMatrix,  n = dim(NetMatrix)[1], Title = &amp;quot;Country collaboration&amp;quot;,type = &amp;quot;circle&amp;quot;, size=10,size.cex=T,edgesize = 1,labelsize=0.6, cluster=&amp;quot;none&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src="file56476921d9_files/figure-html/unnamed-chunk-18-1.png" width="960" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="file21dc3ecb2416_files/figure-html/unnamed-chunk-18-1.png" width="960" /&gt;&lt;/p&gt;
 &lt;h2 id="concluding-remarks"&gt;Concluding remarks&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;What I like about bibliometric analysis is that it examines the
